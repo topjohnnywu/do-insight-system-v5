@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Packing Details Sheet</title>
+
+    <!-- Tailwind CSS (Play build, vendored locally). Processes utility classes at runtime. -->
+    <script src="./js/vendor/tailwind.js"></script>
+    <script>
+      // Configure Tailwind before it scans: class-based dark mode.
+      tailwind.config = {
+        darkMode: 'class',
+      };
+    </script>
+
+    <!-- React 18 UMD (classic scripts — expose window.React / window.ReactDOM). -->
+    <script src="./js/vendor/react.production.min.js"></script>
+    <script src="./js/vendor/react-dom.production.min.js"></script>
+
+    <!-- Excel libraries (classic scripts — expose window.XLSX / window.ExcelJS). -->
+    <script src="./js/vendor/xlsx.full.min.js"></script>
+    <script src="./js/vendor/exceljs.min.js"></script>
+
+    <!-- App stylesheet (iOS design system + base styles). -->
+    <link rel="stylesheet" href="./css/main.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- Application scripts (classic scripts, share globals; load order matters). -->
+    <script src="./js/icons.js"></script>
+    <script src="./js/data/sampleData.js"></script>
+    <script src="./js/utils/verifyDo.js"></script>
+    <script src="./js/utils/lookupParser.js"></script>
+    <script src="./js/utils/excelExport.js"></script>
+    <script src="./js/utils/packingImport.js"></script>
+    <script src="./js/utils/excelImport.js"></script>
+    <script src="./js/components/StatsBar.js"></script>
+    <script src="./js/components/HeaderControls.js"></script>
+    <script src="./js/components/QuickImportModal.js"></script>
+    <script src="./js/components/MasterLookupModal.js"></script>
+    <script src="./js/components/ConfirmVerifyModal.js"></script>
+    <script src="./js/components/ConfirmDialog.js"></script>
+    <script src="./js/components/PackingSheetForm.js"></script>
+    <script src="./js/App.js"></script>
+    <script src="./js/main.js"></script>
+  </body>
+</html>
