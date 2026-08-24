@@ -1,0 +1,85 @@
+/* ── iOS Design System ────────────────────────────────────────────── */
+
+:root {
+  /* iOS System Colors */
+  --ios-blue: #007AFF;
+  --ios-green: #34C759;
+  --ios-orange: #FF9500;
+  --ios-red: #FF3B30;
+  --ios-purple: #AF52DE;
+  --ios-teal: #5AC8FA;
+
+  /* iOS Light Mode Palette */
+  --ios-bg: #F2F2F7;
+  --ios-card: #FFFFFF;
+  --ios-label: #000000;
+  --ios-label-secondary: rgba(60, 60, 67, 0.6);
+  --ios-label-tertiary: rgba(60, 60, 67, 0.33);
+  --ios-separator: rgba(60, 60, 67, 0.12);
+  --ios-fill: rgba(120, 120, 128, 0.12);
+  --ios-fill-secondary: rgba(120, 120, 128, 0.08);
+
+  /* iOS Dark Mode Palette */
+  --ios-dark-bg: #000000;
+  --ios-dark-card: #1C1C1E;
+  --ios-dark-label: #FFFFFF;
+  --ios-dark-label-secondary: rgba(235, 235, 245, 0.6);
+  --ios-dark-label-tertiary: rgba(235, 235, 245, 0.33);
+  --ios-dark-separator: rgba(84, 84, 88, 0.6);
+  --ios-dark-fill: rgba(120, 120, 128, 0.24);
+  --ios-dark-fill-secondary: rgba(120, 120, 128, 0.16);
+
+  /* iOS Corner Radii (continuous) */
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+
+  /* iOS Shadows */
+  --shadow-ios-sm: 0 0.5px 1px rgba(0, 0, 0, 0.04);
+  --shadow-ios: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-ios-lg: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-ios-xl: 0 12px 40px rgba(0, 0, 0, 0.12);
+
+  /* iOS Typography */
+  --font-ios: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.dark {
+  --ios-bg: #000000;
+  --ios-card: #1C1C1E;
+  --ios-label: #FFFFFF;
+  --ios-label-secondary: rgba(235, 235, 245, 0.6);
+  --ios-label-tertiary: rgba(235, 235, 245, 0.33);
+  --ios-separator: rgba(84, 84, 88, 0.6);
+  --ios-fill: rgba(120, 120, 128, 0.24);
+  --ios-fill-secondary: rgba(120, 120, 128, 0.16);
+}
+
+/* ── Base Styles ──────────────────────────────────────────────────── */
+
+html {
+  font-family: var(--font-ios);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--ios-bg);
+  color: var(--ios-label);
+  font-feature-settings: "kern" 1, "liga" 1;
+  letter-spacing: -0.01em;
+}
+
+/* Smooth scroll for iOS feel */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection color */
+::selection {
+  background-color: rgba(0, 122, 255, 0.2);
+}
