@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Load Planner - DO Insight Dashboard</title>
+    <!-- CDNs -->
+    <script src="js/xlsx.bundle.js"></script>
+    <script>
+        if (typeof XLSX === 'undefined') {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"><\/script>');
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Shared Stylesheet -->
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/settings.js"></script>
+
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#1e40af">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- AMOLED Left Sidebar Navigation -->
+        <div class="sidebar">
+            <div>
+                <div class="sidebar-brand">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent, #10b981)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="1" y="3" width="15" height="13"/>
+                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                        <circle cx="5.5" cy="18.5" r="2.5"/>
+                        <circle cx="18.5" cy="18.5" r="2.5"/>
+                    </svg>
+                    <div>
+                        <div class="sidebar-brand-title">DO Insight Dashboard</div>
+                        <div class="sidebar-brand-subtitle">DO Analytics & Truck Planning</div>
+                    </div>
+                </div>
+
+                <ul class="sidebar-nav">
+                    <li>
+                        <a href="index.html" class="sidebar-nav-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="9"/>
+                                <rect x="14" y="3" width="7" height="5"/>
+                                <rect x="14" y="12" width="7" height="9"/>
+                                <rect x="3" y="16" width="7" height="5"/>
+                            </svg>
+                            <span>Summary Analytics</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="shipping_insight.html" class="sidebar-nav-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10"/>
+                                <line x1="12" y1="20" x2="12" y2="4"/>
+                                <line x1="6" y1="20" x2="6" y2="14"/>
+                            </svg>
+                            <span>Tracking DO Status</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="do_details.html" class="sidebar-nav-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                            <span>DO Inspector</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="truck_planning.html" class="sidebar-nav-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="1" y="3" width="15" height="13"/>
+                                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                                <circle cx="5.5" cy="18.5" r="2.5"/>
+                                <circle cx="18.5" cy="18.5" r="2.5"/>
+                            </svg>
+                            <span>Picking List Summary</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="manual_truck_planning.html" class="sidebar-nav-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="1" y="3" width="15" height="13"/>
+                                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                                <circle cx="5.5" cy="18.5" r="2.5"/>
+                                <circle cx="18.5" cy="18.5" r="2.5"/>
+                                <line x1="8" y1="11" x2="8" y2="11.01" stroke-width="4" stroke-linecap="round"/>
+                            </svg>
+                            <span>Truck Planning</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="batch_analytics.html" class="sidebar-nav-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            </svg>
+                            <span>Batch Analytics</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="do_summary_generator.html" class="sidebar-nav-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="12" y1="18" x2="12" y2="12"/>
+                                <line x1="9" y1="15" x2="15" y2="15"/>
+                            </svg>
+                            <span>DO Summary List</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="challenger_list.html" class="sidebar-nav-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 11l3 3L22 4"/>
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                            </svg>
+                            <span>Challenger List</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="do_activity_trend.html" class="sidebar-nav-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2 20h20"/>
+                                <path d="M4 20v-6"/>
+                                <path d="M9 20V10"/>
+                                <path d="M14 20V6"/>
+                                <path d="M19 20V2"/>
+                            </svg>
+                            <span>DO Activity Trend</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="volume_capacity_planner.html" class="sidebar-nav-item active">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"/>
+                                <rect x="9" y="9" width="6" height="6"/>
+                                <line x1="9" y1="1" x2="9" y2="4"/>
+                                <line x1="15" y1="1" x2="15" y2="4"/>
+                                <line x1="9" y1="20" x2="9" y2="23"/>
+                                <line x1="15" y1="20" x2="15" y2="23"/>
+                                <line x1="20" y1="9" x2="23" y2="9"/>
+                                <line x1="20" y1="14" x2="23" y2="14"/>
+                                <line x1="1" y1="9" x2="4" y2="9"/>
+                                <line x1="1" y1="14" x2="4" y2="14"/>
+                            </svg>
+                            <span>Volume Capacity Planner</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="do_load_planner.html" class="sidebar-nav-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            </svg>
+                            <span>DO Load Planner</span>
+                        </a>
+                    </li>
+
+                                    <li>
+                        <a href="loose_load_planner.html" class="sidebar-nav-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="1" y="3" width="15" height="13"/>
+                                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                                <circle cx="5.5" cy="18.5" r="2.5"/>
+                                <circle cx="18.5" cy="18.5" r="2.5"/>
+                            </svg>
+                            <span>Loose Load Planning</span>
+                        </a>
+                    </li>
+
+                                    <li>
+                        <a href="packing_sheet.html" class="sidebar-nav-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 8V21H3V8"/>
+                                <path d="M1 3h22v5H1z"/>
+                                <path d="M10 12h4"/>
+                            </svg>
+                            <span>Packing List</span>
+                        </a>
+                    </li>
+
+</ul>
+            </div>
+
+            <div style="padding: 12px; border-top: 1px solid var(--border, #18181b); font-size: 11px; color: var(--fg-muted, #71717a); text-align: center;">
+                DO Insight Dashboard
+            </div>
+        </div>
+
+        <!-- Main Content Viewport -->
+        <div class="main-content">
+            <div class="top-bar" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="color: #3b82f6; display: flex; align-items: center;">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"/>
+                            <rect x="9" y="9" width="6" height="6"/>
+                            <line x1="9" y1="1" x2="9" y2="4"/>
+                            <line x1="15" y1="1" x2="15" y2="4"/>
+                            <line x1="9" y1="20" x2="9" y2="23"/>
+                            <line x1="15" y1="20" x2="15" y2="23"/>
+                            <line x1="20" y1="9" x2="23" y2="9"/>
+                            <line x1="20" y1="14" x2="23" y2="14"/>
+                            <line x1="1" y1="9" x2="4" y2="9"/>
+                            <line x1="1" y1="14" x2="4" y2="14"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 style="font-size: 20px; margin: 0;">Bulk Load Planner</h1>
+                        <p style="font-size: 12px; color: var(--fg-muted, #94a3b8); margin-top: 4px;">Volume Matrix & Pallet Calculation Engine (WIP)</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 16px; align-items: center;">
+                    <a href="do_load_planner.html" style="text-decoration: none; color: var(--fg, #e4e4e7); display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; background: rgba(255,255,255,0.05); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border, #27272a); transition: background 0.2s;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        Back to Planner
+                    </a>
+                    <button id="themeToggleBtn" onclick="toggleTheme()" class="action-btn secondary" style="padding: 6px 10px; font-size: 12px; height: auto;">Mode: Dark</button>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 350px 1fr; gap: 20px; align-items: start;">
+                
+                <!-- Left Panel: Controls & Data -->
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="table-card" style="padding: 16px;">
+                        <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 14px;">Test Order Input</h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div>
+                                <label style="font-size: 11px; color: var(--fg-muted); display: block; margin-bottom: 4px;">Search & Select Model</label>
+                                <input type="search" id="orderModelInput" onfocus="this.select()" list="orderModelList" class="compact-input" style="width: 100%;" placeholder="Search code or description...">
+                                <datalist id="orderModelList"></datalist>
+                            </div>
+                            <div>
+                                <label style="font-size: 11px; color: var(--fg-muted); display: block; margin-bottom: 4px;">Order Qty (pcs)</label>
+                                <input type="number" id="orderQty" class="compact-input" style="width: 100%;" min="1" value="180">
+                            </div>
+                            <button class="action-btn primary" onclick="plannerEngine.addOrder()" style="margin-top: 8px; justify-content: center;">
+                                Calculate & Add to Order List
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                    <!-- Right Panel: Results Table -->
+
+                    <div class="table-card" style="padding: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                            <div>
+                                <h3 style="margin-top: 0; margin-bottom: 4px; font-size: 14px;">Master Data</h3>
+                                <p id="masterDataStatus" style="font-size: 12px; color: var(--fg-muted); font-weight: 500; margin: 0;">Loading models...</p>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="action-btn secondary" onclick="plannerEngine.exportMasterData()" style="padding: 4px 8px; font-size: 11px; height: auto;">Export</button>
+                                <button class="action-btn primary" onclick="plannerEngine.triggerImport()" style="padding: 4px 8px; font-size: 11px; height: auto;">Import Excel</button>
+                                <input type="file" id="masterDataFileInput" accept=".xlsx, .xls, .csv" style="display: none;" onchange="plannerEngine.handleImportSelect(event)">
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+                            <input type="text" id="newModelCode" placeholder="Add Model Code" class="compact-input" style="flex: 1;">
+                            <input type="text" id="newModelCapacities" placeholder="e.g. 18 or 6,5" class="compact-input" style="width: 100px;">
+                            <button class="action-btn secondary" onclick="plannerEngine.addMockModel()" style="padding: 4px 8px; height: auto;">Add</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Results -->
+                <div style="display: flex; flex-direction: column; gap: 20px; min-width: 0;">
+                    
+                    <div id="dashboardContainer" style="display: none; grid-template-columns: 200px 1fr; gap: 20px;">
+                        <!-- Rendered via JS -->
+                    </div>
+
+                    <div class="table-card" style="padding: 16px; overflow-x: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="margin: 0; font-size: 14px;">Calculation Results</h3>
+                        <button class="action-btn danger" onclick="plannerEngine.clearOrders()" style="font-size: 11px; padding: 4px 8px; height: auto;">Clear List</button>
+                    </div>
+                    
+                    <div class="compact-wrapper">
+                        <table class="compact-table" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left;">PRODUCT CODE</th>
+                                    <th style="text-align: left;">DESCRIPTION</th>
+                                    <th style="text-align: right;">ORDER QTY</th>
+                                    <th style="text-align: right;">PALLET QTY</th>
+                                    <th style="text-align: right;">LOOSE QTY</th>
+                                    <th style="text-align: left;">CONFIGURATION USED</th>
+                                    <th style="text-align: center;">ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody id="plannerResultsBody">
+                                <!-- results go here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div style="margin-top: 16px; padding: 12px; background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 6px; display: flex; gap: 8px; align-items: flex-start;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="margin-top: 2px; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        <p style="margin: 0; font-size: 12px; color: var(--fg-muted); line-height: 1.5;"><strong>Disclaimer:</strong> This calculation is for estimation purposes only. Actual pallet capacity and loose quantities may vary based on physical stacking constraints and packing methods.</p>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <script src="js/charts.js"></script>
+    <script src="js/volume_capacity_planner.js"></script>
+    
+    <!-- 3D Truck Viewer Modal -->
+    <div id="truck3dModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+        <div style="background: var(--surface, #18181b); border-radius: 12px; border: 1px solid var(--border, #27272a); width: 90vw; height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.8);">
+            <div style="padding: 16px 24px; border-bottom: 1px solid var(--border, #27272a); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent, #8b5cf6)" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                    <h3 id="truck3dModalTitle" style="margin:0; font-size: 18px; color: var(--fg, #f4f4f5); font-weight: 600;">40-Footer 3D Visualization</h3>
+                    <span style="background: rgba(220, 38, 38, 0.2); border: 1px solid #dc2626; color: #fca5a5; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; letter-spacing: 0.5px;">REG: DEMONSTRATION PURPOSE ONLY</span>
+                    <div style="display: flex; gap: 12px; margin-left: 20px; font-size: 12px;">
+                        <span style="display: flex; align-items: center; gap: 6px;"><div style="width:12px; height:12px; background: #d4b483; border-radius: 2px;"></div> TV DISPLAY</span>
+                        <span style="display: flex; align-items: center; gap: 6px;"><div style="width:12px; height:12px; background: #3b82f6; border-radius: 2px;"></div> OTHER / HIFI</span>
+                        <span style="display: flex; align-items: center; gap: 6px;"><div style="width:12px; height:12px; background: #ef4444; border-radius: 2px;"></div> OVERFLOW</span>
+                        <span style="display: flex; align-items: center; gap: 6px;"><div style="width:12px; height:12px; background: #10b981; border-radius: 2px;"></div> MIXED PALLET</span>
+                    </div>
+                </div>
+                <button onclick="plannerEngine.close3DViewer()" class="action-btn ghost" style="font-size: 28px; padding: 0 8px;">&#215;</button>
+            </div>
+            
+            <div id="truck3dWrapper" style="display: flex; flex: 1; overflow: hidden; position: relative;">
+                
+                <!-- 3D Viewport -->
+                <div id="truck3dContainer" style="flex: 1; position: relative; width: 100%; height: 100%; min-width: 0; min-height: 0; cursor: grab;">
+                    <!-- Control Panel Overlay -->
+                    <div class="dark-overlay" style="position: absolute; top: 16px; left: 16px; z-index: 10; background: rgba(24, 24, 27, 0.9); border: 1px solid var(--border, #27272a); border-radius: 8px; padding: 8px; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
+                        <button id="modeSwapBtn" onclick="plannerEngine.setInteraction('swap')" class="action-btn active" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto;">🔀 Swap Mode</button>
+                        <button id="modeSandboxBtn" onclick="plannerEngine.setInteraction('sandbox')" class="action-btn ghost" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto;">🖐️ Sandbox</button>
+                        <button id="modeDriveBtn" onclick="plannerEngine.toggleDriveMode()" class="action-btn warning" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto;">🔑 Start Engine</button>
+                        <button id="modeLoadSimBtn" onclick="plannerEngine.toggleLoadingSim()" class="action-btn success" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto;">📦 Simulate Loading</button>
+                        <button id="modeListBtn" onclick="plannerEngine.setInteraction('list')" class="action-btn ghost" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto;">📋 List Mode</button>
+                        
+                        <div style="width: 1px; height: 20px; background: #3f3f46; margin: 0 4px;"></div>
+                        
+                        <button id="truckSize40Btn" onclick="plannerEngine.setTruckType('40HC')" title="40-Foot High Cube Container (76 m³)" class="action-btn active" style="padding: 6px 10px; border-radius: 6px; font-size: 12px; height: auto;">🚛 40ft HC</button>
+                        <button id="truckSize20Btn" onclick="plannerEngine.setTruckType('20GP')" title="20-Foot Standard Container (33.2 m³)" class="action-btn ghost" style="padding: 6px 10px; border-radius: 6px; font-size: 12px; height: auto;">🚚 20ft GP</button>
+                    </div>
+                </div>
+
+                <!-- Sidebar for List Mode -->
+                <div id="truck3dSidebar" style="display: none; width: 300px; background: var(--surface-hover, #27272a); border-left: 1px solid var(--border, #3f3f46); flex-direction: column;">
+                    <div style="padding: 16px; border-bottom: 1px solid var(--border, #3f3f46);">
+                        <h4 style="margin: 0; color: var(--fg, #f4f4f5); font-size: 14px;">Pallet Load Order</h4>
+                        <p style="margin: 4px 0 0; color: var(--fg-muted, #a1a1aa); font-size: 11px;">Drag and drop to reorder. The truck will automatically repack.</p>
+                    </div>
+                    <div id="palletListContainer" style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+                        <!-- Pallet items will be injected here -->
+                    </div>
+                </div>
+
+            </div>
+
+            <div style="padding: 12px 24px; border-top: 1px solid var(--border, #27272a); background: rgba(0,0,0,0.2); text-align: center; font-size: 13px; color: var(--fg-muted);">
+                Click and drag to rotate • Scroll to zoom • Right-click and drag to pan
+            </div>
+        </div>
+    </div>
+    
+    <div id="importModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+        <div style="background: var(--surface, #18181b); padding: 24px; border-radius: 8px; border: 1px solid var(--border, #27272a); width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+            <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 16px; color: var(--fg, #f4f4f5);">Import Master Data</h3>
+            <p style="font-size: 12px; color: var(--fg-muted, #a1a1aa); margin-bottom: 24px;">How would you like to process the imported data?</p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="action-btn primary" onclick="plannerEngine.processImport('replace')" style="width: 100%; justify-content: center; padding: 10px; height: auto;">Replace Existing Data</button>
+                <button class="action-btn secondary" onclick="plannerEngine.processImport('append')" style="width: 100%; justify-content: center; padding: 10px; height: auto;">Append to Existing</button>
+                <button class="action-btn danger" onclick="plannerEngine.closeImportModal()" style="width: 100%; justify-content: center; padding: 10px; margin-top: 4px; height: auto;">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(registration => {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }).catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
