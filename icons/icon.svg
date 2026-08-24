@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <!-- Background -->
+    <rect width="512" height="512" rx="112" fill="#1e40af" />
+    
+    <!-- Box icon -->
+    <path d="M156 216 L256 166 L356 216 L356 316 L256 366 L156 316 Z" fill="none" stroke="#ffffff" stroke-width="32" stroke-linejoin="round" />
+    <path d="M156 216 L256 266 L356 216" fill="none" stroke="#ffffff" stroke-width="32" stroke-linejoin="round" />
+    <path d="M256 266 L256 366" fill="none" stroke="#ffffff" stroke-width="32" stroke-linecap="round" />
+</svg>
