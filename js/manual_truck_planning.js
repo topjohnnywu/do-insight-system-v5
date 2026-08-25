@@ -305,7 +305,7 @@ function renderDoBadgeWithBreakdown(doObj, theme = 'green') {
     const splitInfo = getDoSplitInfo(doObj);
 
     const fractionBadge = splitInfo.isSplit 
-        ? `<span class="badge" style="background: rgba(245, 158, 11, 0.18); color: #fbbf24; font-size: 0.72rem; font-family: monospace; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.35); padding: 1px 5px;">${splitInfo.fraction}</span>`
+        ? `<span class="badge" style="background: rgba(245, 158, 11, 0.18); color: #fbbf24; font-size: 0.72rem; font-family: Aptos Display, sans-serif; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.35); padding: 1px 5px;">${splitInfo.fraction}</span>`
         : '';
 
     if (!doObj.remark) {
@@ -323,9 +323,9 @@ function renderDoBadgeWithBreakdown(doObj, theme = 'green') {
         if (match) {
             const model = match[1].trim();
             const pcs = parseInt(match[2].trim(), 10).toLocaleString();
-            return `<span style="background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.28); padding: 1px 6px; border-radius: 4px; font-size: 0.72rem; font-family: monospace; font-weight: 700; white-space: nowrap;">✂️ ${model}: ${pcs} pcs</span>`;
+            return `<span style="background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.28); padding: 1px 6px; border-radius: 4px; font-size: 0.72rem; font-family: Aptos Display, sans-serif; font-weight: 700; white-space: nowrap;">✂️ ${model}: ${pcs} pcs</span>`;
         }
-        return `<span style="background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.28); padding: 1px 6px; border-radius: 4px; font-size: 0.72rem; font-family: monospace; font-weight: 700; white-space: nowrap;">✂️ ${p}</span>`;
+        return `<span style="background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.28); padding: 1px 6px; border-radius: 4px; font-size: 0.72rem; font-family: Aptos Display, sans-serif; font-weight: 700; white-space: nowrap;">✂️ ${p}</span>`;
     }).join(' ');
 
     return `
@@ -359,7 +359,7 @@ function renderUnassignedDOs() {
             <td style="text-align: center;"><input type="checkbox" class="do-checkbox" value="${doObj.inv}" onchange="updateAssignButtonState()"></td>
             <td>${renderDoBadgeWithBreakdown(doObj, 'blue')}</td>
             <td style="font-size: 0.84rem; color: var(--fg);">${doObj.name}</td>
-            <td style="text-align: right; font-family: monospace; font-size: 0.85rem; font-weight: 500;">${effectiveQty.toLocaleString()}</td>
+            <td style="text-align: right; font-family: Aptos Display, sans-serif; font-size: 0.85rem; font-weight: 500;">${effectiveQty.toLocaleString()}</td>
             <td style="text-align: center;">
                 <button onclick="window.openSplitModal('${doObj.inv}')" style="background: none; border: none; color: var(--fg-muted); cursor: pointer; padding: 4px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center;" title="Split DO">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"></path><path d="M8 3H3v5"></path><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.828L3 3"></path><path d="M15 16l6-6"></path></svg>
@@ -591,7 +591,7 @@ function renderTruckBoards() {
                     <span style="color: var(--fg-subtle); margin-left: 4px;">${doObj.name || ''}</span>
                     ${tagBadge}
                 </td>
-                <td style="text-align: right; font-family: monospace; font-size: 0.85rem; font-weight: 600; color: #fbbf24;">${rowQty.toLocaleString()}</td>
+                <td style="text-align: right; font-family: Aptos Display, sans-serif; font-size: 0.85rem; font-weight: 600; color: #fbbf24;">${rowQty.toLocaleString()}</td>
                 <td style="text-align: center; white-space: nowrap;">
                     ${switchDropBtn}
                     <button onclick="window.openSplitModal('${doObj.inv}')" style="background: none; border: none; color: var(--fg-muted); cursor: pointer; padding: 4px; border-radius: 4px;" title="Split DO">
@@ -740,7 +740,7 @@ function renderTruckBoards() {
                                 ${(currentStatus1 === 'Top Urgent') ? renderRouteDropdown(tId, 1, routes1) : ''}
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="font-size: 0.72rem; color: var(--fg-muted); font-family: monospace;">${drop1List.length} DOs • ${drop1Qty.toLocaleString()} pcs</span>
+                                <span style="font-size: 0.72rem; color: var(--fg-muted); font-family: Aptos Display, sans-serif;">${drop1List.length} DOs • ${drop1Qty.toLocaleString()} pcs</span>
                                 <button type="button" onclick="window.openManualDoModal('${tId}', 1)" class="action-btn" style="padding: 2px 7px; font-size: 0.7rem; border-radius: 4px; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" title="Add manual DO to 1st Drop">
                                     + Add DO
                                 </button>
@@ -762,7 +762,7 @@ function renderTruckBoards() {
                                 ${(currentStatus2 === 'Top Urgent') ? renderRouteDropdown(tId, 2, routes2) : ''}
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="font-size: 0.72rem; color: var(--fg-muted); font-family: monospace;">${drop2List.length} DOs • ${drop2Qty.toLocaleString()} pcs</span>
+                                <span style="font-size: 0.72rem; color: var(--fg-muted); font-family: Aptos Display, sans-serif;">${drop2List.length} DOs • ${drop2Qty.toLocaleString()} pcs</span>
                                 <button type="button" onclick="window.openManualDoModal('${tId}', 2)" class="action-btn" style="padding: 2px 7px; font-size: 0.7rem; border-radius: 4px; background: rgba(167, 139, 250, 0.15); color: #c084fc; border: 1px solid rgba(167, 139, 250, 0.3); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" title="Add manual DO to 2nd Drop">
                                     + Add DO
                                 </button>
@@ -790,7 +790,7 @@ function renderTruckBoards() {
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                         ${dropModeToggle}
                         <span class="badge" style="background: var(--surface); color: var(--fg-subtle); font-size: 0.75rem; border: 1px solid var(--border);">${assignedList.length} DOs</span>
-                        <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 0.75rem; font-family: monospace; font-weight: 600;">${totalQty.toLocaleString()} pcs</span>
+                        <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 0.75rem; font-family: Aptos Display, sans-serif; font-weight: 600;">${totalQty.toLocaleString()} pcs</span>
                         <button type="button" onclick="window.openManualDoModal('${tId}', 1)" class="action-btn" style="padding: 3px 8px; font-size: 0.74rem; border-radius: var(--radius-control); background: rgba(94, 106, 210, 0.12); color: var(--accent, #5E6AD2); border: 1px solid rgba(94, 106, 210, 0.25); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Manually add a DO to this truck">
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                             Add Manual
@@ -1535,7 +1535,7 @@ window.showFinalPlan = function() {
     const content = document.getElementById('finalPlanContent');
     if (!modal || !content) return;
     
-    let html = '<div style="font-family: monospace; font-size: 1.1rem; line-height: 1.6; color: var(--fg); background: var(--surface); padding: 20px; border-radius: 8px; border: 1px solid var(--border); white-space: pre-wrap;">';
+    let html = '<div style="font-family: Aptos Display, sans-serif; font-size: 1.1rem; line-height: 1.6; color: var(--fg); background: var(--surface); padding: 20px; border-radius: 8px; border: 1px solid var(--border); white-space: pre-wrap;">';
     
     const truckKeys = Object.keys(trucks);
     if (truckKeys.length === 0) {
@@ -1563,7 +1563,7 @@ window.showFinalPlan = function() {
 
             if (!hasAnyItemBreakdown) {
                 const doStrs = list.map(formatDoLabel);
-                return `${indent}DO: ${doStrs.join(', ')}`;
+                return `${indent}<b style="color: black;">DO: ${doStrs.join(', ')}</b>`;
             }
 
             const lines = [];
@@ -1577,7 +1577,7 @@ window.showFinalPlan = function() {
                     regularDos.push(formatDoLabel(d));
                 } else {
                     if (regularDos.length > 0) {
-                        lines.push(`${indent}DO: ${regularDos.join(', ')},`);
+                        lines.push(`${indent}<b style="color: black;">DO: ${regularDos.join(', ')},</b>`);
                         regularDos.length = 0;
                     }
                     let splitInvLabel = splitInfo.isSplit ? splitInfo.displayInv : d.inv;
@@ -1586,7 +1586,7 @@ window.showFinalPlan = function() {
                         const hubFormatted = trimmed.startsWith("HUB") ? trimmed : `HUB${trimmed}`;
                         splitInvLabel += ` (${hubFormatted})`;
                     }
-                    lines.push(`${indent}DO:  ${splitInvLabel}`);
+                    lines.push(`${indent}<b style="color: black;">DO:  ${splitInvLabel}</b>`);
                     const parts = d.remark.split(',').map(s => s.trim()).filter(Boolean);
                     parts.forEach(p => {
                         const match = p.match(/^(.+?)\s*x\s*(\d+)$/i);
@@ -1602,7 +1602,7 @@ window.showFinalPlan = function() {
             });
 
             if (regularDos.length > 0) {
-                lines.push(`${indent}DO: ${regularDos.join(', ')}`);
+                lines.push(`${indent}<b style="color: black;">DO: ${regularDos.join(', ')}</b>`);
             }
 
             return lines.join('\n');
@@ -1619,10 +1619,13 @@ window.showFinalPlan = function() {
             const sizeStr = sizeNumMatch ? sizeNumMatch[0] : (meta.size || "40");
 
             const formatHub = (rawHub, defaultLabel = "HUB NUMBER") => {
-                if (!rawHub) return `(${defaultLabel})`;
-                const trimmed = rawHub.trim().toUpperCase();
-                const hubName = trimmed.startsWith("HUB") ? trimmed : `HUB${trimmed}`;
-                return `(${hubName})`;
+                let hubText = `(${defaultLabel})`;
+                if (rawHub) {
+                    const trimmed = rawHub.trim().toUpperCase();
+                    const hubName = trimmed.startsWith("HUB") ? trimmed : `HUB${trimmed}`;
+                    hubText = `(${hubName})`;
+                }
+                return `<b style="color: navy;"><i>${hubText}</i></b>`;
             };
 
             let block = "";
@@ -1634,7 +1637,7 @@ window.showFinalPlan = function() {
 
             if (isPureCrossDock) {
                 const destStr = meta.dest ? `(${meta.dest.trim().toUpperCase()}) ` : '';
-                block += `(${index + 1}) 1 x ${sizeStr} ${destStr}(Top Urgent)\n`;
+                block += `(${index + 1}) 1 x ${sizeStr} ${destStr} <b style="color: red;">(Top Urgent)</b>\n`;
                 block += `${formatHub(meta.hub)}\n`;
                 block += `ALL 5 ROUTES`;
             } else if (!isTwoDrop) {
@@ -1642,7 +1645,8 @@ window.showFinalPlan = function() {
                 const destStr = meta.dest ? `(${meta.dest.trim().toUpperCase()})` : '(Destination)';
                 const doLines = formatDoListForManifest(assignedList, "");
 
-                block += `(${index + 1}) 1 x ${sizeStr} ${destStr} (${status1})\n`;
+                const s1Formatted = status1 === 'Top Urgent' ? `<b style="color: red;">(Top Urgent)</b>` : (status1 === 'Direct' ? `<b style="color: blue;">(Direct)</b>` : `(${status1})`);
+                block += `(${index + 1}) 1 x ${sizeStr} ${destStr} ${s1Formatted}\n`;
                 block += `${formatHub(meta.hub)}`;
                 if (status1 === 'Top Urgent' && routes1.length > 0) {
                     block += `\n${routes1.join(', ')}`;
@@ -1664,8 +1668,8 @@ window.showFinalPlan = function() {
                 const do2Lines = formatDoListForManifest(drop2List, "      ");
 
                 const headerTypeStr = (status1 === status2 && status1 === 'Direct') ? 'Direct (2 Drops)' : '2 Drops';
-                const status1Suffix = (status1 !== 'Direct' || status1 !== status2) ? ` (${status1})` : '';
-                const status2Suffix = (status2 !== 'Direct' || status1 !== status2) ? ` (${status2})` : '';
+                const status1Suffix = (status1 !== 'Direct' || status1 !== status2) ? (status1 === 'Top Urgent' ? ` <b style="color: red;">(Top Urgent)</b>` : (status1 === 'Direct' ? ` <b style="color: blue;">(Direct)</b>` : ` (${status1})`)) : '';
+                const status2Suffix = (status2 !== 'Direct' || status1 !== status2) ? (status2 === 'Top Urgent' ? ` <b style="color: red;">(Top Urgent)</b>` : (status2 === 'Direct' ? ` <b style="color: blue;">(Direct)</b>` : ` (${status2})`)) : '';
 
                 block += `(${index + 1}) 1 x ${sizeStr} (${headerTypeStr})\n`;
                 block += `   [1ST DROP] -> ${dest1Str} | ${hub1Str}${status1Suffix}`;
@@ -1715,7 +1719,7 @@ window.printFinalPlan = function() {
     doc.open();
     doc.write('<html><head><title>Print Truck Plan</title>');
     doc.write('<style>');
-    doc.write('body { font-family: monospace; font-size: 14px; line-height: 1.6; padding: 20px; white-space: pre-wrap; color: black; }');
+    doc.write('body { font-family: Aptos Display, sans-serif; font-size: 14px; line-height: 1.6; padding: 20px; white-space: pre-wrap; color: black; }');
     doc.write('@media print { body { padding: 0; } }');
     doc.write('</style>');
     doc.write('</head><body>');
@@ -2262,7 +2266,7 @@ window.renderTruckPlanCanvas = function() {
                     ${dropTag}
                     <strong style="color: var(--fg-subtle);">${d.inv}</strong>
                     ${remarkTag}
-                    ${d.qty ? `<span style="color: var(--fg-muted); font-family: monospace;">${(d.qty || 0).toLocaleString()} pcs</span>` : ''}
+                    ${d.qty ? `<span style="color: var(--fg-muted); font-family: Aptos Display, sans-serif;">${(d.qty || 0).toLocaleString()} pcs</span>` : ''}
                 </span>
             `;
         });
@@ -2287,15 +2291,15 @@ window.renderTruckPlanCanvas = function() {
                     <div style="display: flex; align-items: center; gap: 14px; font-size: 0.82rem;">
                         <div style="display: flex; align-items: center; gap: 6px; color: var(--fg-muted);">
                             <span>DOs:</span>
-                            <strong style="color: var(--fg); font-family: monospace;">${assignedList.length}</strong>
+                            <strong style="color: var(--fg); font-family: Aptos Display, sans-serif;">${assignedList.length}</strong>
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px; color: var(--fg-muted);">
                             <span>Total Qty:</span>
-                            <strong style="color: #fbbf24; font-family: monospace;">${totalQty.toLocaleString()} pcs</strong>
+                            <strong style="color: #fbbf24; font-family: Aptos Display, sans-serif;">${totalQty.toLocaleString()} pcs</strong>
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px; color: var(--fg-muted);">
                             <span>Volume:</span>
-                            <strong style="color: #34d399; font-family: monospace;">${totalVol.toFixed(2)} m³</strong>
+                            <strong style="color: #34d399; font-family: Aptos Display, sans-serif;">${totalVol.toFixed(2)} m³</strong>
                         </div>
                     </div>
                 </div>
@@ -2325,7 +2329,7 @@ window.renderTruckPlanCanvas = function() {
                             <!-- Truck Vector Body -->
                             <div style="display: flex; align-items: center; background: #1e1b4b; border: 1.5px solid ${status1Color}; border-radius: 6px; padding: 4px 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.6), 0 0 10px ${status1Color}40; gap: 6px;">
                                 <!-- Container Box -->
-                                <div style="font-size: 0.7rem; font-weight: 800; color: #ffffff; font-family: monospace; white-space: nowrap; display: flex; align-items: center; gap: 4px;">
+                                <div style="font-size: 0.7rem; font-weight: 800; color: #ffffff; font-family: Aptos Display, sans-serif; white-space: nowrap; display: flex; align-items: center; gap: 4px;">
                                     <span>🚛 T${index + 1}</span>
                                     <span style="font-size: 0.65rem; color: ${status1Color}; opacity: 0.9;">${meta.size || '40'}</span>
                                 </div>
@@ -2334,7 +2338,7 @@ window.renderTruckPlanCanvas = function() {
                             </div>
                             
                             <!-- Payload floating tag -->
-                            <div style="font-size: 0.65rem; font-weight: 700; color: #fbbf24; font-family: monospace; background: rgba(0,0,0,0.8); padding: 1px 5px; border-radius: 4px; margin-top: 3px; white-space: nowrap;">
+                            <div style="font-size: 0.65rem; font-weight: 700; color: #fbbf24; font-family: Aptos Display, sans-serif; background: rgba(0,0,0,0.8); padding: 1px 5px; border-radius: 4px; margin-top: 3px; white-space: nowrap;">
                                 ${totalQty.toLocaleString()} pcs
                             </div>
                         </div>
@@ -2348,7 +2352,7 @@ window.renderTruckPlanCanvas = function() {
                         <div style="font-size: 0.74rem; font-weight: 700; color: #38bdf8; margin-top: 4px; white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis;">
                             ${isTwoDrop ? '1st Drop: ' : ''}${dest1Label}
                         </div>
-                        <div style="font-size: 0.65rem; color: var(--fg-muted); font-family: monospace;">
+                        <div style="font-size: 0.65rem; color: var(--fg-muted); font-family: Aptos Display, sans-serif;">
                             ${meta.hub ? hub1Label + ' • ' : ''}${drop1List.length} DOs (${drop1Qty.toLocaleString()} pcs)
                         </div>
                     </div>
@@ -2362,7 +2366,7 @@ window.renderTruckPlanCanvas = function() {
                             <div style="font-size: 0.74rem; font-weight: 700; color: #c084fc; margin-top: 4px; white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis;">
                                 2nd Drop: ${dest2Label}
                             </div>
-                            <div style="font-size: 0.65rem; color: var(--fg-muted); font-family: monospace;">
+                            <div style="font-size: 0.65rem; color: var(--fg-muted); font-family: Aptos Display, sans-serif;">
                                 ${meta.hub2 ? hub2Label + ' • ' : ''}${drop2List.length} DOs (${drop2Qty.toLocaleString()} pcs)
                             </div>
                         </div>

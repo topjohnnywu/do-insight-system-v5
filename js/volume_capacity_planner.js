@@ -480,32 +480,6 @@ class PalletCalculationEngine {
         reader.readAsArrayBuffer(this.pendingImportFile);
     }
     
-    addMockModel() {
-        const codeInput = document.getElementById("newModelCode");
-        const capInput = document.getElementById("newModelCapacities");
-        
-        const code = codeInput.value.trim();
-        const capStr = capInput.value.trim();
-        
-        if (!code) return showToast("Enter model code", "warning");
-        
-        const capacities = capStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n > 0);
-        
-        this.masterData.push({
-            code: code,
-            description: `Custom Model (${code})`,
-            capacities: capacities
-        });
-        
-        this.saveMasterData();
-        
-        codeInput.value = "";
-        capInput.value = "";
-        
-        this.renderMasterData();
-        this.renderOrderForm();
-    }
-    
     renderMasterData() {
         const statusEl = document.getElementById("masterDataStatus");
         if (!statusEl) return;
@@ -520,6 +494,133 @@ class PalletCalculationEngine {
         datalist.innerHTML = this.masterData.map(m => `
             <option value="${m.code} - ${m.description}"></option>
         `).join('');
+    }
+    
+    triggerOrderImport() {
+        const fileInput = document.getElementById("orderDataFileInput");
+        if (fileInput) fileInput.click();
+    }
+    
+    handleOrderImportSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            
+            const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+            
+            if (jsonRows.length === 0) {
+                showToast("The Excel file is empty", "warning");
+                return;
+            }
+            
+            // Find columns for Code and Qty (case insensitive search)
+            let codeKey = null;
+            let qtyKey = null;
+            
+            const keys = Object.keys(jsonRows[0]);
+            keys.forEach(k => {
+                const kLower = k.toLowerCase();
+                if (!codeKey && (kLower.includes("code") || kLower.includes("item") || kLower.includes("model"))) codeKey = k;
+                if (!qtyKey && (kLower.includes("qty") || kLower.includes("quantity") || kLower.includes("pcs"))) qtyKey = k;
+            });
+            
+            if (!codeKey || !qtyKey) {
+                showToast("Could not find Code or Qty columns in Excel. Please check headers.", "warning");
+                return;
+            }
+            
+            let addedCount = 0;
+            
+            jsonRows.forEach(row => {
+                const rawCode = row[codeKey];
+                const rawQty = row[qtyKey];
+                
+                if (!rawCode) return;
+                
+                const code = String(rawCode).trim();
+                let qty = parseInt(rawQty);
+                
+                if (isNaN(qty) || qty <= 0) return;
+                
+                const model = this.masterData.find(m => m.code === code);
+                
+                if (model) {
+                    const rawCaps = [...model.capacities].map(c => parseInt(c)).filter(c => !isNaN(c) && c > 0).sort((a, b) => b - a);
+                    const result = this.calculatePallets(qty, rawCaps);
+                    this.orders.push({
+                        id: Date.now() + Math.random(),
+                        code: model.code,
+                        description: model.description,
+                        orderQty: qty,
+                        route: "UNASSIGNED",
+                        m3: model.m3 || 0,
+                        rawCaps: rawCaps,
+                        selectedCap: rawCaps[0] || null,
+                        strategy: 'MIX',
+                        maxPallet: model.maxPallet,
+                        type: model.type,
+                        length: model.palletL || model.length || model.l,
+                        width: model.palletW || model.width || model.w,
+                        cartonL: model.l,
+                        cartonW: model.w,
+                        cartonH: model.h,
+                        tie: model.tie,
+                        high: model.high,
+                        palletQty: result.palletQty,
+                        looseQty: result.looseQty,
+                        strictLooseQty: result.strictLooseQty,
+                        configUsed: result.configUsed,
+                        palletsList: result.palletsList
+                    });
+                } else {
+                    // Unknown model fallback
+                    const result = this.calculatePallets(qty, []);
+                    this.orders.push({
+                        id: Date.now() + Math.random(),
+                        code: code,
+                        description: "UNKNOWN (Missing from Master Data)",
+                        orderQty: qty,
+                        route: "UNASSIGNED",
+                        m3: 0,
+                        rawCaps: [],
+                        selectedCap: null,
+                        strategy: 'MIX',
+                        maxPallet: 1,
+                        type: 'UNKNOWN',
+                        length: 120,
+                        width: 100,
+                        cartonL: 0,
+                        cartonW: 0,
+                        cartonH: 0,
+                        tie: 0,
+                        high: 0,
+                        palletQty: result.palletQty,
+                        looseQty: result.looseQty,
+                        strictLooseQty: result.strictLooseQty,
+                        configUsed: result.configUsed,
+                        palletsList: result.palletsList
+                    });
+                }
+                addedCount++;
+            });
+            
+            if (addedCount > 0) {
+                this.renderResults();
+                showToast(`Imported ${addedCount} orders from Excel`, "success");
+            } else {
+                showToast("No valid orders found in Excel", "warning");
+            }
+        };
+        
+        reader.readAsArrayBuffer(file);
+        event.target.value = ""; // Reset input
     }
     
     addOrder() {
@@ -1062,16 +1163,13 @@ class PalletCalculationEngine {
         let volumeColor = "var(--accent)";
         let volumeWarning = "";
         
-        if (totalVolumePercent > 100) {
+        if (totalVolumePercent >= 90) {
             volumeColor = "#ef4444"; // red
             const volumeIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
             volumeWarning = `<div style="color: #ef4444; font-size: 13px; margin-top: 12px; font-weight: 600; display:flex; align-items:center; gap: 6px; background: rgba(239, 68, 68, 0.1); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(239, 68, 68, 0.2);">
                                 ${volumeIcon}
                                 <span>OVERFLOW RISK: Truck capacity exceeded!</span>
                              </div>`;
-        } else if (totalVolumePercent >= 90) {
-            volumeColor = "#f59e0b"; // yellow
-            volumeWarning = `<div style="color: #f59e0b; font-size: 13px; margin-top: 12px; font-weight: 500;">Tight fit: Nearing maximum truck capacity.</div>`;
         }
         
         let masterDataWarning = ``;
@@ -1565,16 +1663,13 @@ class PalletCalculationEngine {
         // Re-calculate color and warning since totalVolumePercent changed
         volumeColor = "var(--accent)";
         volumeWarning = "";
-        if (totalVolumePercent > 100) {
+        if (totalVolumePercent >= 90) {
             volumeColor = "#ef4444";
             const volumeIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
             volumeWarning = `<div style="color: #ef4444; font-size: 13px; margin-top: 12px; font-weight: 600; display:flex; align-items:center; gap: 6px; background: rgba(239, 68, 68, 0.1); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(239, 68, 68, 0.2);">
                                 ${volumeIcon}
                                 <span>OVERFLOW RISK: Truck capacity exceeded!</span>
                              </div>`;
-        } else if (totalVolumePercent >= 90) {
-            volumeColor = "#f59e0b";
-            volumeWarning = `<div style="color: #f59e0b; font-size: 13px; margin-top: 12px; font-weight: 500;">Tight fit: Nearing maximum truck capacity.</div>`;
         }
 
         

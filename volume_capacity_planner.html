@@ -220,6 +220,10 @@
                 </div>
 
                 <div style="display: flex; gap: 16px; align-items: center;">
+                    <input type="file" id="masterDataFileInput" accept=".xlsx, .xls, .csv" style="display: none;" onchange="plannerEngine.handleImportSelect(event)">
+                    <button class="action-btn secondary" onclick="plannerEngine.exportMasterData()" style="padding: 6px 14px; font-size: 13px; height: auto;">Export Master Data</button>
+                    <button class="action-btn primary" onclick="plannerEngine.triggerImport()" style="padding: 6px 14px; font-size: 13px; height: auto;">Import Master Data</button>
+                    
                     <a href="do_load_planner.html" style="text-decoration: none; color: var(--fg, #e4e4e7); display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; background: rgba(255,255,255,0.05); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border, #27272a); transition: background 0.2s;">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                         Back to Planner
@@ -228,54 +232,50 @@
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 350px 1fr; gap: 20px; align-items: start;">
+            <!-- Test Order Input Card -->
+            <div class="card" style="margin-bottom: 20px; padding: 20px;">
+                <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h2 style="margin: 0 0 4px 0; font-size: 16px;">Test Order Input</h2>
+                        <p style="margin: 0; font-size: 13px; color: var(--fg-muted);">Search and add models to the load planner manually.</p>
+                        <p id="masterDataStatus" style="font-size: 11px; color: var(--fg-subtle); margin-top: 4px;">Loading models...</p>
+                    </div>
+                </div>
                 
-                <!-- Left Panel: Controls & Data -->
-                <div style="display: flex; flex-direction: column; gap: 20px;">
-                    <div class="table-card" style="padding: 16px;">
-                        <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 14px;">Test Order Input</h3>
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            <div>
-                                <label style="font-size: 11px; color: var(--fg-muted); display: block; margin-bottom: 4px;">Search & Select Model</label>
-                                <input type="search" id="orderModelInput" onfocus="this.select()" list="orderModelList" class="compact-input" style="width: 100%;" placeholder="Search code or description...">
-                                <datalist id="orderModelList"></datalist>
-                            </div>
-                            <div>
-                                <label style="font-size: 11px; color: var(--fg-muted); display: block; margin-bottom: 4px;">Order Qty (pcs)</label>
-                                <input type="number" id="orderQty" class="compact-input" style="width: 100%;" min="1" value="180">
-                            </div>
-                            <button class="action-btn primary" onclick="plannerEngine.addOrder()" style="margin-top: 8px; justify-content: center;">
-                                Calculate & Add to Order List
-                            </button>
-                        </div>
+                <div style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+                    <div style="flex: 2; min-width: 300px;">
+                        <label style="font-size: 12px; color: var(--fg-muted); display: block; margin-bottom: 6px;">Search / Select Model</label>
+                        <input type="search" id="orderModelInput" onfocus="this.select()" list="orderModelList" class="compact-input" style="width: 100%; height: 42px; font-size: 14px;" placeholder="Type model code... e.g., 55A14G">
+                        <datalist id="orderModelList"></datalist>
+                    </div>
+                    <div style="flex: 1; min-width: 120px;">
+                        <label style="font-size: 12px; color: var(--fg-muted); display: block; margin-bottom: 6px;">Quantity</label>
+                        <input type="number" id="orderQty" class="compact-input" style="width: 100%; height: 42px; font-size: 14px;" min="1" value="180">
+                    </div>
+                    <div>
+                        <button class="action-btn primary" onclick="plannerEngine.addOrder()" style="height: 42px; padding: 0 20px; font-size: 14px; font-weight: 500;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add to Load
+                        </button>
+                    </div>
+                    <div>
+                        <input type="file" id="orderDataFileInput" accept=".xlsx, .xls, .csv" style="display: none;" onchange="plannerEngine.handleOrderImportSelect(event)">
+                        <button class="action-btn secondary" onclick="plannerEngine.triggerOrderImport()" style="height: 42px; padding: 0 20px; font-size: 14px; font-weight: 500;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            Import Orders (Excel)
+                        </button>
+                    </div>
+                    <div style="margin-left: auto;">
+                         <button class="action-btn danger" onclick="plannerEngine.clearOrders()" style="height: 42px; padding: 0 20px; font-size: 14px;">
+                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                             Clear All
+                         </button>
                     </div>
                 </div>
+            </div>
 
-                    <!-- Right Panel: Results Table -->
-
-                    <div class="table-card" style="padding: 16px;">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-                            <div>
-                                <h3 style="margin-top: 0; margin-bottom: 4px; font-size: 14px;">Master Data</h3>
-                                <p id="masterDataStatus" style="font-size: 12px; color: var(--fg-muted); font-weight: 500; margin: 0;">Loading models...</p>
-                            </div>
-                            <div style="display: flex; gap: 8px;">
-                                <button class="action-btn secondary" onclick="plannerEngine.exportMasterData()" style="padding: 4px 8px; font-size: 11px; height: auto;">Export</button>
-                                <button class="action-btn primary" onclick="plannerEngine.triggerImport()" style="padding: 4px 8px; font-size: 11px; height: auto;">Import Excel</button>
-                                <input type="file" id="masterDataFileInput" accept=".xlsx, .xls, .csv" style="display: none;" onchange="plannerEngine.handleImportSelect(event)">
-                            </div>
-                        </div>
-                        
-                        <div style="display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
-                            <input type="text" id="newModelCode" placeholder="Add Model Code" class="compact-input" style="flex: 1;">
-                            <input type="text" id="newModelCapacities" placeholder="e.g. 18 or 6,5" class="compact-input" style="width: 100px;">
-                            <button class="action-btn secondary" onclick="plannerEngine.addMockModel()" style="padding: 4px 8px; height: auto;">Add</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Panel: Results -->
-                <div style="display: flex; flex-direction: column; gap: 20px; min-width: 0;">
+            <!-- Results Panel -->
+            <div style="display: flex; flex-direction: column; gap: 20px; min-width: 0;">
                     
                     <div id="dashboardContainer" style="display: none; grid-template-columns: 200px 1fr; gap: 20px;">
                         <!-- Rendered via JS -->
@@ -284,7 +284,6 @@
                     <div class="table-card" style="padding: 16px; overflow-x: auto;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3 style="margin: 0; font-size: 14px;">Calculation Results</h3>
-                        <button class="action-btn danger" onclick="plannerEngine.clearOrders()" style="font-size: 11px; padding: 4px 8px; height: auto;">Clear List</button>
                     </div>
                     
                     <div class="compact-wrapper">

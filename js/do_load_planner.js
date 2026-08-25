@@ -860,6 +860,27 @@ function handleCalculate() {
                     if (matchedModel && matchedModel.type) {
                          itemType = String(matchedModel.type).toUpperCase();
                     }
+
+                    const iTrucks = typeof getItemTrucks === 'function' ? getItemTrucks(item, routeMatch) : [];
+                    const iHubs = typeof getItemHubs === 'function' ? getItemHubs(item, routeMatch) : [];
+                    
+                    if (SelectedTruckFilter !== "ALL" && !iTrucks.includes(SelectedTruckFilter)) return;
+                    if (SelectedHubFilter !== "ALL" && !iHubs.includes(SelectedHubFilter)) return;
+                    
+                    if (SelectedCategoryFilter !== "ALL") {
+                        const descStr = (item.desc || "").toUpperCase();
+                        if (!descStr.includes(`(${SelectedCategoryFilter.toUpperCase()})`)) return;
+                    }
+                    
+                    const currentSearchTerm = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
+                    if (currentSearchTerm) {
+                        const batchVal = (item && item.batch) ? item.batch : (routeMatch.batch || "-");
+                        const itemTruckStr = iTrucks.length > 0 ? iTrucks.join(", ") : "N/A";
+                        const itemHubStr = iHubs.length > 0 ? iHubs.join(", ") : "N/A";
+                        const remark = doRow.remark || "";
+                        const searchable = `${batchVal} ${doRow.inv} ${route} ${doRow.name} ${doRow.addr} ${itemTruckStr} ${itemHubStr} ${item.code} ${item.desc} ${remark}`.toLowerCase();
+                        if (!searchable.includes(currentSearchTerm)) return;
+                    }
                     
                     if (SelectedTypeFilter !== "ALL") {
                          const targetFilter = SelectedTypeFilter.toUpperCase();
@@ -895,6 +916,12 @@ function handleCalculate() {
                 if (!item.code || item.type === "UNKNOWN") return; // Skip them if unknown, but we flag it
                 
                 // --- ITEM LEVEL FILTERING ---
+                const currentSearchTerm = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
+                if (currentSearchTerm) {
+                    const searchable = `${item.inv} ${item.route} ${item.name} ${item.addr} ${item.code} ${item.desc}`.toLowerCase();
+                    if (!searchable.includes(currentSearchTerm)) return;
+                }
+
                 if (SelectedTypeFilter !== "ALL") {
                     const targetFilter = SelectedTypeFilter.toUpperCase();
                     const itemType = (item.type || "").toUpperCase();
