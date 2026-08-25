@@ -106,6 +106,7 @@ function initData() {
                 truckMeta[tId].dest2 = truckMeta[tId].dest2 || "";
                 truckMeta[tId].routes = Array.isArray(truckMeta[tId].routes) ? truckMeta[tId].routes : [];
                 truckMeta[tId].routes2 = Array.isArray(truckMeta[tId].routes2) ? truckMeta[tId].routes2 : [];
+                truckMeta[tId].hideDoList = !!truckMeta[tId].hideDoList;
             });
             
             // Auto-repair any split DOs in trucks that had qty: 0
@@ -390,7 +391,7 @@ function toggleAllUnassigned() {
 function addTruck() {
     const truckId = `truck_${truckCounter}`;
     trucks[truckId] = [];
-    truckMeta[truckId] = { size: "40HC", dropMode: "single", status: "Direct", hub: "", dest: "", status2: "Direct", hub2: "", dest2: "", routes: [], routes2: [] };
+    truckMeta[truckId] = { size: "40HC", dropMode: "single", status: "Direct", hub: "", dest: "", status2: "Direct", hub2: "", dest2: "", routes: [], routes2: [], hideDoList: false };
     truckCounter++;
     renderTruckBoards();
     updateTruckDropdown();
@@ -448,6 +449,17 @@ window.updateTruckMeta = function(tId, field, value) {
     if (!truckMeta[tId]) truckMeta[tId] = { size: "40HC", dropMode: "single", status: "Direct", hub: "", dest: "", status2: "Direct", hub2: "", dest2: "" };
     truckMeta[tId][field] = value;
     saveState();
+};
+
+window.toggleHideDoList = function(tId) {
+    if (typeof truckMeta !== 'undefined') {
+        if (!truckMeta[tId]) {
+            truckMeta[tId] = { size: "40HC", dropMode: "single", status: "Direct", hub: "", dest: "", status2: "Direct", hub2: "", dest2: "", routes: [], routes2: [], hideDoList: false };
+        }
+        truckMeta[tId].hideDoList = !truckMeta[tId].hideDoList;
+        saveState();
+        renderTruckBoards();
+    }
 };
 
 window.toggleTruckDropMode = async function(tId, targetMode) {
@@ -789,6 +801,11 @@ function renderTruckBoards() {
                     </div>
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                         ${dropModeToggle}
+                        <button type="button" onclick="window.toggleHideDoList('${tId}')" class="action-btn" title="${meta.hideDoList ? 'DOs hidden in Final Plan (Items with Hubs still shown with Qty). Click to show all DOs in Plan.' : 'Hide DOs in Final Plan (Items with Hubs remain visible with Qty).'}" style="padding: 3px 8px; font-size: 0.74rem; border-radius: 4px; background: ${meta.hideDoList ? 'rgba(239, 68, 68, 0.15)' : 'var(--surface)'}; color: ${meta.hideDoList ? '#f87171' : 'var(--fg-muted)'}; border: 1px solid ${meta.hideDoList ? 'rgba(239, 68, 68, 0.35)' : 'var(--border)'}; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s; font-weight: 600;">
+                            ${meta.hideDoList 
+                                ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg><span>Hidden in Plan</span>` 
+                                : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg><span>Hide in Plan</span>`}
+                        </button>
                         <span class="badge" style="background: var(--surface); color: var(--fg-subtle); font-size: 0.75rem; border: 1px solid var(--border);">${assignedList.length} DOs</span>
                         <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 0.75rem; font-family: Aptos Display, sans-serif; font-weight: 600;">${totalQty.toLocaleString()} pcs</span>
                         <button type="button" onclick="window.openManualDoModal('${tId}', 1)" class="action-btn" style="padding: 3px 8px; font-size: 0.74rem; border-radius: var(--radius-control); background: rgba(94, 106, 210, 0.12); color: var(--accent, #5E6AD2); border: 1px solid rgba(94, 106, 210, 0.25); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Manually add a DO to this truck">
@@ -1525,17 +1542,175 @@ window.resetMtpState = function() {
     }
 };
 
-window.closeFinalPlan = function() {
-    const modal = document.getElementById('finalPlanModal');
+// --- DO Assignment Consistency Verification Engine ---
+window.closeVerificationErrorModal = function() {
+    const modal = document.getElementById('finalPlanVerificationErrorModal');
     if (modal) modal.style.display = 'none';
 };
 
-window.showFinalPlan = function() {
+window.ignoreVerificationAndShowFinalPlan = function() {
+    window.closeVerificationErrorModal();
+    window.renderAndShowFinalPlanModal();
+};
+
+window.verifyDoAssignments = function() {
+    const consigneeMap = {};
+    const truckKeys = Object.keys(trucks);
+
+    truckKeys.forEach((tId, tIndex) => {
+        const assignedList = trucks[tId] || [];
+        const meta = (typeof truckMeta !== 'undefined' && truckMeta[tId]) 
+            ? truckMeta[tId] 
+            : { size: "40HC", dropMode: "single", status: "Direct", hub: "", dest: "", status2: "Direct", hub2: "", dest2: "" };
+        const isTwoDrop = meta.dropMode === 'two_drop';
+        const hasCrossDock = assignedList.some(d => d.tag === 'cross_dock');
+        const isPureCrossDock = hasCrossDock && assignedList.every(d => d.tag === 'cross_dock') && !meta.dest;
+
+        assignedList.forEach(d => {
+            const consigneeName = (d.name || 'Unknown Consignee').trim();
+            const consigneeKey = consigneeName.toUpperCase();
+
+            let status = 'Direct';
+            let dropLabel = 'Single Drop';
+
+            if (isPureCrossDock) {
+                status = 'Top Urgent';
+                dropLabel = 'Cross Dock';
+            } else if (isTwoDrop) {
+                const dropSeq = d.dropSeq === 2 ? 2 : 1;
+                if (dropSeq === 1) {
+                    status = meta.status || 'Direct';
+                    dropLabel = '1st Drop' + (meta.dest ? ` (${meta.dest})` : '');
+                } else {
+                    status = meta.status2 || 'Direct';
+                    dropLabel = '2nd Drop' + (meta.dest2 ? ` (${meta.dest2})` : '');
+                }
+            } else {
+                status = meta.status || 'Direct';
+                dropLabel = 'Single Drop' + (meta.dest ? ` (${meta.dest})` : '');
+            }
+
+            const splitInfo = (typeof getDoSplitInfo === 'function') ? getDoSplitInfo(d) : { isSplit: false, displayInv: d.inv };
+            const invDisplay = splitInfo.isSplit ? splitInfo.displayInv : (d.remark ? `${d.inv} ${d.remark}` : d.inv);
+
+            if (!consigneeMap[consigneeKey]) {
+                consigneeMap[consigneeKey] = {
+                    name: consigneeName,
+                    items: []
+                };
+            }
+
+            consigneeMap[consigneeKey].items.push({
+                inv: d.inv,
+                displayInv: invDisplay,
+                truckId: tId,
+                truckNum: tIndex + 1,
+                truckLabel: `Truck ${tIndex + 1}`,
+                dropSeq: d.dropSeq || 1,
+                dropLabel: dropLabel,
+                status: status,
+                isDirect: (status || '').trim().toLowerCase() === 'direct',
+                qty: (typeof getDoEffectiveQty === 'function') ? getDoEffectiveQty(d) : (d.qty || 0)
+            });
+        });
+    });
+
+    // Business Rule Check:
+    // If multiple DOs share the same consignee name, and at least one DO is assigned to "Direct",
+    // then all remaining DOs for that same consignee must also be assigned to "Direct".
+    const violations = [];
+
+    Object.values(consigneeMap).forEach(group => {
+        if (group.items.length > 1) {
+            const hasDirect = group.items.some(item => item.isDirect);
+            if (hasDirect) {
+                const nonDirectItems = group.items.filter(item => !item.isDirect);
+                if (nonDirectItems.length > 0) {
+                    const directItems = group.items.filter(item => item.isDirect);
+                    violations.push({
+                        consignee: group.name,
+                        totalDos: group.items.length,
+                        directItems: directItems,
+                        problematicItems: nonDirectItems
+                    });
+                }
+            }
+        }
+    });
+
+    return {
+        isValid: violations.length === 0,
+        violations: violations
+    };
+};
+
+window.renderVerificationErrors = function(violations) {
+    const container = document.getElementById('verificationErrorList');
+    if (!container) return;
+
+    let html = '';
+    violations.forEach((v, idx) => {
+        const directListHtml = v.directItems.map(d => 
+            `<div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 6px; font-size: 12px; margin-bottom: 4px;">
+                <div>
+                    <strong style="color: var(--fg); font-family: monospace;">${d.displayInv}</strong>
+                    <span style="color: var(--fg-muted); margin-left: 6px;">(${d.truckLabel} • ${d.dropLabel})</span>
+                </div>
+                <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px;">Direct</span>
+            </div>`
+        ).join('');
+
+        const problematicListHtml = v.problematicItems.map(d => 
+            `<div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 6px; font-size: 12px; margin-bottom: 4px;">
+                <div>
+                    <strong style="color: #ef4444; font-family: monospace;">${d.displayInv}</strong>
+                    <span style="color: var(--fg-muted); margin-left: 6px;">(${d.truckLabel} • ${d.dropLabel})</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px;">Assigned: ${d.status}</span>
+                    <span style="font-size: 11px; color: #f59e0b; font-weight: 600;">→ Must be Direct</span>
+                </div>
+            </div>`
+        ).join('');
+
+        html += `
+            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="width: 22px; height: 22px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">${idx + 1}</span>
+                        <strong style="font-size: 13px; color: var(--fg);">${v.consignee}</strong>
+                    </div>
+                    <span style="font-size: 11px; color: var(--fg-muted); background: var(--surface-hover); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border);">${v.totalDos} Total DOs</span>
+                </div>
+
+                <div style="margin-bottom: 8px;">
+                    <div style="font-size: 11px; font-weight: 600; color: #60a5fa; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        Assigned as Direct (${v.directItems.length}):
+                    </div>
+                    ${directListHtml}
+                </div>
+
+                <div>
+                    <div style="font-size: 11px; font-weight: 600; color: #ef4444; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        Conflicting Non-Direct DOs (${v.problematicItems.length}):
+                    </div>
+                    ${problematicListHtml}
+                </div>
+            </div>`;
+    });
+
+    container.innerHTML = html;
+};
+
+// Internal function to render and show final plan after verification passes
+window.renderAndShowFinalPlanModal = function() {
     const modal = document.getElementById('finalPlanModal');
     const content = document.getElementById('finalPlanContent');
     if (!modal || !content) return;
     
-    let html = '<div style="font-family: Aptos Display, sans-serif; font-size: 1.1rem; line-height: 1.6; color: var(--fg); background: var(--surface); padding: 20px; border-radius: 8px; border: 1px solid var(--border); white-space: pre-wrap;">';
+    let html = '<div class="manifest-plan-container" style="font-family: Aptos Display, sans-serif; font-size: 1.05rem; line-height: 1.5; color: var(--fg); background: var(--surface); padding: 16px; border-radius: 8px; border: 1px solid var(--border);">';
     
     const truckKeys = Object.keys(trucks);
     if (truckKeys.length === 0) {
@@ -1547,64 +1722,57 @@ window.showFinalPlan = function() {
         const formatDoListForManifest = (list, indent = "      ") => {
             if (!list || list.length === 0) return "";
 
-            const formatDoLabel = (d) => {
-                const splitInfo = getDoSplitInfo(d);
-                const invText = splitInfo.isSplit ? splitInfo.displayInv : (d.remark ? `${d.inv} ${d.remark}` : d.inv);
-                let base = invText;
-                if (d.hub && d.hub !== "N/A" && d.hub.trim() !== "") {
-                    const trimmed = d.hub.trim().toUpperCase();
-                    const hubFormatted = trimmed.startsWith("HUB") ? trimmed : `HUB${trimmed}`;
-                    base += ` (${hubFormatted})`;
-                }
-                return base;
-            };
-
-            const hasAnyItemBreakdown = list.some(d => Boolean(d.remark && /\bx\s*\d+/i.test(d.remark)));
-
-            if (!hasAnyItemBreakdown) {
-                const doStrs = list.map(formatDoLabel);
-                return `${indent}<b style="color: black;">DO: ${doStrs.join(', ')}</b>`;
-            }
-
             const lines = [];
             const regularDos = [];
 
+            const flushRegularDos = () => {
+                if (regularDos.length > 0) {
+                    lines.push(`${indent}<b style="color: black;">DO: ${regularDos.join(', ')}</b>`);
+                    regularDos.length = 0;
+                }
+            };
+
             list.forEach(d => {
                 const splitInfo = getDoSplitInfo(d);
+                const invText = splitInfo.isSplit ? splitInfo.displayInv : (d.remark ? `${d.inv} ${d.remark}` : d.inv);
+                const hasHub = Boolean(d.hub && d.hub !== "N/A" && d.hub.trim() !== "");
                 const hasItemBreakdown = Boolean(d.remark && /\bx\s*\d+/i.test(d.remark));
 
-                if (!hasItemBreakdown) {
-                    regularDos.push(formatDoLabel(d));
+                if (!hasHub && !hasItemBreakdown) {
+                    regularDos.push(invText);
                 } else {
-                    if (regularDos.length > 0) {
-                        lines.push(`${indent}<b style="color: black;">DO: ${regularDos.join(', ')},</b>`);
-                        regularDos.length = 0;
-                    }
-                    let splitInvLabel = splitInfo.isSplit ? splitInfo.displayInv : d.inv;
-                    if (d.hub && d.hub !== "N/A" && d.hub.trim() !== "") {
+                    flushRegularDos();
+
+                    if (hasHub) {
                         const trimmed = d.hub.trim().toUpperCase();
                         const hubFormatted = trimmed.startsWith("HUB") ? trimmed : `HUB${trimmed}`;
-                        splitInvLabel += ` (${hubFormatted})`;
+                        const effectiveQty = (typeof getDoEffectiveQty === 'function' ? getDoEffectiveQty(d) : (d.qty || 0));
+                        const hubBadge = `<b style="color: navy;"><i>(${hubFormatted})</i></b>`;
+                        const qtyBadge = `<b style="color: black; margin-left: 10px;">[Total: ${effectiveQty.toLocaleString()} pcs]</b>`;
+
+                        lines.push(`${indent}<b style="color: black;">DO: ${invText}</b>`);
+                        lines.push(`${indent}${hubBadge} ${qtyBadge}`);
+                    } else {
+                        lines.push(`${indent}<b style="color: black;">DO: ${invText}</b>`);
                     }
-                    lines.push(`${indent}<b style="color: black;">DO:  ${splitInvLabel}</b>`);
-                    const parts = d.remark.split(',').map(s => s.trim()).filter(Boolean);
-                    parts.forEach(p => {
-                        const match = p.match(/^(.+?)\s*x\s*(\d+)$/i);
-                        if (match) {
-                            const model = match[1].trim();
-                            const pcs = match[2].trim();
-                            lines.push(`${indent}       ${model} : ${pcs} pcs`);
-                        } else {
-                            lines.push(`${indent}       ${p}`);
-                        }
-                    });
+
+                    if (hasItemBreakdown) {
+                        const parts = d.remark.split(',').map(s => s.trim()).filter(Boolean);
+                        parts.forEach(p => {
+                            const match = p.match(/^(.+?)\s*x\s*(\d+)$/i);
+                            if (match) {
+                                const model = match[1].trim();
+                                const pcs = match[2].trim();
+                                lines.push(`${indent}       ${model} : ${pcs} pcs`);
+                            } else {
+                                lines.push(`${indent}       ${p}`);
+                            }
+                        });
+                    }
                 }
             });
 
-            if (regularDos.length > 0) {
-                lines.push(`${indent}<b style="color: black;">DO: ${regularDos.join(', ')}</b>`);
-            }
-
+            flushRegularDos();
             return lines.join('\n');
         };
 
@@ -1614,9 +1782,10 @@ window.showFinalPlan = function() {
             const isTwoDrop = meta.dropMode === 'two_drop';
             const hasCrossDock = assignedList.some(d => d.tag === 'cross_dock');
             const isPureCrossDock = hasCrossDock && assignedList.every(d => d.tag === 'cross_dock') && !meta.dest;
-
             const sizeNumMatch = meta.size ? meta.size.match(/\d+/) : null;
             const sizeStr = sizeNumMatch ? sizeNumMatch[0] : (meta.size || "40");
+            const totalQty = assignedList.reduce((sum, d) => sum + (typeof getDoEffectiveQty === 'function' ? getDoEffectiveQty(d) : (d.qty || 0)), 0);
+            const totalQtyStr = `<b style="color: black; margin-left: 10px;">[Total: ${totalQty.toLocaleString()} pcs]</b>`;
 
             const formatHub = (rawHub, defaultLabel = "HUB NUMBER") => {
                 let hubText = `(${defaultLabel})`;
@@ -1629,7 +1798,7 @@ window.showFinalPlan = function() {
             };
 
             let block = "";
-
+            const hasHub = (d) => Boolean(d.hub && d.hub !== "N/A" && d.hub.trim() !== "");
             const status1 = meta.status || 'Direct';
             const status2 = meta.status2 || 'Direct';
             const routes1 = Array.isArray(meta.routes) ? meta.routes : [];
@@ -1638,16 +1807,16 @@ window.showFinalPlan = function() {
             if (isPureCrossDock) {
                 const destStr = meta.dest ? `(${meta.dest.trim().toUpperCase()}) ` : '';
                 block += `(${index + 1}) 1 x ${sizeStr} ${destStr} <b style="color: red;">(Top Urgent)</b>\n`;
-                block += `${formatHub(meta.hub)}\n`;
+                block += `${formatHub(meta.hub)} ${totalQtyStr}\n`;
                 block += `ALL 5 ROUTES`;
             } else if (!isTwoDrop) {
                 // Single Drop
                 const destStr = meta.dest ? `(${meta.dest.trim().toUpperCase()})` : '(Destination)';
-                const doLines = formatDoListForManifest(assignedList, "");
-
+                const listToRender = meta.hideDoList ? assignedList.filter(hasHub) : assignedList;
+                const doLines = formatDoListForManifest(listToRender, "");
                 const s1Formatted = status1 === 'Top Urgent' ? `<b style="color: red;">(Top Urgent)</b>` : (status1 === 'Direct' ? `<b style="color: blue;">(Direct)</b>` : `(${status1})`);
                 block += `(${index + 1}) 1 x ${sizeStr} ${destStr} ${s1Formatted}\n`;
-                block += `${formatHub(meta.hub)}`;
+                block += `${formatHub(meta.hub)} ${totalQtyStr}`;
                 if (status1 === 'Top Urgent' && routes1.length > 0) {
                     block += `\n${routes1.join(', ')}`;
                 }
@@ -1658,28 +1827,31 @@ window.showFinalPlan = function() {
                 // Two Drops (1st Drop & 2nd Drop)
                 const drop1List = assignedList.filter(d => (d.dropSeq || 1) === 1);
                 const drop2List = assignedList.filter(d => d.dropSeq === 2);
-
+                const drop1Qty = drop1List.reduce((sum, d) => sum + (typeof getDoEffectiveQty === 'function' ? getDoEffectiveQty(d) : (d.qty || 0)), 0);
+                const drop2Qty = drop2List.reduce((sum, d) => sum + (typeof getDoEffectiveQty === 'function' ? getDoEffectiveQty(d) : (d.qty || 0)), 0);
+                const drop1QtyStr = `<b style="color: black; margin-left: 10px;">[Total: ${drop1Qty.toLocaleString()} pcs]</b>`;
+                const drop2QtyStr = `<b style="color: black; margin-left: 10px;">[Total: ${drop2Qty.toLocaleString()} pcs]</b>`;
                 const dest1Str = meta.dest ? `(${meta.dest.trim().toUpperCase()})` : '(Destination 1)';
                 const hub1Str = formatHub(meta.hub, "HUB 1");
-                const do1Lines = formatDoListForManifest(drop1List, "      ");
-
+                const drop1ListToRender = meta.hideDoList ? drop1List.filter(hasHub) : drop1List;
+                const do1Lines = formatDoListForManifest(drop1ListToRender, "      ");
                 const dest2Str = meta.dest2 ? `(${meta.dest2.trim().toUpperCase()})` : '(Destination 2)';
                 const hub2Str = formatHub(meta.hub2, "HUB 2");
-                const do2Lines = formatDoListForManifest(drop2List, "      ");
-
+                const drop2ListToRender = meta.hideDoList ? drop2List.filter(hasHub) : drop2List;
+                const do2Lines = formatDoListForManifest(drop2ListToRender, "      ");
                 const headerTypeStr = (status1 === status2 && status1 === 'Direct') ? 'Direct (2 Drops)' : '2 Drops';
                 const status1Suffix = (status1 !== 'Direct' || status1 !== status2) ? (status1 === 'Top Urgent' ? ` <b style="color: red;">(Top Urgent)</b>` : (status1 === 'Direct' ? ` <b style="color: blue;">(Direct)</b>` : ` (${status1})`)) : '';
                 const status2Suffix = (status2 !== 'Direct' || status1 !== status2) ? (status2 === 'Top Urgent' ? ` <b style="color: red;">(Top Urgent)</b>` : (status2 === 'Direct' ? ` <b style="color: blue;">(Direct)</b>` : ` (${status2})`)) : '';
 
                 block += `(${index + 1}) 1 x ${sizeStr} (${headerTypeStr})\n`;
-                block += `   [1ST DROP] -> ${dest1Str} | ${hub1Str}${status1Suffix}`;
+                block += `   [1ST DROP] -> ${dest1Str} | ${hub1Str}${status1Suffix} ${drop1QtyStr}`;
                 if (status1 === 'Top Urgent' && routes1.length > 0) {
                     block += `\n      ${routes1.join(', ')}`;
                 }
                 if (do1Lines && do1Lines.trim()) {
                     block += `\n${do1Lines}`;
                 }
-                block += `\n   [2ND DROP] -> ${dest2Str} | ${hub2Str}${status2Suffix}`;
+                block += `\n   [2ND DROP] -> ${dest2Str} | ${hub2Str}${status2Suffix} ${drop2QtyStr}`;
                 if (status2 === 'Top Urgent' && routes2.length > 0) {
                     block += `\n      ${routes2.join(', ')}`;
                 }
@@ -1688,16 +1860,64 @@ window.showFinalPlan = function() {
                 }
             }
 
-            truckBlocks.push(block);
+            truckBlocks.push('<div class="manifest-truck-entry" style="margin-bottom: 20px; break-inside: avoid; page-break-inside: avoid; white-space: pre-wrap;">' + block + '</div>');
         });
 
-        html += truckBlocks.join('\n\n');
+        html += truckBlocks.join('');
     }
     
     html += '</div>';
     
     content.innerHTML = html;
     modal.style.display = 'flex';
+};
+
+window.closeFinalPlan = function() {
+    const modal = document.getElementById('finalPlanModal');
+    if (modal) modal.style.display = 'none';
+};
+
+// Main trigger when user clicks "View Final Plan"
+window.showFinalPlan = function() {
+    const verifyingModal = document.getElementById('finalPlanVerifyingModal');
+    const progressBar = document.getElementById('verifyingProgressBar');
+
+    if (verifyingModal) {
+        if (progressBar) progressBar.style.width = '20%';
+        verifyingModal.style.display = 'flex';
+        
+        setTimeout(() => {
+            if (progressBar) progressBar.style.width = '70%';
+        }, 150);
+        
+        setTimeout(() => {
+            if (progressBar) progressBar.style.width = '100%';
+            
+            setTimeout(() => {
+                verifyingModal.style.display = 'none';
+                
+                // Run verification
+                const check = window.verifyDoAssignments();
+                if (!check.isValid) {
+                    window.renderVerificationErrors(check.violations);
+                    const errorModal = document.getElementById('finalPlanVerificationErrorModal');
+                    if (errorModal) errorModal.style.display = 'flex';
+                } else {
+                    window.renderAndShowFinalPlanModal();
+                }
+            }, 250);
+        }, 350);
+    } else {
+        // Fallback without verifying modal
+        const check = window.verifyDoAssignments();
+        if (!check.isValid) {
+            window.renderVerificationErrors(check.violations);
+            const errorModal = document.getElementById('finalPlanVerificationErrorModal');
+            if (errorModal) errorModal.style.display = 'flex';
+        } else {
+            window.renderAndShowFinalPlanModal();
+        }
+    }
 };
 
 window.printFinalPlan = function() {
@@ -1717,10 +1937,19 @@ window.printFinalPlan = function() {
     
     const doc = printIframe.contentWindow.document;
     doc.open();
-    doc.write('<html><head><title>Print Truck Plan</title>');
+    doc.write('<!DOCTYPE html><html><head><title>Print Truck Plan</title>');
     doc.write('<style>');
-    doc.write('body { font-family: Aptos Display, sans-serif; font-size: 14px; line-height: 1.6; padding: 20px; white-space: pre-wrap; color: black; }');
-    doc.write('@media print { body { padding: 0; } }');
+    doc.write('@page { size: landscape; margin: 10mm 12mm; }');
+    doc.write('* { box-sizing: border-box; }');
+    doc.write('body { font-family: Aptos Display, "Segoe UI", Arial, sans-serif; font-size: 12.5px; line-height: 1.45; margin: 0; padding: 12px; color: black; background: #fff; }');
+    doc.write('.manifest-plan-container { columns: 2; column-gap: 32px; column-fill: auto; width: 100%; border: none !important; padding: 0 !important; background: transparent !important; }');
+    doc.write('.manifest-truck-entry { break-inside: avoid-page; page-break-inside: avoid; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px dashed #cbd5e1; white-space: pre-wrap; display: inline-block; width: 100%; }');
+    doc.write('.manifest-truck-entry:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }');
+    doc.write('@media print {');
+    doc.write('  body { padding: 0; font-size: 12px; line-height: 1.4; }');
+    doc.write('  .manifest-plan-container { columns: 2; column-gap: 28px; width: 100%; }');
+    doc.write('  .manifest-truck-entry { break-inside: avoid; page-break-inside: avoid; margin-bottom: 16px; padding-bottom: 10px; }');
+    doc.write('}');
     doc.write('</style>');
     doc.write('</head><body>');
     doc.write(content);
