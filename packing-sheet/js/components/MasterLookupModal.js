@@ -11,6 +11,7 @@
     currentDoNo,
     onApplyToCurrentSheet,
     onResetLookup,
+    onUploadNewSource,
     customer = '',
   }) => {
     const fileInputRef = useRef(null);
@@ -27,17 +28,34 @@
         if (!raw) return;
         const key = raw.toUpperCase();
         const isLcl = !isMscsj && key.includes('LCL');
-        if (!map.has(key)) map.set(key, { rawDo: raw, isLcl, count: 1 });
-        else map.get(key).count += 1;
+        const codeKey = (entry.code8D || '').trim().toUpperCase();
+        if (!map.has(key)) {
+          map.set(key, { rawDo: raw, isLcl, models: new Set(codeKey ? [codeKey] : []), totalRows: 1 });
+        } else {
+          const item = map.get(key);
+          item.totalRows += 1;
+          if (codeKey) item.models.add(codeKey);
+        }
       });
-      return Array.from(map.values());
+      return Array.from(map.values()).map((d) => ({
+        rawDo: d.rawDo,
+        isLcl: d.isLcl,
+        count: d.models.size > 0 ? d.models.size : d.totalRows,
+      }));
     }, [customerDb, isMscsj]);
 
     const lclDosCount = isMscsj ? 0 : uniqueDosWithCounts.filter((d) => d.isLcl).length;
 
-    const currentDoMatches = currentDoNo
+    const rawCurrentDoMatches = currentDoNo
       ? window.LookupParser.findMatchesForDo(customerDb, currentDoNo, customer)
       : [];
+
+    const currentDoMatches = React.useMemo(() => {
+      if (rawCurrentDoMatches.length === 0) return [];
+      return window.LookupParser.aggregateEntriesByProductCode
+        ? window.LookupParser.aggregateEntriesByProductCode(rawCurrentDoMatches, customer)
+        : rawCurrentDoMatches;
+    }, [rawCurrentDoMatches, customer]);
 
     const handleFileUpload = async (e) => {
       const file = e.target.files && e.target.files[0];
@@ -46,10 +64,18 @@
         const result = customer === 'MSCSJ' ? await parseMSCSJLookupFile(file) : await parseDOLookupFile(file);
         const sheetLabel = customer === 'MSCSJ' ? 'DATA' : 'Insert Batch';
         if (result.entries.length > 0) {
-          setLookupDb((prev) => [...prev, ...result.entries]);
+          if (onUploadNewSource) {
+            onUploadNewSource(result.entries, customer);
+          } else {
+            const targetCust = customer === 'MSCSJ' ? 'MSCSJ' : 'SSEA';
+            setLookupDb((prev) => [
+              ...prev.filter((item) => window.LookupParser.entryCustomer(item) !== targetCust),
+              ...result.entries,
+            ]);
+          }
           const lclCountInFile = isMscsj ? 0 : Array.from(new Set(result.entries.filter((x) => x.doNo.toUpperCase().includes('LCL')).map((x) => x.doNo))).length;
           setStatusMessage(
-            `Loaded ${result.entries.length} rows from sheet "${sheetLabel}" in "${file.name}"! (${result.uniqueDoCount} D.O. numbers${isMscsj ? '' : `, including ${lclCountInFile} LCL D.O.s`})`
+            `Loaded ${result.entries.length} rows from sheet "${sheetLabel}" in "${file.name}"! (${result.uniqueDoCount} D.O. numbers${isMscsj ? '' : `, including ${lclCountInFile} LCL D.O.s`}). Working D.O. cache reset for fresh export.`
           );
         } else {
           setStatusMessage(`Uploaded "${file.name}", but no records were found in sheet "${sheetLabel}".`);
@@ -63,7 +89,10 @@
     };
 
     const handleSelectDo = (doNo) => {
-      const matches = window.LookupParser.findMatchesForDo(customerDb, doNo, customer);
+      const rawMatches = window.LookupParser.findMatchesForDo(customerDb, doNo, customer);
+      const matches = window.LookupParser.aggregateEntriesByProductCode
+        ? window.LookupParser.aggregateEntriesByProductCode(rawMatches, customer)
+        : rawMatches;
       if (matches.length > 0) {
         onApplyToCurrentSheet(matches, doNo);
         onClose();
@@ -234,10 +263,10 @@
             type: 'button',
             onClick: async () => {
               const confirmed = await window.ConfirmDialog.confirm({
-                title: 'Reset Source File?',
+                title: 'Reset Source File & Cache?',
                 subtitle: `Clear ${customerDb.length} record(s)`,
-                message: `Clear all ${customerDb.length} ${isMscsj ? 'MSCSJ' : 'SSEA'} source file record(s)?\n\nThis cannot be undone.`,
-                confirmLabel: 'Clear Records',
+                message: `Clear all ${customerDb.length} ${isMscsj ? 'MSCSJ' : 'SSEA'} source file record(s) and working session cache?\n\nThis cannot be undone.`,
+                confirmLabel: 'Clear Records & Cache',
                 cancelLabel: 'Cancel',
                 tone: 'danger',
                 icon: Icon.RotateCcw,
@@ -245,7 +274,7 @@
               if (!confirmed) return;
               onResetLookup();
             },
-            title: 'Clear all loaded source file records',
+            title: 'Clear all loaded source file records and session cache',
             className: 'px-3 py-1.5 bg-[#FF3B30]/[0.08] hover:bg-[#FF3B30]/[0.15] dark:bg-[#FF453A]/[0.12] dark:hover:bg-[#FF453A]/[0.2] text-[#FF3B30] dark:text-[#FF453A] text-[12px] font-semibold rounded-[8px] transition cursor-pointer flex items-center gap-1.5',
           },
           h(Icon.RotateCcw, { className: 'w-3.5 h-3.5', strokeWidth: 1.5 }),

@@ -920,6 +920,7 @@ class DOSummaryGenerator {
 
             let doCount = 0, skuTotal = 0, volTotal = 0, qtyTotal = 0;
             let lclDo = 0, lclSku = 0, lclVol = 0, lclQty = 0;
+            let lclDetails = [];
 
             allRecords.forEach(r => {
                 doCount++;
@@ -931,6 +932,7 @@ class DOSummaryGenerator {
                     lclSku += r.sku || 0;
                     lclVol += r.volume || 0;
                     lclQty += r.qty || 0;
+                    lclDetails.push({ do: r.invoiceNo, sku: r.sku || 0, qty: r.qty || 0 });
                 }
             });
 
@@ -948,7 +950,8 @@ class DOSummaryGenerator {
                 sku: skuTotal,
                 vol: volTotal,
                 qty: qtyTotal,
-                lclDo, lclSku, lclVol, lclQty
+                lclDo, lclSku, lclVol, lclQty,
+                lclDetails
             };
 
             const existingIdx = history.findIndex(h => h.date === dateStr);
@@ -1314,13 +1317,154 @@ class DOSummaryGenerator {
         this.showToast("Exported generator session to JSON successfully.", "success");
     }
 
-    // Import Full Batch Data Session from JSON (.json)
-    importFromJSON(event) {
+    // Import Full Batch Data Session from JSON (.json) or Excel (.xlsx)
+    async importSessionFile(event) {
         const file = event.target && event.target.files ? event.target.files[0] : null;
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = async (e) => {
+        const ext = file.name.split('.').pop().toLowerCase();
+        console.log("Importing session file:", file.name, "Ext:", ext);
+
+        if (ext === 'xlsx' || ext === 'xls' || ext === 'csv') {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const dataBuffer = e.target.result;
+                    const workbook = XLSX.read(dataBuffer, { type: 'array' });
+                    
+                    const cleanBatches = [];
+                    let totalImportedDO = 0;
+                    
+                    workbook.SheetNames.forEach((sheetName) => {
+                        if (sheetName.toUpperCase() === "FINAL SUMMARY") return;
+                        
+                        const sheet = workbook.Sheets[sheetName];
+                        const rawRows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false });
+                        
+                        if (!rawRows || rawRows.length < 3) return;
+                        
+                        let waveNumber = "01";
+                        let batchName = sheetName;
+                        
+                        if (rawRows[0] && rawRows[0][11] && String(rawRows[0][11]).includes("Wave :")) {
+                            waveNumber = String(rawRows[0][11]).replace("Wave :", "").trim();
+                        }
+                        
+                        let headerIdx = -1;
+                        for (let r = 0; r < 5 && r < rawRows.length; r++) {
+                            const row = rawRows[r] || [];
+                            if (row.some(val => String(val || "").toUpperCase().includes("INVOICE"))) {
+                                headerIdx = r;
+                                break;
+                            }
+                        }
+                        
+                        if (headerIdx === -1) return;
+                        
+                        const headerRow = rawRows[headerIdx].map(h => String(h || "").trim().toUpperCase());
+                        
+                        const invoiceCol = headerRow.findIndex(h => h.includes("INVOICE"));
+                        const divCol = headerRow.findIndex(h => h.includes("DIVISION"));
+                        const shpCol = headerRow.findIndex(h => h.includes("SHP_CODE"));
+                        const routeCol = headerRow.findIndex(h => h.includes("ROUTE") || h.includes("ZONE"));
+                        const consCol = headerRow.findIndex(h => h.includes("CONSIGNEE"));
+                        const addr1Col = headerRow.findIndex(h => h.includes("ADDRESS1"));
+                        const addr2Col = headerRow.findIndex(h => h.includes("ADDRESS2"));
+                        const addr3Col = headerRow.findIndex(h => h.includes("ADDRESS3"));
+                        const volCol = headerRow.findIndex(h => h.includes("VOLUME") || h.includes("M3"));
+                        const qtyCol = headerRow.findIndex(h => h.includes("QTY") || h.includes("QUANTITY"));
+                        const skuCol = headerRow.findIndex(h => h.includes("SKU") || h.includes("TOTAL_ITEM"));
+                        const remarkCol = headerRow.findIndex(h => h.includes("REMARK"));
+                        
+                        if (invoiceCol === -1) return;
+                        
+                        const records = [];
+                        for (let r = headerIdx + 1; r < rawRows.length; r++) {
+                            const rowData = rawRows[r];
+                            if (!rowData || rowData.length === 0) continue;
+                            
+                            const invoiceNo = String(rowData[invoiceCol] || "").trim();
+                            if (!invoiceNo || invoiceNo.toUpperCase().includes("TOTAL") || invoiceNo === '0' || invoiceNo === '-') continue;
+                            
+                            const routeVal = routeCol >= 0 ? String(rowData[routeCol] || "").trim() : "";
+                            const volVal = volCol >= 0 ? parseFloat(rowData[volCol]) || 0 : 0;
+                            const qtyVal = qtyCol >= 0 ? parseInt(rowData[qtyCol]) || 0 : 0;
+                            const skuVal = skuCol >= 0 ? parseInt(rowData[skuCol]) || 1 : 1;
+                            
+                            const missingRoute = (!routeVal || routeVal === "-" || routeVal.toUpperCase() === "MISSING");
+                            const missingVolume = (volVal <= 0);
+                            
+                            records.push({
+                                invoiceNo: invoiceNo,
+                                division: divCol >= 0 ? String(rowData[divCol] || "").trim() : "",
+                                shpCode: shpCol >= 0 ? String(rowData[shpCol] || "").trim() : "",
+                                route: routeVal,
+                                consignee: consCol >= 0 ? String(rowData[consCol] || "").trim() : "",
+                                addr1: addr1Col >= 0 ? String(rowData[addr1Col] || "").trim() : "",
+                                addr2: addr2Col >= 0 ? String(rowData[addr2Col] || "").trim() : "",
+                                addr3: addr3Col >= 0 ? String(rowData[addr3Col] || "").trim() : "",
+                                volume: volVal,
+                                qty: qtyVal,
+                                sku: skuVal,
+                                remark: remarkCol >= 0 ? String(rowData[remarkCol] || "").trim() : "",
+                                missingRoute: missingRoute,
+                                missingVolume: missingVolume,
+                                selected: true,
+                                fileWaveNumber: waveNumber
+                            });
+                        }
+                        
+                        if (records.length > 0) {
+                            totalImportedDO += records.length;
+                            cleanBatches.push({
+                                batchName: batchName,
+                                waveNumber: waveNumber,
+                                records: records
+                            });
+                        }
+                    });
+                    
+                    if (cleanBatches.length === 0 || totalImportedDO === 0) {
+                        this.showToast("No valid DO records found in the Excel file.", "warning");
+                        return;
+                    }
+                    
+                    if (this.batches && this.batches.length > 0) {
+                        const choice = await this.showConfirmDialog({
+                            title: "Import Excel Session",
+                            message: `Existing session contains ${this.batches.length} batch(es).
+
+Do you want to REPLACE your current session (Confirm) or keep current session (Cancel)?`,
+                            confirmText: "Replace All",
+                            cancelText: "Cancel",
+                            isDanger: true,
+                            icon: "📥"
+                        });
+                        if (!choice) {
+                            this.showToast("Excel import cancelled.", "info");
+                            return;
+                        }
+                    }
+                    
+                    this.batches = cleanBatches;
+                    this.hasCompiledFinalSummary = false; 
+                    this.saveToStorage();
+                    this.renderUI();
+                    
+                    this.showToast(`Imported ${cleanBatches.length} batch(es) from Excel successfully!`, "success");
+
+                } catch (err) {
+                    console.error("Excel Session Import Error:", err);
+                    this.showToast("Failed to parse Excel session file: " + err.message, "error");
+                } finally {
+                    if (event.target) event.target.value = "";
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        } else {
+            // JSON parsing block
+            const reader = new FileReader();
+            reader.onload = async (e) => {
             try {
                 const rawText = (e.target.result || "").replace(/^\uFEFF/, "").trim();
                 if (!rawText) {
@@ -1439,7 +1583,7 @@ class DOSummaryGenerator {
                 this.currentBatchIndex = 0;
                 this.saveToStorage();
                 this.renderUI();
-
+                
                 this.showToast(`Imported ${cleanBatches.length} batch(es) with ${totalImportedDO} DO record(s)!`, "success");
             } catch (err) {
                 console.error("JSON import error:", err);
@@ -1449,6 +1593,7 @@ class DOSummaryGenerator {
             }
         };
         reader.readAsText(file);
+        }
     }
 
     renderUI() {

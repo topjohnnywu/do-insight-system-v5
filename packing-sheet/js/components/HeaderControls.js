@@ -28,7 +28,7 @@
     });
 
     const btnBase =
-      'px-3.5 py-2 bg-black/[0.04] hover:bg-black/[0.08] dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-gray-700 dark:text-gray-200 text-[13px] font-semibold rounded-[10px] transition flex items-center gap-1.5 cursor-pointer';
+      'px-3.5 py-2 bg-black/[0.04] hover:bg-black/[0.08] dark:bg-white/[0.08] dark:hover:bg-white/[0.14] text-gray-700 dark:text-gray-200 text-[13px] font-semibold rounded-[10px] transition flex items-center gap-1.5 cursor-pointer border border-black/[0.08] dark:border-white/[0.12]';
 
     const brand = h(
       'div',
@@ -41,14 +41,14 @@
       h(
         'div',
         null,
-        h('h1', { className: 'text-[22px] font-semibold text-gray-900 dark:text-white tracking-[-0.02em] leading-tight' }, 'Packing Details Sheet'),
-        h('p', { className: 'text-[13px] text-gray-500 dark:text-gray-400 mt-0.5' }, 'Edit, calculate totals, and generate ready-to-use Excel (.xlsx) sheets'),
+        h('h1', { className: 'text-[22px] font-semibold text-gray-900 dark:text-[#F5F5F7] tracking-[-0.02em] leading-tight' }, 'Delivery Order Packing Manifest'),
+        h('p', { className: 'text-[13px] text-gray-600 dark:text-[#8E8E93] mt-0.5' }, 'Auto-calculate volumetric CBM, track pallet weight, and prepare ready-to-ship LCL packing lists.'),
         h(
           'div',
-          { className: 'mt-1.5 flex items-center gap-2 text-[12px] text-gray-500 dark:text-gray-400' },
+          { className: 'mt-1.5 flex items-center gap-2 text-[12px] text-gray-500 dark:text-[#8E8E93]' },
           h('span', null, currentDate),
           h('span', { className: 'text-gray-300 dark:text-gray-600' }, '·'),
-          h('span', { className: 'font-semibold text-gray-900 dark:text-white tabular-nums tracking-wide' }, currentTime)
+          h('span', { className: 'font-semibold text-gray-900 dark:text-[#F5F5F7] tabular-nums tracking-wide' }, currentTime)
         )
       )
     );
@@ -59,38 +59,26 @@
       h(
         'button',
         { type: 'button', onClick: onPrint, className: btnBase, title: 'Print or Save as PDF document' },
-        h(Icon.Printer, { className: 'w-4 h-4 text-gray-500 dark:text-gray-400', strokeWidth: 1.5 }),
+        h(Icon.Printer, { className: 'w-4 h-4 text-gray-600 dark:text-gray-300', strokeWidth: 1.5 }),
         h('span', null, 'Print / PDF')
       ),
       h('div', { className: 'w-px h-6 bg-black/[0.08] dark:bg-white/[0.1] hidden md:block' }),
       h(
         'button',
-        {
-          type: 'button',
-          onClick: onExportExcel,
-          className:
-            'px-3.5 py-2 bg-[#007AFF] hover:bg-[#007AFF]/90 text-white text-[13px] font-semibold rounded-[10px] transition flex items-center gap-1.5 cursor-pointer shadow-[0_1px_4px_rgba(0,122,255,0.3)]',
-          title: 'Download filled Excel (.xlsx) spreadsheet with complete borders and calculated formulas',
-        },
-        h(Icon.FileSpreadsheet, { className: 'w-4 h-4', strokeWidth: 1.5 }),
-        h('span', null, 'Download Excel (.xlsx)')
-      ),
-      h(
-        'button',
         { type: 'button', onClick: onExportHandwrittenTemplate, className: btnBase, title: 'Download blank Excel sheet formatted with tall rows and full grid borders for manual handwriting' },
-        h(Icon.PenTool, { className: 'w-4 h-4 text-gray-500 dark:text-gray-400', strokeWidth: 1.5 }),
+        h(Icon.PenTool, { className: 'w-4 h-4 text-gray-600 dark:text-gray-300', strokeWidth: 1.5 }),
         h('span', null, 'Handwritten Template')
       ),
       h(
         'button',
         { type: 'button', onClick: onExportCSV, className: btnBase, title: 'Export CSV data' },
-        h(Icon.FileText, { className: 'w-4 h-4 text-gray-500 dark:text-gray-400', strokeWidth: 1.5 }),
+        h(Icon.FileText, { className: 'w-4 h-4 text-gray-600 dark:text-gray-300', strokeWidth: 1.5 }),
         h('span', null, 'CSV')
       ),
       h(
         'button',
         { type: 'button', onClick: onOpenMasterLookup, className: btnBase, title: 'Upload or manage source file for automatic DO matching' },
-        h(Icon.HelpCircle, { className: 'w-4 h-4 text-gray-500 dark:text-gray-400', strokeWidth: 1.5 }),
+        h(Icon.HelpCircle, { className: 'w-4 h-4 text-gray-600 dark:text-gray-300', strokeWidth: 1.5 }),
         h('span', null, `Source File (${lookupCount})`)
       ),
       h('div', { className: 'w-px h-6 bg-black/[0.08] dark:bg-white/[0.1] hidden md:block' }),
@@ -100,7 +88,7 @@
           type: 'button',
           onClick: onToggleTheme,
           className:
-            'w-9 h-9 rounded-full bg-black/[0.04] hover:bg-black/[0.08] dark:bg-white/[0.08] dark:hover:bg-white/[0.12] flex items-center justify-center transition cursor-pointer',
+            'w-9 h-9 rounded-full bg-black/[0.04] hover:bg-black/[0.08] dark:bg-white/[0.08] dark:hover:bg-white/[0.14] border border-black/[0.08] dark:border-white/[0.12] flex items-center justify-center transition cursor-pointer',
           title: theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode',
         },
         theme === 'dark'

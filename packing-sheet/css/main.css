@@ -48,6 +48,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --ios-bg: #000000;
   --ios-card: #1C1C1E;
   --ios-label: #FFFFFF;
@@ -61,10 +62,15 @@
 /* ── Base Styles ──────────────────────────────────────────────────── */
 
 html {
+  color-scheme: light;
   font-family: var(--font-ios);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+html.dark {
+  color-scheme: dark;
 }
 
 body {
@@ -79,7 +85,53 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Adaptive Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
 /* Selection color */
 ::selection {
   background-color: rgba(0, 122, 255, 0.2);
+}
+
+/* Adaptive Native Select and Option Controls */
+select, option {
+  font-family: inherit;
+}
+
+html.dark select option,
+html.dark datalist option {
+  background-color: #2C2C2E !important;
+  color: #FFFFFF !important;
+}
+
+html select option,
+html datalist option {
+  background-color: #FFFFFF;
+  color: #1C1C1E;
+}
+
+/* Enforce tabular figures for aligned numeric columns down tables */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }

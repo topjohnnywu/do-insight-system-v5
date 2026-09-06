@@ -83,27 +83,41 @@ function updateMemoryBadge() {
     const BadgeElement = document.getElementById("memoryStatusBadge");
     if (!BadgeElement) return;
 
-    const SavedDoName = localStorage.getItem("LastDoSummaryFileName");
-    const SavedRouteName = localStorage.getItem("LastRouteFileName");
+    const SavedDoNameRaw = localStorage.getItem("LastDoSummaryFileName");
+    const SavedRouteNameRaw = localStorage.getItem("LastRouteFileName");
     const SavedInsightName = localStorage.getItem("LastShippingInsightFileName");
 
-    if (!SavedDoName && !SavedRouteName && !SavedInsightName) {
+    if (!SavedDoNameRaw && !SavedRouteNameRaw && !SavedInsightName) {
         BadgeElement.innerHTML = "";
         return;
     }
 
-    let html = "";
-
-    if (SavedDoName) {
-        html += `<span class="file-chip green" title="DO Summary File: ${SavedDoName}">📄 ${SavedDoName} <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('do')" title="Remove DO Summary File">✕</button></span>`;
+    let activeDoFilter = localStorage.getItem("ActiveDoSummaryFilter");
+    let displayDoName = SavedDoNameRaw;
+    if (activeDoFilter && activeDoFilter !== "ALL") {
+        displayDoName = activeDoFilter;
+    } else if (displayDoName && displayDoName.includes(',')) {
+        displayDoName = "All DO Files Combined";
     }
-    if (SavedRouteName) {
-        html += `<span class="file-chip blue" title="Batch Picking File: ${SavedRouteName}">📦 ${SavedRouteName} <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('batch')" title="Remove Batch Picking File">✕</button></span>`;
+
+    let activeBatchFilter = localStorage.getItem("ActiveBatchFilter");
+    let displayRouteName = SavedRouteNameRaw;
+    if (activeBatchFilter && activeBatchFilter !== "ALL") {
+        displayRouteName = activeBatchFilter;
+    } else if (displayRouteName && displayRouteName.includes(',')) {
+        displayRouteName = "All Batch Files Combined";
+    }
+
+    let html = "";
+    if (displayDoName) {
+        html += `<span class="file-chip green" title="DO Summary File: ${displayDoName}">📄 ${displayDoName} <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('do')" title="Remove DO Summary File">✕</button></span>`;
+    }
+    if (displayRouteName) {
+        html += `<span class="file-chip blue" title="Batch Picking File: ${displayRouteName}">📦 ${displayRouteName} <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('batch')" title="Remove Batch Picking File">✕</button></span>`;
     }
     if (SavedInsightName) {
         html += `<span class="file-chip purple" title="Shipping Insight File: ${SavedInsightName}">🚚 ${SavedInsightName} <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('shipping')" title="Remove Shipping Insight File">✕</button></span>`;
     }
-
     BadgeElement.innerHTML = html;
 }
 
@@ -112,25 +126,35 @@ function resetSpecificFile(fileType) {
     if (fileType === 'do' || fileType === 'dosummary') {
         MasterFileStoreArray = [];
         DataHoarderArray = [];
+        localStorage.removeItem("RawUploadedDoSummary");
         localStorage.removeItem("LastUploadedDoSummary");
+        localStorage.removeItem("ActiveDoSummaryFilter");
         localStorage.removeItem("LastDoSummaryFileName");
 
         const filePicker = document.getElementById("filePicker");
         if (filePicker) filePicker.value = "";
 
-        const fileSelector = document.getElementById("fileSelector");
-        if (fileSelector) {
-            fileSelector.innerHTML = '<option value="ALL">All Files Combined (0)</option>';
+        const doSummaryChips = document.getElementById("doSummaryChips");
+        if (doSummaryChips) {
+            doSummaryChips.innerHTML = '<button class="file-chip active" data-filename="ALL" onclick="filterByFile(\'ALL\', this)">All Files Combined (0)</button>';
         }
 
         if (typeof refreshDashboard === 'function') refreshDashboard();
     } else if (fileType === 'batch' || fileType === 'route' || fileType === 'productmaster') {
         ProductMasterLookupMap = {};
+        MasterBatchLookupMap = {};
         localStorage.removeItem("LastUploadedRouteData");
+        localStorage.removeItem("ActiveBatchFilter");
+        localStorage.removeItem("LastMasterBatchLookupMap");
         localStorage.removeItem("LastRouteFileName");
 
         const pmPicker = document.getElementById("productMasterPicker");
         if (pmPicker) pmPicker.value = "";
+        
+        const batchFileChips = document.getElementById("batchFileChips");
+        if (batchFileChips) {
+            batchFileChips.innerHTML = '<button class="file-chip active" data-filename="ALL" onclick="filterBatchByFile(\'ALL\', this)">All Files Combined (0)</button>';
+        }
 
         if (typeof refreshDashboard === 'function') refreshDashboard();
     } else if (fileType === 'shipping' || fileType === 'insight') {
@@ -152,17 +176,14 @@ async function handleFileUpload(event) {
     if (FileListObjects.length === 0) return;
 
     MasterFileStoreArray = [];
-    const FileSelectorDropdown = document.getElementById("fileSelector");
-    if (FileSelectorDropdown) {
-        FileSelectorDropdown.innerHTML = `<option value="ALL">All Files Combined (${FileListObjects.length})</option>`;
+    const doSummaryChips = document.getElementById("doSummaryChips");
+    if (doSummaryChips) {
+        doSummaryChips.innerHTML = `<button class="file-chip active" data-filename="ALL" onclick="filterByFile('ALL', this)">All Files Combined (${FileListObjects.length})</button>`;
     }
 
     for (const FilePickerElement of FileListObjects) {
-        if (FileSelectorDropdown) {
-            const OptionElement = document.createElement("option");
-            OptionElement.value = FilePickerElement.name;
-            OptionElement.textContent = FilePickerElement.name;
-            FileSelectorDropdown.appendChild(OptionElement);
+        if (doSummaryChips) {
+            doSummaryChips.insertAdjacentHTML('beforeend', `<button class="file-chip" data-filename="${FilePickerElement.name}" onclick="filterByFile('${FilePickerElement.name}', this)">${FilePickerElement.name}</button>`);
         }
 
         await new Promise((resolve) => {
@@ -249,7 +270,9 @@ async function handleFileUpload(event) {
         showToast("Could not extract data rows from uploaded file(s)!", "warning");
     }
 
+    localStorage.setItem("RawUploadedDoSummary", JSON.stringify(MasterFileStoreArray));
     localStorage.setItem("LastUploadedDoSummary", JSON.stringify(MasterFileStoreArray));
+    localStorage.removeItem("ActiveDoSummaryFilter");
     const DoNames = FileListObjects.map(f => f.name).join(", ");
     localStorage.setItem("LastDoSummaryFileName", DoNames);
 
@@ -266,8 +289,18 @@ async function handleProductMasterUpload(event) {
 
     // Overwrite existing data (reset) instead of merging
     ProductMasterLookupMap = {};
+    MasterBatchLookupMap = {};
+    
+    const batchFileChips = document.getElementById("batchFileChips");
+    if (batchFileChips) {
+        batchFileChips.innerHTML = `<button class="file-chip active" data-filename="ALL" onclick="filterBatchByFile('ALL', this)">All Files Combined (${SourceFiles.length})</button>`;
+    }
 
     for (const SourceFile of SourceFiles) {
+        if (batchFileChips) {
+            batchFileChips.insertAdjacentHTML('beforeend', `<button class="file-chip" data-filename="${SourceFile.name}" onclick="filterBatchByFile('${SourceFile.name}', this)">${SourceFile.name}</button>`);
+        }
+        MasterBatchLookupMap[SourceFile.name] = {};
         await new Promise((resolve) => {
             const ReaderObject = new FileReader();
             const IsCsvFile = SourceFile.name.toLowerCase().endsWith('.csv');
@@ -329,11 +362,11 @@ async function handleProductMasterUpload(event) {
                     else if (LowerType.includes("mix")) RowCategory = "mix";
                     else if (LowerType.includes("small")) RowCategory = "small";
 
-                    if (!ProductMasterLookupMap[InvoiceKey]) {
+                    if (!MasterBatchLookupMap[SourceFile.name][InvoiceKey]) {
                         const initTrucks = TruckVal ? TruckVal.split(/[,/&]+/).map(t => t.trim()).filter(t => !isStatusOrNonTruck(t)) : [];
                         const initHubs = HubVal ? HubVal.split(/[,/&]+/).map(h => h.trim()).filter(Boolean) : [];
                         const initBatches = BatchVal ? [BatchVal] : [];
-                        ProductMasterLookupMap[InvoiceKey] = {
+                        MasterBatchLookupMap[SourceFile.name][InvoiceKey] = {
                             items: [], listK: [], listL: [], sizesSet: new Set(), doCategory: RowCategory,
                             batch: BatchVal, batches: initBatches,
                             truck: TruckVal, hub: HubVal, route: RouteVal, trucks: initTrucks, hubs: initHubs,
@@ -341,53 +374,53 @@ async function handleProductMasterUpload(event) {
                         };
                     } else {
                         if (BatchVal) {
-                            if (!ProductMasterLookupMap[InvoiceKey].batches) {
-                                ProductMasterLookupMap[InvoiceKey].batches = ProductMasterLookupMap[InvoiceKey].batch ? [ProductMasterLookupMap[InvoiceKey].batch] : [];
+                            if (!MasterBatchLookupMap[SourceFile.name][InvoiceKey].batches) {
+                                MasterBatchLookupMap[SourceFile.name][InvoiceKey].batches = MasterBatchLookupMap[SourceFile.name][InvoiceKey].batch ? [MasterBatchLookupMap[SourceFile.name][InvoiceKey].batch] : [];
                             }
-                            if (!ProductMasterLookupMap[InvoiceKey].batches.includes(BatchVal)) {
-                                ProductMasterLookupMap[InvoiceKey].batches.push(BatchVal);
+                            if (!MasterBatchLookupMap[SourceFile.name][InvoiceKey].batches.includes(BatchVal)) {
+                                MasterBatchLookupMap[SourceFile.name][InvoiceKey].batches.push(BatchVal);
                             }
-                            ProductMasterLookupMap[InvoiceKey].batch = ProductMasterLookupMap[InvoiceKey].batches.join(", ");
+                            MasterBatchLookupMap[SourceFile.name][InvoiceKey].batch = MasterBatchLookupMap[SourceFile.name][InvoiceKey].batches.join(", ");
                         }
                         if (TruckVal) {
-                            if (!ProductMasterLookupMap[InvoiceKey].trucks) {
-                                ProductMasterLookupMap[InvoiceKey].trucks = ProductMasterLookupMap[InvoiceKey].truck 
-                                    ? ProductMasterLookupMap[InvoiceKey].truck.split(/[,/&]+/).map(t => t.trim()).filter(t => !isStatusOrNonTruck(t)) 
+                            if (!MasterBatchLookupMap[SourceFile.name][InvoiceKey].trucks) {
+                                MasterBatchLookupMap[SourceFile.name][InvoiceKey].trucks = MasterBatchLookupMap[SourceFile.name][InvoiceKey].truck 
+                                    ? MasterBatchLookupMap[SourceFile.name][InvoiceKey].truck.split(/[,/&]+/).map(t => t.trim()).filter(t => !isStatusOrNonTruck(t)) 
                                     : [];
                             }
                             const newTrucks = TruckVal.split(/[,/&]+/).map(t => t.trim()).filter(t => !isStatusOrNonTruck(t));
                             newTrucks.forEach(t => {
-                                if (!ProductMasterLookupMap[InvoiceKey].trucks.includes(t)) {
-                                    ProductMasterLookupMap[InvoiceKey].trucks.push(t);
+                                if (!MasterBatchLookupMap[SourceFile.name][InvoiceKey].trucks.includes(t)) {
+                                    MasterBatchLookupMap[SourceFile.name][InvoiceKey].trucks.push(t);
                                 }
                             });
-                            ProductMasterLookupMap[InvoiceKey].truck = ProductMasterLookupMap[InvoiceKey].trucks.join(", ") || TruckVal;
+                            MasterBatchLookupMap[SourceFile.name][InvoiceKey].truck = MasterBatchLookupMap[SourceFile.name][InvoiceKey].trucks.join(", ") || TruckVal;
                             if (isStatusOrNonTruck(TruckVal)) {
-                                ProductMasterLookupMap[InvoiceKey].status = TruckVal.toUpperCase();
+                                MasterBatchLookupMap[SourceFile.name][InvoiceKey].status = TruckVal.toUpperCase();
                             }
                         }
                         if (HubVal) {
-                            if (!ProductMasterLookupMap[InvoiceKey].hubs) {
-                                ProductMasterLookupMap[InvoiceKey].hubs = ProductMasterLookupMap[InvoiceKey].hub 
-                                    ? ProductMasterLookupMap[InvoiceKey].hub.split(/[,/&]+/).map(h => h.trim()).filter(Boolean) 
+                            if (!MasterBatchLookupMap[SourceFile.name][InvoiceKey].hubs) {
+                                MasterBatchLookupMap[SourceFile.name][InvoiceKey].hubs = MasterBatchLookupMap[SourceFile.name][InvoiceKey].hub 
+                                    ? MasterBatchLookupMap[SourceFile.name][InvoiceKey].hub.split(/[,/&]+/).map(h => h.trim()).filter(Boolean) 
                                     : [];
                             }
                             const newHubs = HubVal.split(/[,/&]+/).map(h => h.trim()).filter(Boolean);
                             newHubs.forEach(h => {
-                                if (!ProductMasterLookupMap[InvoiceKey].hubs.includes(h)) {
-                                    ProductMasterLookupMap[InvoiceKey].hubs.push(h);
+                                if (!MasterBatchLookupMap[SourceFile.name][InvoiceKey].hubs.includes(h)) {
+                                    MasterBatchLookupMap[SourceFile.name][InvoiceKey].hubs.push(h);
                                 }
                             });
-                            ProductMasterLookupMap[InvoiceKey].hub = ProductMasterLookupMap[InvoiceKey].hubs.join(", ");
+                            MasterBatchLookupMap[SourceFile.name][InvoiceKey].hub = MasterBatchLookupMap[SourceFile.name][InvoiceKey].hubs.join(", ");
                         }
-                        if (RouteVal && !ProductMasterLookupMap[InvoiceKey].route) ProductMasterLookupMap[InvoiceKey].route = RouteVal;
+                        if (RouteVal && !MasterBatchLookupMap[SourceFile.name][InvoiceKey].route) MasterBatchLookupMap[SourceFile.name][InvoiceKey].route = RouteVal;
                     }
 
                     // Save Product Code, Model Name, Ship Quantity, Route, Truck, and Hub per item line
                     const itemTrucks = TruckVal ? TruckVal.split(/[,/&]+/).map(t => t.trim()).filter(t => !isStatusOrNonTruck(t)) : [];
                     const itemHubs = HubVal ? HubVal.split(/[,/&]+/).map(h => h.trim()).filter(Boolean) : [];
 
-                    ProductMasterLookupMap[InvoiceKey].items.push({
+                    MasterBatchLookupMap[SourceFile.name][InvoiceKey].items.push({
                         code: ColFVal || "Unspecified Code",
                         desc: ColKVal || "No Description",
                         qty: LineQty,
@@ -399,15 +432,15 @@ async function handleProductMasterUpload(event) {
                         hubs: itemHubs
                     });
 
-                    if (ColFVal && !ProductMasterLookupMap[InvoiceKey].listK.includes(ColFVal)) {
-                        ProductMasterLookupMap[InvoiceKey].listK.push(ColFVal);
+                    if (ColFVal && !MasterBatchLookupMap[SourceFile.name][InvoiceKey].listK.includes(ColFVal)) {
+                        MasterBatchLookupMap[SourceFile.name][InvoiceKey].listK.push(ColFVal);
                     }
-                    if (ColKVal && !ProductMasterLookupMap[InvoiceKey].listL.includes(ColKVal)) {
-                        ProductMasterLookupMap[InvoiceKey].listL.push(ColKVal);
+                    if (ColKVal && !MasterBatchLookupMap[SourceFile.name][InvoiceKey].listL.includes(ColKVal)) {
+                        MasterBatchLookupMap[SourceFile.name][InvoiceKey].listL.push(ColKVal);
                     }
 
                     // Store row category into the DO's size set
-                    ProductMasterLookupMap[InvoiceKey].sizesSet.add(RowCategory);
+                    MasterBatchLookupMap[SourceFile.name][InvoiceKey].sizesSet.add(RowCategory);
                 }
                 resolve();
             };
@@ -417,18 +450,8 @@ async function handleProductMasterUpload(event) {
         });
     }
 
-    // Compute FINAL DO Category across all item rows for each DO
-    Object.keys(ProductMasterLookupMap).forEach(key => {
-        const SizeSet = ProductMasterLookupMap[key].sizesSet;
-
-        if (SizeSet.has("mix") || (SizeSet.has("big") && SizeSet.has("small"))) {
-            ProductMasterLookupMap[key].doCategory = "mix";
-        } else if (SizeSet.has("big")) {
-            ProductMasterLookupMap[key].doCategory = "big";
-        } else {
-            ProductMasterLookupMap[key].doCategory = "small";
-        }
-    });
+    // Rebuild ProductMasterLookupMap from the selected active view
+    if (typeof filterBatchByFile === "function") filterBatchByFile();
 
     // Check for unmatched DOs between Batch Picking and DO Summary
     let UnmatchedMsg = "";
@@ -438,17 +461,38 @@ async function handleProductMasterUpload(event) {
 
         if (MissingInSummary.length > 0) {
             const SampleList = MissingInSummary.slice(0, 4).join(", ");
-            const OverflowCount = MissingInSummary.length > 4 ? ` (+${MissingInSummary.length - 4} more)` : "";
-            UnmatchedMsg = `\n\n[NOTICE] Found ${MissingInSummary.length} DO(s) in Batch Picking missing from DO Summary file: ${SampleList}${OverflowCount}`;
+            const OverflowCount = MissingInSummary.length > 4 ? ` (+\${MissingInSummary.length - 4} more)` : "";
+            UnmatchedMsg = `\n\n[NOTICE] Found \${MissingInSummary.length} DO(s) in Batch Picking missing from DO Summary file: \${SampleList}\${OverflowCount}`;
         }
     }
 
-    showToast(`Processed ${SourceFiles.length} Batch Picking file(s) from 'Insert Batch' sheet!${UnmatchedMsg}`, "success");
+    showToast(`Processed \${SourceFiles.length} Batch Picking file(s) from 'Insert Batch' sheet!\${UnmatchedMsg}`, "success");
 
     const RouteNames = SourceFiles.map(f => f.name).join(", ");
     localStorage.setItem("LastRouteFileName", RouteNames);
-    localStorage.setItem("LastUploadedRouteData", JSON.stringify(ProductMasterLookupMap));
+    // Serialize sets to arrays for localStorage
+    const storageMap = {};
+    Object.keys(ProductMasterLookupMap).forEach(k => {
+        storageMap[k] = {
+            ...ProductMasterLookupMap[k],
+            sizesArray: Array.from(ProductMasterLookupMap[k].sizesSet || [])
+        };
+    });
+    localStorage.setItem("LastUploadedRouteData", JSON.stringify(storageMap));
+    localStorage.removeItem("ActiveBatchFilter");
 
+    // Also serialize MasterBatchLookupMap
+    const storageBatchMap = {};
+    Object.keys(MasterBatchLookupMap).forEach(fName => {
+        storageBatchMap[fName] = {};
+        Object.keys(MasterBatchLookupMap[fName]).forEach(k => {
+            storageBatchMap[fName][k] = {
+                ...MasterBatchLookupMap[fName][k],
+                sizesArray: Array.from(MasterBatchLookupMap[fName][k].sizesSet || [])
+            };
+        });
+    });
+    localStorage.setItem("LastMasterBatchLookupMap", JSON.stringify(storageBatchMap));
     // LINK TO BATCH ANALYTICS
     if (window.batchManager) {
         for (const file of SourceFiles) {
@@ -586,7 +630,12 @@ async function handleShippingInsightUpload(event) {
                 const colGVal = String(row[TrailingColIdx] || "Missing").trim();
                 const colHVal = String(row[LeadingColIdx] || "Missing").trim();
 
-                const isCompletedScan = (colGVal.toLowerCase() === "ship confirm pending" && colHVal.toLowerCase() === "ship confirm pending");
+                const gLow = colGVal.toLowerCase();
+                const hLow = colHVal.toLowerCase();
+                const isCompletedScan = (
+                    (gLow === "ship confirm pending" && hLow === "ship confirm pending") ||
+                    (gLow === "closed" && hLow === "closed")
+                );
                 const existsInSummary = SummaryDoSet.has(RawInvoiceVal);
 
                 // Skip unmatched DOs that are NOT completed
@@ -637,8 +686,8 @@ async function handleShippingInsightUpload(event) {
                         truck: Match.truck || "N/A",
                         hub: Match.hub || "N/A",
                         addr: CombinedDestination || sumItem.name || sumItem.addr || "N/A",
-                        colG: "picking pending",
-                        colH: "picking pending",
+                        colG: "COMPLETED (SCAN DONE)",
+                        colH: "COMPLETED (SCAN DONE)",
                         doType: catType
                     });
                 }

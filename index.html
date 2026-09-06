@@ -206,6 +206,15 @@
                             <span>Packing List</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="ocr_scanner.html" class="sidebar-nav-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/>
+                                <path d="M7 12h10M9 8v8M15 8v8"/>
+                            </svg>
+                            <span>OCR Document Scanner</span>
+                        </a>
+                    </li>
 
 </ul>
 
@@ -217,163 +226,366 @@
         </div>
 
         <div class="main-content">
-            <!-- 64x64 Header Branding Section with Dedicated Wrap-Safe Memory Badge -->
-        <div style="display: flex; align-items: center; gap: 18px; margin-bottom: 12px;">
-            <div style="color: var(--accent); display: flex; align-items: center;">
-                <!-- 64x64 px Logistics Cargo Truck Vector Icon -->
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-            </div>
-            <div>
-                <h1>DO Summary Analytics</h1>
-                <p style="font-size: 13px; margin-top: 2px;" class="header-subtitle">Welcome! Please select a DO Summary File & Batch Picking.</p>
-            </div>
-        </div>
-
-        <!-- Dedicated Memory Status Badge (Positioned directly above upload buttons) -->
-        <div id="memoryStatusBadge" class="memory-status-badge" style="margin-bottom: 12px;"></div>
-
-        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-            <!-- 1. DO Summary File Upload -->
-            <div class="file-upload-box">
-                <label for="filePicker">DO Summary File(s):</label>
-                <input type="file" id="filePicker" accept=".xlsx, .xls, .xlsm" multiple onchange="handleFileUpload(event)">
-                <button type="button" class="reset-file-btn" onclick="resetSpecificFile('do')" title="Clear DO Summary File">✕</button>
-            </div>
-
-            <!-- 2. Batch Picking / Source File Upload -->
-            <div class="file-upload-box">
-                <label for="productMasterPicker">Batch Picking File (.xlsm):</label>
-                <input type="file" id="productMasterPicker" accept=".csv, .xlsx, .xls, .xlsm" multiple onchange="handleProductMasterUpload(event)">
-                <button type="button" class="reset-file-btn" onclick="resetSpecificFile('batch')" title="Clear Batch Picking File">✕</button>
-            </div>
-
-            <!-- 3. Shipping Insight File Upload -->
-            <div class="file-upload-box">
-                <label for="shippingInsightPicker">Shipping Insight File (.xlsx):</label>
-                <input type="file" id="shippingInsightPicker" accept=".xlsx, .xls, .xlsm" onchange="handleShippingInsightUpload(event)">
-                <button type="button" class="reset-file-btn" onclick="resetSpecificFile('shipping')" title="Clear Shipping Insight File">✕</button>
-            </div>
-
-            <!-- Dashboard Active View & Action Buttons -->
-            <div class="file-upload-box">
-                <label for="fileSelector">Active View:</label>
-                <select id="fileSelector" onchange="filterByFile()">
-                    <option value="ALL">All Files Combined (0)</option>
-                </select>
-
-                <button id="themeToggleBtn" onclick="toggleTheme()" style="margin-left:8px; cursor:pointer;">Mode: Dark</button>
-                <button id="resetBtn" onclick="resetDashboard()" style="margin-left:8px; cursor:pointer;">Reset Dashboard</button>
-                <button id="shippingInsightBtn" onclick="openShippingInsightTab()" style="margin-left:8px; cursor:pointer;">DO Scanning Status</button>
-            </div>
-        </div>
-
-<!-- Executive KPI Metric Cards with Vector Icons -->
-    <div class="kpi-container">
-        <!-- Invoice KPI Card -->
-        <div class="kpi-card">
-            <div class="kpi-card-header">
-                <div class="title">Total Invoices</div>
-                <div class="kpi-icon" style="color: #3b82f6;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <!-- 36x36 Header Branding Section with Dedicated Wrap-Safe Memory Badge -->
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="color: var(--accent); display: flex; align-items: center;">
+                        <!-- Streamlined 36x36 Logistics Cargo Truck Vector Icon -->
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                    </div>
+                    <div>
+                        <h1 style="margin: 0; font-size: 20px; line-height: 1.2;">DO Summary Analytics</h1>
+                        <p style="font-size: 12px; margin-top: 2px; margin-bottom: 0;" class="header-subtitle">Interactive Summary Explorer, Route & DO Filter Hub, and Live Volume Monitor.</p>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Action Buttons -->
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <button id="themeToggleBtn" onclick="toggleTheme()" style="cursor:pointer; padding: 6px 12px; font-size: 11px;">Mode: Dark</button>
+                    <button id="resetBtn" onclick="resetDashboard()" style="cursor:pointer; padding: 6px 12px; font-size: 11px;">Reset Dashboard</button>
+                    <button id="shippingInsightBtn" onclick="openShippingInsightTab()" style="cursor:pointer; padding: 6px 12px; font-size: 11px;">DO Scanning Status</button>
                 </div>
             </div>
-            <div class="value" id="kpi-invoices">0</div>
-        </div>
 
-        <!-- Volume KPI Card -->
-        <div class="kpi-card green">
-            <div class="kpi-card-header">
-                <div class="title">Total Volume (m³)</div>
-                <div class="kpi-icon" style="color: #10b981;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            <!-- Dedicated Memory Status Badge -->
+            <div id="memoryStatusBadge" class="memory-status-badge" style="margin-bottom: 8px;"></div>
+
+            <!-- Dual-Mode Ingestion Bar -->
+            <div class="explorer-sync-strip" style="padding: 8px 14px; margin-bottom: 10px;">
+                <div class="explorer-sync-left">
+                    <span id="dataSourceStatusBadge" class="sync-status-badge empty">
+                        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:currentColor;"></span>
+                        <span id="dataSourceStatusText">No DO Summary loaded</span>
+                    </span>
+                    <span id="activeRecordCountPill" style="font-size: 12px; color: var(--fg-muted); font-weight: 600;">
+                        0 Total DOs in Dataset
+                    </span>
+                </div>
+                <div class="explorer-sync-actions">
+                    <button type="button" class="btn-sync" onclick="syncWithGeneratorSession(true)" title="Auto-load active batches from DO Summary Generator session">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                        <span>Sync Generator Batches</span>
+                    </button>
+                    <label class="btn-standalone-upload" title="Upload standalone DO Summary Excel (.xlsx, .xlsm, .csv)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <span>Upload Standalone File</span>
+                        <input type="file" id="standaloneFilePicker" accept=".xlsx, .xls, .xlsm, .csv" onchange="handleStandaloneExplorerUpload(event)">
+                    </label>
                 </div>
             </div>
-            <div class="value" id="kpi-volume">0.00</div>
-        </div>
 
-        <!-- Quantity KPI Card -->
-        <div class="kpi-card purple">
-            <div class="kpi-card-header">
-                <div class="title">Total Quantity</div>
-                <div class="kpi-icon" style="color: #8b5cf6;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <!-- File Upload Grid (DO Summary and Batch Picking only) -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                <!-- 1. DO Summary File Upload -->
+                <div class="file-upload-box" style="flex-direction: column; align-items: flex-start; position: relative;">
+                    <div style="display: flex; align-items: center; width: 100%;">
+                        <label for="filePicker">DO Summary File(s):</label>
+                        <input type="file" id="filePicker" accept=".xlsx, .xls, .xlsm" multiple onchange="handleFileUpload(event)">
+                        <button type="button" class="reset-file-btn" onclick="resetSpecificFile('do')" title="Clear DO Summary File" style="position: absolute; right: 15px; top: 15px;">✕</button>
+                    </div>
+                    <div id="doSummaryChips" class="file-chips-wrapper">
+                        <button class="file-chip active" data-filename="ALL" onclick="filterByFile('ALL', this)">All Files Combined (0)</button>
+                    </div>
+                </div>
+
+                <!-- 2. Batch Picking / Source File Upload -->
+                <div class="file-upload-box" style="flex-direction: column; align-items: flex-start; position: relative;">
+                    <div style="display: flex; align-items: center; width: 100%;">
+                        <label for="productMasterPicker">Batch Picking File (.xlsm):</label>
+                        <input type="file" id="productMasterPicker" accept=".csv, .xlsx, .xls, .xlsm" multiple onchange="handleProductMasterUpload(event)">
+                        <button type="button" class="reset-file-btn" onclick="resetSpecificFile('batch')" title="Clear Batch Picking File" style="position: absolute; right: 15px; top: 15px;">✕</button>
+                    </div>
+                    <div id="batchFileChips" class="file-chips-wrapper">
+                        <button class="file-chip active" data-filename="ALL" onclick="filterBatchByFile('ALL', this)">All Files Combined (0)</button>
+                    </div>
                 </div>
             </div>
-            <div class="value" id="kpi-qty">0</div>
-        </div>
 
-        <!-- SKU KPI Card -->
-        <div class="kpi-card orange">
-            <div class="kpi-card-header">
-                <div class="title">Total SKUs</div>
-                <div class="kpi-icon" style="color: #f59e0b;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            <!-- Executive Macro KPI Metric Cards -->
+            <div class="kpi-container">
+                <!-- Invoice KPI Card -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <div class="title">Total Invoices</div>
+                        <div class="kpi-icon" style="color: #3b82f6;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        </div>
+                    </div>
+                    <div class="value" id="kpi-invoices">0</div>
+                </div>
+
+                <!-- Volume KPI Card -->
+                <div class="kpi-card green">
+                    <div class="kpi-card-header">
+                        <div class="title">Total Volume (m³)</div>
+                        <div class="kpi-icon" style="color: #10b981;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                        </div>
+                    </div>
+                    <div class="value" id="kpi-volume">0.00</div>
+                </div>
+
+                <!-- Quantity KPI Card -->
+                <div class="kpi-card purple">
+                    <div class="kpi-card-header">
+                        <div class="title">Total Quantity</div>
+                        <div class="kpi-icon" style="color: #8b5cf6;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        </div>
+                    </div>
+                    <div class="value" id="kpi-qty">0</div>
+                </div>
+
+                <!-- SKU KPI Card -->
+                <div class="kpi-card orange">
+                    <div class="kpi-card-header">
+                        <div class="title">Total SKUs</div>
+                        <div class="kpi-icon" style="color: #f59e0b;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                        </div>
+                    </div>
+                    <div class="value" id="kpi-sku">0</div>
                 </div>
             </div>
-            <div class="value" id="kpi-sku">0</div>
-        </div>
-    </div>
 
-<!-- Top Grid: Equal 50/50 Split Layout -->
-    <div class="charts-container">
-<!-- DO Remarks Overview Card (Left 50%) -->
-        <div class="chart-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h3 style="margin-bottom: 0;">DO Remarks Overview</h3>
-                <select id="remarkFilter" onchange="applyRemarkFilter()" style="padding:4px 8px; font-size:12px; outline:none; max-width: 200px;">
-                    <option value="ALL">All Remarks</option>
-                </select>
+            <!-- Top Grid: Equal 50/50 Split Layout -->
+            <div class="charts-container">
+                <!-- DO Remarks Overview Card (Left 50%) -->
+                <div class="chart-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="margin-bottom: 0;">DO Remarks Overview</h3>
+                        <select id="remarkFilter" onchange="applyRemarkFilter()" style="padding:4px 8px; font-size:12px; outline:none; max-width: 200px;">
+                            <option value="ALL">All Remarks</option>
+                        </select>
+                    </div>
+                    <div class="table-wrapper" style="max-height: 260px; overflow-y: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 35%;">DO Number</th>
+                                    <th>Remarks Note</th>
+                                </tr>
+                            </thead>
+                            <tbody id="remarksOverviewBody">
+                                <tr><td colspan="2" style="text-align:center; color:#64748b; padding:20px;">No DO data loaded.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Addresses Exceeding 5 m³ Volume Chart Card -->
+                <div class="chart-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px;">
+                        <h3 style="margin-bottom: 0;">Addresses Exceeding 5 m³ Volume (able to go direct)</h3>
+                        <button type="button" class="chart-action-btn" id="chartFilterDirectBtn" onclick="toggleDirectDeliveryQuickFilter()" title="Filter spreadsheet manifest to only Direct Delivery (> 5 m³) orders">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                            <span>Filter Manifest</span>
+                        </button>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="consigneeChart"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="table-wrapper" style="max-height: 260px; overflow-y: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 35%;">DO Number</th>
-                            <th>Remarks Note</th>
-                        </tr>
-                    </thead>
-                    <tbody id="remarksOverviewBody">
-                        <tr><td colspan="2" style="text-align:center; color:#64748b; padding:20px;">No DO data loaded.</td></tr>
-                    </tbody>
-                </table>
+
+            <!-- =========================================================
+                 Excel-Style Spreadsheet Data Table Grid
+                 ========================================================= -->
+            <div class="spreadsheet-card">
+                <div class="spreadsheet-toolbar">
+                    <div class="spreadsheet-title-group">
+                        <h3>Shipment Manifest Spreadsheet</h3>
+                        <span class="spreadsheet-row-counter" id="spreadsheetRowCounter">Showing 0 rows</span>
+                        <div class="active-filter-tags" id="activeFilterTags" style="margin-left: 12px;"></div>
+                    </div>
+
+                    <div class="spreadsheet-actions">
+                        <!-- Quick Filter: Addresses Exceeding 5 m³ Volume (able to go direct) -->
+                        <button type="button" class="quick-filter-direct-btn" id="quickFilterDirectBtn" onclick="toggleDirectDeliveryQuickFilter()" title="Quick Filter: List all orders for addresses exceeding 5 m³ volume (direct delivery eligible, matching chart)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="1" y="3" width="15" height="13"></rect>
+                                <polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon>
+                                <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                                <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                            </svg>
+                            <span>Direct Delivery (&gt; 5 m³)</span>
+                            <span class="filter-count-badge" id="directFilterBadge" style="display:none;">0</span>
+                        </button>
+
+                        <!-- Quick Filter: Non-Direct Delivery (Exclude direct delivery DOs) -->
+                        <button type="button" class="quick-filter-direct-btn" id="quickFilterNonDirectBtn" onclick="toggleNonDirectDeliveryQuickFilter()" title="Quick Filter: Filter out direct delivery DOs to show only remaining regular / non-direct orders">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                            </svg>
+                            <span>Non-Direct Delivery</span>
+                            <span class="filter-count-badge" id="nonDirectFilterBadge" style="display:none;">0</span>
+                        </button>
+
+                        <!-- View Mode Toggle: Default View vs Batch View -->
+                        <div class="view-mode-toggle" id="spreadsheetViewModeToggle" role="radiogroup" aria-label="Table View Layout">
+                            <button type="button" class="view-toggle-btn active" id="viewModeDefaultBtn" onclick="setSpreadsheetViewMode('default')" title="Default Layout: Clean manifest view without batch items expanding row heights">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/>
+                                </svg>
+                                <span>Default View</span>
+                            </button>
+                            <button type="button" class="view-toggle-btn" id="viewModeBatchBtn" onclick="setSpreadsheetViewMode('batch')" title="Batch View: Show product codes, models & truck/hub details">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+                                </svg>
+                                <span>Batch View</span>
+                            </button>
+                        </div>
+
+                        <!-- Reset / Clear All Filters -->
+                        <button type="button" class="spreadsheet-btn" onclick="resetAllExplorerFilters()" title="Clear all active column filters and search constraints">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            <span>Clear Filters</span>
+                        </button>
+
+                        <!-- Density Toggle -->
+                        <button type="button" class="spreadsheet-btn" id="densityToggleBtn" onclick="toggleSpreadsheetDensity()" title="Toggle compact spreadsheet row density">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                            <span id="densityToggleLabel">Compact Density</span>
+                        </button>
+
+                        <!-- Export to Excel (.xlsx) -->
+                        <button type="button" class="spreadsheet-btn btn-export-excel" onclick="exportFilteredExplorerToExcel()" title="Export current filtered view and metrics to Excel spreadsheet (.xlsx)">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            <span>Export Filtered to Excel</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="spreadsheet-table-container" id="spreadsheetContainer">
+                    <table class="spreadsheet-table">
+                        <thead>
+                            <tr>
+                                <th class="excel-th-cell" title="Delivery Order / Invoice Number">
+                                    <div class="excel-th-content">
+                                        <span class="sortable-th-label" onclick="sortExplorerTable('inv')">INVOICE NO <span class="sort-icon" id="sort_icon_inv">⇅</span></span>
+                                        <button type="button" class="excel-filter-btn" id="excel_btn_inv" onclick="openExcelFilterMenu(event, 'inv', 'INVOICE NO')" title="AutoFilter INVOICE NO">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell" title="Delivery Route">
+                                    <div class="excel-th-content">
+                                        <span class="sortable-th-label" onclick="sortExplorerTable('route')">ROUTE <span class="sort-icon" id="sort_icon_route">⇅</span></span>
+                                        <button type="button" class="excel-filter-btn" id="excel_btn_route" onclick="openExcelFilterMenu(event, 'route', 'ROUTE')" title="AutoFilter ROUTE">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell" title="Consignee Name">
+                                    <div class="excel-th-content">
+                                        <span class="sortable-th-label" onclick="sortExplorerTable('name')">CONSIGNEE_NAME <span class="sort-icon" id="sort_icon_name">⇅</span></span>
+                                        <button type="button" class="excel-filter-btn" id="excel_btn_name" onclick="openExcelFilterMenu(event, 'name', 'CONSIGNEE_NAME')" title="AutoFilter CONSIGNEE_NAME">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell" title="Delivery Address">
+                                    <div class="excel-th-content">
+                                        <span class="sortable-th-label" onclick="sortExplorerTable('addr')">ADDRESS1 <span class="sort-icon" id="sort_icon_addr">⇅</span></span>
+                                        <button type="button" class="excel-filter-btn" id="excel_btn_addr" onclick="openExcelFilterMenu(event, 'addr', 'ADDRESS1')" title="AutoFilter ADDRESS1">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell" title="Volume (m³)">
+                                    <div class="excel-th-content" style="justify-content: flex-end;">
+                                        <span class="sortable-th-label" onclick="sortExplorerTable('vol')">VOLUME <span class="sort-icon" id="sort_icon_vol">⇅</span></span>
+                                        <button type="button" class="excel-filter-btn" id="excel_btn_vol" onclick="openExcelFilterMenu(event, 'vol', 'VOLUME')" title="AutoFilter VOLUME">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell" title="Quantity">
+                                    <div class="excel-th-content" style="justify-content: flex-end;">
+                                        <span class="sortable-th-label" onclick="sortExplorerTable('qty')">QTY <span class="sort-icon" id="sort_icon_qty">⇅</span></span>
+                                        <button type="button" class="excel-filter-btn" id="excel_btn_qty" onclick="openExcelFilterMenu(event, 'qty', 'QTY')" title="AutoFilter QTY">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell" title="SKU count">
+                                    <div class="excel-th-content" style="justify-content: flex-end;">
+                                        <span class="sortable-th-label" onclick="sortExplorerTable('sku')">TOTAL SKU <span class="sort-icon" id="sort_icon_sku">⇅</span></span>
+                                        <button type="button" class="excel-filter-btn" id="excel_btn_sku" onclick="openExcelFilterMenu(event, 'sku', 'TOTAL SKU')" title="AutoFilter TOTAL SKU">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell" title="DO Category / Remark">
+                                    <div class="excel-th-content">
+                                        <span class="sortable-th-label" onclick="sortExplorerTable('cat')">REMARK / CAT <span class="sort-icon" id="sort_icon_cat">⇅</span></span>
+                                        <button type="button" class="excel-filter-btn" id="excel_btn_cat" onclick="openExcelFilterMenu(event, 'cat', 'REMARK / CAT')" title="AutoFilter REMARK / CAT">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                        <tfoot>
+                            <tr class="spreadsheet-subtotal-row" id="spreadsheetSubtotalRow">
+                                <td colspan="4">
+                                    <strong>Σ Filtered Subtotal (<span id="subtotalDoCount">0</span> DOs)</strong>
+                                </td>
+                                <td class="number-cell" id="subtotalVolume">0.0000 m³</td>
+                                <td class="number-cell" id="subtotalQty">0</td>
+                                <td class="number-cell" id="subtotalSKU">0</td>
+                                <td>-</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
-        </div>
-
-<!-- Addresses Exceeding 5 m³ Volume Chart Card -->
-        <div class="chart-card">
-            <h3>Addresses Exceeding 5 m³ Volume (able to go direct)</h3>
-            <div class="chart-wrapper">
-                <canvas id="consigneeChart"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Table -->
-    <div class="table-card">
-        <div class="table-toolbar">
-            <h3>Shipment Details Manifest</h3>
-            <input type="text" id="searchInput" class="search-box" placeholder="Search Invoices, Address..." onkeyup="filterTable()">
-        </div>
-
-        <div class="table-wrapper">
-            <table>
-<thead>
-                    <tr>
-                        <th>Invoice No</th>
-                        <th>Route</th>
-                        <th>Consignee Name</th>
-                        <th>Address</th>
-                        <th class="number-col">Volume (m³)</th>
-                        <th class="number-col">Qty</th>
-                        <th class="number-col">SKU</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </div>
-    </div>
         </div> <!-- End .main-content -->
     </div> <!-- End .app-container -->
+
+    <!-- Excel AutoFilter Dropdown Menu Modal / Context Menu -->
+    <div id="excelFilterMenu" class="excel-filter-menu" style="display: none;">
+        <button type="button" class="excel-menu-item" id="excelMenuSortAsc" onclick="handleExcelMenuSort('asc')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12M9 18h6"/></svg>
+            <span id="excelMenuSortAscLabel">Sort A to Z</span>
+        </button>
+        <button type="button" class="excel-menu-item" id="excelMenuSortDesc" onclick="handleExcelMenuSort('desc')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6h6M6 12h12M3 18h18"/></svg>
+            <span id="excelMenuSortDescLabel">Sort Z to A</span>
+        </button>
+        
+        <div class="excel-menu-divider"></div>
+        
+        <button type="button" class="excel-menu-item" id="excelMenuClearFilter" onclick="handleExcelMenuClearFilter()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <span id="excelMenuClearFilterLabel">Clear Filter From Column</span>
+        </button>
+
+        <div class="excel-menu-divider"></div>
+
+        <!-- Search input -->
+        <div class="excel-search-box-wrap">
+            <div class="excel-search-box-inner">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="excelSearchInput" class="excel-search-input" placeholder="Search..." oninput="handleExcelSearchInput(this.value)" onkeydown="handleExcelSearchKeydown(event)">
+            </div>
+        </div>
+
+        <!-- Checkbox Tree List -->
+        <div class="excel-checkbox-list" id="excelCheckboxList">
+            <!-- Dynamically populated -->
+        </div>
+
+        <!-- Footer Action Buttons -->
+        <div class="excel-menu-actions">
+            <button type="button" class="excel-btn-ok" onclick="applyExcelFilterMenu()">OK</button>
+            <button type="button" class="excel-btn-cancel" onclick="closeExcelFilterMenu()">Cancel</button>
+        </div>
+    </div>
 
     <!-- Modular JS Scripts -->
     <script src="js/app.js"></script>

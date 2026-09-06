@@ -204,6 +204,15 @@
                             <span>Packing List</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="ocr_scanner.html" class="sidebar-nav-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/>
+                                <path d="M7 12h10M9 8v8M15 8v8"/>
+                            </svg>
+                            <span>OCR Document Scanner</span>
+                        </a>
+                    </li>
 
 </ul>
             </div>
@@ -220,10 +229,10 @@
                 <!-- Left Column: Toolbar, Uploads & KPI Metrics -->
                 <div class="generator-left-panel">
                     <!-- Header Toolbar -->
-                    <div class="top-bar" style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                        <div style="display: flex; align-items: center; gap: 14px;">
+                    <div class="top-bar" style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
                             <div style="color: #10b981; display: flex; align-items: center;">
-                                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                     <polyline points="14 2 14 8 20 8"/>
                                     <line x1="12" y1="18" x2="12" y2="12"/>
@@ -231,14 +240,30 @@
                                 </svg>
                             </div>
                             <div>
-                                <h1 style="font-size: 18px; margin: 0;">DO Summary List Generator</h1>
-                                <p style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Automated SONY CSV/Excel Batch Summary Generation Module</p>
+                                <h1 style="font-size: 17px; margin: 0; font-weight: 700;">DO Summary List Generator</h1>
+                                <p style="font-size: 11px; color: #94a3b8; margin-top: 1px;">Automated SONY CSV/Excel Batch Summary Generation Module</p>
                             </div>
                         </div>
 
-                        <!-- Control Action Buttons -->
-                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                            <label for="sourceFilePicker" class="action-btn" style="background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 11px; padding: 6px 12px; border-radius: 6px; margin: 0;">
+                        <!-- Secondary Utilities (Theme & Global Reset) -->
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <button class="action-btn" style="background: transparent; color: var(--fg-subtle, #94a3b8); border: 1px solid var(--border); font-size: 11px; padding: 4px 10px; border-radius: 6px; cursor: pointer;" onclick="summaryGenerator.resetFinalSummary()" title="Clear compiled final summary cache">
+                                Clear Summary
+                            </button>
+                            <button class="action-btn dsg-reset-btn" onclick="summaryGenerator.reset()" style="font-size: 11px; padding: 4px 10px; border-radius: 6px;" title="Reset all batches and state">
+                                Reset All
+                            </button>
+                            <button id="themeToggleBtn" onclick="toggleTheme()" style="cursor: pointer; font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, transparent); color: var(--fg);">
+                                Mode: Dark
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Clean Segmented Action Command Strip -->
+                    <div style="background: var(--surface, #1e293b); border: 1px solid var(--border, #334155); border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <!-- Primary Workflow Group (Left) -->
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <label for="sourceFilePicker" class="action-btn" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 11px; padding: 6px 12px; border-radius: 6px; margin: 0; transition: all 0.15s ease;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                                     <polyline points="17 8 12 3 7 8"/>
@@ -248,7 +273,7 @@
                                 <input type="file" id="sourceFilePicker" accept=".csv, .xlsx, .xls" multiple onchange="summaryGenerator.handleFileUpload(event)" style="display: none;">
                             </label>
 
-                            <label for="updateFilePicker" class="action-btn" style="background: rgba(59, 130, 246, 0.12); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.35); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 11px; padding: 6px 12px; border-radius: 6px; margin: 0;">
+                            <label for="updateFilePicker" class="action-btn" style="background: rgba(59, 130, 246, 0.12); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.35); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 11px; padding: 6px 12px; border-radius: 6px; margin: 0; transition: all 0.15s ease;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="1 4 1 10 7 10"/>
                                     <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
@@ -257,8 +282,10 @@
                                 <input type="file" id="updateFilePicker" accept=".csv, .xlsx, .xls" multiple onchange="summaryGenerator.handleUpdateFileUpload(event)" style="display: none;">
                             </label>
 
-                            <button class="action-btn dsg-compile-btn" onclick="summaryGenerator.compileFinalSummary()">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <div style="height: 20px; width: 1px; background: var(--border, #334155); margin: 0 2px;"></div>
+
+                            <button class="action-btn dsg-compile-btn" onclick="summaryGenerator.compileFinalSummary()" style="padding: 6px 12px; font-size: 11px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                     <polyline points="14 2 14 8 20 8"/>
                                     <line x1="12" y1="18" x2="12" y2="12"/>
@@ -267,46 +294,48 @@
                                 Compile Summary
                             </button>
 
-                            <button class="action-btn dsg-export-btn" onclick="summaryGenerator.exportToExcel()">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <button class="action-btn dsg-export-btn" onclick="summaryGenerator.exportToExcel()" style="padding: 6px 12px; font-size: 11px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                                     <polyline points="7 10 12 15 17 10"/>
                                     <line x1="12" y1="15" x2="12" y2="3"/>
                                 </svg>
                                 Export by Batch
                             </button>
+                        </div>
 
-                            <button class="action-btn" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.35); font-weight: 600; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; gap: 5px;" onclick="summaryGenerator.exportToJSON()">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                    <polyline points="7 10 12 15 17 10"/>
-                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                        <!-- Session & Batch Management Tools (Right) -->
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <!-- Session Segmented Capsule -->
+                            <div style="display: inline-flex; align-items: center; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.25); border-radius: 6px; padding: 2px;">
+                                <button class="action-btn" style="background: transparent; color: #a78bfa; border: none; font-weight: 600; padding: 4px 9px; cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;" onclick="summaryGenerator.exportToJSON()" title="Export entire session data to JSON">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="7 10 12 15 17 10"/>
+                                        <line x1="12" y1="15" x2="12" y2="3"/>
+                                    </svg>
+                                    Export JSON
+                                </button>
+                                <span style="color: rgba(139, 92, 246, 0.3); font-size: 10px;">|</span>
+                                <label for="jsonImportPicker" class="action-btn" style="background: transparent; color: #a78bfa; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-weight: 600; font-size: 11px; padding: 4px 9px; margin: 0;" title="Import session from JSON or Excel">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="17 8 12 3 7 8"/>
+                                        <line x1="12" y1="3" x2="12" y2="15"/>
+                                    </svg>
+                                    Import Session
+                                    <input type="file" id="jsonImportPicker" accept=".json, .xlsx, .xls" onchange="summaryGenerator.importSessionFile(event)" style="display: none;">
+                                </label>
+                            </div>
+
+                            <!-- Delete Batch Action Button -->
+                            <button class="action-btn" style="background: rgba(239, 68, 68, 0.1); color: #f87171; font-weight: 600; border: 1px solid rgba(239, 68, 68, 0.3); padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;" onclick="summaryGenerator.resetCurrentBatch()" title="Delete the currently selected batch">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                                 </svg>
-                                Export (.json)
+                                Delete Batch
                             </button>
-
-                            <label for="jsonImportPicker" class="action-btn" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.35); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 11px; padding: 6px 12px; border-radius: 6px; margin: 0;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                    <polyline points="17 8 12 3 7 8"/>
-                                    <line x1="12" y1="3" x2="12" y2="15"/>
-                                </svg>
-                                Import JSON
-                                <input type="file" id="jsonImportPicker" accept=".json" onchange="summaryGenerator.importFromJSON(event)" style="display: none;">
-                            </label>
-
-                            <button class="action-btn" style="background: var(--btn-danger-bg); color: var(--btn-danger-fg); font-weight: 600; border: 1px solid rgba(239, 68, 68, 0.25); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px;" onclick="summaryGenerator.resetCurrentBatch()">
-                                Delete Current Batch
-                            </button>
-                            <button class="action-btn" style="background: var(--btn-danger-bg); color: var(--btn-danger-fg); font-weight: 600; border: 1px solid rgba(239, 68, 68, 0.25); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px;" onclick="summaryGenerator.resetFinalSummary()">
-                                Clear Final Summary
-                            </button>
-
-                            <button class="action-btn dsg-reset-btn" onclick="summaryGenerator.reset()">
-                                Reset All
-                            </button>
-
-                            <button id="themeToggleBtn" onclick="toggleTheme()" style="cursor:pointer; font-size:11px;">Mode: Dark</button>
                         </div>
                     </div>
 

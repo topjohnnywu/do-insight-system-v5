@@ -1,14 +1,6 @@
-# Dependencies
 node_modules/
-
-# OS junk
+_archive/
+_backups/
+*.log
 .DS_Store
 Thumbs.db
-Desktop.ini
-
-# Logs
-*.log
-
-# Editor / tooling
-.kilo/
-.vscode/

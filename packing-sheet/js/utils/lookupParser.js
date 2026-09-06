@@ -61,6 +61,185 @@
     return customerFiltered.filter((e) => isDoMatch(e.doNo, doNo));
   }
 
+  // Aggregate entries by unique product code (code8D) and calculate the sum of quantities
+  function aggregateEntriesByProductCode(entries, customer) {
+    if (!Array.isArray(entries) || entries.length === 0) return [];
+
+    const groupedMap = new Map();
+    const result = [];
+
+    entries.forEach((entry, idx) => {
+      const codeKey = (entry.code8D || '').trim().toUpperCase();
+
+      // If entry has no code8D, keep it as an individual item without grouping
+      if (!codeKey) {
+        result.push({
+          ...entry,
+          qty: cleanQuantity(entry.qty),
+        });
+        return;
+      }
+
+      const qVal = cleanQuantity(entry.qty);
+      const numQ = typeof qVal === 'number' ? qVal : 0;
+
+      if (groupedMap.has(codeKey)) {
+        const aggregated = groupedMap.get(codeKey);
+        aggregated.totalQty += numQ;
+        aggregated.hasQty = aggregated.hasQty || typeof qVal === 'number';
+
+        // Keep description/destination if previous row lacked it
+        if (!aggregated.description && entry.description) {
+          aggregated.description = entry.description;
+        }
+        if (!aggregated.destination && entry.destination) {
+          aggregated.destination = entry.destination;
+        }
+      } else {
+        const itemObj = {
+          ...entry,
+          id: entry.id || `agg-${Date.now()}-${idx}`,
+          code8D: entry.code8D ? entry.code8D.trim() : '',
+          totalQty: numQ,
+          hasQty: typeof qVal === 'number',
+        };
+        groupedMap.set(codeKey, itemObj);
+        result.push(itemObj);
+      }
+    });
+
+    // Finalize quantities and total cartons
+    return result.map((item) => {
+      if (item.totalQty !== undefined && item.hasQty !== undefined) {
+        const finalQty = item.hasQty ? item.totalQty : '';
+        const itemCustomer = item.customer || (customer === 'MSCSJ' ? 'MSCSJ' : 'SSEA');
+        let autoCarton = '';
+        if (itemCustomer === 'MSCSJ') {
+          autoCarton = typeof finalQty === 'number' && finalQty > 0 ? Math.ceil(finalQty / 5) : '';
+        } else {
+          // Customer SSEA: Leave empty for manual entry
+          autoCarton = '';
+        }
+
+        const { totalQty, hasQty, ...rest } = item;
+        return {
+          ...rest,
+          qty: finalQty,
+          totalCarton: autoCarton,
+        };
+      }
+      return item;
+    });
+  }
+
+  /**
+   * Calculates remaining quantities for each model in a DO.
+   * Allocations are summed from items (optionally excluding a specific row by ID or index).
+   *
+   * @param {Array} items - Sheet rows with { id, code8D, qty }
+   * @param {Array} aggregatedLookupEntries - Aggregated DO source entries with { code8D, qty }
+   * @param {string|number} [excludeIdOrIndex] - Optional ID or index of row to exclude from allocated sum
+   * @returns {Map<string, { code8D: string, sourceQty: number, allocatedQty: number, remainingQty: number }>}
+   */
+  function calculateRemainingModelQuantities(items, aggregatedLookupEntries, excludeIdOrIndex) {
+    const allocatedMap = new Map();
+    (items || []).forEach((item, idx) => {
+      if (excludeIdOrIndex !== undefined && excludeIdOrIndex !== null) {
+        if (item.id === excludeIdOrIndex || idx === excludeIdOrIndex) return;
+      }
+      if (!item || !item.code8D) return;
+      const key = item.code8D.trim().toLowerCase();
+      if (!key) return;
+      const qVal = cleanQuantity(item.qty);
+      const numQ = typeof qVal === 'number' ? qVal : 0;
+      allocatedMap.set(key, (allocatedMap.get(key) || 0) + numQ);
+    });
+
+    const resultMap = new Map();
+    (aggregatedLookupEntries || []).forEach((entry) => {
+      if (!entry || !entry.code8D) return;
+      const code = entry.code8D.trim();
+      const key = code.toLowerCase();
+      const srcQVal = cleanQuantity(entry.qty);
+      const sourceQty = typeof srcQVal === 'number' ? srcQVal : 0;
+      const allocatedQty = allocatedMap.get(key) || 0;
+      const remainingQty = Math.max(0, sourceQty - allocatedQty);
+
+      resultMap.set(key, {
+        code8D: code,
+        sourceQty,
+        allocatedQty,
+        remainingQty,
+      });
+    });
+
+    return resultMap;
+  }
+
+  /**
+   * Gets remaining unallocated quantity for a specific model code, excluding a specific item.
+   *
+   * @param {Array} items
+   * @param {Array} aggregatedLookupEntries
+   * @param {string} modelCode
+   * @param {string|number} [excludeIdOrIndex]
+   * @returns {number}
+   */
+  function getRemainingQuantityForModel(items, aggregatedLookupEntries, modelCode, excludeIdOrIndex) {
+    if (!modelCode) return 0;
+    const key = modelCode.trim().toLowerCase();
+    const map = calculateRemainingModelQuantities(items, aggregatedLookupEntries, excludeIdOrIndex);
+    const info = map.get(key);
+    if (!info) return 0;
+    return Math.max(0, info.remainingQty);
+  }
+
+  /**
+   * Filters available model codes for a specific row in the packing sheet.
+   * - If no aggregated lookup entries exist, returns unique codes from customerDb.
+   * - If aggregated lookup entries exist, only returns models where remainingQty > 0
+   *   (taking into account allocations by all other rows), OR if the model is currently
+   *   selected in this row.
+   *
+   * @param {Object} params
+   * @param {Array} params.items - Current items in the sheet
+   * @param {Array} params.aggregatedLookupEntries - Aggregated entries for current DO
+   * @param {Array} params.customerDb - Fallback customer database entries
+   * @param {Object} [params.item] - The row's current item
+   * @param {number} [params.rowIndex] - Index of the row requesting options
+   * @returns {Array<string>}
+   */
+  function getAvailableCodesForRow(params) {
+    const { items, aggregatedLookupEntries, customerDb, item, rowIndex } = params || {};
+
+    if (!aggregatedLookupEntries || aggregatedLookupEntries.length === 0) {
+      const list = (customerDb || []).map((m) => m && m.code8D && m.code8D.trim()).filter(Boolean);
+      return Array.from(new Set(list));
+    }
+
+    const excludeKey = item && item.id !== undefined ? item.id : rowIndex;
+    const remainingMap = calculateRemainingModelQuantities(items, aggregatedLookupEntries, excludeKey);
+    const currentCodeKey = item && item.code8D ? item.code8D.trim().toLowerCase() : '';
+
+    const availableCodes = [];
+    (aggregatedLookupEntries || []).forEach((entry) => {
+      if (!entry || !entry.code8D) return;
+      const code = entry.code8D.trim();
+      const key = code.toLowerCase();
+      const stockInfo = remainingMap.get(key);
+      const remainingQty = stockInfo ? stockInfo.remainingQty : 0;
+
+      // Filter: only models with remaining quantity > 0, or currently selected in this row
+      if (remainingQty > 0 || (currentCodeKey && key === currentCodeKey)) {
+        if (!availableCodes.includes(code)) {
+          availableCodes.push(code);
+        }
+      }
+    });
+
+    return availableCodes;
+  }
+
   function parseDOLookupFile(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -167,7 +346,6 @@
               if (doNo) uniqueDos.add(doNo.toUpperCase());
 
               const numQty = cleanQuantity(rawQty);
-              const autoCarton = typeof numQty === 'number' && numQty > 0 ? Math.ceil(numQty / 5) : '';
 
               entries.push({
                 id: `ssea-${i}-${Date.now()}`,
@@ -177,7 +355,7 @@
                 description: desc || undefined,
                 destination: dest || undefined,
                 qty: numQty,
-                totalCarton: autoCarton,
+                totalCarton: '',
               });
             }
           }
@@ -326,6 +504,10 @@
     extractDoBase,
     isDoMatch,
     findMatchesForDo,
+    aggregateEntriesByProductCode,
+    calculateRemainingModelQuantities,
+    getRemainingQuantityForModel,
+    getAvailableCodesForRow,
     entryCustomer,
     filterByCustomer,
     parseDOLookupFile,

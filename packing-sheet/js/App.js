@@ -12,6 +12,7 @@
   const PACKING_SHEET_LOOKUP_KEY = 'packing_sheet_lookup_v1';
   const PACKING_SHEET_THEME_KEY = 'packing_sheet_theme_v1';
   const PACKING_SHEET_DO_CACHE_KEY = 'packing_sheet_do_cache_v1';
+  const PACKING_SHEET_HIDE_SSEA_CARTON_KEY = 'packing_sheet_hide_ssea_carton_v1';
 
   // Inline SVG customer badge for toast notifications.
   const CustomerLogo = ({ variant }) => {
@@ -101,6 +102,23 @@
       }
       return {};
     });
+
+    const [hideSseaTotalCarton, setHideSseaTotalCarton] = useState(() => {
+      try {
+        const saved = localStorage.getItem(PACKING_SHEET_HIDE_SSEA_CARTON_KEY);
+        return saved !== null ? JSON.parse(saved) : true;
+      } catch (e) {
+        return true;
+      }
+    });
+
+    useEffect(() => {
+      try {
+        localStorage.setItem(PACKING_SHEET_HIDE_SSEA_CARTON_KEY, JSON.stringify(hideSseaTotalCarton));
+      } catch (e) {
+        console.error('Failed to save hideSseaTotalCarton to local storage', e);
+      }
+    }, [hideSseaTotalCarton]);
 
     const getHostTheme = () => {
       try {
@@ -264,9 +282,13 @@
       showToast(append ? `Appended ${newItems.length} row(s)` : `Imported ${newItems.length} row(s)`);
     };
 
-    const handleApplyLookupToCurrentSheet = (matchingEntries, selectedDo) => {
-      if (!matchingEntries || matchingEntries.length === 0) return;
+    const handleApplyLookupToCurrentSheet = (rawMatchingEntries, selectedDo) => {
+      if (!rawMatchingEntries || rawMatchingEntries.length === 0) return;
       const activeCustomer = header.customer === 'MSCSJ' ? 'MSCSJ' : 'SSEA';
+      const matchingEntries = window.LookupParser.aggregateEntriesByProductCode
+        ? window.LookupParser.aggregateEntriesByProductCode(rawMatchingEntries, activeCustomer)
+        : rawMatchingEntries;
+      if (matchingEntries.length === 0) return;
 
       let newItems = [];
       const hasMeasurements = items.some(
@@ -278,10 +300,17 @@
           if (idx < matchingEntries.length) {
             const entry = matchingEntries[idx];
             const qVal = entry.qty !== undefined && entry.qty !== '' ? entry.qty : item.qty;
-            let ctnVal = typeof entry.totalCarton === 'number' ? entry.totalCarton : item.totalCarton;
-            if (activeCustomer === 'MSCSJ' && qVal !== '' && qVal !== undefined) {
-              const numQ = typeof qVal === 'number' ? qVal : parseFloat(String(qVal).replace(/,/g, ''));
-              if (!isNaN(numQ) && numQ > 0) ctnVal = Math.ceil(numQ / 5);
+            let ctnVal = '';
+            if (activeCustomer === 'MSCSJ') {
+              if (qVal !== '' && qVal !== undefined) {
+                const numQ = typeof qVal === 'number' ? qVal : parseFloat(String(qVal).replace(/,/g, ''));
+                if (!isNaN(numQ) && numQ > 0) ctnVal = Math.ceil(numQ / 5);
+              } else {
+                ctnVal = typeof entry.totalCarton === 'number' ? entry.totalCarton : item.totalCarton;
+              }
+            } else {
+              // Customer SSEA: Never auto-fill totalCarton, retain manual entry if already present
+              ctnVal = item.totalCarton !== undefined && item.totalCarton !== '' ? item.totalCarton : '';
             }
             return {
               ...item,
@@ -296,10 +325,17 @@
         if (matchingEntries.length > items.length) {
           for (let i = items.length; i < matchingEntries.length; i++) {
             const entry = matchingEntries[i];
-            let ctnVal = typeof entry.totalCarton === 'number' ? entry.totalCarton : '';
-            if (activeCustomer === 'MSCSJ' && entry.qty !== '' && entry.qty !== undefined) {
-              const numQ = typeof entry.qty === 'number' ? entry.qty : parseFloat(String(entry.qty).replace(/,/g, ''));
-              if (!isNaN(numQ) && numQ > 0) ctnVal = Math.ceil(numQ / 5);
+            let ctnVal = '';
+            if (activeCustomer === 'MSCSJ') {
+              if (entry.qty !== '' && entry.qty !== undefined) {
+                const numQ = typeof entry.qty === 'number' ? entry.qty : parseFloat(String(entry.qty).replace(/,/g, ''));
+                if (!isNaN(numQ) && numQ > 0) ctnVal = Math.ceil(numQ / 5);
+              } else {
+                ctnVal = typeof entry.totalCarton === 'number' ? entry.totalCarton : '';
+              }
+            } else {
+              // Customer SSEA: Leave totalCarton empty for manual entry
+              ctnVal = '';
             }
             newItems.push({
               id: 'autofill-' + Date.now() + '-' + i,
@@ -316,10 +352,17 @@
         }
       } else {
         newItems = matchingEntries.map((entry, idx) => {
-          let ctnVal = typeof entry.totalCarton === 'number' ? entry.totalCarton : '';
-          if (activeCustomer === 'MSCSJ' && entry.qty !== '' && entry.qty !== undefined) {
-            const numQ = typeof entry.qty === 'number' ? entry.qty : parseFloat(String(entry.qty).replace(/,/g, ''));
-            if (!isNaN(numQ) && numQ > 0) ctnVal = Math.ceil(numQ / 5);
+          let ctnVal = '';
+          if (activeCustomer === 'MSCSJ') {
+            if (entry.qty !== '' && entry.qty !== undefined) {
+              const numQ = typeof entry.qty === 'number' ? entry.qty : parseFloat(String(entry.qty).replace(/,/g, ''));
+              if (!isNaN(numQ) && numQ > 0) ctnVal = Math.ceil(numQ / 5);
+            } else {
+              ctnVal = typeof entry.totalCarton === 'number' ? entry.totalCarton : '';
+            }
+          } else {
+            // Customer SSEA: Leave totalCarton empty for manual entry
+            ctnVal = '';
           }
           return {
             id: `lookup-${Date.now()}-${idx}`,
@@ -349,7 +392,84 @@
 
     const handleResetLookup = () => {
       const activeCustomer = header.customer || '';
-      setLookupDb((prev) => prev.filter((e) => entryCustomer(e) !== (activeCustomer === 'MSCSJ' ? 'MSCSJ' : 'SSEA')));
+      const custKey = activeCustomer === 'MSCSJ' ? 'MSCSJ' : 'SSEA';
+      setLookupDb((prev) => prev.filter((e) => entryCustomer(e) !== custKey));
+      setDoCache((prev) => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach((doNo) => {
+          const stateCust = updated[doNo]?.header?.customer === 'MSCSJ' ? 'MSCSJ' : 'SSEA';
+          if (stateCust === custKey) {
+            delete updated[doNo];
+          }
+        });
+        return updated;
+      });
+      showToast(`Reset source library and session cache for ${custKey}`);
+    };
+
+    const handleUploadNewSource = (newEntries, targetCustomer) => {
+      const custKey = targetCustomer === 'MSCSJ' ? 'MSCSJ' : 'SSEA';
+      // Replace lookup database entries for this customer so old files don't accumulate
+      setLookupDb((prev) => [
+        ...prev.filter((e) => entryCustomer(e) !== custKey),
+        ...newEntries,
+      ]);
+
+      // Clear working D.O. cache for this customer so older D.O.s from previous source are not exported
+      setDoCache((prev) => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach((doNo) => {
+          const stateCust = updated[doNo]?.header?.customer === 'MSCSJ' ? 'MSCSJ' : 'SSEA';
+          if (stateCust === custKey) {
+            delete updated[doNo];
+          }
+        });
+        return updated;
+      });
+
+      // Reset current active sheet for a clean slate with the new file
+      setItems(window.SampleData.createBlankItems(1));
+      setHeader((prev) => ({
+        ...INITIAL_HEADER,
+        customer: targetCustomer || '',
+        shipBy: targetCustomer === 'MSCSJ' ? 'AIR' : 'LCL',
+      }));
+
+      showToast(`Source loaded: ${newEntries.length} items. D.O. cache reset for ${custKey}.`, targetCustomer === 'MSCSJ' ? 'mscsj' : 'ssea');
+    };
+
+    const handleNewBatchSession = async () => {
+      const activeCustomer = header.customer === 'MSCSJ' ? 'MSCSJ' : 'SSEA';
+      const confirmed = await window.ConfirmDialog.confirm({
+        title: 'Start New Batch Session?',
+        subtitle: `Clear cached D.O. sheets for ${activeCustomer}`,
+        message: `Clear all working D.O. sheets in memory for ${activeCustomer}?\n\nThis ensures only your new D.O.s will be included when exporting Bulk Summary / Bulk Simplify. Your uploaded source file records will be kept.`,
+        confirmLabel: 'New Batch Session',
+        cancelLabel: 'Cancel',
+        tone: 'danger',
+        icon: Icon.RotateCcw,
+      });
+      if (!confirmed) return;
+
+      setDoCache((prev) => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach((doNo) => {
+          const stateCust = updated[doNo]?.header?.customer === 'MSCSJ' ? 'MSCSJ' : 'SSEA';
+          if (stateCust === activeCustomer) {
+            delete updated[doNo];
+          }
+        });
+        return updated;
+      });
+
+      setItems(window.SampleData.createBlankItems(1));
+      setHeader((prev) => ({
+        ...INITIAL_HEADER,
+        customer: prev.customer || '',
+        shipBy: prev.customer === 'MSCSJ' ? 'AIR' : 'LCL',
+      }));
+
+      showToast(`New batch session started for ${activeCustomer} (cache cleared)`);
     };
 
     const handleVerifyDo = () => {
@@ -361,10 +481,10 @@
       setIsVerifyOpen(true);
     };
 
-    const handleExportExcel = () => exportToExcel(header, items, undefined, { lookupDb });
-    const handleExportSimplified = () => exportToExcel(header, items, undefined, { isSimplified: true, lookupDb });
-    const handleExportHandwrittenTemplate = () => exportToExcel(header, items, undefined, { isHandwrittenTemplate: true, blankRowCount: 20, lookupDb });
-    const handleExportCSV = () => exportToCSV(header, items, undefined, { lookupDb });
+    const handleExportExcel = () => exportToExcel(header, items, undefined, { lookupDb, hideSseaTotalCarton });
+    const handleExportSimplified = () => exportToExcel(header, items, undefined, { isSimplified: true, lookupDb, hideSseaTotalCarton });
+    const handleExportHandwrittenTemplate = () => exportToExcel(header, items, undefined, { isHandwrittenTemplate: true, blankRowCount: 20, lookupDb, hideSseaTotalCarton });
+    const handleExportCSV = () => exportToCSV(header, items, undefined, { lookupDb, hideSseaTotalCarton });
     const handlePrint = () => window.print();
 
     const handleExportBulkSimplified = () => {
@@ -373,7 +493,9 @@
       const sheets = [];
 
       if (currentDo) {
-        sheets.push({ header, items });
+        if (activeCustomer !== 'SSEA' || header.shipBy === 'LCL') {
+          sheets.push({ header, items });
+        }
       }
 
       Object.entries(doCache).forEach(([doNo, state]) => {
@@ -381,15 +503,17 @@
         
         const stateCustomer = state.header.customer === 'MSCSJ' ? 'MSCSJ' : 'SSEA';
         if (stateCustomer === activeCustomer) {
-          sheets.push({ header: state.header, items: state.items });
+          if (activeCustomer !== 'SSEA' || state.header.shipBy === 'LCL') {
+            sheets.push({ header: state.header, items: state.items });
+          }
         }
       });
       if (sheets.length === 0) {
-        showToast('No D.O. sheets available to export');
+        showToast(activeCustomer === 'SSEA' ? 'No LCL D.O. sheets available to export' : 'No D.O. sheets available to export');
         return;
       }
-      exportBulkSummaryToExcel(sheets, 'Bulk_Simplified_Packing_Details.xlsx', { isSimplified: true, lookupDb });
-      showToast(`Exported ${sheets.length} simplified D.O. sheet(s) to Excel`);
+      exportBulkSummaryToExcel(sheets, 'Bulk_Simplified_Packing_Details.xlsx', { isSimplified: true, lookupDb, hideSseaTotalCarton });
+      showToast(`Exported ${sheets.length} ${activeCustomer === 'SSEA' ? 'LCL ' : ''}simplified D.O. sheet(s) to Excel`);
     };
 
     const handleExportBulkSummary = () => {
@@ -398,7 +522,9 @@
       const sheets = [];
 
       if (currentDo) {
-        sheets.push({ header, items });
+        if (activeCustomer !== 'SSEA' || header.shipBy === 'LCL') {
+          sheets.push({ header, items });
+        }
       }
 
       Object.entries(doCache).forEach(([doNo, state]) => {
@@ -406,17 +532,19 @@
         
         const stateCustomer = state.header.customer === 'MSCSJ' ? 'MSCSJ' : 'SSEA';
         if (stateCustomer === activeCustomer) {
-          sheets.push({ header: state.header, items: state.items });
+          if (activeCustomer !== 'SSEA' || state.header.shipBy === 'LCL') {
+            sheets.push({ header: state.header, items: state.items });
+          }
         }
       });
 
       if (sheets.length === 0) {
-        showToast('No D.O. sheets available to export');
+        showToast(activeCustomer === 'SSEA' ? 'No LCL D.O. sheets available to export' : 'No D.O. sheets available to export');
         return;
       }
 
-      exportBulkSummaryToExcel(sheets, undefined, { lookupDb });
-      showToast(`Exported ${sheets.length} D.O. sheet(s) to Excel`);
+      exportBulkSummaryToExcel(sheets, undefined, { lookupDb, hideSseaTotalCarton });
+      showToast(`Exported ${sheets.length} ${activeCustomer === 'SSEA' ? 'LCL ' : ''}D.O. sheet(s) to Excel`);
     };
 
     const handleToggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
@@ -427,8 +555,8 @@
       h(
         'div',
         null,
-        h('h2', { className: 'text-[28px] font-semibold text-gray-900 dark:text-white tracking-[-0.02em]' }, 'Packing Details Sheet'),
-        h('p', { className: 'text-[15px] text-gray-500 dark:text-gray-400 mt-1' }, 'Fill in the shipping details and package rows below')
+        h('h2', { className: 'text-[28px] font-semibold text-gray-900 dark:text-white tracking-[-0.02em]' }, 'Delivery Order Packing Manifest'),
+        h('p', { className: 'text-[15px] text-gray-500 dark:text-gray-400 mt-1' }, 'Auto-calculate volumetric CBM, track pallet weight, and prepare ready-to-ship LCL packing lists.')
       ),
       h(
         'div',
@@ -438,9 +566,10 @@
           {
             type: 'button',
             onClick: () => setIsMasterLookupOpen(true),
-            className: 'px-3 py-1.5 bg-black/[0.04] hover:bg-black/[0.08] dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-gray-700 dark:text-gray-200 font-semibold rounded-[10px] transition cursor-pointer flex items-center gap-1.5 text-[13px]',
+            className:
+              'px-3.5 py-2 bg-black/[0.04] hover:bg-black/[0.08] dark:bg-white/[0.08] dark:hover:bg-white/[0.14] text-gray-700 dark:text-gray-200 font-semibold rounded-[10px] transition cursor-pointer flex items-center gap-1.5 text-[13px] border border-black/[0.08] dark:border-white/[0.12]',
           },
-          h(Icon.Database, { className: 'w-3.5 h-3.5 text-gray-500 dark:text-gray-400', strokeWidth: 1.5 }),
+          h(Icon.Database, { className: 'w-3.5 h-3.5 text-gray-600 dark:text-gray-300', strokeWidth: 1.5 }),
           h('span', null, 'Source File')
         ),
         h(
@@ -501,10 +630,13 @@
           onDoNoSwitch: handleDoNoSwitch,
           onVerify: handleVerifyDo,
           onClearAll: handleClearAll,
+          onNewBatchSession: handleNewBatchSession,
           onExportExcel: handleExportExcel,
           onExportSimplified: handleExportSimplified,
           onExportBulkSummary: handleExportBulkSummary,
           onExportBulkSimplified: handleExportBulkSimplified,
+          hideSseaTotalCarton: hideSseaTotalCarton,
+          onToggleHideSseaTotalCarton: (val) => setHideSseaTotalCarton(val),
           onCustomerChange: (c) => showToast(`Switched to ${c === 'MSCSJ' ? 'MSCSJ' : 'SSEA'}`, c === 'MSCSJ' ? 'mscsj' : 'ssea'),
         }),
         toast,
@@ -521,6 +653,7 @@
           currentDoNo: header.doNo,
           onApplyToCurrentSheet: handleApplyLookupToCurrentSheet,
           onResetLookup: handleResetLookup,
+          onUploadNewSource: handleUploadNewSource,
           customer: header.customer || '',
         }),
         h(window.ConfirmVerifyModal, {

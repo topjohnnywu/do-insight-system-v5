@@ -257,10 +257,25 @@ function renderCharts() {
     DataHoarderArray.forEach(item => {
         const consigneeKey = (item.name && item.name.trim() !== "") ? item.name.trim() : "UNASSIGNED";
         if (consigneeKey !== "UNASSIGNED") {
+            const hasSgBros = /SG\s*BROS/i.test(item.remark || "");
+            const hasSpx = /SPX/i.test(item.remark || "");
+            // Rule: Exclude DOs with "SG BROS", "SGBROS", or "SPX" remark from direct delivery
+            if (hasSgBros || hasSpx) {
+                return;
+            }
+
+            const isCourts = consigneeKey.toUpperCase().includes("COURTS");
+            const routeStr = (item.route && item.route.trim() !== "") ? item.route.trim().toUpperCase() : "";
+
+            // Rule: For COURTS, Direct Delivery only applies if ROUTE is LEA
+            if (isCourts && routeStr !== "LEA") {
+                return;
+            }
+
             consigneeVol[consigneeKey] = (consigneeVol[consigneeKey] || 0) + item.vol;
 
             // Detect COURTS consignee + Tampines North SR/WHSE address (col F)
-            if (consigneeKey.toUpperCase().includes("COURTS")) {
+            if (isCourts) {
                 courtsOriginalKey = consigneeKey;
                 if ((item.addr || "").toUpperCase().includes("TAMPINES NORTH")) {
                     courtsHasSrWhse = true;
@@ -344,8 +359,21 @@ function renderCharts() {
                     padding: 10,
                     callbacks: {
                         label: function(context) {
-                            return ' Volume: ' + context.parsed.x + ' m³ (Direct Delivery Eligible)';
+                            return ' Volume: ' + context.parsed.x + ' m³ (Direct Delivery Eligible • Click to Filter)';
                         }
+                    }
+                }
+            },
+            onClick: (event, elements) => {
+                if (elements && elements.length > 0) {
+                    const elemIndex = elements[0].index;
+                    const clickedLabel = TopConsigneeChart.data.labels[elemIndex];
+                    let searchName = clickedLabel;
+                    if (searchName && searchName.includes("COURTS")) {
+                        searchName = "COURTS";
+                    }
+                    if (typeof filterByConsigneeFromChart === 'function') {
+                        filterByConsigneeFromChart(searchName);
                     }
                 }
             },

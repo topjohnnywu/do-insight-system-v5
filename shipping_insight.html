@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DO Insight Dashboard</title>
+    <!-- Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,600..800&family=Nunito:wght@400;500;600;700;800&family=Orbitron:wght@400;500;700;800;900&family=Share+Tech+Mono&family=Fira+Code:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="css/styles.css">
@@ -179,54 +183,67 @@
                             <span>Packing List</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="ocr_scanner.html" class="sidebar-nav-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/>
+                                <path d="M7 12h10M9 8v8M15 8v8"/>
+                            </svg>
+                            <span>OCR Document Scanner</span>
+                        </a>
+                    </li>
 
 </ul>
             </div>
 
-            <div style="padding: 12px; border-top: 1px solid #18181b; font-size: 11px; color: #71717a; text-align: center;">
+            <div style="padding: 12px; border-top: 1px solid var(--border); font-size: 11px; color: var(--fg-subtle); text-align: center;">
                 DO Insight Dashboard
             </div>
         </div>
 
         <div class="main-content">
             <!-- Header Banner Section -->
-            <div class="header">
-                <div style="display: flex; align-items: center; gap: 14px;">
-                    <div style="color: #10b981; display: flex; align-items: center;">
+            <div class="dashboard-header">
+                <div class="dashboard-header-left">
+                    <div class="dashboard-header-brand-icon">
                         <!-- Shipping Insight Gauge Vector Icon -->
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="18" y1="20" x2="18" y2="10"/>
                             <line x1="12" y1="20" x2="12" y2="4"/>
                             <line x1="6" y1="20" x2="6" y2="14"/>
                         </svg>
                     </div>
                     <div>
-                        <h1 style="font-size: 20px; margin: 0;">Shipping Insight Dashboard</h1>
-                        <p style="font-size: 12px; color: #94a3b8; margin-top: 4px;">Derived Status Analysis & Scanning Confirmation</p>
+                        <h1 class="dashboard-header-title">Shipping Insight Dashboard</h1>
+                        <p class="dashboard-header-subtitle header-subtitle">Derived Status Analysis & Scanning Confirmation</p>
                     </div>
                 </div>
 
-                <!-- Saved Document Information (Positioned directly above upload button section) -->
-                <div id="memoryStatusBadge" class="memory-status-badge" style="margin-top: 10px; margin-bottom: 10px;"></div>
+                <div class="dashboard-header-actions">
+                    <button id="themeToggleBtn" onclick="toggleTheme()" class="header-btn">Mode: Dark</button>
+                </div>
+            </div>
 
-                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                    <div class="file-upload-box">
-                        <label for="insightPicker">Upload Insight File (.xlsx):</label>
-                        <input type="file" id="insightPicker" accept=".xlsx, .xls, .xlsm" onchange="handleShippingInsightUpload(event)">
-                    </div>
-                    <div class="filter-box">
-                        <label for="typeFilter">Filter DO Type:</label>
-                        <select id="typeFilter" onchange="applyInsightFilter()">
-                            <option value="ALL">All Types</option>
-                            <option value="BIG">Big DO</option>
-                            <option value="SMALL">Small DO</option>
-                            <option value="MIX">Mix DO</option>
-                            <option value="PENDING">Pending Scan</option>
-                            <option value="IN_PROCESS">In Process</option>
-                            <option value="UNMATCHED DO">Unmatched DO</option>
-                        </select>
-                    </div>
-                    <button id="themeToggleBtn" onclick="toggleTheme()" style="cursor:pointer;">Mode: Dark</button>
+            <!-- Saved Document Information -->
+            <div id="memoryStatusBadge" class="memory-status-badge" style="margin-bottom: 12px;"></div>
+
+            <!-- Ingestion & Main Filter Bar -->
+            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
+                <div class="file-upload-box">
+                    <label for="insightPicker">Upload Insight File (.xlsx):</label>
+                    <input type="file" id="insightPicker" accept=".xlsx, .xls, .xlsm" onchange="handleShippingInsightUpload(event)">
+                </div>
+                <div class="filter-box">
+                    <label for="typeFilter">Filter DO Type:</label>
+                    <select id="typeFilter" onchange="applyInsightFilter()">
+                        <option value="ALL">All Types</option>
+                        <option value="BIG">Big DO</option>
+                        <option value="SMALL">Small DO</option>
+                        <option value="MIX">Mix DO</option>
+                        <option value="PENDING">Pending Scan</option>
+                        <option value="IN_PROCESS">In Process</option>
+                        <option value="UNMATCHED DO">Unmatched DO</option>
+                    </select>
                 </div>
             </div>
 
@@ -236,10 +253,10 @@
                     <div class="kpi-card-header">
                         <div class="kpi-title">Total DOs</div>
                         <div class="kpi-icon" style="color: #3b82f6;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                         </div>
                     </div>
-                    <div class="kpi-value" id="kpi-total">0</div>
+                    <div class="kpi-value tabular-nums" id="kpi-total">0</div>
                     <div class="kpi-sub">Filter Context</div>
                 </div>
 
@@ -250,8 +267,8 @@
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                         </div>
                     </div>
-                    <div class="kpi-value" id="kpi-completed">0</div>
-                    <div class="kpi-sub" id="pct-completed">0%</div>
+                    <div class="kpi-value tabular-nums" id="kpi-completed">0</div>
+                    <div class="kpi-sub tabular-nums" id="pct-completed">0%</div>
                 </div>
 
                 <div class="kpi-card purple">
@@ -261,8 +278,8 @@
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                         </div>
                     </div>
-                    <div class="kpi-value" id="kpi-process">0</div>
-                    <div class="kpi-sub" id="pct-process">0%</div>
+                    <div class="kpi-value tabular-nums" id="kpi-process">0</div>
+                    <div class="kpi-sub tabular-nums" id="pct-process">0%</div>
                 </div>
 
                 <div class="kpi-card yellow">
@@ -272,68 +289,68 @@
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                         </div>
                     </div>
-                    <div class="kpi-value" id="kpi-pending">0</div>
-                    <div class="kpi-sub" id="pct-pending">0%</div>
+                    <div class="kpi-value tabular-nums" id="kpi-pending">0</div>
+                    <div class="kpi-sub tabular-nums" id="pct-pending">0%</div>
                 </div>
             </div>
 
             <!-- Mini Summary Dashboard Strip -->
-            <div class="table-card" style="padding: 10px 18px; margin-bottom: 20px; display: flex; align-items: stretch; justify-content: center; flex-wrap: wrap; gap: 0;">
-                <div style="display: flex; flex-direction: column; align-items: center; padding: 4px 24px;">
-                    <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #64748b;"><span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#ef4444; margin-right:5px;"></span>Unmatched</span>
-                    <span id="sum-unmatched" style="font-size: 18px; font-weight: 700; color: #ef4444; line-height: 1.3;">0</span>
+            <div class="status-summary-strip">
+                <div class="status-strip-item">
+                    <span class="status-strip-label"><span class="status-strip-dot" style="color: #ef4444;"></span>Unmatched</span>
+                    <span id="sum-unmatched" class="status-strip-value tabular-nums" style="color: #ef4444;">0</span>
                 </div>
-                <div style="width: 1px; align-self: stretch; background: #1e293b; margin: 2px 0;"></div>
-                <div style="display: flex; flex-direction: column; align-items: center; padding: 4px 24px;">
-                    <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #64748b;"><span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#3b82f6; margin-right:5px;"></span>Big</span>
-                    <span id="cat-big" style="font-size: 18px; font-weight: 700; color: #60a5fa; line-height: 1.3;">0</span>
+                <div class="status-strip-divider"></div>
+                <div class="status-strip-item">
+                    <span class="status-strip-label"><span class="status-strip-dot" style="color: #3b82f6;"></span>Big</span>
+                    <span id="cat-big" class="status-strip-value tabular-nums" style="color: #60a5fa;">0</span>
                 </div>
-                <div style="width: 1px; align-self: stretch; background: #1e293b; margin: 2px 0;"></div>
-                <div style="display: flex; flex-direction: column; align-items: center; padding: 4px 24px;">
-                    <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #64748b;"><span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#f59e0b; margin-right:5px;"></span>Small</span>
-                    <span id="cat-small" style="font-size: 18px; font-weight: 700; color: #fbbf24; line-height: 1.3;">0</span>
+                <div class="status-strip-divider"></div>
+                <div class="status-strip-item">
+                    <span class="status-strip-label"><span class="status-strip-dot" style="color: #f59e0b;"></span>Small</span>
+                    <span id="cat-small" class="status-strip-value tabular-nums" style="color: #fbbf24;">0</span>
                 </div>
-                <div style="width: 1px; align-self: stretch; background: #1e293b; margin: 2px 0;"></div>
-                <div style="display: flex; flex-direction: column; align-items: center; padding: 4px 24px;">
-                    <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #64748b;"><span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#10b981; margin-right:5px;"></span>Mix</span>
-                    <span id="cat-mix" style="font-size: 18px; font-weight: 700; color: #34d399; line-height: 1.3;">0</span>
+                <div class="status-strip-divider"></div>
+                <div class="status-strip-item">
+                    <span class="status-strip-label"><span class="status-strip-dot" style="color: #10b981;"></span>Mix</span>
+                    <span id="cat-mix" class="status-strip-value tabular-nums" style="color: #34d399;">0</span>
                 </div>
             </div>
 
             <!-- Progress Gauges Horizontal Row -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                <div class="chart-card" style="text-align: center; padding: 16px;">
-                    <h3 style="font-size: 13px; color: #cbd5e1; margin-bottom: 4px;">Overall Completion Gauge</h3>
-                    <div style="height: 120px; position: relative;">
+                <div class="chart-card gauge-card">
+                    <h3 class="gauge-card-title">Overall Completion Gauge</h3>
+                    <div class="gauge-canvas-container">
                         <canvas id="overallMeterChart"></canvas>
                     </div>
-                    <div id="overallMeterText" style="font-size: 18px; font-weight: 700; color: #10b981; margin-top: -20px;">0%</div>
+                    <div id="overallMeterText" class="gauge-readout-large tabular-nums">0%</div>
                 </div>
 
-                <div class="chart-card" style="text-align: center; padding: 16px;">
-                    <h3 style="font-size: 13px; color: #cbd5e1; margin-bottom: 4px;">BIG DO Progress</h3>
-                    <div style="height: 120px; position: relative;">
+                <div class="chart-card gauge-card">
+                    <h3 class="gauge-card-title">BIG DO Progress</h3>
+                    <div class="gauge-canvas-container">
                         <canvas id="bigTypeChart"></canvas>
                     </div>
-                    <div id="bigPctText" style="font-size: 13px; font-weight: 700; color: #8b5cf6; margin-top: 2px;">0%</div>
-                    <div id="bigPendingText" style="font-size: 12px; font-weight: 600; color: #f59e0b; margin-top: 4px;">0 DO Pending Left</div>
+                    <div id="bigPctText" class="gauge-readout tabular-nums" style="color: #8b5cf6;">0%</div>
+                    <div id="bigPendingText" class="gauge-subtext tabular-nums">0 DO Pending Left</div>
                 </div>
 
-                <div class="chart-card" style="text-align: center; padding: 16px;">
-                    <h3 style="font-size: 13px; color: #cbd5e1; margin-bottom: 4px;">SMALL DO Progress</h3>
-                    <div style="height: 120px; position: relative;">
+                <div class="chart-card gauge-card">
+                    <h3 class="gauge-card-title">SMALL DO Progress</h3>
+                    <div class="gauge-canvas-container">
                         <canvas id="smallTypeChart"></canvas>
                     </div>
-                    <div id="smallPctText" style="font-size: 13px; font-weight: 700; color: #3b82f6; margin-top: 2px;">0%</div>
-                    <div id="smallPendingText" style="font-size: 12px; font-weight: 600; color: #f59e0b; margin-top: 4px;">0 DO Pending Left</div>
+                    <div id="smallPctText" class="gauge-readout tabular-nums" style="color: #3b82f6;">0%</div>
+                    <div id="smallPendingText" class="gauge-subtext tabular-nums">0 DO Pending Left</div>
                 </div>
 
-                <div class="chart-card" style="text-align: center; padding: 16px;">
-                    <h3 style="font-size: 13px; color: #cbd5e1; margin-bottom: 4px;">MIX DO Progress</h3>
-                    <div style="height: 120px; position: relative;">
+                <div class="chart-card gauge-card">
+                    <h3 class="gauge-card-title">MIX DO Progress</h3>
+                    <div class="gauge-canvas-container">
                         <canvas id="mixTypeChart"></canvas>
                     </div>
-                    <div id="mixPctText" style="font-size: 13px; font-weight: 700; color: #f59e0b; margin-top: 2px;">0%</div>
+                    <div id="mixPctText" class="gauge-readout tabular-nums" style="color: #f59e0b;">0%</div>
                 </div>
             </div>
 
@@ -342,28 +359,28 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
                     <div>
                         <h3 style="margin: 0; font-size: 16px;">Detailed Status Manifest</h3>
-                        <p style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Line-by-line scanning status and truck allocation</p>
+                        <p style="font-size: 12px; color: var(--fg-muted); margin-top: 2px;">Line-by-line scanning status and truck allocation</p>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <div class="status-table-toolbar">
                         <!-- Truck Filter Dropdown -->
-                        <div class="filter-box" style="padding: 6px 12px !important;">
-                            <label for="truckFilter" style="font-size: 12px; color: #a1a1aa;">Truck:</label>
+                        <div class="filter-box">
+                            <label for="truckFilter" style="font-size: 12px; color: var(--fg-muted);">Truck:</label>
                             <select id="truckFilter" onchange="applyInsightFilter()" style="font-size: 12px; padding: 4px 8px;">
                                 <option value="ALL">All Trucks</option>
                             </select>
                         </div>
 
                         <!-- Hub Filter Dropdown -->
-                        <div class="filter-box" style="padding: 6px 12px !important;">
-                            <label for="hubFilter" style="font-size: 12px; color: #a1a1aa;">Hub:</label>
+                        <div class="filter-box">
+                            <label for="hubFilter" style="font-size: 12px; color: var(--fg-muted);">Hub:</label>
                             <select id="hubFilter" onchange="applyInsightFilter()" style="font-size: 12px; padding: 4px 8px;">
                                 <option value="ALL">All Hubs</option>
                             </select>
                         </div>
 
                         <!-- Search Input Box -->
-                        <div style="position: relative; display: inline-block;">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <div class="status-search-wrapper">
+                            <svg class="status-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                             <input type="text" id="insightSearch" class="search-box" placeholder="Search DOs, Status, Address..." onkeyup="applyInsightFilter()" style="padding-left: 32px;">
                         </div>
                     </div>
@@ -465,33 +482,15 @@
                 celebrateBanner = document.createElement("div");
                 celebrateBanner.id = "celebrationBanner";
                 celebrateBanner.className = "celebration-banner";
-                celebrateBanner.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%) scale(0.5);
-                    padding: 24px 52px;
-                    font-size: 26px;
-                    font-weight: 800;
-                    letter-spacing: 1px;
-                    z-index: 9999;
-                    opacity: 0;
-                    pointer-events: auto;
-                    cursor: pointer;
-                    user-select: none;
-                    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease;
-                    display: flex;
-                    align-items: center;
-                    gap: 18px;
-                    text-align: center;
-                `;
                 celebrateBanner.innerHTML = `
-                    <div style="background: rgba(255, 255, 255, 0.2); border-radius: 50%; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; border: 3px solid #ffffff; flex-shrink: 0;">
+                    <div class="celebration-icon-circle">
                         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
                             <path class="animate-tick-path" d="M20 6L9 17l-5-5"/>
                         </svg>
                     </div>
                     <span id="celebrationTextSpan" class="celebration-banner-text" style="font-size: 28px; font-weight: 800;">${bannerText}</span>
+                    <span id="celebrationTextSpan" class="celebration-banner-text">${bannerText}</span>
                 `;
 
                 // Instantly dismiss on click
@@ -536,7 +535,9 @@
 
             if (!g || !h || g === "missing" || h === "missing") return "Incomplete Data";
 
-            if (g === "ship confirm pending" && h === "ship confirm pending") {
+            if ((g === "ship confirm pending" && h === "ship confirm pending") ||
+                (g === "completed (scan done)" && h === "completed (scan done)") ||
+                (g === "closed" && h === "closed")) {
                 return "Completed (Scan Done)";
             }
 
@@ -732,7 +733,10 @@
             tbody.innerHTML = "";
 
             if (Filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:32px; color:#64748b;">No matching status records found.</td></tr>';
+                const emptyMessage = RawPayload.length === 0
+                    ? "No Shipping Insight data loaded. Upload an insight Excel (.xlsx) file above to inspect scanning status."
+                    : "No DO records match the current filter criteria. Try adjusting your truck, hub, or search term.";
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:36px 20px; color:var(--fg-muted); font-size:13px;">${emptyMessage}</td></tr>`;
             } else {
                 Filtered.forEach(r => {
                     let badgeCls = "badge-incomplete";
@@ -741,18 +745,18 @@
                     else if (r.status.includes("Pending")) badgeCls = "badge-pending";
 
                     const DoTypeDisplay = (r.doType === "UNMATCHED DO") 
-                        ? `<span class="badge" style="background-color:#7c3aed !important; color:#ffffff !important; border:1px solid #a78bfa;">UNMATCHED DO</span>` 
+                        ? `<span class="badge badge-unmatched">UNMATCHED DO</span>` 
                         : `<strong>${r.doType}</strong>`;
 
                     const tr = document.createElement("tr");
                     tr.style.cursor = "context-menu";
-                    tr.title = "Right-click to inspect DO details in a new tab";
+                    tr.title = "Click or right-click to inspect DO details in a new tab";
                     tr.addEventListener("contextmenu", function(e) {
                         e.preventDefault();
                         openDoDetailsTab(r.inv);
                     });
 
-                    tr.innerHTML = `<td><strong>${r.inv}</strong></td><td>${r.truck || "N/A"}</td><td>${r.hub || "N/A"}</td><td>${r.addr || "N/A"}</td><td><span class="badge ${badgeCls}">${r.status}</span></td><td>${DoTypeDisplay}</td>`;
+                    tr.innerHTML = `<td><button type="button" class="btn-do-link tabular-nums" onclick="openDoDetailsTab('${r.inv}')" title="Inspect DO ${r.inv}">${r.inv}</button></td><td>${r.truck || "N/A"}</td><td>${r.hub || "N/A"}</td><td>${r.addr || "N/A"}</td><td><span class="badge ${badgeCls}">${r.status}</span></td><td>${DoTypeDisplay}</td>`;
                     tbody.appendChild(tr);
                 });
             }

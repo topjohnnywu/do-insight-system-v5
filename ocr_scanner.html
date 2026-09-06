@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Document Scanner - DO Insight Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/settings.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <style>
+        .ocr-grid { display:grid; grid-template-columns:minmax(280px, .8fr) minmax(320px, 1.2fr); gap:18px; max-width:1400px; }
+        .ocr-card { background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius-card); padding:20px; box-shadow:var(--shadow-card); }
+        .ocr-card h2 { margin:0 0 8px; font-size:18px; }
+        .ocr-help { color:var(--fg-muted); font-size:13px; line-height:1.5; }
+        .ocr-file { width:100%; padding:22px 12px; border:1px dashed var(--border-hover); border-radius:var(--radius-control); color:var(--fg); background:var(--surface); }
+        .ocr-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+        .ocr-output { min-height:320px; width:100%; resize:vertical; box-sizing:border-box; background:var(--bg-deep); color:var(--fg); border:1px solid var(--border); border-radius:var(--radius-control); padding:12px; font:13px var(--font-mono); }
+        .ocr-status { margin:14px 0 0; color:var(--fg-muted); font-size:13px; min-height:20px; }
+        .ocr-number-list { max-height:320px; overflow:auto; margin:0; padding-left:25px; font:13px var(--font-mono); color:var(--accent-bright); }
+        
+        /* Animated Scanner HUD & Sarcastic Progress (Universal Theme-Adaptive) */
+        .ocr-progress-card {
+            display: none;
+            margin-top: 14px;
+            background: var(--surface-card, var(--bg-elevated));
+            border: 1px solid var(--border-accent, var(--border));
+            border-radius: var(--radius-control, 8px);
+            padding: 14px 16px;
+            box-shadow: var(--shadow-card, 0 4px 20px rgba(0, 0, 0, 0.2));
+            position: relative;
+            overflow: hidden;
+            animation: ocrFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .ocr-progress-card.active { display: block; }
+        @keyframes ocrFadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .ocr-scanner-visual {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 10px;
+        }
+        .scanner-hud-window {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            background: var(--surface, rgba(125, 125, 125, 0.08));
+            border: 1px solid var(--border-accent, var(--border));
+            border-radius: var(--radius-control, 6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .scanner-hud-window svg {
+            width: 22px;
+            height: 22px;
+            stroke: var(--accent);
+        }
+        .scanner-laser {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), var(--accent-bright), var(--accent), transparent);
+            box-shadow: 0 0 8px var(--accent), 0 0 14px var(--accent-glow);
+            animation: laserSweep 1.4s ease-in-out infinite alternate;
+        }
+        @keyframes laserSweep {
+            0% { transform: translateY(0); opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { transform: translateY(42px); opacity: 0.8; }
+        }
+        .scanner-details { flex: 1; min-width: 0; }
+        .scanner-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .scanner-stage-badge {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            color: var(--accent-bright, var(--accent));
+            background: var(--surface, rgba(125, 125, 125, 0.12));
+            padding: 2px 9px;
+            border-radius: var(--radius-pill, 999px);
+            border: 1px solid var(--border-accent, var(--border));
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .scanner-stage-badge::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-bright, var(--accent));
+            box-shadow: 0 0 8px var(--accent-bright, var(--accent));
+            animation: pulseDot 0.8s infinite alternate;
+        }
+        @keyframes pulseDot {
+            from { opacity: 0.3; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1.2); }
+        }
+        .scanner-percent {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--fg);
+        }
+        .ocr-progress-track {
+            width: 100%;
+            height: 8px;
+            background: var(--surface, rgba(125, 125, 125, 0.15));
+            border-radius: var(--radius-pill, 999px);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border);
+        }
+        .ocr-progress-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: var(--radius-pill, 999px);
+            background: linear-gradient(90deg, var(--accent), var(--accent-bright), var(--accent));
+            background-size: 200% 100%;
+            animation: progressShimmer 2s linear infinite;
+            box-shadow: 0 0 10px var(--accent-glow);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes progressShimmer {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+        .ocr-sarcastic-comment-box {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: var(--surface, rgba(125, 125, 125, 0.05));
+            border-left: 3px solid var(--accent);
+            border-radius: 0 var(--radius-control, 6px) var(--radius-control, 6px) 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .ocr-sarcastic-icon {
+            font-size: 13px;
+            line-height: 1.4;
+            flex-shrink: 0;
+            color: var(--accent);
+        }
+        .ocr-sarcastic-text {
+            font-size: 12px;
+            color: var(--fg-muted);
+            font-style: italic;
+            line-height: 1.4;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        .ocr-sarcastic-text.fade-out {
+            opacity: 0;
+            transform: translateY(-4px);
+        }
+        .ocr-sarcastic-text.fade-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @media (max-width:800px) { .ocr-grid { grid-template-columns:1fr; } .ocr-card { padding:16px; } }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="sidebar"><div>
+        <div class="sidebar-brand">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="3" width="15" height="13"/>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 8"/>
+                <circle cx="5.5" cy="18.5" r="2.5"/>
+                <circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+            <div>
+                <div class="sidebar-brand-title">DO Insight Dashboard</div>
+                <div class="sidebar-brand-subtitle">DO Analytics & Truck Planning</div>
+            </div>
+        </div>
+        <ul class="sidebar-nav">
+            <li>
+                <a href="index.html" class="sidebar-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="9"/>
+                        <rect x="14" y="3" width="7" height="5"/>
+                        <rect x="14" y="12" width="7" height="9"/>
+                        <rect x="3" y="16" width="7" height="5"/>
+                    </svg>
+                    <span>Summary Analytics</span>
+                </a>
+            </li>
+            <li>
+                <a href="shipping_insight.html" class="sidebar-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"/>
+                        <line x1="12" y1="20" x2="12" y2="4"/>
+                        <line x1="6" y1="20" x2="6" y2="14"/>
+                    </svg>
+                    <span>Tracking DO Status</span>
+                </a>
+            </li>
+            <li>
+                <a href="do_details.html" class="sidebar-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                    <span>DO Inspector</span>
+                </a>
+            </li>
+            <li>
+                <a href="truck_planning.html" class="sidebar-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="1" y="3" width="15" height="13"/>
+                        <polygon points="16 8 20 8 23 11 23 16 16 16 8"/>
+                        <circle cx="5.5" cy="18.5" r="2.5"/>
+                        <circle cx="18.5" cy="18.5" r="2.5"/>
+                    </svg>
+                    <span>Picking List Summary</span>
+                </a>
+            </li>
+            <li>
+                <a href="manual_truck_planning.html" class="sidebar-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="1" y="3" width="15" height="13"/>
+                        <polygon points="16 8 20 8 23 11 23 16 16 16 8"/>
+                        <circle cx="5.5" cy="18.5" r="2.5"/>
+                        <circle cx="18.5" cy="18.5" r="2.5"/>
+                        <line x1="8" y1="11" x2="8" y2="11.01" stroke-width="4" stroke-linecap="round"/>
+                    </svg>
+                    <span>Truck Planning</span>
+                </a>
+            </li>
+            <li>
+                <a href="batch_analytics.html" class="sidebar-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                        <line x1="12" y1="22.08" x2="12" y2="12"/>
+                    </svg>
+                    <span>Batch Analytics</span>
+                </a>
+            </li>
+            <li>
+                <a href="do_summary_generator.html" class="sidebar-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="12" y1="18" x2="12" y2="12"/>
+                        <line x1="9" y1="15" x2="15" y2="15"/>
+                    </svg>
+                    <span>DO Summary List</span>
+                </a>
+            </li>
+            <li>
+                <a href="challenger_list.html" class="sidebar-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 11l3 3L22 4"/>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                    </svg>
+                    <span>Challenger List</span>
+                </a>
+            </li>
+            <li>
+                <a href="do_activity_trend.html" class="sidebar-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 20h20"/>
+                        <path d="M4 20v-6"/>
+                        <path d="M9 20V10"/>
+                        <path d="M14 20V6"/>
+                        <path d="M19 20V2"/>
+                    </svg>
+                    <span>DO Activity Trend</span>
+                </a>
+            </li>
+            <li>
+                <a href="volume_capacity_planner.html" class="sidebar-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="4" width="16" height="16" rx="2" ry="2"/>
+                        <rect x="9" y="9" width="6" height="6"/>
+                        <line x1="9" y1="1" x2="9" y2="4"/>
+                        <line x1="15" y1="1" x2="15" y2="4"/>
+                        <line x1="9" y1="20" x2="9" y2="23"/>
+                        <line x1="15" y1="20" x2="15" y2="23"/>
+                        <line x1="20" y1="9" x2="23" y2="9"/>
+                        <line x1="20" y1="14" x2="23" y2="14"/>
+                        <line x1="1" y1="9" x2="4" y2="9"/>
+                        <line x1="1" y1="14" x2="4" y2="14"/>
+                    </svg>
+                    <span>Volume Capacity Planner</span>
+                </a>
+            </li>
+            <li>
+                <a href="do_load_planner.html" class="sidebar-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                        <line x1="12" y1="22.08" x2="12" y2="12"/>
+                    </svg>
+                    <span>DO Load Planner</span>
+                </a>
+            </li>
+            <li>
+                <a href="loose_load_planner.html" class="sidebar-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="1" y="3" width="15" height="13"/>
+                        <polygon points="16 8 20 8 23 11 23 16 16 16 8"/>
+                        <circle cx="5.5" cy="18.5" r="2.5"/>
+                        <circle cx="18.5" cy="18.5" r="2.5"/>
+                    </svg>
+                    <span>Loose Load Planning</span>
+                </a>
+            </li>
+            <li>
+                <a href="packing_sheet.html" class="sidebar-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 8V21H3V8"/>
+                        <path d="M1 3h22v5H1z"/>
+                        <path d="M10 12h4"/>
+                    </svg>
+                    <span>Packing List</span>
+                </a>
+            </li>
+            <li>
+                <a href="ocr_scanner.html" class="sidebar-nav-item active">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/>
+                        <path d="M7 12h10M9 8v8M15 8v8"/>
+                    </svg>
+                    <span>OCR Document Scanner</span>
+                </a>
+            </li>
+        </ul>
+    </div><div style="padding:12px;border-top:1px solid var(--border);font-size:11px;color:var(--fg-subtle);text-align:center">DO Insight Dashboard</div></div>
+    <main class="main-content"><div class="header"><div><h1 style="font-size:20px;margin:0">OCR Document Scanner</h1><p style="font-size:12px;color:var(--fg-muted);margin-top:4px">Extract text and isolate numerical values from scanned PDF documents</p></div></div>
+        <div class="ocr-grid"><section class="ocr-card"><h2>1. Select PDFs</h2><p class="ocr-help">Upload PDF documents only. Files are rendered and processed locally in this browser. Scanned pages are recognized with Tesseract.js. PNG/JPG image uploads are not supported in this workflow.</p><input id="pdfFiles" class="ocr-file" type="file" accept="application/pdf,.pdf" multiple><label class="ocr-help" style="display:block;margin-top:14px">OCR language <select id="ocrLanguage" class="search-box"><option value="eng">English</option></select></label><div class="ocr-actions"><button id="runOcr" class="action-btn primary">Run OCR</button><button id="clearOcr" class="action-btn secondary">Clear</button></div>
+        
+        <!-- Animated Scanner HUD & Sarcastic Progress Component -->
+        <div id="ocrProgressCard" class="ocr-progress-card">
+            <div class="ocr-scanner-visual">
+                <div class="scanner-hud-window">
+                    <div class="scanner-laser"></div>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                </div>
+                <div class="scanner-details">
+                    <div class="scanner-header-row">
+                        <span id="ocrStageBadge" class="scanner-stage-badge">Starting Engines</span>
+                        <span id="ocrPercent" class="scanner-percent">0%</span>
+                    </div>
+                    <div class="ocr-progress-track">
+                        <div id="ocrProgressFill" class="ocr-progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="ocr-sarcastic-comment-box">
+                <span class="ocr-sarcastic-icon">☕</span>
+                <div id="ocrSarcasticText" class="ocr-sarcastic-text">Staring at the progress bar like it's 5:59 PM on a Friday...</div>
+            </div>
+        </div>
+        
+        <div id="ocrStatus" class="ocr-status" role="status">Choose one or more PDF files.</div></section>
+        <section class="ocr-card"><h2>2. Extracted Text</h2><textarea id="fullText" class="ocr-output" readonly placeholder="Extracted text will appear here..."></textarea><div class="ocr-actions"><button id="downloadText" class="action-btn secondary" disabled>Download TXT</button><button id="downloadNumbers" class="action-btn secondary" disabled>Download Numbers CSV</button></div></section>
+        <section class="ocr-card"><h2>DO Numbers</h2><p class="ocr-help">DO numbers must be exactly 8 digits and start with <code>81</code>, for example <code>81525408</code>. The scanner also tolerates OCR spaces, separators, and common character errors.</p><ol id="numberList" class="ocr-number-list"><li>No DO numbers extracted yet.</li></ol></section></div>
+    </main>
+</div>
+<script type="module">
+import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
+const $ = id => document.getElementById(id);
+const doPatterns = [
+    /\b(?:D[AE]LIVERY|D[A-Z]TORY|DO)\s+ORDER\s*(?:NO\.?|NUMBER|#)\s*[:\-]?\s*(\d{7,8})\b/gi,
+    /\bDO\s*[:\-]\s*(81\d{6})\b/gi,
+    /(?<!\d)(81\d{6})(?!\d)/g
+];
+
+const sarcasticQuotes = [
+    "Staring at the progress bar like it's 5:59 PM on a Friday...",
+    "Another day, another stack of blurry PDFs that could've been an Excel file...",
+    "Scanning this instead of taking my 5th coffee break since 8:30 AM...",
+    "Searching for DO numbers while quietly contemplating my career choices...",
+    "I get paid by the hour to watch this bar fill up, so take your sweet time...",
+    "Whoever scanned this sideways definitely hates their job more than I do...",
+    "Deciphering smudged ink because someone refused to use digital files...",
+    "Per my last email, the numbers are currently being extracted...",
+    "Converting paperwork into digits so management thinks we're busy...",
+    "Holding back the urge to throw the office printer out the window...",
+    "Just another thrilling Tuesday afternoon in corporate paradise...",
+    "Scanning with the exact same enthusiasm I bring to 8:30 AM Monday meetings...",
+    "If this PDF had fewer coffee stains, we'd both be clocked out by now...",
+    "Looking busy in case the supervisor walks behind my desk...",
+    "Extracting numbers because manual data entry is where souls go to die..."
+];
+
+let commentTimer = null;
+let currentCommentIndex = 0;
+let extractedText = '', numbers = [];
+
+function startSarcasticComments() {
+    stopSarcasticComments();
+    const commentEl = $('ocrSarcasticText');
+    currentCommentIndex = Math.floor(Math.random() * sarcasticQuotes.length);
+    commentEl.textContent = sarcasticQuotes[currentCommentIndex];
+    commentEl.className = 'ocr-sarcastic-text fade-in';
+    
+    commentTimer = setInterval(() => {
+        commentEl.classList.remove('fade-in');
+        commentEl.classList.add('fade-out');
+        setTimeout(() => {
+            currentCommentIndex = (currentCommentIndex + 1) % sarcasticQuotes.length;
+            commentEl.textContent = sarcasticQuotes[currentCommentIndex];
+            commentEl.classList.remove('fade-out');
+            commentEl.classList.add('fade-in');
+        }, 250);
+    }, 2400);
+}
+
+function stopSarcasticComments() {
+    if (commentTimer) {
+        clearInterval(commentTimer);
+        commentTimer = null;
+    }
+}
+
+function setProgress(percent, stageText, finalComment = null) {
+    const card = $('ocrProgressCard');
+    const fill = $('ocrProgressFill');
+    const percentEl = $('ocrPercent');
+    const badgeEl = $('ocrStageBadge');
+    const commentEl = $('ocrSarcasticText');
+
+    if (percent === null) {
+        card.classList.remove('active');
+        fill.style.width = '0%';
+        percentEl.textContent = '0%';
+        stopSarcasticComments();
+        return;
+    }
+
+    card.classList.add('active');
+    const clamped = Math.min(100, Math.max(0, Math.round(percent)));
+    fill.style.width = `${clamped}%`;
+    percentEl.textContent = `${clamped}%`;
+    if (stageText) badgeEl.textContent = stageText;
+
+    if (finalComment) {
+        stopSarcasticComments();
+        commentEl.className = 'ocr-sarcastic-text fade-in';
+        commentEl.textContent = finalComment;
+    }
+}
+
+function setStatus(text) { $('ocrStatus').textContent = text; }
+function extractNumbers(text) { const found = []; const seen = new Set(); for (const pattern of doPatterns) { pattern.lastIndex = 0; let match; while ((match = pattern.exec(text))) { let value = match[1]; const labelled = pattern !== doPatterns[2]; if (labelled) value = value.length === 7 ? `8${value}` : `8${value.slice(1)}`; if (!/^81\d{6}$/.test(value) || seen.has(value)) continue; seen.add(value); found.push(value); } } return found; }
+function renderNumbers() { $('numberList').innerHTML = numbers.length ? numbers.map(value => `<li>${value.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</li>`).join('') : '<li>No numerical values found.</li>'; }
+function download(name, content, type) { const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([content], {type})); link.download = name; link.click(); URL.revokeObjectURL(link.href); }
+
+async function runOcr() {
+    const files = [...$('pdfFiles').files];
+    if (!files.length) { setStatus('Select at least one PDF first.'); return; }
+    const invalid = files.find(file => file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf'));
+    if (invalid) { setStatus(`Unsupported file: ${invalid.name}. Please select PDF files only.`); return; }
+    
+    $('runOcr').disabled = true;
+    extractedText = '';
+    numbers = [];
+    setProgress(5, 'Questioning Career Choices');
+    startSarcasticComments();
+    
+    let worker;
+    try {
+        let totalPagesEst = files.length;
+        let processedPages = 0;
+
+        // Preliminary count of total pages for accurate progress bar
+        const pdfDocs = [];
+        setProgress(10, 'Reviewing Paperwork (Sigh)');
+        for (const file of files) {
+            const pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
+            pdfDocs.push({ file, pdf });
+        }
+        const totalPages = pdfDocs.reduce((acc, item) => acc + item.pdf.numPages, 0) || 1;
+
+        worker = await Tesseract.createWorker($('ocrLanguage').value, 1, {
+            logger: message => {
+                if (message.status === 'recognizing text' && typeof message.progress === 'number') {
+                    const pageBasePct = (processedPages / totalPages) * 80 + 15;
+                    const pagePortion = (1 / totalPages) * 80 * message.progress;
+                    const overall = Math.min(95, pageBasePct + pagePortion);
+                    setProgress(overall, `Scanning page: ${Math.round(message.progress * 100)}%`);
+                }
+            }
+        });
+
+        for (let fIdx = 0; fIdx < pdfDocs.length; fIdx++) {
+            const { file, pdf } = pdfDocs[fIdx];
+            for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+                const currentPct = 15 + ((processedPages / totalPages) * 80);
+                setProgress(currentPct, `File ${fIdx + 1}/${pdfDocs.length} • Page ${pageNo}/${pdf.numPages}`);
+                setStatus(`Reading ${file.name}: page ${pageNo} of ${pdf.numPages}...`);
+                
+                const page = await pdf.getPage(pageNo);
+                const textContent = await page.getTextContent();
+                const embeddedText = textContent.items.map(item => item.str).join(' ').replace(/\s+/g, ' ').trim();
+                let pageText = embeddedText;
+                
+                if (!embeddedText) {
+                    setStatus(`OCR scanning ${file.name}: page ${pageNo} of ${pdf.numPages}...`);
+                    const viewport = page.getViewport({scale: 1.5});
+                    const canvas = document.createElement('canvas');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    await page.render({canvasContext: canvas.getContext('2d'), viewport}).promise;
+                    const result = await worker.recognize(canvas);
+                    pageText = result.data.text.trim();
+                    canvas.width = 1;
+                    canvas.height = 1;
+                }
+                
+                extractedText += `\n--- ${file.name} / page ${pageNo} ---\n${pageText}\n`;
+                processedPages++;
+            }
+        }
+
+        numbers = extractNumbers(extractedText);
+        $('fullText').value = extractedText.trim();
+        renderNumbers();
+        $('downloadText').disabled = !$('fullText').value;
+        $('downloadNumbers').disabled = !numbers.length;
+
+        const sarcasticFinish = numbers.length 
+            ? `🎉 Done. Extracted ${numbers.length} DO number(s). Now go pretend to be busy until 6 PM.`
+            : `😒 0 DO numbers found. This entire document could have been an email.`;
+
+        setProgress(100, 'Shift Complete', sarcasticFinish);
+        setStatus(`Completed: ${files.length} file(s), ${numbers.length} unique DO number(s).`);
+    } catch (error) {
+        console.error(error);
+        $('fullText').value = '';
+        numbers = [];
+        renderNumbers();
+        $('downloadText').disabled = true;
+        $('downloadNumbers').disabled = true;
+        setProgress(100, 'Crash', "💥 Scanner crashed. Even the computer refused to work on this PDF today.");
+        setStatus('Unable to process this PDF. Confirm it is a valid, unencrypted PDF and try again.');
+    } finally {
+        if (worker) await worker.terminate();
+        $('runOcr').disabled = false;
+    }
+}
+
+$('runOcr').addEventListener('click', runOcr);
+$('clearOcr').addEventListener('click', () => {
+    $('pdfFiles').value = '';
+    $('fullText').value = '';
+    numbers = [];
+    renderNumbers();
+    $('downloadText').disabled = true;
+    $('downloadNumbers').disabled = true;
+    setProgress(null);
+    setStatus('Choose one or more PDF files.');
+});
+$('downloadText').addEventListener('click', () => download('ocr-extracted-text.txt', extractedText.trim(), 'text/plain'));
+$('downloadNumbers').addEventListener('click', () => download('ocr-do-numbers.csv', 'do_number\n' + numbers.map(value => `"${value.replace(/"/g, '""')}"`).join('\n'), 'text/csv'));
+</script>
+</body></html>
