@@ -493,13 +493,22 @@ async function handleProductMasterUpload(event) {
         });
     });
     localStorage.setItem("LastMasterBatchLookupMap", JSON.stringify(storageBatchMap));
-    // LINK TO BATCH ANALYTICS
+    // LINK TO BATCH ANALYTICS (upsert: adds if new, updates/replaces if already existing)
     if (window.batchManager) {
         for (const file of SourceFiles) {
             try {
                 const batchData = await window.batchManager.parseBatchFile(file);
                 if (batchData) {
-                    window.batchManager.addBatch(batchData);
+                    const existingIndex = window.batchManager.batches?.findIndex(b => b.batchId === batchData.batchId);
+                    if (existingIndex !== undefined && existingIndex !== -1) {
+                        // Preserve original uploadedBy if current is Anonymous
+                        if ((!batchData.uploadedBy || batchData.uploadedBy === 'Anonymous') && window.batchManager.batches[existingIndex].uploadedBy) {
+                            batchData.uploadedBy = window.batchManager.batches[existingIndex].uploadedBy;
+                        }
+                        window.batchManager.updateBatch(batchData);
+                    } else {
+                        window.batchManager.addBatch(batchData);
+                    }
                 }
             } catch (err) {
                 console.error("Failed linking batch to analytics:", err);

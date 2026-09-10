@@ -51,6 +51,13 @@ class DOSummaryGenerator {
         this.targetFileName = localStorage.getItem("DO_Summary_Generator_FileName") || "";
         this.generatorDate = localStorage.getItem("DO_Summary_Generator_Date") || "";
 
+        // If no batches exist or saved date is stale (today or past), auto-refresh to next working day
+        if (this.batches.length === 0 || this.isDateStaleOrPast(this.generatorDate)) {
+            const nextWork = this.getNextWorkingDate();
+            this.generatorDate = nextWork.dateCode;
+            this.targetFileName = `DO Summary List ${nextWork.dateCode}.xlsx`;
+        }
+
         const savedPresets = localStorage.getItem("DSG_Preset_Remarks");
         if (savedPresets) {
             try {
@@ -336,6 +343,50 @@ class DOSummaryGenerator {
         this.showToast(`Updated wave for ${activeBatch.batchName} to Wave ${cleanVal}`, "success");
     }
 
+    // Helper to calculate the next working delivery date (skips weekends: Fri -> Mon, Sat -> Mon, Sun -> Mon)
+    getNextWorkingDate() {
+        const targetDate = new Date();
+        const day = targetDate.getDay(); // 0: Sun, 5: Fri, 6: Sat
+        if (day === 5) {
+            targetDate.setDate(targetDate.getDate() + 3);
+        } else if (day === 6) {
+            targetDate.setDate(targetDate.getDate() + 2);
+        } else {
+            targetDate.setDate(targetDate.getDate() + 1);
+        }
+        const yyyy = targetDate.getFullYear();
+        const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(targetDate.getDate()).padStart(2, '0');
+        return {
+            targetDate,
+            yyyy,
+            mm,
+            dd,
+            dateCode: `${dd}${mm}${yyyy}`,
+            pickerVal: `${yyyy}-${mm}-${dd}`,
+            displayVal: `${dd}/${mm}/${yyyy}`
+        };
+    }
+
+    // Helper to check if a dateCode string (DDMMYYYY) is empty, invalid, today, or in the past
+    isDateStaleOrPast(dateCode) {
+        if (!dateCode || typeof dateCode !== 'string') return true;
+        const clean = dateCode.trim().replace(/\D/g, "");
+        if (clean.length !== 8) return true;
+        const dd = parseInt(clean.substring(0, 2), 10);
+        const mm = parseInt(clean.substring(2, 4), 10) - 1;
+        const yyyy = parseInt(clean.substring(4, 8), 10);
+        const checkDate = new Date(yyyy, mm, dd);
+        if (isNaN(checkDate.getTime())) return true;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        checkDate.setHours(0, 0, 0, 0);
+
+        // DO Summary is prepared for upcoming delivery; any date <= today is stale from a previous session
+        return checkDate.getTime() <= today.getTime();
+    }
+
     syncModalDateFromPicker() {
         const picker = document.getElementById("importModalDatePicker");
         const codeInput = document.getElementById("importModalDateCode");
@@ -429,24 +480,14 @@ class DOSummaryGenerator {
             let defaultDateCode = this.generatorDate;
             let defaultPickerVal = "";
 
-            if (defaultDateCode && defaultDateCode.length === 8) {
+            if (!defaultDateCode || this.batches.length === 0 || this.isDateStaleOrPast(defaultDateCode)) {
+                const nextWork = this.getNextWorkingDate();
+                defaultDateCode = nextWork.dateCode;
+                defaultPickerVal = nextWork.pickerVal;
+            } else {
                 const dd = defaultDateCode.substring(0, 2);
                 const mm = defaultDateCode.substring(2, 4);
                 const yyyy = defaultDateCode.substring(4, 8);
-                defaultPickerVal = `${yyyy}-${mm}-${dd}`;
-            } else {
-                const targetDate = new Date();
-                if (targetDate.getDay() === 5) {
-                    targetDate.setDate(targetDate.getDate() + 3);
-                } else if (targetDate.getDay() === 6) {
-                    targetDate.setDate(targetDate.getDate() + 2);
-                } else {
-                    targetDate.setDate(targetDate.getDate() + 1);
-                }
-                const yyyy = targetDate.getFullYear();
-                const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
-                const dd = String(targetDate.getDate()).padStart(2, '0');
-                defaultDateCode = `${dd}${mm}${yyyy}`;
                 defaultPickerVal = `${yyyy}-${mm}-${dd}`;
             }
 
@@ -523,18 +564,8 @@ class DOSummaryGenerator {
             dateCode = `${dd}${mm}${yyyy}`;
         }
         if (!dateCode || dateCode.length !== 8) {
-            const targetDate = new Date();
-            if (targetDate.getDay() === 5) {
-                targetDate.setDate(targetDate.getDate() + 3);
-            } else if (targetDate.getDay() === 6) {
-                targetDate.setDate(targetDate.getDate() + 2);
-            } else {
-                targetDate.setDate(targetDate.getDate() + 1);
-            }
-            const yyyy = targetDate.getFullYear();
-            const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
-            const dd = String(targetDate.getDate()).padStart(2, '0');
-            dateCode = `${dd}${mm}${yyyy}`;
+            const nextWork = this.getNextWorkingDate();
+            dateCode = nextWork.dateCode;
         }
 
         this.generatorDate = dateCode;
@@ -902,18 +933,8 @@ class DOSummaryGenerator {
                 if (savedDate) {
                     dateStr = `${savedDate[3]}-${savedDate[2]}-${savedDate[1]}`;
                 } else {
-                    const targetDate = new Date();
-                    if (targetDate.getDay() === 5) {
-                        targetDate.setDate(targetDate.getDate() + 3);
-                    } else if (targetDate.getDay() === 6) {
-                        targetDate.setDate(targetDate.getDate() + 2);
-                    } else {
-                        targetDate.setDate(targetDate.getDate() + 1);
-                    }
-                    const yyyy = targetDate.getFullYear();
-                    const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
-                    const dd = String(targetDate.getDate()).padStart(2, '0');
-                    dateStr = `${yyyy}-${mm}-${dd}`;
+                    const nextWork = this.getNextWorkingDate();
+                    dateStr = nextWork.pickerVal;
                 }
             }
             if (!dateStr) return;
@@ -1613,19 +1634,9 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
         const activeBatchBadge = document.getElementById("headerActiveBatch");
 
         let dateCode = this.generatorDate;
-        if (!dateCode || dateCode.length !== 8) {
-            const targetDate = new Date();
-            if (targetDate.getDay() === 5) {
-                targetDate.setDate(targetDate.getDate() + 3);
-            } else if (targetDate.getDay() === 6) {
-                targetDate.setDate(targetDate.getDate() + 2);
-            } else {
-                targetDate.setDate(targetDate.getDate() + 1);
-            }
-            const yyyy = targetDate.getFullYear();
-            const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
-            const dd = String(targetDate.getDate()).padStart(2, '0');
-            dateCode = `${dd}${mm}${yyyy}`;
+        if (!dateCode || dateCode.length !== 8 || this.batches.length === 0 || this.isDateStaleOrPast(dateCode)) {
+            const nextWork = this.getNextWorkingDate();
+            dateCode = nextWork.dateCode;
             this.generatorDate = dateCode;
             this.targetFileName = `DO Summary List ${dateCode}.xlsx`;
         }
@@ -2065,13 +2076,9 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
     addManualDO() {
         if (this.batches.length === 0) {
             let defaultDateCode = this.generatorDate;
-            if (!defaultDateCode || defaultDateCode.length !== 8) {
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                const dd = String(tomorrow.getDate()).padStart(2, '0');
-                const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
-                const yyyy = tomorrow.getFullYear();
-                defaultDateCode = `${dd}${mm}${yyyy}`;
+            if (!defaultDateCode || defaultDateCode.length !== 8 || this.isDateStaleOrPast(defaultDateCode)) {
+                const nextWork = this.getNextWorkingDate();
+                defaultDateCode = nextWork.dateCode;
             }
 
             this.batches.push({
