@@ -461,12 +461,12 @@ async function handleProductMasterUpload(event) {
 
         if (MissingInSummary.length > 0) {
             const SampleList = MissingInSummary.slice(0, 4).join(", ");
-            const OverflowCount = MissingInSummary.length > 4 ? ` (+\${MissingInSummary.length - 4} more)` : "";
-            UnmatchedMsg = `\n\n[NOTICE] Found \${MissingInSummary.length} DO(s) in Batch Picking missing from DO Summary file: \${SampleList}\${OverflowCount}`;
+            const OverflowCount = MissingInSummary.length > 4 ? ` (+${MissingInSummary.length - 4} more)` : "";
+            UnmatchedMsg = `\n\n[NOTICE] Found ${MissingInSummary.length} DO(s) in Batch Picking missing from DO Summary file: ${SampleList}${OverflowCount}`;
         }
     }
 
-    showToast(`Processed \${SourceFiles.length} Batch Picking file(s) from 'Insert Batch' sheet!\${UnmatchedMsg}`, "success");
+    showToast(`Processed ${SourceFiles.length} Batch Picking file(s) from 'Insert Batch' sheet!${UnmatchedMsg}`, "success");
 
     const RouteNames = SourceFiles.map(f => f.name).join(", ");
     localStorage.setItem("LastRouteFileName", RouteNames);
