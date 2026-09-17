@@ -3,13 +3,49 @@
   const { filterByCustomer } = window.LookupParser;
   const { getPackageUnitLabel } = window.ExcelExport;
 
+  const evaluateMathExpression = (val) => {
+    if (val === undefined || val === null || val === '') return '';
+    if (typeof val === 'number') return isNaN(val) ? '' : val;
+    const trimmed = String(val).trim();
+    if (trimmed === '') return '';
+    if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
+      const n = parseFloat(trimmed);
+      return isNaN(n) ? '' : n;
+    }
+    if (/^[0-9+\-*/().\s]+$/.test(trimmed)) {
+      try {
+        const fn = new Function('"use strict"; return (' + trimmed + ');');
+        const res = fn();
+        if (typeof res === 'number' && !isNaN(res) && isFinite(res)) {
+          return Math.round(res * 100) / 100;
+        }
+      } catch (err) {}
+    }
+    return trimmed;
+  };
+  window.evaluateMathExpression = evaluateMathExpression;
+
   const PackingSheetForm = ({
     header, setHeader, items, setItems, onAutoSkidNumbering, lookupDb = [],
     onOpenMasterLookup, onDoNoSwitch, onVerify, onClearAll, onNewBatchSession, onCustomerChange,
-    onExportExcel, onExportSimplified, onExportBulkSummary, onExportBulkSimplified,
-    hideSseaTotalCarton = false, onToggleHideSseaTotalCarton,
+    onExportExcel, onExportBulkSummary,
+    
+    hideColumns = {}, onToggleHideColumn, onResetHideColumns,
   }) => {
     const [containerUnit, setContainerUnit] = React.useState('SKID');
+    const [isColumnDropdownOpen, setIsColumnDropdownOpen] = React.useState(false);
+    const columnDropdownRef = React.useRef(null);
+
+    React.useEffect(() => {
+      if (!isColumnDropdownOpen) return;
+      const handleClickOutside = (e) => {
+        if (columnDropdownRef.current && !columnDropdownRef.current.contains(e.target)) {
+          setIsColumnDropdownOpen(false);
+        }
+      };
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isColumnDropdownOpen]);
 
     const [density, setDensity] = React.useState(() => {
       try {
@@ -107,6 +143,14 @@
         const rowIdx = parseInt(target.getAttribute('data-row-index'), 10);
         const colKey = target.getAttribute('data-col-key');
         if (isNaN(rowIdx) || !colKey) return;
+
+        if (colKey === 'totalCarton' && header.customer !== 'MSCSJ') {
+          const evalVal = evaluateMathExpression(target.value);
+          const currentItem = items[rowIdx];
+          if (currentItem) {
+            handleItemChange(currentItem.id, 'totalCarton', evalVal);
+          }
+        }
 
         e.preventDefault();
         const nextRowIdx = e.shiftKey ? rowIdx - 1 : rowIdx + 1;
@@ -936,37 +980,118 @@
             h(Icon.FileSpreadsheet, { className: 'w-3.5 h-3.5', strokeWidth: 1.5 }),
             h('span', null, 'Export Excel')
           ),
-        onToggleHideSseaTotalCarton &&
-          header.customer !== 'MSCSJ' &&
-          h(
-            'label',
-            {
-              className:
-                'inline-flex items-center gap-2 px-3 py-1.5 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.08] hover:bg-black/[0.07] dark:hover:bg-white/[0.12] text-gray-700 dark:text-gray-200 text-[12px] font-semibold cursor-pointer transition select-none border border-black/[0.08] dark:border-white/[0.12]',
-              title:
-                'When checked, the "Total Carton" column and its summary row will be hidden in exported Excel / CSV files for customer SSEA',
-            },
-            h('input', {
-              type: 'checkbox',
-              checked: hideSseaTotalCarton,
-              onChange: (e) => onToggleHideSseaTotalCarton(e.target.checked),
-              className: 'w-3.5 h-3.5 rounded text-[#007AFF] focus:ring-[#007AFF] cursor-pointer accent-[#007AFF]',
-            }),
-            h('span', null, 'Hide Total Carton for SSEA in Excel')
-          ),
-        onExportSimplified &&
-          h(
-            'button',
-            {
-              type: 'button',
-              onClick: onExportSimplified,
-              className:
-                'px-3 py-1.5 bg-gray-600 hover:bg-gray-700 dark:bg-[#3A3A3C] dark:hover:bg-[#48484A] text-white text-[12px] font-semibold rounded-[10px] shadow-sm transition flex items-center gap-1.5 cursor-pointer border border-transparent dark:border-white/10',
-              title: 'Export simplified Excel sheet (Dimensions only)',
-            },
-            h(Icon.FileSpreadsheet, { className: 'w-3.5 h-3.5', strokeWidth: 1.5 }),
-            h('span', null, 'Simplify Excel (Dims Only)')
-          ),
+        onToggleHideColumn &&
+          (() => {
+            const hiddenCount = ['productCode', 'productDescription', 'totalQuantity', 'totalCarton'].filter(
+              (k) => Boolean(hideColumns[k])
+            ).length;
+
+            const columnOptions = [
+              { key: 'productCode', label: 'Product Code' },
+              { key: 'productDescription', label: 'Product Description' },
+              { key: 'totalQuantity', label: 'Total Quantity' },
+              { key: 'totalCarton', label: 'Total Carton' },
+            ];
+
+            return h(
+              'div',
+              { className: 'relative', ref: columnDropdownRef },
+              h(
+                'button',
+                {
+                  type: 'button',
+                  onClick: () => setIsColumnDropdownOpen((v) => !v),
+                  className:
+                    'px-3 py-1.5 text-[12px] font-semibold rounded-[10px] transition flex items-center gap-1.5 cursor-pointer border select-none ' +
+                    (hiddenCount > 0
+                      ? 'bg-[#007AFF]/10 hover:bg-[#007AFF]/15 dark:bg-[#0A84FF]/20 dark:hover:bg-[#0A84FF]/25 text-[#007AFF] dark:text-[#0A84FF] border-[#007AFF]/30 dark:border-[#0A84FF]/40 shadow-sm'
+                      : 'bg-black/[0.04] dark:bg-white/[0.08] hover:bg-black/[0.07] dark:hover:bg-white/[0.12] text-gray-700 dark:text-gray-200 border-black/[0.08] dark:border-white/[0.12]'),
+                  title: 'Hide specific columns when exporting to Excel (Product Code, Description, Total Quantity, Total Carton)',
+                },
+                h(Icon.EyeOff || Icon.Columns, { className: 'w-3.5 h-3.5', strokeWidth: 1.5 }),
+                h('span', null, 'Hide Columns'),
+                hiddenCount > 0 &&
+                  h(
+                    'span',
+                    {
+                      className:
+                        'ml-0.5 px-1.5 py-0.5 bg-[#007AFF] text-white text-[10px] font-bold rounded-full leading-none',
+                    },
+                    String(hiddenCount)
+                  ),
+                Icon.ChevronDown && h(Icon.ChevronDown, { className: 'w-3 h-3 text-gray-400', strokeWidth: 2 })
+              ),
+              isColumnDropdownOpen &&
+                h(
+                  'div',
+                  {
+                    className:
+                      'absolute left-0 mt-1.5 w-64 rounded-xl bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.15] shadow-xl z-50 p-3 space-y-2 text-[12px]',
+                  },
+                  h(
+                    'div',
+                    {
+                      className:
+                        'flex items-center justify-between pb-2 border-b border-black/[0.06] dark:border-white/[0.1]',
+                    },
+                    h(
+                      'div',
+                      null,
+                      h('p', { className: 'font-bold text-gray-900 dark:text-[#F5F5F7]' }, 'Hide Columns in Excel'),
+                      h('p', { className: 'text-[11px] text-gray-500 dark:text-gray-400' }, 'Checked columns will be hidden')
+                    ),
+                    hiddenCount > 0 &&
+                      onResetHideColumns &&
+                      h(
+                        'button',
+                        {
+                          type: 'button',
+                          onClick: onResetHideColumns,
+                          className:
+                            'text-[11px] font-semibold text-[#007AFF] dark:text-[#0A84FF] hover:underline cursor-pointer',
+                        },
+                        'Reset'
+                      )
+                  ),
+                  h(
+                    'div',
+                    { className: 'space-y-1 py-1' },
+                    columnOptions.map((opt) =>
+                      h(
+                        'label',
+                        {
+                          key: opt.key,
+                          className:
+                            'flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-black/[0.04] dark:hover:bg-white/[0.06] cursor-pointer select-none transition',
+                        },
+                        h(
+                          'div',
+                          { className: 'flex items-center gap-2' },
+                          h('input', {
+                            type: 'checkbox',
+                            checked: Boolean(hideColumns[opt.key]),
+                            onChange: () => onToggleHideColumn(opt.key),
+                            className:
+                              'w-3.5 h-3.5 rounded text-[#007AFF] focus:ring-[#007AFF] cursor-pointer accent-[#007AFF]',
+                          }),
+                          h('span', { className: 'font-medium text-gray-800 dark:text-gray-200' }, opt.label)
+                        ),
+                        Boolean(hideColumns[opt.key]) &&
+                          h('span', { className: 'text-[10px] font-semibold text-[#007AFF] dark:text-[#0A84FF]' }, 'Hidden')
+                      )
+                    )
+                  ),
+                  h(
+                    'div',
+                    {
+                      className:
+                        'pt-1.5 border-t border-black/[0.06] dark:border-white/[0.1] text-[10px] text-gray-400 dark:text-gray-500',
+                    },
+                    'Hides columns in exported Excel/CSV while maintaining layout.'
+                  )
+                )
+            );
+          })(),
         onExportBulkSummary &&
           h(
             'button',
@@ -979,19 +1104,6 @@
             },
             h(Icon.Layers, { className: 'w-3.5 h-3.5', strokeWidth: 1.5 }),
             h('span', null, 'Bulk Summary')
-          ),
-        onExportBulkSimplified &&
-          h(
-            'button',
-            {
-              type: 'button',
-              onClick: onExportBulkSimplified,
-              className:
-                'px-3 py-1.5 bg-gray-600 hover:bg-gray-700 dark:bg-[#3A3A3C] dark:hover:bg-[#48484A] text-white text-[12px] font-semibold rounded-[10px] shadow-sm transition flex items-center gap-1.5 cursor-pointer border border-transparent dark:border-white/10',
-              title: 'Combine all D.O. sheets into one Excel workbook (Simplified Dimensions)',
-            },
-            h(Icon.Layers, { className: 'w-3.5 h-3.5', strokeWidth: 1.5 }),
-            h('span', null, 'Bulk Simplify')
           ),
         onNewBatchSession &&
           h(
@@ -1101,8 +1213,8 @@
                 h('span', { className: 'text-gray-400 dark:text-gray-500' }, 'Total Carton'),
                 h(
                   'span',
-                  { className: 'text-[9px] font-medium text-gray-400 dark:text-gray-500 bg-black/[0.04] dark:bg-white/[0.06] px-1.5 py-0.5 rounded-full normal-case tracking-normal' },
-                  'Manual / Opt'
+                  { className: 'text-[9px] font-medium text-[#007AFF] dark:text-[#0A84FF] bg-[#007AFF]/10 dark:bg-[#0A84FF]/20 px-1.5 py-0.5 rounded-full normal-case tracking-normal' },
+                  'Math / Opt (e.g. 10+5)'
                 )
               )
         ),
@@ -1264,12 +1376,22 @@
         // Column 5: Total Carton
         h('td', { className: cellPadding },
           h('input', {
-            type: 'number',
+            type: header.customer === 'MSCSJ' ? 'number' : 'text',
+            inputMode: header.customer === 'MSCSJ' ? 'numeric' : 'text',
             'data-row-index': index,
             'data-col-key': 'totalCarton',
-            value: item.totalCarton,
-            onChange: numHandler(item.id, 'totalCarton'),
-            placeholder: header.customer === 'MSCSJ' ? '0' : 'Opt',
+            value: item.totalCarton === null || item.totalCarton === undefined ? '' : item.totalCarton,
+            onChange: header.customer === 'MSCSJ'
+              ? numHandler(item.id, 'totalCarton')
+              : (e) => handleItemChange(item.id, 'totalCarton', e.target.value),
+            onBlur: (e) => {
+              if (header.customer !== 'MSCSJ') {
+                const evalVal = evaluateMathExpression(e.target.value);
+                handleItemChange(item.id, 'totalCarton', evalVal);
+              }
+            },
+            placeholder: header.customer === 'MSCSJ' ? '0' : 'e.g. 10+5',
+            title: header.customer === 'MSCSJ' ? 'Total Carton (auto-calculated from Qty÷5)' : 'Enter carton count or math expression (e.g. 10+5, 4*6)',
             className: numInputClsMedium
           })
         ),

@@ -25,10 +25,18 @@
     });
 
     const actualMap = new Map();
+    let unassignedSheetQty = 0;
+    let totalItemsQty = 0;
+
     items.forEach((it) => {
+      const q = toNum(it.qty);
+      totalItemsQty += q;
       const key = norm(it.code8D);
-      if (!key) return;
-      actualMap.set(key, (actualMap.get(key) || 0) + toNum(it.qty));
+      if (!key) {
+        unassignedSheetQty += q;
+        return;
+      }
+      actualMap.set(key, (actualMap.get(key) || 0) + q);
     });
 
     const results = [];
@@ -80,10 +88,31 @@
       counts[r.status] += 1;
     });
 
-    const overallPass =
-      counts.missing === 0 && counts.short === 0 && counts.over === 0 && counts.extra === 0;
+    let totalExpectedQty = 0;
+    expectedMap.forEach((exp) => {
+      totalExpectedQty += exp.qty;
+    });
 
-    return { overallPass, results, counts };
+    const totalSheetQty = totalItemsQty;
+    const totalDiff = totalSheetQty - totalExpectedQty;
+    const totalQtyPass = totalExpectedQty > 0 && totalSheetQty === totalExpectedQty;
+
+    const hasAnyCodeAssigned = actualMap.size > 0;
+    const overallPass =
+      (counts.missing === 0 && counts.short === 0 && counts.over === 0 && counts.extra === 0) ||
+      (!hasAnyCodeAssigned && totalQtyPass);
+
+    return {
+      overallPass,
+      totalQtyPass,
+      hasAnyCodeAssigned,
+      unassignedSheetQty,
+      results,
+      counts,
+      totalExpectedQty,
+      totalSheetQty,
+      totalDiff,
+    };
   }
 
   window.VerifyDo = { verifyAgainstDo };

@@ -53,9 +53,17 @@
           : parseFloat(String(item.qty || '0').replace(/,/g, '').trim());
         if (!isNaN(qty)) totalQty += qty;
 
-        const carton = typeof item.totalCarton === 'number'
-          ? (isNaN(item.totalCarton) ? 0 : item.totalCarton)
-          : parseFloat(String(item.totalCarton || '0').replace(/,/g, '').trim());
+        let carton = 0;
+        if (typeof item.totalCarton === 'number') {
+          carton = isNaN(item.totalCarton) ? 0 : item.totalCarton;
+        } else if (item.totalCarton) {
+          const evalVal = typeof window.evaluateMathExpression === 'function'
+            ? window.evaluateMathExpression(item.totalCarton)
+            : item.totalCarton;
+          carton = typeof evalVal === 'number'
+            ? evalVal
+            : parseFloat(String(evalVal || '0').replace(/,/g, '').trim());
+        }
         if (!isNaN(carton)) totalCartons += carton;
 
         const weight = typeof item.weightKg === 'number'

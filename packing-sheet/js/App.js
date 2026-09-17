@@ -13,6 +13,7 @@
   const PACKING_SHEET_THEME_KEY = 'packing_sheet_theme_v1';
   const PACKING_SHEET_DO_CACHE_KEY = 'packing_sheet_do_cache_v1';
   const PACKING_SHEET_HIDE_SSEA_CARTON_KEY = 'packing_sheet_hide_ssea_carton_v1';
+  const PACKING_SHEET_HIDE_COLUMNS_KEY = 'packing_sheet_hide_columns_v1';
 
   // Inline SVG customer badge for toast notifications.
   const CustomerLogo = ({ variant }) => {
@@ -103,22 +104,44 @@
       return {};
     });
 
-    const [hideSseaTotalCarton, setHideSseaTotalCarton] = useState(() => {
+    const [hideColumns, setHideColumns] = useState(() => {
       try {
-        const saved = localStorage.getItem(PACKING_SHEET_HIDE_SSEA_CARTON_KEY);
-        return saved !== null ? JSON.parse(saved) : true;
+        const saved = localStorage.getItem(PACKING_SHEET_HIDE_COLUMNS_KEY);
+        if (saved !== null) return JSON.parse(saved);
       } catch (e) {
-        return true;
+        console.error('Failed to parse hideColumns from local storage', e);
       }
+      return {
+        productCode: false,
+        productDescription: false,
+        totalQuantity: false,
+        totalCarton: false,
+      };
     });
 
     useEffect(() => {
       try {
-        localStorage.setItem(PACKING_SHEET_HIDE_SSEA_CARTON_KEY, JSON.stringify(hideSseaTotalCarton));
+        localStorage.setItem(PACKING_SHEET_HIDE_COLUMNS_KEY, JSON.stringify(hideColumns));
       } catch (e) {
-        console.error('Failed to save hideSseaTotalCarton to local storage', e);
+        console.error('Failed to save hideColumns to local storage', e);
       }
-    }, [hideSseaTotalCarton]);
+    }, [hideColumns]);
+
+    const handleToggleHideColumn = (colKey) => {
+      setHideColumns((prev) => ({
+        ...prev,
+        [colKey]: !prev[colKey],
+      }));
+    };
+
+    const handleResetHideColumns = () => {
+      setHideColumns({
+        productCode: false,
+        productDescription: false,
+        totalQuantity: false,
+        totalCarton: false,
+      });
+    };
 
     const getHostTheme = () => {
       try {
@@ -443,7 +466,7 @@
       const confirmed = await window.ConfirmDialog.confirm({
         title: 'Start New Batch Session?',
         subtitle: `Clear cached D.O. sheets for ${activeCustomer}`,
-        message: `Clear all working D.O. sheets in memory for ${activeCustomer}?\n\nThis ensures only your new D.O.s will be included when exporting Bulk Summary / Bulk Simplify. Your uploaded source file records will be kept.`,
+        message: `Clear all working D.O. sheets in memory for ${activeCustomer}?\n\nThis ensures only your new D.O.s will be included when exporting Bulk Summary. Your uploaded source file records will be kept.`,
         confirmLabel: 'New Batch Session',
         cancelLabel: 'Cancel',
         tone: 'danger',
@@ -481,40 +504,11 @@
       setIsVerifyOpen(true);
     };
 
-    const handleExportExcel = () => exportToExcel(header, items, undefined, { lookupDb, hideSseaTotalCarton });
-    const handleExportSimplified = () => exportToExcel(header, items, undefined, { isSimplified: true, lookupDb, hideSseaTotalCarton });
-    const handleExportHandwrittenTemplate = () => exportToExcel(header, items, undefined, { isHandwrittenTemplate: true, blankRowCount: 20, lookupDb, hideSseaTotalCarton });
-    const handleExportCSV = () => exportToCSV(header, items, undefined, { lookupDb, hideSseaTotalCarton });
+    const handleExportExcel = () => exportToExcel(header, items, undefined, { lookupDb, hideColumns });
+    
+    const handleExportHandwrittenTemplate = () => exportToExcel(header, items, undefined, { isHandwrittenTemplate: true, blankRowCount: 20, lookupDb, hideColumns });
+    const handleExportCSV = () => exportToCSV(header, items, undefined, { lookupDb, hideColumns });
     const handlePrint = () => window.print();
-
-    const handleExportBulkSimplified = () => {
-      const activeCustomer = header.customer === 'MSCSJ' ? 'MSCSJ' : 'SSEA';
-      const currentDo = header.doNo.trim();
-      const sheets = [];
-
-      if (currentDo) {
-        if (activeCustomer !== 'SSEA' || header.shipBy === 'LCL') {
-          sheets.push({ header, items });
-        }
-      }
-
-      Object.entries(doCache).forEach(([doNo, state]) => {
-        if (doNo === currentDo) return;
-        
-        const stateCustomer = state.header.customer === 'MSCSJ' ? 'MSCSJ' : 'SSEA';
-        if (stateCustomer === activeCustomer) {
-          if (activeCustomer !== 'SSEA' || state.header.shipBy === 'LCL') {
-            sheets.push({ header: state.header, items: state.items });
-          }
-        }
-      });
-      if (sheets.length === 0) {
-        showToast(activeCustomer === 'SSEA' ? 'No LCL D.O. sheets available to export' : 'No D.O. sheets available to export');
-        return;
-      }
-      exportBulkSummaryToExcel(sheets, 'Bulk_Simplified_Packing_Details.xlsx', { isSimplified: true, lookupDb, hideSseaTotalCarton });
-      showToast(`Exported ${sheets.length} ${activeCustomer === 'SSEA' ? 'LCL ' : ''}simplified D.O. sheet(s) to Excel`);
-    };
 
     const handleExportBulkSummary = () => {
       const activeCustomer = header.customer === 'MSCSJ' ? 'MSCSJ' : 'SSEA';
@@ -543,7 +537,7 @@
         return;
       }
 
-      exportBulkSummaryToExcel(sheets, undefined, { lookupDb, hideSseaTotalCarton });
+      exportBulkSummaryToExcel(sheets, undefined, { lookupDb, hideColumns });
       showToast(`Exported ${sheets.length} ${activeCustomer === 'SSEA' ? 'LCL ' : ''}D.O. sheet(s) to Excel`);
     };
 
@@ -632,11 +626,10 @@
           onClearAll: handleClearAll,
           onNewBatchSession: handleNewBatchSession,
           onExportExcel: handleExportExcel,
-          onExportSimplified: handleExportSimplified,
           onExportBulkSummary: handleExportBulkSummary,
-          onExportBulkSimplified: handleExportBulkSimplified,
-          hideSseaTotalCarton: hideSseaTotalCarton,
-          onToggleHideSseaTotalCarton: (val) => setHideSseaTotalCarton(val),
+          hideColumns: hideColumns,
+          onToggleHideColumn: handleToggleHideColumn,
+          onResetHideColumns: handleResetHideColumns,
           onCustomerChange: (c) => showToast(`Switched to ${c === 'MSCSJ' ? 'MSCSJ' : 'SSEA'}`, c === 'MSCSJ' ? 'mscsj' : 'ssea'),
         }),
         toast,
