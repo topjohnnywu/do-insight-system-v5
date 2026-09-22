@@ -900,7 +900,8 @@ function handleCalculate() {
                         GroupedMap[key] = { 
                             inv: doRow.inv, code: item.code, desc: item.desc, 
                             route: route, qty: 0, 
-                            vol: item.vol !== undefined && item.vol !== null ? parseFloat(item.vol) : 0 // Fallback to 0 so MasterData is used
+                            vol: item.vol !== undefined && item.vol !== null ? parseFloat(item.vol) : 0, // Fallback to 0 so MasterData is used
+                            type: itemType
                         };
                     }
                     GroupedMap[key].qty += lineQty;
@@ -958,6 +959,71 @@ function handleCalculate() {
     if (warningEl) warningEl.style.display = 'none';
     
     const FinalItems = Object.values(GroupedMap);
+    
+    // Sort helper: extract TV screen size and detect accessories/non-TVs
+    const parseTVSizeInfo = (item) => {
+        if (!item) return { isTV: false, size: 0 };
+        const code = String(item.code || '').trim().toUpperCase();
+        const desc = String(item.desc || '').trim().toUpperCase();
+        let type = String(item.type || '').trim().toUpperCase();
+        if (!type && masterDataMap && masterDataMap[code] && masterDataMap[code].type) {
+            type = String(masterDataMap[code].type).trim().toUpperCase();
+        }
+
+        const nonTvKeywords = ['SOUNDBAR', 'HIFI', 'HIFI AUDIO', 'AUDIO', 'ACCESSORY', 'BRACKET', 'WALL-MOUNT', 'WALL MOUNT', 'STAND', 'CABLE', 'REMOTE', 'SUBWOOFER', 'SPEAKER'];
+        if (nonTvKeywords.some(kw => type.includes(kw) || desc.includes(kw))) {
+            if (!type.includes('TV') && !desc.includes('TV DISPLAY')) {
+                return { isTV: false, size: 0 };
+            }
+        }
+
+        const prefixMatch = code.match(/^(?:QA|UA|QE|UE|QN|GQ|TQ)(\d{2,3})/);
+        if (prefixMatch) {
+            const size = parseInt(prefixMatch[1], 10);
+            if (size >= 24 && size <= 150) {
+                return { isTV: true, size };
+            }
+        }
+
+        const inchMatch = desc.match(/(\d{2,3})\s*(?:INCH|"|”|''|-INCH|\bIN\b)/) || 
+                          desc.match(/-(\d{2,3})\b/) ||
+                          code.match(/-(\d{2,3})\b/);
+        if (inchMatch) {
+            const size = parseInt(inchMatch[1], 10);
+            if (size >= 24 && size <= 150) {
+                if (type.includes('TV') || desc.includes('TV') || desc.includes('OLED') || desc.includes('QLED') || desc.includes('UHD') || desc.includes('DISPLAY')) {
+                    return { isTV: true, size };
+                }
+            }
+        }
+
+        if (type === 'TV DISPLAY' || type === 'TV' || type.includes('TV')) {
+            const anyMatch = desc.match(/-(\d{2,3})/) || desc.match(/(\d{2,3})/) || code.match(/(\d{2,3})/);
+            if (anyMatch) {
+                const size = parseInt(anyMatch[1], 10);
+                if (size >= 24 && size <= 150) {
+                    return { isTV: true, size };
+                }
+            }
+            return { isTV: true, size: 50 };
+        }
+
+        return { isTV: false, size: 0 };
+    };
+
+    // Sort by TV Size descending: largest to smallest screen size, with accessories/non-TVs at the end
+    FinalItems.sort((a, b) => {
+        const tvA = parseTVSizeInfo(a);
+        const tvB = parseTVSizeInfo(b);
+
+        if (tvA.isTV && tvB.isTV) {
+            if (tvA.size !== tvB.size) return tvB.size - tvA.size;
+            return (a.code || '').localeCompare(b.code || '');
+        }
+        if (tvA.isTV && !tvB.isTV) return -1;
+        if (!tvA.isTV && tvB.isTV) return 1;
+        return (a.code || '').localeCompare(b.code || '');
+    });
     
     if (FinalItems.length > 0) {
         localStorage.setItem("PendingBulkLoadOrder", JSON.stringify(FinalItems));

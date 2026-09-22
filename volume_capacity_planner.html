@@ -291,8 +291,21 @@
                     </div>
 
                     <div class="table-card" style="padding: 16px; overflow-x: auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <h3 style="margin: 0; font-size: 14px;">Calculation Results</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <h3 style="margin: 0; font-size: 14px;">Calculation Results</h3>
+                            <span id="resultsCountBadge" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: var(--surface-hover, rgba(255, 255, 255, 0.08)); border: 1px solid var(--border, #27272a); color: var(--fg-muted, #a1a1aa);">0 items</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label for="resultsSortSelect" style="font-size: 12px; color: var(--fg-muted, #a1a1aa); font-weight: 500;">Sort by:</label>
+                            <select id="resultsSortSelect" onchange="plannerEngine.changeSort(this.value)" style="background: var(--surface-solid, #18181b); color: var(--fg, #f4f4f5); border: 1px solid var(--border, #27272a); border-radius: 6px; padding: 4px 8px; font-size: 12px; cursor: pointer;">
+                                <option value="tv_desc" selected>TV Size: Largest to Smallest (Non-TVs at end)</option>
+                                <option value="tv_asc">TV Size: Smallest to Largest (Non-TVs at end)</option>
+                                <option value="code_asc">Product Code (A to Z)</option>
+                                <option value="qty_desc">Order Qty (High to Low)</option>
+                                <option value="import_order">Import / Insertion Order</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <div class="compact-wrapper">

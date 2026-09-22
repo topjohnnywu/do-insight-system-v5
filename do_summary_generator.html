@@ -19,6 +19,7 @@
         document.write('<script src="js/settings.js?t=' + _dsgVersion + '"><\/script>');
     </script>
     <style>
+        /* Simplify Mode: Hide 5 non-essential columns (Division, Shp Code, Address 1, 2, 3) */
         .do-simplify-mode th:nth-child(3),
         .do-simplify-mode td:nth-child(3),
         .do-simplify-mode th:nth-child(4),
@@ -30,6 +31,72 @@
         .do-simplify-mode th:nth-child(9),
         .do-simplify-mode td:nth-child(9) {
             display: none !important;
+        }
+
+        /* Simplify Mode: Snug column widths for code/numeric columns and auto-expansion for content columns */
+        .do-simplify-mode th:nth-child(2),
+        .do-simplify-mode td:nth-child(2) {
+            width: 140px;
+        }
+        .do-simplify-mode th:nth-child(5),
+        .do-simplify-mode td:nth-child(5) {
+            width: 95px;
+        }
+        .do-simplify-mode th:nth-child(6),
+        .do-simplify-mode td:nth-child(6) {
+            width: auto;
+            min-width: 220px;
+        }
+        .do-simplify-mode th:nth-child(10),
+        .do-simplify-mode td:nth-child(10) {
+            width: 110px;
+            white-space: nowrap;
+        }
+        .do-simplify-mode th:nth-child(11),
+        .do-simplify-mode td:nth-child(11) {
+            width: 75px;
+        }
+        .do-simplify-mode th:nth-child(12),
+        .do-simplify-mode td:nth-child(12) {
+            width: 75px;
+        }
+        .do-simplify-mode th:nth-child(13) {
+            width: auto !important;
+            min-width: 240px;
+        }
+        .do-simplify-mode td:nth-child(13) {
+            width: auto;
+            min-width: 240px;
+        }
+
+        /* Expand inputs to fill their column cells without awkward gaps */
+        .do-simplify-mode td:nth-child(2) .compact-input,
+        .do-simplify-mode td:nth-child(5) .compact-input,
+        .do-simplify-mode td:nth-child(6) .compact-input,
+        .do-simplify-mode td:nth-child(13) .compact-remark-input {
+            width: 100% !important;
+            box-sizing: border-box;
+        }
+
+        .row-select-checkbox,
+        #selectAllCheckbox {
+            width: 18px;
+            height: 18px;
+            min-width: 18px;
+            min-height: 18px;
+            accent-color: #2563eb;
+            cursor: pointer;
+            vertical-align: middle;
+            margin: 0 auto;
+            display: inline-block;
+        }
+        .checkbox-cell {
+            width: 44px;
+            min-width: 44px;
+            max-width: 48px;
+            text-align: center;
+            vertical-align: middle;
+            padding: 6px 4px !important;
         }
     </style>
 
@@ -246,24 +313,170 @@
                         </div>
 
                         <!-- Secondary Utilities (Theme & Global Reset) -->
-                        <div style="display: flex; gap: 6px; align-items: center;">
-                            <button class="action-btn" style="background: transparent; color: var(--fg-subtle, #94a3b8); border: 1px solid var(--border); font-size: 11px; padding: 4px 10px; border-radius: 6px; cursor: pointer;" onclick="summaryGenerator.resetFinalSummary()" title="Clear compiled final summary cache">
+                        <style>
+                            .dsg-util-btn {
+                                background: transparent !important;
+                                color: var(--fg-subtle, #94a3b8) !important;
+                                border: 1px solid var(--border, #334155) !important;
+                                font-size: 11px !important;
+                                padding: 4px 10px !important;
+                                border-radius: 6px !important;
+                                cursor: pointer;
+                                display: inline-flex !important;
+                                align-items: center;
+                                gap: 4px;
+                                font-weight: 500;
+                                box-shadow: none !important;
+                                transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                                user-select: none;
+                            }
+                            .dsg-util-btn:hover {
+                                transform: translateY(-1px);
+                            }
+                            .dsg-util-btn:active {
+                                transform: translateY(0) scale(0.98);
+                            }
+                            /* Delete Batch: Reveal Crimson on Hover */
+                            .dsg-btn-delete:hover {
+                                color: #f87171 !important;
+                                background: rgba(239, 68, 68, 0.12) !important;
+                                border-color: rgba(239, 68, 68, 0.4) !important;
+                                box-shadow: 0 2px 10px rgba(239, 68, 68, 0.2) !important;
+                            }
+                            /* Clear Summary: Reveal Sky Blue on Hover */
+                            .dsg-btn-clear:hover {
+                                color: #38bdf8 !important;
+                                background: rgba(56, 189, 248, 0.12) !important;
+                                border-color: rgba(56, 189, 248, 0.4) !important;
+                                box-shadow: 0 2px 10px rgba(56, 189, 248, 0.2) !important;
+                            }
+                            /* Reset All: Reveal Amber / Coral on Hover */
+                            .dsg-btn-reset-all:hover {
+                                color: #fb923c !important;
+                                background: rgba(251, 146, 60, 0.12) !important;
+                                border-color: rgba(251, 146, 60, 0.4) !important;
+                                box-shadow: 0 2px 10px rgba(251, 146, 60, 0.2) !important;
+                            }
+                            /* Mode button standard subtle hover */
+                            .dsg-btn-mode:hover {
+                                color: var(--fg, #ffffff) !important;
+                                background: rgba(148, 163, 184, 0.14) !important;
+                                border-color: var(--border-hover, #64748b) !important;
+                            }
+                        </style>
+                        <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                            <button class="action-btn dsg-util-btn dsg-btn-delete" onclick="summaryGenerator.resetCurrentBatch()" title="Delete the currently selected batch">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                                Delete Batch
+                            </button>
+                            <button class="action-btn dsg-util-btn dsg-btn-clear" onclick="summaryGenerator.resetFinalSummary()" title="Clear compiled final summary cache">
                                 Clear Summary
                             </button>
-                            <button class="action-btn dsg-reset-btn" onclick="summaryGenerator.reset()" style="font-size: 11px; padding: 4px 10px; border-radius: 6px;" title="Reset all batches and state">
+                            <button class="action-btn dsg-util-btn dsg-btn-reset-all" onclick="summaryGenerator.reset()" title="Reset all batches and state">
                                 Reset All
                             </button>
-                            <button id="themeToggleBtn" onclick="toggleTheme()" style="cursor: pointer; font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, transparent); color: var(--fg);">
+                            <button id="themeToggleBtn" class="action-btn dsg-util-btn dsg-btn-mode" onclick="toggleTheme()">
                                 Mode: Dark
                             </button>
                         </div>
                     </div>
 
                     <!-- Clean Segmented Action Command Strip -->
+                    <style>
+                        /* Elevated Solid Action Buttons — Matching Compile & Export */
+                        .dsg-solid-action-btn {
+                            display: inline-flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                            gap: 6px !important;
+                            font-size: 11px !important;
+                            font-weight: 600 !important;
+                            line-height: 1 !important;
+                            padding: 6px 12px !important;
+                            border-radius: 6px !important;
+                            border: 1px solid transparent !important;
+                            color: #ffffff !important;
+                            cursor: pointer !important;
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+                            transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                            user-select: none;
+                        }
+                        .dsg-solid-action-btn svg {
+                            flex-shrink: 0;
+                            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                        }
+                        .dsg-solid-action-btn:hover {
+                            transform: translateY(-2px) !important;
+                        }
+                        .dsg-solid-action-btn:hover svg {
+                            transform: rotate(-8deg) scale(1.1);
+                        }
+                        .dsg-solid-action-btn:active {
+                            transform: scale(0.97) !important;
+                        }
+
+                        /* 1. Import Summary CSV (Emerald Solid) */
+                        .dsg-btn-import-csv {
+                            background: #10b981 !important;
+                        }
+                        .dsg-btn-import-csv:hover {
+                            background: #059669 !important;
+                            box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.5), 0 6px 20px rgba(16, 185, 129, 0.35) !important;
+                        }
+
+                        /* 2. Update Missing Info (Cobalt Solid) */
+                        .dsg-btn-update-info {
+                            background: #2563eb !important;
+                        }
+                        .dsg-btn-update-info:hover {
+                            background: #1d4ed8 !important;
+                            box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.5), 0 6px 20px rgba(37, 99, 235, 0.35) !important;
+                        }
+                        .dsg-btn-update-info:hover svg {
+                            transform: rotate(45deg) scale(1.1) !important;
+                        }
+
+                        /* 3. Export JSON (Purple/Violet Solid) */
+                        .dsg-btn-export-json {
+                            background: #8b5cf6 !important;
+                        }
+                        .dsg-btn-export-json:hover {
+                            background: #7c3aed !important;
+                            box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.5), 0 6px 20px rgba(139, 92, 246, 0.35) !important;
+                        }
+
+                        /* 4. Import Session (Deep Violet Solid) */
+                        .dsg-btn-import-session {
+                            background: #7c3aed !important;
+                        }
+                        .dsg-btn-import-session:hover {
+                            background: #6d28d9 !important;
+                            box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.5), 0 6px 20px rgba(124, 58, 237, 0.35) !important;
+                        }
+
+                        /* 5. Simplify Mode (Slate when OFF, Emerald when ON) */
+                        .dsg-btn-simplify {
+                            background: #475569 !important;
+                        }
+                        .dsg-btn-simplify:hover {
+                            background: #334155 !important;
+                            box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.4), 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+                        }
+                        .dsg-btn-simplify.active-on {
+                            background: #10b981 !important;
+                        }
+                        .dsg-btn-simplify.active-on:hover {
+                            background: #059669 !important;
+                            box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.5), 0 6px 20px rgba(16, 185, 129, 0.35) !important;
+                        }
+                    </style>
                     <div style="background: var(--surface, #1e293b); border: 1px solid var(--border, #334155); border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                         <!-- Primary Workflow Group (Left) -->
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <label for="sourceFilePicker" class="action-btn" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 11px; padding: 6px 12px; border-radius: 6px; margin: 0; transition: all 0.15s ease;">
+                            <label for="sourceFilePicker" class="action-btn dsg-solid-action-btn dsg-btn-import-csv" style="margin: 0;" title="Import raw Sony DO summary files">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                                     <polyline points="17 8 12 3 7 8"/>
@@ -273,7 +486,7 @@
                                 <input type="file" id="sourceFilePicker" accept=".csv, .xlsx, .xls" multiple onchange="summaryGenerator.handleFileUpload(event)" style="display: none;">
                             </label>
 
-                            <label for="updateFilePicker" class="action-btn" style="background: rgba(59, 130, 246, 0.12); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.35); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 11px; padding: 6px 12px; border-radius: 6px; margin: 0; transition: all 0.15s ease;">
+                            <label for="updateFilePicker" class="action-btn dsg-solid-action-btn dsg-btn-update-info" style="margin: 0;" title="Update missing DO info from master records">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="1 4 1 10 7 10"/>
                                     <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
@@ -300,60 +513,93 @@
                                     <polyline points="7 10 12 15 17 10"/>
                                     <line x1="12" y1="15" x2="12" y2="3"/>
                                 </svg>
-                                Export by Batch
+                                Compile Batch
                             </button>
                         </div>
 
-                        <!-- Session & Batch Management Tools (Right) -->
+                        <!-- Session Management Tools (Right) -->
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <!-- Session Segmented Capsule -->
-                            <div style="display: inline-flex; align-items: center; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.25); border-radius: 6px; padding: 2px;">
-                                <button class="action-btn" style="background: transparent; color: #a78bfa; border: none; font-weight: 600; padding: 4px 9px; cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;" onclick="summaryGenerator.exportToJSON()" title="Export entire session data to JSON">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                        <polyline points="7 10 12 15 17 10"/>
-                                        <line x1="12" y1="15" x2="12" y2="3"/>
-                                    </svg>
-                                    Export JSON
-                                </button>
-                                <span style="color: rgba(139, 92, 246, 0.3); font-size: 10px;">|</span>
-                                <label for="jsonImportPicker" class="action-btn" style="background: transparent; color: #a78bfa; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-weight: 600; font-size: 11px; padding: 4px 9px; margin: 0;" title="Import session from JSON or Excel">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                        <polyline points="17 8 12 3 7 8"/>
-                                        <line x1="12" y1="3" x2="12" y2="15"/>
-                                    </svg>
-                                    Import Session
-                                    <input type="file" id="jsonImportPicker" accept=".json, .xlsx, .xls" onchange="summaryGenerator.importSessionFile(event)" style="display: none;">
-                                </label>
-                            </div>
-
-                            <!-- Delete Batch Action Button -->
-                            <button class="action-btn" style="background: rgba(239, 68, 68, 0.1); color: #f87171; font-weight: 600; border: 1px solid rgba(239, 68, 68, 0.3); padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;" onclick="summaryGenerator.resetCurrentBatch()" title="Delete the currently selected batch">
+                            <button class="action-btn dsg-solid-action-btn dsg-btn-export-json" onclick="summaryGenerator.exportToJSON()" title="Export entire session data to JSON">
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="3 6 5 6 21 6"/>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
                                 </svg>
-                                Delete Batch
+                                Export JSON
                             </button>
+                            <label for="jsonImportPicker" class="action-btn dsg-solid-action-btn dsg-btn-import-session" title="Import session from JSON or Excel" style="margin: 0;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                Import Session
+                                <input type="file" id="jsonImportPicker" accept=".json, .xlsx, .xls" onchange="summaryGenerator.importSessionFile(event)" style="display: none;">
+                            </label>
                         </div>
                     </div>
 
                     <!-- KPI Cards Grid -->
                     <style>
                         .compact-kpi { gap: 10px !important; margin-bottom: 12px !important; }
-                        .compact-kpi .kpi-card { padding: 8px 12px; min-height: unset; border-radius: 6px; }
-                        .compact-kpi .kpi-title { font-size: 10px; letter-spacing: 0.2px; }
-                        .compact-kpi .kpi-value { font-size: 16px; margin-top: 2px; }
-                        .compact-kpi .kpi-sub { font-size: 9px; margin-top: 0; }
-                        .compact-kpi .kpi-icon { width: 14px; height: 14px; }
-                        .compact-kpi .kpi-icon svg { width: 14px; height: 14px; }
+                        .compact-kpi .kpi-card { 
+                            padding: 10px 14px !important; 
+                            min-height: unset !important; 
+                            border-radius: 8px !important;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: space-between;
+                        }
+                        .compact-kpi .kpi-card-header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            gap: 8px;
+                            margin-bottom: 4px;
+                        }
+                        .compact-kpi .kpi-title { 
+                            font-size: 11px !important; 
+                            letter-spacing: 0.4px !important; 
+                            font-weight: 700;
+                            text-transform: uppercase;
+                            color: var(--fg-muted);
+                        }
+                        .compact-kpi .kpi-value { 
+                            font-size: 20px !important; 
+                            font-weight: 700 !important; 
+                            margin-top: 2px !important;
+                            line-height: 1.2;
+                            color: var(--fg);
+                        }
+                        .compact-kpi .kpi-sub { 
+                            font-size: 10px !important; 
+                            margin-top: 2px !important; 
+                            color: var(--fg-subtle);
+                        }
+                        .compact-kpi .kpi-icon { 
+                            width: 32px !important; 
+                            height: 32px !important; 
+                            border-radius: 8px;
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                            flex-shrink: 0;
+                            transition: transform 0.2s ease;
+                        }
+                        .compact-kpi .kpi-icon svg { 
+                            width: 18px !important; 
+                            height: 18px !important; 
+                            stroke-width: 2.2px;
+                        }
+                        .compact-kpi .kpi-card:hover .kpi-icon {
+                            transform: scale(1.08);
+                        }
                     </style>
                     <div class="kpi-grid compact-kpi" style="grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); margin-bottom: 0;">
                         <div class="kpi-card green">
                             <div class="kpi-card-header">
                                 <div class="kpi-title">Batches</div>
-                                <div class="kpi-icon" style="color: #10b981;">
+                                <div class="kpi-icon" style="color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25);">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
                                         <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
@@ -368,7 +614,7 @@
                         <div class="kpi-card purple">
                             <div class="kpi-card-header">
                                 <div class="kpi-title">Total DOs</div>
-                                <div class="kpi-icon" style="color: #8b5cf6;">
+                                <div class="kpi-icon" style="color: #8b5cf6; background: rgba(139, 92, 246, 0.12); border: 1px solid rgba(139, 92, 246, 0.25);">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                         <polyline points="14 2 14 8 20 8"/>
@@ -384,7 +630,7 @@
                         <div class="kpi-card red">
                             <div class="kpi-card-header">
                                 <div class="kpi-title">Volume</div>
-                                <div class="kpi-icon" style="color: #ef4444;">
+                                <div class="kpi-icon" style="color: #ef4444; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.25);">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
                                     </svg>
@@ -397,7 +643,7 @@
                         <div class="kpi-card yellow">
                             <div class="kpi-card-header">
                                 <div class="kpi-title">Quantity</div>
-                                <div class="kpi-icon" style="color: #f59e0b;">
+                                <div class="kpi-icon" style="color: #f59e0b; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.25);">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                                     </svg>
@@ -407,10 +653,10 @@
                             <div class="kpi-sub">Units Shipped</div>
                         </div>
 
-                        <div class="kpi-card">
+                        <div class="kpi-card cyan">
                             <div class="kpi-card-header">
                                 <div class="kpi-title">Total SKU</div>
-                                <div class="kpi-icon" style="color: #06b6d4;">
+                                <div class="kpi-icon" style="color: #06b6d4; background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.25);">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
                                     </svg>
@@ -441,8 +687,14 @@
                                     ⚙️ Manage Presets
                                 </button>
                             </div>
-                            <div style="margin-bottom: 10px;">
-                                <input type="text" id="quickPresetSearch" oninput="summaryGenerator.filterPresets(this.value, 'quickPresetChipsContainer')" placeholder="🔍 Search presets..." style="width: 100%; font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg); box-sizing: border-box;">
+                            <div style="margin-bottom: 10px; display: flex; gap: 8px; align-items: center;">
+                                <input type="text" id="quickPresetSearch" oninput="summaryGenerator.filterPresets(this.value, 'quickPresetChipsContainer')" placeholder="🔍 Search presets..." style="flex: 1; font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg); box-sizing: border-box;">
+                                <select id="quickPresetSortSelect" onchange="summaryGenerator.setPresetSortMode(this.value)" title="Sort preset remarks" style="font-size: 11px; font-weight: 600; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg); cursor: pointer;">
+                                    <option value="CUSTOM">📌 Custom Order</option>
+                                    <option value="AZ">🔤 Name (A → Z)</option>
+                                    <option value="ZA">🔤 Name (Z → A)</option>
+                                    <option value="COLOR">🎨 By Color Tag</option>
+                                </select>
                             </div>
                             <div class="quick-preset-chips" id="quickPresetChipsContainer">
                                 <button type="button" class="preset-chip red" data-preset-label="OWN USE" data-preset-color="red" onclick="summaryGenerator.applyQuickRemark('OWN USE')">OWN USE</button>
@@ -521,7 +773,7 @@
 
                         <span id="batchSearchCount" style="font-size: 11px; color: var(--accent); font-weight: 600; background: var(--accent-glow); border: 1px solid var(--border-accent); padding: 2px 8px; border-radius: 12px; display: none;">0 DOs</span>
                         
-                        <button id="btnSimplifyMode" class="action-btn" onclick="summaryGenerator.toggleSimplifyMode()" style="font-size: 11px; font-weight: 600; cursor: pointer; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3);">
+                        <button id="btnSimplifyMode" class="action-btn dsg-solid-action-btn dsg-btn-simplify" onclick="summaryGenerator.toggleSimplifyMode()" style="padding: 4px 10px; font-size: 11px;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                                 <line x1="9" y1="3" x2="9" y2="21"/>
@@ -575,6 +827,10 @@
                             </svg>
                             Delete Selected
                         </button>
+                        <button type="button" id="dsgClearAllExcelFiltersBtn" class="action-btn" onclick="summaryGenerator.clearAllExcelFilters()" style="display: none; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-size: 11px; font-weight: 600; cursor: pointer; padding: 4px 10px; border-radius: 6px; align-items: center; gap: 5px;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            <span>Clear Column Filters</span>
+                        </button>
                     </div>
                 </div>
 
@@ -613,21 +869,105 @@
                     <table class="compact-table">
                         <thead>
                             <tr>
-                                <th style="width: 36px; text-align: center;">
-                                    <input type="checkbox" id="selectAllCheckbox" onchange="summaryGenerator.toggleSelectAll(this.checked)" checked style="cursor: pointer;">
+                                <th class="checkbox-cell" style="width: 44px; text-align: center;">
+                                    <input type="checkbox" id="selectAllCheckbox" onchange="summaryGenerator.toggleSelectAll(this.checked)" checked style="cursor: pointer; width: 18px; height: 18px; accent-color: #2563eb;">
                                 </th>
-                                <th>INVOICE No.</th>
-                                <th>DIVISION</th>
-                                <th>SHP_CODE</th>
-                                <th>ROUTE</th>
-                                <th>CONSIGNEE NAME</th>
-                                <th>ADDRESS 1</th>
-                                <th>ADDRESS 2</th>
-                                <th>ADDRESS 3</th>
-                                <th>VOLUME</th>
-                                <th>QTY</th>
-                                <th>TOTAL SKU</th>
-                                <th style="width: 140px;">REMARK</th>
+                                <th class="excel-th-cell">
+                                    <div class="excel-th-content">
+                                        <span>INVOICE No.</span>
+                                        <button type="button" class="excel-filter-btn" id="dsg_btn_invoiceNo" onclick="summaryGenerator.openExcelFilter(event, 'invoiceNo', 'INVOICE No.')" title="AutoFilter INVOICE No.">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell">
+                                    <div class="excel-th-content">
+                                        <span>DIVISION</span>
+                                        <button type="button" class="excel-filter-btn" id="dsg_btn_division" onclick="summaryGenerator.openExcelFilter(event, 'division', 'DIVISION')" title="AutoFilter DIVISION">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell">
+                                    <div class="excel-th-content">
+                                        <span>SHP_CODE</span>
+                                        <button type="button" class="excel-filter-btn" id="dsg_btn_shpCode" onclick="summaryGenerator.openExcelFilter(event, 'shpCode', 'SHP_CODE')" title="AutoFilter SHP_CODE">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell">
+                                    <div class="excel-th-content">
+                                        <span>ROUTE</span>
+                                        <button type="button" class="excel-filter-btn" id="dsg_btn_route" onclick="summaryGenerator.openExcelFilter(event, 'route', 'ROUTE')" title="AutoFilter ROUTE">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell">
+                                    <div class="excel-th-content">
+                                        <span>CONSIGNEE NAME</span>
+                                        <button type="button" class="excel-filter-btn" id="dsg_btn_consignee" onclick="summaryGenerator.openExcelFilter(event, 'consignee', 'CONSIGNEE NAME')" title="AutoFilter CONSIGNEE NAME">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell">
+                                    <div class="excel-th-content">
+                                        <span>ADDRESS 1</span>
+                                        <button type="button" class="excel-filter-btn" id="dsg_btn_addr1" onclick="summaryGenerator.openExcelFilter(event, 'addr1', 'ADDRESS 1')" title="AutoFilter ADDRESS 1">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell">
+                                    <div class="excel-th-content">
+                                        <span>ADDRESS 2</span>
+                                        <button type="button" class="excel-filter-btn" id="dsg_btn_addr2" onclick="summaryGenerator.openExcelFilter(event, 'addr2', 'ADDRESS 2')" title="AutoFilter ADDRESS 2">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell">
+                                    <div class="excel-th-content">
+                                        <span>ADDRESS 3</span>
+                                        <button type="button" class="excel-filter-btn" id="dsg_btn_addr3" onclick="summaryGenerator.openExcelFilter(event, 'addr3', 'ADDRESS 3')" title="AutoFilter ADDRESS 3">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell">
+                                    <div class="excel-th-content">
+                                        <span>VOLUME</span>
+                                        <button type="button" class="excel-filter-btn" id="dsg_btn_volume" onclick="summaryGenerator.openExcelFilter(event, 'volume', 'VOLUME')" title="AutoFilter VOLUME">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell">
+                                    <div class="excel-th-content">
+                                        <span>QTY</span>
+                                        <button type="button" class="excel-filter-btn" id="dsg_btn_qty" onclick="summaryGenerator.openExcelFilter(event, 'qty', 'QTY')" title="AutoFilter QTY">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell">
+                                    <div class="excel-th-content">
+                                        <span>TOTAL SKU</span>
+                                        <button type="button" class="excel-filter-btn" id="dsg_btn_sku" onclick="summaryGenerator.openExcelFilter(event, 'sku', 'TOTAL SKU')" title="AutoFilter TOTAL SKU">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th class="excel-th-cell" style="width: 170px;">
+                                    <div class="excel-th-content">
+                                        <span>REMARK</span>
+                                        <button type="button" class="excel-filter-btn" id="dsg_btn_remark" onclick="summaryGenerator.openExcelFilter(event, 'remark', 'REMARK')" title="AutoFilter REMARK">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
                             </tr>
                         </thead>
                         <tbody id="generatorTableBody">
@@ -638,6 +978,48 @@
                             </tr>
                         </tbody>
                     </table>
+                    <!-- Dynamic Autocomplete Datalist for Remark Recommendations -->
+                    <datalist id="dsgRemarkPresetList"></datalist>
+
+                    <!-- DSG Excel AutoFilter Dropdown Menu Modal / Context Menu -->
+                    <div id="dsgExcelFilterMenu" class="excel-filter-menu" style="display: none;">
+                        <button type="button" class="excel-menu-item" id="dsgExcelMenuSortAsc" onclick="summaryGenerator.handleExcelSort('asc')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12M9 18h6"/></svg>
+                            <span id="dsgExcelMenuSortAscLabel">Sort A to Z</span>
+                        </button>
+                        <button type="button" class="excel-menu-item" id="dsgExcelMenuSortDesc" onclick="summaryGenerator.handleExcelSort('desc')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6h6M6 12h12M3 18h18"/></svg>
+                            <span id="dsgExcelMenuSortDescLabel">Sort Z to A</span>
+                        </button>
+                        
+                        <div class="excel-menu-divider"></div>
+                        
+                        <button type="button" class="excel-menu-item" id="dsgExcelMenuClearFilter" onclick="summaryGenerator.handleExcelClearColFilter()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            <span id="dsgExcelMenuClearFilterLabel">Clear Filter From Column</span>
+                        </button>
+
+                        <div class="excel-menu-divider"></div>
+
+                        <!-- Search input -->
+                        <div class="excel-search-box-wrap">
+                            <div class="excel-search-box-inner">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                <input type="text" id="dsgExcelSearchInput" class="excel-search-input" placeholder="Search..." oninput="summaryGenerator.handleExcelSearchInput(this.value)" onkeydown="summaryGenerator.handleExcelSearchKeydown(event)">
+                            </div>
+                        </div>
+
+                        <!-- Checkbox Tree List -->
+                        <div class="excel-checkbox-list" id="dsgExcelCheckboxList">
+                            <!-- Dynamically populated -->
+                        </div>
+
+                        <!-- Footer Action Buttons -->
+                        <div class="excel-menu-actions">
+                            <button type="button" class="excel-btn-ok" onclick="summaryGenerator.applyExcelFilterMenu()">OK</button>
+                            <button type="button" class="excel-btn-cancel" onclick="summaryGenerator.closeExcelFilterMenu()">Cancel</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -691,6 +1073,19 @@
                                 Reset to Defaults
                             </button>
                         </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 11px; font-weight: 700; color: var(--fg-muted);">Sort By:</span>
+                            <select id="presetSortSelect" onchange="summaryGenerator.setPresetSortMode(this.value)" style="font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg); cursor: pointer;">
+                                <option value="CUSTOM">📌 Custom / Manual Order</option>
+                                <option value="AZ">🔤 Name (A → Z)</option>
+                                <option value="ZA">🔤 Name (Z → A)</option>
+                                <option value="COLOR">🎨 By Accent Color</option>
+                            </select>
+                        </div>
+                        <span style="font-size: 10px; color: var(--fg-muted);">Use ⬆️ ⬇️ to reorder manually</span>
                     </div>
 
                     <div id="presetManagerList" style="display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: var(--surface, rgba(0,0,0,0.05));">

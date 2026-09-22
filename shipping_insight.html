@@ -236,7 +236,7 @@
                 <div class="filter-box">
                     <label for="typeFilter">Filter DO Type:</label>
                     <select id="typeFilter" onchange="applyInsightFilter()">
-                        <option value="ALL">All Types</option>
+                        <option value="ALL" selected>All Types</option>
                         <option value="BIG">Big DO</option>
                         <option value="SMALL">Small DO</option>
                         <option value="MIX">Mix DO</option>
@@ -415,57 +415,29 @@
         let MixTypeChartObj = null;
         let celebrationTimeoutId = null;
         let LastCelebratedKey = null;
-        let pendingStateRestore = !!localStorage.getItem("ShippingInsightFilterState");
+
+        // Clear any stale saved filter state so page reloads ALWAYS default to "All Types"
+        try {
+            localStorage.removeItem("ShippingInsightFilterState");
+        } catch (e) {}
+        let pendingStateRestore = false;
 
         function openDoDetailsTab(invoiceNo) {
             if (!invoiceNo) return;
             localStorage.setItem("SelectedDoForDetails", invoiceNo);
             localStorage.setItem("DoDetailsReturnTo", "shipping_insight.html");
-            saveInsightFilterState();
             window.open('do_details.html', '_blank');
         }
 
-        // Persist current filter selections so they can be restored on return navigation
+        // Fresh page loads/reloads always default to "All Types"
         function saveInsightFilterState() {
-            const state = {
-                type: document.getElementById("typeFilter")?.value || "ALL",
-                truck: document.getElementById("truckFilter")?.value || "ALL",
-                hub: document.getElementById("hubFilter")?.value || "ALL",
-                search: document.getElementById("insightSearch")?.value || ""
-            };
-            localStorage.setItem("ShippingInsightFilterState", JSON.stringify(state));
+            // Intentionally no-op to keep default state on reload strictly "ALL"
         }
 
-        // Restore saved filter selections after dropdowns have been populated
         function restoreInsightFilterState() {
-            const saved = localStorage.getItem("ShippingInsightFilterState");
-            if (!saved) return;
-            try {
-                const state = JSON.parse(saved);
-
-                const typeSelect = document.getElementById("typeFilter");
-                if (typeSelect && state.type) {
-                    const exists = Array.from(typeSelect.options).some(o => o.value === state.type);
-                    if (exists) typeSelect.value = state.type;
-                }
-
-                const truckSelect = document.getElementById("truckFilter");
-                if (truckSelect && state.truck) {
-                    const exists = Array.from(truckSelect.options).some(o => o.value === state.truck);
-                    if (exists) truckSelect.value = state.truck;
-                }
-
-                const hubSelect = document.getElementById("hubFilter");
-                if (hubSelect && state.hub) {
-                    const exists = Array.from(hubSelect.options).some(o => o.value === state.hub);
-                    if (exists) hubSelect.value = state.hub;
-                }
-
-                const searchInput = document.getElementById("insightSearch");
-                if (searchInput && typeof state.search === "string") {
-                    searchInput.value = state.search;
-                }
-            } catch (e) {}
+            // Intentionally no-op: fresh page reloads always default to "ALL" (All Types)
+            const typeSelect = document.getElementById("typeFilter");
+            if (typeSelect) typeSelect.value = "ALL";
         }
 
         function trigger100PctCelebration(customText) {

@@ -6049,14 +6049,25 @@ body.light-mode #themeToggleBtn {
 
 
 /* Simplify Mode for Generator Table */
-.compact-table.simplify-mode th:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(13)),
-.compact-table.simplify-mode td:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(13)) {
-    display: none;
+.compact-table.simplify-mode th:nth-child(3),
+.compact-table.simplify-mode td:nth-child(3),
+.compact-table.simplify-mode th:nth-child(4),
+.compact-table.simplify-mode td:nth-child(4),
+.compact-table.simplify-mode th:nth-child(7),
+.compact-table.simplify-mode td:nth-child(7),
+.compact-table.simplify-mode th:nth-child(8),
+.compact-table.simplify-mode td:nth-child(8),
+.compact-table.simplify-mode th:nth-child(9),
+.compact-table.simplify-mode td:nth-child(9) {
+    display: none !important;
 }
 
-.compact-table.simplify-mode .compact-input,
-.compact-table.simplify-mode .compact-remark-input {
+.compact-table.simplify-mode td:nth-child(2) .compact-input,
+.compact-table.simplify-mode td:nth-child(5) .compact-input,
+.compact-table.simplify-mode td:nth-child(6) .compact-input,
+.compact-table.simplify-mode td:nth-child(13) .compact-remark-input {
     width: 100% !important;
+    box-sizing: border-box;
 }
 .compact-table.simplify-mode th:nth-child(13) {
     width: auto !important;

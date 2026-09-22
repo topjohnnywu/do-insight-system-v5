@@ -150,22 +150,16 @@
           if (currentItem) {
             handleItemChange(currentItem.id, 'totalCarton', evalVal);
           }
+          e.preventDefault();
         }
 
-        e.preventDefault();
-        const nextRowIdx = e.shiftKey ? rowIdx - 1 : rowIdx + 1;
-
-        if (nextRowIdx >= 0 && nextRowIdx < items.length) {
-          const nextInput = tableRef.current?.querySelector(
-            `input[data-row-index="${nextRowIdx}"][data-col-key="${colKey}"]`
-          );
-          if (nextInput) {
-            nextInput.focus();
-            if (typeof nextInput.select === 'function') nextInput.select();
+        if (colKey === 'qty' && header.customer !== 'MSCSJ') {
+          const evalVal = evaluateMathExpression(target.value);
+          const currentItem = items[rowIdx];
+          if (currentItem) {
+            handleItemChange(currentItem.id, 'qty', evalVal);
           }
-        } else if (nextRowIdx === items.length && !e.shiftKey) {
-          // Auto-add next skid copying dimensions and focus Qty when pressing Enter on the last row
-          handleDuplicateAsNextSkid(items.length - 1, containerUnit);
+          e.preventDefault();
         }
       }
     };
@@ -1364,12 +1358,22 @@
         // Column 4: Qty
         h('td', { className: cellPadding },
           h('input', {
-            type: 'number',
+            type: header.customer === 'MSCSJ' ? 'number' : 'text',
+            inputMode: header.customer === 'MSCSJ' ? 'numeric' : 'text',
             'data-row-index': index,
             'data-col-key': 'qty',
-            value: item.qty,
-            onChange: numHandler(item.id, 'qty'),
-            placeholder: '0',
+            value: item.qty === null || item.qty === undefined ? '' : item.qty,
+            onChange: header.customer === 'MSCSJ'
+              ? numHandler(item.id, 'qty')
+              : (e) => handleItemChange(item.id, 'qty', e.target.value),
+            onBlur: (e) => {
+              if (header.customer !== 'MSCSJ') {
+                const evalVal = evaluateMathExpression(e.target.value);
+                handleItemChange(item.id, 'qty', evalVal);
+              }
+            },
+            placeholder: header.customer === 'MSCSJ' ? '0' : 'e.g. 50+25',
+            title: header.customer === 'MSCSJ' ? 'Quantity' : 'Enter quantity or math expression (e.g. 50+25, 10*6)',
             className: numInputCls
           })
         ),

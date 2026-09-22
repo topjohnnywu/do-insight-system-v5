@@ -30,6 +30,7 @@ class PalletCalculationEngine {
         }
         
         this.orders = [];
+        this.sortMode = 'tv_desc';
         
         this.init();
     }
@@ -103,6 +104,7 @@ class PalletCalculationEngine {
                 // Add valid items to orders
                 let addedCount = 0;
                 let newModelsCount = 0;
+                let importIdx = this.orders.length;
                 
                 pendingItems.forEach(item => {
                     let masterModel = this.masterData.find(m => m.code === item.code);
@@ -114,7 +116,7 @@ class PalletCalculationEngine {
                             description: item.desc || `Product ${item.code}`,
                             capacities: [],
                             maxPallet: null,
-                            type: ''
+                            type: item.type || ''
                         };
                         this.masterData.push(masterModel);
                         newModelsCount++;
@@ -124,6 +126,7 @@ class PalletCalculationEngine {
                     const result = this.calculatePallets(item.qty, rawCaps);
                     this.orders.push({
                         id: Date.now() + Math.random(),
+                        importIndex: importIdx++,
                         inv: item.inv || "MANUAL",
                         code: masterModel.code,
                         description: masterModel.description,
@@ -134,7 +137,7 @@ class PalletCalculationEngine {
                         selectedCap: rawCaps[0] || null,
                         strategy: 'MIX',
                         maxPallet: masterModel.maxPallet,
-                        type: masterModel.type,
+                        type: masterModel.type || item.type || '',
                         length: masterModel.palletL || masterModel.length || masterModel.l,
                         width: masterModel.palletW || masterModel.width || masterModel.w,
                         cartonL: masterModel.l,
@@ -154,6 +157,9 @@ class PalletCalculationEngine {
                 if (newModelsCount > 0) {
                     this.saveMasterData();
                 }
+
+                // Apply default sort: TV Size descending (accessories/non-TVs at the end)
+                this.applySort(this.sortMode);
                 
                 // Remove from local storage after reading
                 localStorage.removeItem("PendingBulkLoadOrder");
@@ -556,6 +562,7 @@ class PalletCalculationEngine {
                     const result = this.calculatePallets(qty, rawCaps);
                     this.orders.push({
                         id: Date.now() + Math.random(),
+                        importIndex: this.orders.length,
                         code: model.code,
                         description: model.description,
                         orderQty: qty,
@@ -584,6 +591,7 @@ class PalletCalculationEngine {
                     const result = this.calculatePallets(qty, []);
                     this.orders.push({
                         id: Date.now() + Math.random(),
+                        importIndex: this.orders.length,
                         code: code,
                         description: "UNKNOWN (Missing from Master Data)",
                         orderQty: qty,
@@ -612,6 +620,7 @@ class PalletCalculationEngine {
             });
             
             if (addedCount > 0) {
+                this.applySort(this.sortMode);
                 this.renderResults();
                 showToast(`Imported ${addedCount} orders from Excel`, "success");
             } else {
@@ -641,6 +650,7 @@ class PalletCalculationEngine {
         
         this.orders.push({
             id: Date.now(),
+            importIndex: this.orders.length,
             code: model.code,
             description: model.description,
             orderQty: qty,
@@ -648,7 +658,7 @@ class PalletCalculationEngine {
             m3: model.m3 || 0,
             rawCaps: rawCaps,
             selectedCap: rawCaps[0] || null,
-                        strategy: 'MIX',
+            strategy: 'MIX',
             maxPallet: model.maxPallet,
             type: model.type,
             length: model.palletL || model.length || model.l,
@@ -662,9 +672,10 @@ class PalletCalculationEngine {
             looseQty: result.looseQty,
             strictLooseQty: result.strictLooseQty,
             configUsed: result.configUsed,
-                        palletsList: result.palletsList
+            palletsList: result.palletsList
         });
         
+        this.applySort(this.sortMode);
         this.renderResults();
         
         // Deliberately NOT resetting input fields 
@@ -708,8 +719,107 @@ class PalletCalculationEngine {
         this.renderResults();
     }
     
+    getTVSize(item) {
+        if (!item) return { isTV: false, size: 0 };
+        const code = String(item.code || '').trim().toUpperCase();
+        const desc = String(item.description || item.desc || '').trim().toUpperCase();
+        let type = String(item.type || '').trim().toUpperCase();
+
+        // 1. Explicit non-TV keywords / types
+        const nonTvKeywords = ['SOUNDBAR', 'HIFI', 'HIFI AUDIO', 'AUDIO', 'ACCESSORY', 'BRACKET', 'WALL-MOUNT', 'WALL MOUNT', 'STAND', 'CABLE', 'REMOTE', 'SUBWOOFER', 'SPEAKER'];
+        if (nonTvKeywords.some(kw => type.includes(kw) || desc.includes(kw))) {
+            if (!type.includes('TV') && !desc.includes('TV DISPLAY')) {
+                return { isTV: false, size: 0 };
+            }
+        }
+
+        // 2. Standard TV model prefixes (QA85..., UA55..., QE75..., UE43..., QN85..., GQ65..., TQ55...)
+        const prefixMatch = code.match(/^(?:QA|UA|QE|UE|QN|GQ|TQ)(\d{2,3})/);
+        if (prefixMatch) {
+            const size = parseInt(prefixMatch[1], 10);
+            if (size >= 24 && size <= 150) {
+                return { isTV: true, size };
+            }
+        }
+
+        // 3. Screen size in inches in description or code (e.g. 65", 65 INCH, 65-INCH, -65)
+        const inchMatch = desc.match(/(\d{2,3})\s*(?:INCH|"|”|''|-INCH|\bIN\b)/) || 
+                          desc.match(/-(\d{2,3})\b/) ||
+                          code.match(/-(\d{2,3})\b/);
+        if (inchMatch) {
+            const size = parseInt(inchMatch[1], 10);
+            if (size >= 24 && size <= 150) {
+                if (type.includes('TV') || desc.includes('TV') || desc.includes('OLED') || desc.includes('QLED') || desc.includes('UHD') || desc.includes('DISPLAY')) {
+                    return { isTV: true, size };
+                }
+            }
+        }
+
+        // 4. If type is explicitly TV DISPLAY or TV
+        if (type === 'TV DISPLAY' || type === 'TV' || type.includes('TV')) {
+            const anyMatch = desc.match(/-(\d{2,3})/) || desc.match(/(\d{2,3})/) || code.match(/(\d{2,3})/);
+            if (anyMatch) {
+                const size = parseInt(anyMatch[1], 10);
+                if (size >= 24 && size <= 150) {
+                    return { isTV: true, size };
+                }
+            }
+            return { isTV: true, size: 50 };
+        }
+
+        return { isTV: false, size: 0 };
+    }
+
+    changeSort(mode) {
+        this.sortMode = mode;
+        this.applySort(mode);
+        this.renderResults();
+    }
+
+    applySort(mode = 'tv_desc') {
+        this.orders.sort((a, b) => {
+            if (mode === 'import_order') {
+                return (a.importIndex !== undefined ? a.importIndex : 0) - (b.importIndex !== undefined ? b.importIndex : 0);
+            }
+            if (mode === 'code_asc') {
+                return (a.code || '').localeCompare(b.code || '');
+            }
+            if (mode === 'qty_desc') {
+                return (b.orderQty || 0) - (a.orderQty || 0);
+            }
+
+            const tvA = this.getTVSize(a);
+            const tvB = this.getTVSize(b);
+
+            // Both are TVs: sort by screen size
+            if (tvA.isTV && tvB.isTV) {
+                if (tvA.size !== tvB.size) {
+                    return mode === 'tv_asc' ? tvA.size - tvB.size : tvB.size - tvA.size;
+                }
+                return (a.code || '').localeCompare(b.code || '');
+            }
+
+            // TV placed before non-TV (accessories / non-TVs at the end)
+            if (tvA.isTV && !tvB.isTV) return -1;
+            if (!tvA.isTV && tvB.isTV) return 1;
+
+            // Both are non-TVs / accessories: sort alphabetically by product code
+            return (a.code || '').localeCompare(b.code || '');
+        });
+    }
+    
     renderResults() {
         this.renderDashboard();
+        
+        const countBadge = document.getElementById("resultsCountBadge");
+        if (countBadge) {
+            countBadge.textContent = `${this.orders.length} ${this.orders.length === 1 ? 'item' : 'items'}`;
+        }
+        
+        const sortSelect = document.getElementById("resultsSortSelect");
+        if (sortSelect && this.sortMode) {
+            sortSelect.value = this.sortMode;
+        }
         
         const tbody = document.getElementById("plannerResultsBody");
         if (!tbody) return;
@@ -720,6 +830,14 @@ class PalletCalculationEngine {
         }
         
         tbody.innerHTML = this.orders.map(o => {
+            const tvInfo = this.getTVSize(o);
+            let sizeBadge = '';
+            if (tvInfo.isTV) {
+                sizeBadge = `<span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: rgba(139, 92, 246, 0.18); color: var(--accent, #a78bfa); border: 1px solid rgba(139, 92, 246, 0.3); margin-left: 6px;" title="${tvInfo.size} Inch Screen">${tvInfo.size}"</span>`;
+            } else {
+                sizeBadge = `<span style="display: inline-block; font-size: 10px; font-weight: 500; padding: 1px 5px; border-radius: 4px; background: rgba(113, 113, 122, 0.15); color: var(--fg-muted, #a1a1aa); border: 1px solid rgba(113, 113, 122, 0.25); margin-left: 6px;" title="Non-TV / Accessory">Non-TV</span>`;
+            }
+
             let configCell = `<td style="font-size: 11px; color: var(--fg-muted, #a1a1aa);">${o.configUsed}</td>`;
             
             if (o.rawCaps && o.rawCaps.length > 1) {
@@ -754,7 +872,7 @@ class PalletCalculationEngine {
 
             return `
             <tr>
-                <td style="font-family: monospace; font-weight: 600;">${o.code}</td>
+                <td style="font-family: monospace; font-weight: 600; white-space: nowrap;">${o.code} ${sizeBadge}</td>
                 <td>${o.description}</td>
                 <td style="text-align: right; font-weight: 600;">${o.orderQty}</td>
                 <td style="text-align: right; color: var(--accent, #8b5cf6); font-weight: 700;">${o.palletQty}</td>

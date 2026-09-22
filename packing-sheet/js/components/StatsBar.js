@@ -48,9 +48,17 @@
           else uniqueSkids.add(skidLabel);
         }
 
-        const qty = typeof item.qty === 'number'
-          ? (isNaN(item.qty) ? 0 : item.qty)
-          : parseFloat(String(item.qty || '0').replace(/,/g, '').trim());
+        let qty = 0;
+        if (typeof item.qty === 'number') {
+          qty = isNaN(item.qty) ? 0 : item.qty;
+        } else if (item.qty) {
+          const evalVal = typeof window.evaluateMathExpression === 'function'
+            ? window.evaluateMathExpression(item.qty)
+            : item.qty;
+          qty = typeof evalVal === 'number'
+            ? evalVal
+            : parseFloat(String(evalVal || '0').replace(/,/g, '').trim());
+        }
         if (!isNaN(qty)) totalQty += qty;
 
         let carton = 0;

@@ -16,7 +16,18 @@ class DOSummaryGenerator {
             { label: "OWN USE/CABN", color: "purple" },
             { label: "SGBROS DELIVERY", color: "gray" }
         ];
+        this.presetSortMode = localStorage.getItem("DSG_Preset_Sort_Mode") || "CUSTOM";
         this.presetRemarks = [...this.defaultPresets];
+
+        this.excelColumnFilters = {};
+        this.excelSort = { colKey: null, dir: null };
+        this.activeExcelMenuState = {
+            colKey: null,
+            colTitle: '',
+            items: [],
+            tempSelected: new Set(),
+            searchQuery: ''
+        };
 
         this.init();
     }
@@ -69,6 +80,11 @@ class DOSummaryGenerator {
             const htmlParsed = this.parseHTMLPresets();
             this.presetRemarks = (htmlParsed && htmlParsed.length > 0) ? htmlParsed : [...this.defaultPresets];
         }
+        const savedSortMode = localStorage.getItem("DSG_Preset_Sort_Mode");
+        if (savedSortMode) {
+            this.presetSortMode = savedSortMode;
+        }
+        this.applyPresetSort();
     }
 
     parseHTMLPresets() {
@@ -100,6 +116,7 @@ class DOSummaryGenerator {
             localStorage.setItem("DO_Summary_Generator_Date", this.generatorDate);
         }
         localStorage.setItem("DSG_Preset_Remarks", JSON.stringify(this.presetRemarks));
+        localStorage.setItem("DSG_Preset_Sort_Mode", this.presetSortMode);
     }
 
     showToast(message, type = "info", duration = 3500) {
@@ -1687,14 +1704,96 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
         });
     }
 
+    applyPresetSort() {
+        if (!Array.isArray(this.presetRemarks)) return;
+        if (this.presetSortMode === "AZ") {
+            this.presetRemarks.sort((a, b) => a.label.localeCompare(b.label));
+        } else if (this.presetSortMode === "ZA") {
+            this.presetRemarks.sort((a, b) => b.label.localeCompare(a.label));
+        } else if (this.presetSortMode === "COLOR") {
+            const colorOrder = { red: 1, yellow: 2, blue: 3, green: 4, purple: 5, gray: 6, dark: 7 };
+            this.presetRemarks.sort((a, b) => {
+                const cDiff = (colorOrder[a.color] || 99) - (colorOrder[b.color] || 99);
+                if (cDiff !== 0) return cDiff;
+                return a.label.localeCompare(b.label);
+            });
+        }
+        // If "CUSTOM", keep the manual order as-is
+    }
+
+    setPresetSortMode(mode) {
+        this.presetSortMode = mode;
+        this.applyPresetSort();
+        this.saveToStorage();
+        this.renderPresetChips();
+        this.renderPresetManagerList();
+        const names = {
+            AZ: "Alphabetical (A → Z)",
+            ZA: "Alphabetical (Z → A)",
+            COLOR: "By Accent Color",
+            CUSTOM: "Custom Order"
+        };
+        this.showToast(`Presets sorted: ${names[mode] || mode}`, "info");
+    }
+
+    movePreset(index, direction) {
+        const targetIndex = index + direction;
+        if (targetIndex < 0 || targetIndex >= this.presetRemarks.length) return;
+
+        // Moving items manually switches to custom mode so ordering sticks
+        this.presetSortMode = "CUSTOM";
+
+        const temp = this.presetRemarks[index];
+        this.presetRemarks[index] = this.presetRemarks[targetIndex];
+        this.presetRemarks[targetIndex] = temp;
+
+        this.saveToStorage();
+        this.renderPresetChips();
+        this.renderPresetManagerList();
+    }
+
+    escapeHtml(str) {
+        if (str === null || str === undefined) return "";
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    handleRemarkKeydown(event, batchIdx, recordIdx) {
+        if (event.key === "Enter") {
+            const input = event.target;
+            const currentVal = (input.value || "").trim().toLowerCase();
+            if (currentVal && Array.isArray(this.presetRemarks)) {
+                // If user halfway typed, recommend best matching preset
+                const matched = this.presetRemarks.find(p => 
+                    p.label.toLowerCase() === currentVal || 
+                    p.label.toLowerCase().startsWith(currentVal)
+                );
+                if (matched) {
+                    input.value = matched.label;
+                    this.updateRemark(batchIdx, recordIdx, matched.label);
+                    return;
+                }
+            }
+            this.updateRemark(batchIdx, recordIdx, input.value);
+        }
+    }
+
     renderPresetChips() {
         const quickContainer = document.getElementById("quickPresetChipsContainer");
         const filteredContainer = document.getElementById("filteredPresetChipsContainer");
+        const quickSortSelect = document.getElementById("quickPresetSortSelect");
+        if (quickSortSelect) {
+            quickSortSelect.value = this.presetSortMode;
+        }
 
         let quickHtml = "";
         let filteredHtml = "";
 
-        this.presetRemarks.sort((a, b) => a.label.localeCompare(b.label));
+        this.applyPresetSort();
         this.presetRemarks.forEach(p => {
             const escapedLabel = p.label.replace(/'/g, "\\'");
             quickHtml += `<button type="button" class="preset-chip ${p.color}" onclick="summaryGenerator.applyQuickRemark('${escapedLabel}')">${p.label}</button>`;
@@ -1707,6 +1806,18 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
 
         if (quickContainer) quickContainer.innerHTML = quickHtml;
         if (filteredContainer) filteredContainer.innerHTML = filteredHtml;
+
+        // Populate autocomplete recommendations datalist dynamically for all rows
+        const datalist = document.getElementById("dsgRemarkPresetList");
+        if (datalist) {
+            let dlHtml = "";
+            this.presetRemarks.forEach(p => {
+                if (p && p.label) {
+                    dlHtml += `<option value="${this.escapeHtml(p.label)}"></option>`;
+                }
+            });
+            datalist.innerHTML = dlHtml;
+        }
     }
 
     openPresetManagerModal() {
@@ -1724,6 +1835,10 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
 
     renderPresetManagerList() {
         const list = document.getElementById("presetManagerList");
+        const sortSelect = document.getElementById("presetSortSelect");
+        if (sortSelect) {
+            sortSelect.value = this.presetSortMode;
+        }
         if (!list) return;
 
         if (this.presetRemarks.length === 0) {
@@ -1733,17 +1848,44 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
 
         let html = "";
         this.presetRemarks.forEach((p, index) => {
-            html += `<div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: var(--surface-card, #1e293b); border: 1px solid var(--border, #334155); border-radius: 6px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span class="preset-chip ${p.color}" style="font-size: 11px; padding: 3px 10px; pointer-events: none;">${p.label}</span>
+            const isFirst = index === 0;
+            const isLast = index === this.presetRemarks.length - 1;
+            html += `<div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: var(--surface-card, #1e293b); border: 1px solid var(--border, #334155); border-radius: 6px; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0;">
+                    <div style="display: flex; align-items: center; gap: 2px;">
+                        <button type="button" onclick="summaryGenerator.movePreset(${index}, -1)" ${isFirst ? 'disabled' : ''} style="background: var(--surface, rgba(255,255,255,0.06)); color: var(--fg, #e2e8f0); border: 1px solid var(--border, #334155); border-radius: 4px; padding: 2px 5px; font-size: 10px; cursor: ${isFirst ? 'not-allowed' : 'pointer'}; opacity: ${isFirst ? '0.3' : '1'};" title="Move Up">▲</button>
+                        <button type="button" onclick="summaryGenerator.movePreset(${index}, 1)" ${isLast ? 'disabled' : ''} style="background: var(--surface, rgba(255,255,255,0.06)); color: var(--fg, #e2e8f0); border: 1px solid var(--border, #334155); border-radius: 4px; padding: 2px 5px; font-size: 10px; cursor: ${isLast ? 'not-allowed' : 'pointer'}; opacity: ${isLast ? '0.3' : '1'};" title="Move Down">▼</button>
+                    </div>
+                    <span class="preset-chip ${p.color}" style="font-size: 11px; padding: 3px 10px; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.label}</span>
                 </div>
-                <button type="button" onclick="summaryGenerator.deletePresetRemark(${index})" style="background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid #7f1d1d; border-radius: 4px; padding: 2px 8px; font-size: 11px; cursor: pointer; font-weight: 700;">
-                    Delete
-                </button>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <select onchange="summaryGenerator.updatePresetColor(${index}, this.value)" title="Change accent color" style="font-size: 11px; padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border, #334155); background: var(--surface-solid, var(--bg-base, #0f172a)); color: var(--fg, #e2e8f0); cursor: pointer;">
+                        <option value="red" ${p.color === 'red' ? 'selected' : ''}>🔴 Red</option>
+                        <option value="yellow" ${p.color === 'yellow' ? 'selected' : ''}>🟡 Yellow</option>
+                        <option value="blue" ${p.color === 'blue' ? 'selected' : ''}>🔵 Blue</option>
+                        <option value="green" ${p.color === 'green' ? 'selected' : ''}>🟢 Green</option>
+                        <option value="purple" ${p.color === 'purple' ? 'selected' : ''}>🟣 Purple</option>
+                        <option value="gray" ${p.color === 'gray' ? 'selected' : ''}>⚪ Gray</option>
+                        <option value="dark" ${p.color === 'dark' ? 'selected' : ''}>⬛ Dark</option>
+                    </select>
+                    <button type="button" onclick="summaryGenerator.deletePresetRemark(${index})" style="background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid #7f1d1d; border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer; font-weight: 700;" title="Delete preset">
+                        Delete
+                    </button>
+                </div>
             </div>`;
         });
 
         list.innerHTML = html;
+    }
+
+    updatePresetColor(index, newColor) {
+        if (index < 0 || index >= this.presetRemarks.length) return;
+        const preset = this.presetRemarks[index];
+        preset.color = newColor;
+        this.saveToStorage();
+        this.renderPresetChips();
+        this.renderPresetManagerList();
+        this.showToast(`Updated accent color for "${preset.label}".`, "success");
     }
 
     addNewPresetRemark() {
@@ -1854,6 +1996,7 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
         });
         if (!confirmed) return;
 
+        this.presetSortMode = "CUSTOM";
         this.presetRemarks = this.parseHTMLPresets() || [...this.defaultPresets];
         this.saveToStorage();
         this.renderPresetChips();
@@ -2043,16 +2186,18 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
 
     selectBatch(index) {
         this.currentBatchIndex = index;
+        this.excelColumnFilters = {};
+        this.excelSort = { colKey: null, dir: null };
+        this.closeExcelFilterMenu();
         this.renderUI();
     }
 
     toggleSelectAll(checked) {
         if (this.batches.length === 0 || !this.batches[this.currentBatchIndex]) return;
-        const activeBatch = this.batches[this.currentBatchIndex];
         const isSelected = Boolean(checked);
-
-        activeBatch.records.forEach(r => {
-            r.selected = isSelected;
+        const filtered = this.getFilteredRecords();
+        filtered.forEach(item => {
+            item.record.selected = isSelected;
         });
 
         this.saveToStorage();
@@ -2128,15 +2273,8 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
         if (this.batches.length === 0 || !this.batches[this.currentBatchIndex]) return;
         const activeBatch = this.batches[this.currentBatchIndex];
 
-        let selectedRecords = activeBatch.records.filter(r => r.selected === true);
-
-        // Filter-aware: if search filter is active, only target selected records matching search filter
-        if (this.searchQuery) {
-            selectedRecords = selectedRecords.filter(r => {
-                const searchStr = `${r.invoiceNo} ${r.division} ${r.shpCode} ${r.route} ${r.consignee} ${r.addr1} ${r.addr2} ${r.addr3} ${r.remark}`.toLowerCase();
-                return searchStr.includes(this.searchQuery);
-            });
-        }
+        const visibleRecordsSet = new Set(this.getFilteredRecords().map(item => item.record));
+        let selectedRecords = activeBatch.records.filter(r => r.selected === true && visibleRecordsSet.has(r));
 
         if (selectedRecords.length === 0) {
             this.showToast("No selected rows matching current filter to delete.", "info");
@@ -2168,16 +2306,14 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
             const svgIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>`;
             if (this.isSimplifyMode) {
                 btn.innerHTML = `${svgIcon} Simplify Mode: ON`;
-                btn.style.background = 'rgba(16, 185, 129, 0.15)';
-                btn.style.color = '#34d399';
-                btn.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                btn.classList.add('active-on');
                 table.classList.add('do-simplify-mode');
+                table.classList.add('simplify-mode');
             } else {
                 btn.innerHTML = `${svgIcon} Simplify Mode`;
-                btn.style.background = 'rgba(59, 130, 246, 0.15)';
-                btn.style.color = '#60a5fa';
-                btn.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+                btn.classList.remove('active-on');
                 table.classList.remove('do-simplify-mode');
+                table.classList.remove('simplify-mode');
             }
         }
     }
@@ -2259,31 +2395,22 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
             return;
         }
 
-        const activeBatch = this.batches[this.currentBatchIndex];
-        let targetRecords = activeBatch.records;
-
-        if (this.searchQuery) {
-            targetRecords = targetRecords.filter(r => {
-                const searchStr = `${r.invoiceNo} ${r.division} ${r.shpCode} ${r.route} ${r.consignee} ${r.addr1} ${r.addr2} ${r.addr3} ${r.remark}`.toLowerCase();
-                return searchStr.includes(this.searchQuery);
-            });
-        }
-
-        if (targetRecords.length === 0) {
+        const filtered = this.getFilteredRecords();
+        if (filtered.length === 0) {
             this.showToast("No DO records match the current filter.", "info");
             return;
         }
 
-        const cleanRemark = remarkText.trim();
-        targetRecords.forEach(r => {
-            r.remark = cleanRemark;
+        const cleanRemark = (remarkText || "").trim();
+        filtered.forEach(item => {
+            item.record.remark = cleanRemark;
         });
 
         this.saveToStorage();
         this.renderTable();
 
         const label = cleanRemark ? `"${cleanRemark}"` : "(Cleared)";
-        this.showToast(`Applied remark ${label} to ${targetRecords.length} filtered DO record(s)!`, "success");
+        this.showToast(`Applied remark ${label} to ${filtered.length} filtered DO record(s)!`, "success");
     }
 
     applyCustomFilteredRemark() {
@@ -2349,26 +2476,23 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
             tbody.innerHTML = '<tr><td colspan="13" style="text-align:center; padding:24px; color:#71717a;">No batch data loaded. Please upload a source file.</td></tr>';
             if (mainCheckbox) mainCheckbox.checked = false;
             if (elSearchCount) elSearchCount.style.display = "none";
+            this.updateExcelFilterButtonStates();
             return;
         }
 
         const activeBatch = this.batches[this.currentBatchIndex];
         const records = activeBatch.records;
 
-        const filteredRecords = [];
-        records.forEach((r, originalIdx) => {
-            if (this.searchQuery) {
-                const searchStr = `${r.invoiceNo} ${r.division} ${r.shpCode} ${r.route} ${r.consignee} ${r.addr1} ${r.addr2} ${r.addr3} ${r.remark}`.toLowerCase();
-                if (!searchStr.includes(this.searchQuery)) return;
-            }
-            filteredRecords.push({ record: r, idx: originalIdx });
-        });
+        const filteredRecords = this.getFilteredRecords();
+        const hasFilters = Boolean(this.searchQuery) || this.hasActiveExcelFilters();
+
+        this.updateExcelFilterButtonStates();
 
         // Toggle Filtered DOs Remark Bar
         const filteredBar = document.getElementById("filteredRemarkBar");
         const filteredBadge = document.getElementById("filteredBarCountBadge");
         if (filteredBar) {
-            if (this.searchQuery && filteredRecords.length > 0) {
+            if (hasFilters && filteredRecords.length > 0) {
                 filteredBar.style.display = "flex";
                 if (filteredBadge) filteredBadge.innerText = `${filteredRecords.length} DOs`;
             } else {
@@ -2377,19 +2501,19 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
         }
 
         // Dynamic KPI update based on current filter state
-        this.renderKPIs(this.searchQuery ? filteredRecords.map(item => item.record) : null);
+        this.renderKPIs(hasFilters ? filteredRecords.map(item => item.record) : null);
 
         if (elSearchCount) {
             elSearchCount.style.display = "inline-block";
-            if (this.searchQuery) {
+            if (hasFilters) {
                 elSearchCount.innerText = `${filteredRecords.length} / ${records.length} DOs`;
             } else {
                 elSearchCount.innerText = `${records.length} DOs`;
             }
         }
 
-        const allChecked = records.length > 0 && records.every(r => r.selected === true);
-        const noneChecked = records.length > 0 && records.every(r => r.selected === false);
+        const allChecked = filteredRecords.length > 0 && filteredRecords.every(r => r.record.selected === true);
+        const noneChecked = filteredRecords.length > 0 && filteredRecords.every(r => r.record.selected === false);
         
         if (mainCheckbox) mainCheckbox.checked = allChecked;
         
@@ -2422,7 +2546,8 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
         }
 
         if (filteredRecords.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding:24px; color:#71717a;">No DO records match search "${this.searchQuery}".</td></tr>`;
+            const filterDesc = this.searchQuery ? `search "${this.searchQuery}"` : "the current filter criteria";
+            tbody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding:24px; color:#71717a;">No DO records match ${filterDesc}.</td></tr>`;
             return;
         }
 
@@ -2447,10 +2572,23 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
                 onchange="summaryGenerator.updateVolume(${bi}, ${idx}, this.value)" 
                 style="width: 80px; text-align: right;">`;
 
+            const remarkCellHtml = `
+                <td>
+                    <input type="text" id="remark-input-${bi}-${idx}" 
+                           list="dsgRemarkPresetList" 
+                           class="compact-remark-input" 
+                           value="${this.escapeHtml(r.remark || '')}" 
+                           placeholder="Enter remark..." 
+                           autocomplete="off"
+                           onkeydown="summaryGenerator.handleRemarkKeydown(event, ${bi}, ${idx})"
+                           onchange="summaryGenerator.updateRemark(${bi}, ${idx}, this.value)">
+                </td>
+            `;
+
             if (isManual) {
                 html += `<tr style="background: rgba(59, 130, 246, 0.05);">
-                    <td style="text-align: center;">
-                        <input type="checkbox" class="row-select-checkbox" ${isChecked} onchange="summaryGenerator.toggleRowSelect(${idx}, this.checked)" style="cursor: pointer;">
+                    <td class="checkbox-cell" style="text-align: center; width: 44px;">
+                        <input type="checkbox" class="row-select-checkbox" ${isChecked} onchange="summaryGenerator.toggleRowSelect(${idx}, this.checked)" style="cursor: pointer; width: 18px; height: 18px; accent-color: #2563eb;">
                     </td>
                     <td><input type="text" class="compact-input" value="${r.invoiceNo}" placeholder="DO Number" 
                         onchange="summaryGenerator.updateField(${bi}, ${idx}, 'invoiceNo', this.value)" style="width: 110px; font-family: monospace; font-weight: 700; color: #60a5fa;"></td>
@@ -2472,15 +2610,12 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
                         onchange="summaryGenerator.updateField(${bi}, ${idx}, 'qty', this.value)" style="width: 60px; text-align: right;"></td>
                     <td><input type="number" class="compact-input" value="${r.sku || ''}" placeholder="0" min="0" 
                         onchange="summaryGenerator.updateField(${bi}, ${idx}, 'sku', this.value)" style="width: 50px; text-align: right;"></td>
-                    <td>
-                        <input type="text" class="compact-remark-input" value="${r.remark || ''}" placeholder="Enter remark..." 
-                               onchange="summaryGenerator.updateRemark(${bi}, ${idx}, this.value)">
-                    </td>
+                    ${remarkCellHtml}
                 </tr>`;
             } else {
                 html += `<tr>
-                    <td style="text-align: center;">
-                        <input type="checkbox" class="row-select-checkbox" ${isChecked} onchange="summaryGenerator.toggleRowSelect(${idx}, this.checked)" style="cursor: pointer;">
+                    <td class="checkbox-cell" style="text-align: center; width: 44px;">
+                        <input type="checkbox" class="row-select-checkbox" ${isChecked} onchange="summaryGenerator.toggleRowSelect(${idx}, this.checked)" style="cursor: pointer; width: 18px; height: 18px; accent-color: #2563eb;">
                     </td>
                     <td><input type="text" class="compact-input" value="${r.invoiceNo}" placeholder="DO Number" 
                         onchange="summaryGenerator.updateField(${bi}, ${idx}, 'invoiceNo', this.value)" style="width: 110px; font-family: monospace; font-weight: 700; color: #60a5fa;"></td>
@@ -2502,15 +2637,470 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
                         onchange="summaryGenerator.updateField(${bi}, ${idx}, 'qty', this.value)" style="width: 60px; text-align: right;"></td>
                     <td><input type="number" class="compact-input" value="${r.sku || ''}" placeholder="0" min="0" 
                         onchange="summaryGenerator.updateField(${bi}, ${idx}, 'sku', this.value)" style="width: 50px; text-align: right;"></td>
-                    <td>
-                        <input type="text" class="compact-remark-input" value="${r.remark || ''}" placeholder="Enter remark..." 
-                               onchange="summaryGenerator.updateRemark(${bi}, ${idx}, this.value)">
-                    </td>
+                    ${remarkCellHtml}
                 </tr>`;
             }
         });
 
         tbody.innerHTML = html;
+    }
+
+    // ==========================================
+    // EXCEL AUTOFILTER & SORTING FOR BATCH TABLE
+    // ==========================================
+
+    getRecordColumnValueString(r, colKey) {
+        if (!r) return "";
+        switch (colKey) {
+            case "invoiceNo": return String(r.invoiceNo || "").trim();
+            case "division": return String(r.division || "").trim();
+            case "shpCode": return String(r.shpCode || "").trim();
+            case "route": return String(r.route || "").trim();
+            case "consignee": return String(r.consignee || "").trim();
+            case "addr1": return String(r.addr1 || "").trim();
+            case "addr2": return String(r.addr2 || "").trim();
+            case "addr3": return String(r.addr3 || "").trim();
+            case "volume": {
+                const v = parseFloat(r.volume);
+                return isNaN(v) ? "" : v.toFixed(3);
+            }
+            case "qty": return String(r.qty !== undefined && r.qty !== null ? r.qty : "");
+            case "sku": return String(r.sku !== undefined && r.sku !== null ? r.sku : "");
+            case "remark": return String(r.remark || "").trim();
+            default: return String(r[colKey] || "").trim();
+        }
+    }
+
+    hasActiveExcelFilters() {
+        return Object.values(this.excelColumnFilters).some(set => set instanceof Set);
+    }
+
+    getFilteredRecords() {
+        if (this.batches.length === 0 || !this.batches[this.currentBatchIndex]) return [];
+        const activeBatch = this.batches[this.currentBatchIndex];
+        const records = activeBatch.records || [];
+        const filtered = [];
+
+        records.forEach((r, originalIdx) => {
+            if (this.searchQuery) {
+                const searchStr = `${r.invoiceNo} ${r.division} ${r.shpCode} ${r.route} ${r.consignee} ${r.addr1} ${r.addr2} ${r.addr3} ${r.remark}`.toLowerCase();
+                if (!searchStr.includes(this.searchQuery)) return;
+            }
+
+            for (const [col, allowedSet] of Object.entries(this.excelColumnFilters)) {
+                if (allowedSet instanceof Set) {
+                    const val = this.getRecordColumnValueString(r, col);
+                    if (!allowedSet.has(val)) return;
+                }
+            }
+
+            filtered.push({ record: r, idx: originalIdx });
+        });
+
+        if (this.excelSort && this.excelSort.colKey && this.excelSort.dir) {
+            const { colKey, dir } = this.excelSort;
+            const isNumeric = (colKey === 'volume' || colKey === 'qty' || colKey === 'sku');
+            filtered.sort((a, b) => {
+                const valA = this.getRecordColumnValueString(a.record, colKey);
+                const valB = this.getRecordColumnValueString(b.record, colKey);
+                let comp = 0;
+                if (isNumeric) {
+                    comp = (parseFloat(valA) || 0) - (parseFloat(valB) || 0);
+                } else {
+                    comp = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
+                }
+                return dir === 'desc' ? -comp : comp;
+            });
+        }
+
+        return filtered;
+    }
+
+    openExcelFilter(event, colKey, colTitle) {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+        const menuEl = document.getElementById("dsgExcelFilterMenu");
+        if (!menuEl) return;
+
+        if (this.activeExcelMenuState.colKey === colKey && menuEl.classList.contains("open")) {
+            this.closeExcelFilterMenu();
+            return;
+        }
+
+        this.activeExcelMenuState.colKey = colKey;
+        this.activeExcelMenuState.colTitle = colTitle || colKey.toUpperCase();
+        this.activeExcelMenuState.searchQuery = "";
+
+        const isNumericCol = (colKey === 'volume' || colKey === 'qty' || colKey === 'sku');
+        const sortAscLabel = document.getElementById("dsgExcelMenuSortAscLabel");
+        const sortDescLabel = document.getElementById("dsgExcelMenuSortDescLabel");
+        const clearLabel = document.getElementById("dsgExcelMenuClearFilterLabel");
+        const clearItem = document.getElementById("dsgExcelMenuClearFilter");
+
+        if (sortAscLabel) sortAscLabel.innerText = isNumericCol ? "Sort Smallest to Largest" : "Sort A to Z";
+        if (sortDescLabel) sortDescLabel.innerText = isNumericCol ? "Sort Largest to Smallest" : "Sort Z to A";
+        if (clearLabel) clearLabel.innerText = `Clear Filter From "${this.activeExcelMenuState.colTitle}"`;
+
+        const isFilterActiveOnCol = this.excelColumnFilters[colKey] instanceof Set;
+        if (clearItem) {
+            if (isFilterActiveOnCol) {
+                clearItem.classList.remove("disabled");
+            } else {
+                clearItem.classList.add("disabled");
+            }
+        }
+
+        const searchInp = document.getElementById("dsgExcelSearchInput");
+        if (searchInp) searchInp.value = "";
+
+        if (this.batches.length === 0 || !this.batches[this.currentBatchIndex]) return;
+        const activeBatch = this.batches[this.currentBatchIndex];
+        const records = activeBatch.records || [];
+
+        // Calculate values for current column from records that pass other active filters (Excel cascading filter behavior)
+        const filteredForThisCol = records.filter(r => {
+            if (this.searchQuery) {
+                const searchStr = `${r.invoiceNo} ${r.division} ${r.shpCode} ${r.route} ${r.consignee} ${r.addr1} ${r.addr2} ${r.addr3} ${r.remark}`.toLowerCase();
+                if (!searchStr.includes(this.searchQuery)) return false;
+            }
+            for (const [otherCol, allowedSet] of Object.entries(this.excelColumnFilters)) {
+                if (otherCol !== colKey && allowedSet instanceof Set) {
+                    const val = this.getRecordColumnValueString(r, otherCol);
+                    if (!allowedSet.has(val)) return false;
+                }
+            }
+            return true;
+        });
+
+        const valueMap = {};
+        filteredForThisCol.forEach(r => {
+            const val = this.getRecordColumnValueString(r, colKey);
+            valueMap[val] = (valueMap[val] || 0) + 1;
+        });
+
+        const sortedVals = Object.keys(valueMap).sort((a, b) => {
+            if (isNumericCol) {
+                return (parseFloat(a) || 0) - (parseFloat(b) || 0);
+            }
+            return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+        });
+
+        this.activeExcelMenuState.items = sortedVals.map(v => ({
+            value: v,
+            label: v || "(Blanks)",
+            count: valueMap[v]
+        }));
+
+        if (!this.excelColumnFilters[colKey]) {
+            this.activeExcelMenuState.tempSelected = new Set(sortedVals);
+        } else {
+            this.activeExcelMenuState.tempSelected = new Set(this.excelColumnFilters[colKey]);
+        }
+
+        this.renderExcelCheckboxList();
+
+        const btn = event ? (event.currentTarget || event.target.closest('.excel-filter-btn')) : document.getElementById(`dsg_btn_${colKey}`);
+        if (btn) {
+            const rect = btn.getBoundingClientRect();
+            let top = rect.bottom + 4;
+            let left = rect.left;
+
+            const menuWidth = 280;
+            if (left + menuWidth > window.innerWidth - 12) {
+                left = window.innerWidth - menuWidth - 12;
+            }
+            if (left < 10) left = 10;
+
+            const menuHeight = 360;
+            if (top + menuHeight > window.innerHeight - 10) {
+                top = Math.max(10, rect.top - menuHeight - 4);
+            }
+
+            menuEl.style.top = `${top}px`;
+            menuEl.style.left = `${left}px`;
+        }
+
+        menuEl.style.display = "flex";
+        menuEl.classList.add("open");
+
+        menuEl.onclick = function(e) {
+            e.stopPropagation();
+        };
+
+        if (this._boundExcelClickOutside) {
+            document.removeEventListener("click", this._boundExcelClickOutside);
+        }
+        setTimeout(() => {
+            this._boundExcelClickOutside = (e) => this.handleExcelClickOutside(e);
+            document.addEventListener("click", this._boundExcelClickOutside);
+        }, 20);
+
+        if (searchInp) {
+            setTimeout(() => searchInp.focus(), 80);
+        }
+    }
+
+    closeExcelFilterMenu() {
+        const menuEl = document.getElementById("dsgExcelFilterMenu");
+        if (menuEl) {
+            menuEl.classList.remove("open");
+            menuEl.style.display = "none";
+        }
+        if (this._boundExcelClickOutside) {
+            document.removeEventListener("click", this._boundExcelClickOutside);
+            this._boundExcelClickOutside = null;
+        }
+    }
+
+    handleExcelClickOutside(e) {
+        const menuEl = document.getElementById("dsgExcelFilterMenu");
+        if (!menuEl || !menuEl.classList.contains("open")) return;
+
+        if (e.composedPath && e.composedPath().some(el => el && (el.id === 'dsgExcelFilterMenu' || (el.classList && el.classList.contains('excel-filter-btn'))))) {
+            return;
+        }
+        if (menuEl.contains(e.target)) return;
+        if (e.target && e.target.closest && (e.target.closest('#dsgExcelFilterMenu') || e.target.closest('.excel-filter-btn'))) {
+            return;
+        }
+
+        this.closeExcelFilterMenu();
+    }
+
+    renderExcelCheckboxList() {
+        const listEl = document.getElementById("dsgExcelCheckboxList");
+        if (!listEl) return;
+
+        const { items, tempSelected, searchQuery } = this.activeExcelMenuState;
+        const q = (searchQuery || '').toLowerCase().trim();
+
+        const visibleItems = items.filter(it => !q || it.label.toLowerCase().includes(q) || it.value.toLowerCase().includes(q));
+
+        if (visibleItems.length === 0) {
+            listEl.innerHTML = `<div style="padding: 12px 8px; text-align: center; color: var(--fg-muted, #94a3b8); font-size: 11px;">No matching values</div>`;
+            return;
+        }
+
+        const allVisibleSelected = visibleItems.length > 0 && visibleItems.every(it => tempSelected.has(it.value));
+        const someVisibleSelected = !allVisibleSelected && visibleItems.some(it => tempSelected.has(it.value));
+
+        let html = `
+            <div class="excel-check-item select-all-item" onclick="summaryGenerator.handleExcelSelectAllClick(event)">
+                <input type="checkbox" id="dsgExcelSelectAllCheck" ${allVisibleSelected ? 'checked' : ''} onchange="summaryGenerator.handleExcelSelectAllChange(event, this.checked)">
+                <label class="excel-check-label" style="cursor: pointer;">(Select All${q ? ' Search Results' : ''})</label>
+            </div>
+        `;
+
+        visibleItems.forEach((it) => {
+            const isChecked = tempSelected.has(it.value);
+            const safeEscVal = this.escapeHtml(it.value);
+            const safeEscLabel = this.escapeHtml(it.label);
+            html += `
+                <div class="excel-check-item" onclick="summaryGenerator.handleExcelItemClick(event, '${safeEscVal}')">
+                    <input type="checkbox" class="excel-row-val-check" data-val="${safeEscVal}" ${isChecked ? 'checked' : ''} onchange="summaryGenerator.handleExcelItemCheckboxChange(event, '${safeEscVal}', this.checked)">
+                    <span class="excel-check-label" title="${safeEscLabel}">${safeEscLabel}</span>
+                    <span class="excel-check-count">(${it.count})</span>
+                </div>
+            `;
+        });
+
+        listEl.innerHTML = html;
+
+        const selectAllCheck = document.getElementById("dsgExcelSelectAllCheck");
+        if (selectAllCheck) {
+            selectAllCheck.indeterminate = someVisibleSelected;
+        }
+    }
+
+    updateExcelCheckboxDOMStates() {
+        const listEl = document.getElementById("dsgExcelCheckboxList");
+        if (!listEl) return;
+        const { items, tempSelected, searchQuery } = this.activeExcelMenuState;
+        const q = (searchQuery || '').toLowerCase().trim();
+        const visibleItems = items.filter(it => !q || it.label.toLowerCase().includes(q) || it.value.toLowerCase().includes(q));
+
+        const allVisibleSelected = visibleItems.length > 0 && visibleItems.every(it => tempSelected.has(it.value));
+        const someVisibleSelected = !allVisibleSelected && visibleItems.some(it => tempSelected.has(it.value));
+
+        const selectAllCheck = document.getElementById("dsgExcelSelectAllCheck");
+        if (selectAllCheck) {
+            selectAllCheck.checked = allVisibleSelected;
+            selectAllCheck.indeterminate = someVisibleSelected;
+        }
+
+        const checkboxes = listEl.querySelectorAll('.excel-row-val-check');
+        checkboxes.forEach(cb => {
+            const val = cb.getAttribute('data-val');
+            cb.checked = tempSelected.has(val);
+        });
+    }
+
+    handleExcelItemClick(e, value) {
+        if (e) {
+            if (e.target && e.target.tagName === 'INPUT') return;
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        const { tempSelected } = this.activeExcelMenuState;
+        if (tempSelected.has(value)) {
+            tempSelected.delete(value);
+        } else {
+            tempSelected.add(value);
+        }
+        this.updateExcelCheckboxDOMStates();
+    }
+
+    handleExcelItemCheckboxChange(e, value, checked) {
+        if (e) e.stopPropagation();
+        const { tempSelected } = this.activeExcelMenuState;
+        if (checked) {
+            tempSelected.add(value);
+        } else {
+            tempSelected.delete(value);
+        }
+        this.updateExcelCheckboxDOMStates();
+    }
+
+    handleExcelSelectAllClick(e) {
+        if (e) {
+            if (e.target && e.target.tagName === 'INPUT') return;
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        const selectAllCheck = document.getElementById("dsgExcelSelectAllCheck");
+        const nextState = selectAllCheck ? !selectAllCheck.checked : true;
+        this.handleExcelSelectAllInternal(nextState);
+    }
+
+    handleExcelSelectAllChange(e, checked) {
+        if (e) e.stopPropagation();
+        this.handleExcelSelectAllInternal(checked);
+    }
+
+    handleExcelSelectAllInternal(checked) {
+        const { items, tempSelected, searchQuery } = this.activeExcelMenuState;
+        const q = (searchQuery || '').toLowerCase().trim();
+        const visibleItems = items.filter(it => !q || it.label.toLowerCase().includes(q) || it.value.toLowerCase().includes(q));
+
+        if (checked) {
+            visibleItems.forEach(it => tempSelected.add(it.value));
+        } else {
+            visibleItems.forEach(it => tempSelected.delete(it.value));
+        }
+        this.updateExcelCheckboxDOMStates();
+    }
+
+    handleExcelSearchInput(query) {
+        this.activeExcelMenuState.searchQuery = query;
+        const q = (query || '').toLowerCase().trim();
+
+        if (q) {
+            const matching = this.activeExcelMenuState.items.filter(it => 
+                (it.label && it.label.toLowerCase().includes(q)) || 
+                (it.value && String(it.value).toLowerCase().includes(q))
+            );
+            this.activeExcelMenuState.tempSelected = new Set(matching.map(it => it.value));
+        } else {
+            const currentColFilter = this.excelColumnFilters[this.activeExcelMenuState.colKey];
+            if (!currentColFilter) {
+                this.activeExcelMenuState.tempSelected = new Set(this.activeExcelMenuState.items.map(it => it.value));
+            } else {
+                this.activeExcelMenuState.tempSelected = new Set(currentColFilter);
+            }
+        }
+
+        this.renderExcelCheckboxList();
+    }
+
+    handleExcelSearchKeydown(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            this.applyExcelFilterMenu();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            this.closeExcelFilterMenu();
+        }
+    }
+
+    handleExcelSort(direction) {
+        const colKey = this.activeExcelMenuState.colKey;
+        if (!colKey) return;
+        this.closeExcelFilterMenu();
+        this.excelSort = { colKey, dir: direction };
+        this.renderTable();
+        this.showToast(`Sorted by ${this.activeExcelMenuState.colTitle} (${direction === 'asc' ? 'Ascending' : 'Descending'})`, "info");
+    }
+
+    handleExcelClearColFilter() {
+        const colKey = this.activeExcelMenuState.colKey;
+        if (!colKey) return;
+        delete this.excelColumnFilters[colKey];
+        this.updateExcelFilterButtonStates();
+        this.closeExcelFilterMenu();
+        this.renderTable();
+        this.showToast(`Cleared filter from ${this.activeExcelMenuState.colTitle}`, "info");
+    }
+
+    applyExcelFilterMenu() {
+        const { colKey, colTitle, items, tempSelected } = this.activeExcelMenuState;
+        if (!colKey) return;
+
+        if (tempSelected.size === items.length) {
+            delete this.excelColumnFilters[colKey];
+        } else {
+            this.excelColumnFilters[colKey] = new Set(tempSelected);
+        }
+
+        this.updateExcelFilterButtonStates();
+        this.closeExcelFilterMenu();
+        this.renderTable();
+
+        const msg = !this.excelColumnFilters[colKey]
+            ? `Filter cleared from ${colTitle}`
+            : `Filtered ${colTitle} (${tempSelected.size} of ${items.length} selected)`;
+        this.showToast(msg, "success");
+    }
+
+    clearAllExcelFilters() {
+        this.excelColumnFilters = {};
+        this.excelSort = { colKey: null, dir: null };
+        this.updateExcelFilterButtonStates();
+        this.renderTable();
+        this.showToast("All column filters cleared", "info");
+    }
+
+    updateExcelFilterButtonStates() {
+        const cols = ['invoiceNo', 'division', 'shpCode', 'route', 'consignee', 'addr1', 'addr2', 'addr3', 'volume', 'qty', 'sku', 'remark'];
+        cols.forEach(col => {
+            const btn = document.getElementById(`dsg_btn_${col}`);
+            if (!btn) return;
+            const isFiltered = this.excelColumnFilters[col] instanceof Set;
+            if (isFiltered) {
+                btn.classList.add('active');
+                btn.title = `AutoFilter active on ${col.toUpperCase()} (Click to change)`;
+                btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>`;
+            } else {
+                btn.classList.remove('active');
+                btn.title = `AutoFilter ${col.toUpperCase()}`;
+                btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>`;
+            }
+        });
+
+        const clearAllBtn = document.getElementById("dsgClearAllExcelFiltersBtn");
+        if (clearAllBtn) {
+            const count = Object.keys(this.excelColumnFilters).length;
+            if (count > 0) {
+                clearAllBtn.style.display = "inline-flex";
+                const labelSpan = clearAllBtn.querySelector('span');
+                if (labelSpan) labelSpan.innerText = `Clear Column Filters (${count})`;
+            } else {
+                clearAllBtn.style.display = "none";
+            }
+        }
     }
 }
 
