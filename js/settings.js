@@ -121,6 +121,10 @@
                     <div class="usm-group">
                         <label>Font Style</label>
                         <select id="usmFontSelect">
+                            <option value="'Netflix Sans', sans-serif">Netflix Sans (Modern / Cinematic)</option>
+                            <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica Neue (Swiss / Clean)</option>
+                            <option value="'YouTube Sans', sans-serif">YouTube Sans (Modern / Geometric)</option>
+                            <option value="'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif">Apple: SF Pro Text (Native / Sleek)</option>
                             <option value="Inter, system-ui, sans-serif">Google Font: Inter (Sleek/Modern)</option>
                             <option value="Roboto, system-ui, sans-serif">Google Font: Roboto (Clean/Android)</option>
                             <option value="'Montserrat', system-ui, sans-serif">Google Font: Montserrat (Geometric/Bold)</option>

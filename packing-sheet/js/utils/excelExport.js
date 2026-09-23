@@ -87,15 +87,21 @@
     };
   }
 
+  function colLetter(colIdx) {
+    let temp = colIdx;
+    let letter = '';
+    while (temp > 0) {
+      let rem = (temp - 1) % 26;
+      letter = String.fromCharCode(65 + rem) + letter;
+      temp = Math.floor((temp - 1) / 26);
+    }
+    return letter;
+  }
+
   function populateWorksheet(worksheet, header, items, options) {
     worksheet.views = [{ showGridLines: false }];
-    const isSsea = (header.customer || 'SSEA') !== 'MSCSJ';
-    const hideCarton = Boolean(options && (options.hideTotalCarton ));
-
-    const baseWidthsHideCarton = [16, 16, 22, 12, 17, 17, 16, 17];
-    const baseWidthsStandard = [16, 16, 22, 12, 14, 17, 17, 16, 17];
-
-    worksheet.columns = (hideCarton ? baseWidthsHideCarton : baseWidthsStandard).map((w) => ({ width: w }));
+    const hideCarton = Boolean(options && options.hideTotalCarton);
+    const hideCols = options && options.hideColumns ? options.hideColumns : {};
 
     const thinBorder = {
       top: { style: 'thin', color: { argb: 'FF94A3B8' } },
@@ -110,86 +116,6 @@
       bottom: { style: 'double', color: { argb: 'FF0F172A' } },
       right: { style: 'thin', color: { argb: 'FF94A3B8' } },
     };
-
-    const titleRow = worksheet.getRow(1);
-    titleRow.height = 32;
-
-    const shipByValue =
-      header.shipBy === 'OTHER' && header.customShipBy ? header.customShipBy : header.shipBy;
-
-    if (hideCarton) {
-      worksheet.mergeCells('A1:E1');
-      const titleCell = worksheet.getCell('A1');
-      titleCell.value = options && options.isHandwrittenTemplate
-        ? 'PACKING DETAILS SHEET (HANDWRITTEN TEMPLATE)'
-        : 'PACKING DETAILS SHEET';
-      titleCell.font = { name: 'Aptos', size: 16, bold: true, color: { argb: 'FF0F172A' } };
-      titleCell.alignment = { vertical: 'middle', horizontal: 'left' };
-
-      worksheet.mergeCells('F1:H1');
-      const shipByCell = worksheet.getCell('F1');
-      shipByCell.value = `SHIP BY: ${shipByValue || 'FCL/LCL/AIR'}`;
-      shipByCell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FF0F172A' } };
-      shipByCell.alignment = { vertical: 'middle', horizontal: 'right' };
-
-      const metaRow = worksheet.getRow(2);
-      metaRow.height = 24;
-
-      worksheet.mergeCells('A2:C2');
-      const doCell = worksheet.getCell('A2');
-      doCell.value = `D.O. NO: ${header.doNo || '________________'}`;
-      doCell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FF1E293B' } };
-      doCell.alignment = { vertical: 'middle', horizontal: 'left' };
-
-      worksheet.mergeCells('D2:F2');
-      const destCell = worksheet.getCell('D2');
-      destCell.value = `Destination: ${header.destination || '________________'}`;
-      destCell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FF1E293B' } };
-      destCell.alignment = { vertical: 'middle', horizontal: 'left' };
-
-      worksheet.mergeCells('G2:H2');
-      const dateCell = worksheet.getCell('G2');
-      dateCell.value = `Date: ${header.date || ''}`;
-      dateCell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FF1E293B' } };
-      dateCell.alignment = { vertical: 'middle', horizontal: 'right' };
-    } else {
-      worksheet.mergeCells('A1:F1');
-      const titleCell = worksheet.getCell('A1');
-      titleCell.value = options && options.isHandwrittenTemplate
-        ? 'PACKING DETAILS SHEET (HANDWRITTEN TEMPLATE)'
-        : 'PACKING DETAILS SHEET';
-      titleCell.font = { name: 'Aptos', size: 16, bold: true, color: { argb: 'FF0F172A' } };
-      titleCell.alignment = { vertical: 'middle', horizontal: 'left' };
-
-      worksheet.mergeCells('G1:I1');
-      const shipByCell = worksheet.getCell('G1');
-      shipByCell.value = `SHIP BY: ${shipByValue || 'FCL/LCL/AIR'}`;
-      shipByCell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FF0F172A' } };
-      shipByCell.alignment = { vertical: 'middle', horizontal: 'right' };
-
-      const metaRow = worksheet.getRow(2);
-      metaRow.height = 24;
-
-      worksheet.mergeCells('A2:C2');
-      const doCell = worksheet.getCell('A2');
-      doCell.value = `D.O. NO: ${header.doNo || '________________'}`;
-      doCell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FF1E293B' } };
-      doCell.alignment = { vertical: 'middle', horizontal: 'left' };
-
-      worksheet.mergeCells('D2:F2');
-      const destCell = worksheet.getCell('D2');
-      destCell.value = `Destination: ${header.destination || '________________'}`;
-      destCell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FF1E293B' } };
-      destCell.alignment = { vertical: 'middle', horizontal: 'left' };
-
-      worksheet.mergeCells('G2:I2');
-      const dateCell = worksheet.getCell('G2');
-      dateCell.value = `Date: ${header.date || ''}`;
-      dateCell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FF1E293B' } };
-      dateCell.alignment = { vertical: 'middle', horizontal: 'right' };
-    }
-
-    worksheet.getRow(3).height = 10;
 
     let displayRows = [];
 
@@ -222,29 +148,115 @@
 
     const unitInfo = getPackageUnitLabel(displayRows.length > 0 ? displayRows : items);
 
+    // Build list of active columns (omitted columns are completely excluded from the Excel file)
+    const activeCols = [];
+    activeCols.push({ id: 'skidNo', header: unitInfo.columnHeader, width: 16, align: 'center', bold: true });
+    if (!hideCols.productCode) {
+      activeCols.push({ id: 'productCode', header: 'PRODUCT CODE', width: 16, align: 'center' });
+    }
+    if (!hideCols.productDescription) {
+      activeCols.push({ id: 'productDescription', header: 'PRODUCT DESCRIPTION', width: 22, align: 'center' });
+    }
+    if (!hideCols.totalQuantity) {
+      activeCols.push({ id: 'qty', header: 'Qty', width: 12, align: 'center', format: '#,##0' });
+    }
+    if (!hideCarton && !hideCols.totalCarton) {
+      activeCols.push({ id: 'totalCarton', header: 'Total Carton', width: 14, align: 'center', format: '#,##0' });
+    }
+    activeCols.push({ id: 'weightKg', header: 'Weight (B) (CM)', width: 17, align: 'center', format: '0.0' });
+    activeCols.push({ id: 'lengthCm', header: 'Length (P) (CM)', width: 17, align: 'center' });
+    activeCols.push({ id: 'widthCm', header: 'Width (L) (CM)', width: 16, align: 'center' });
+    activeCols.push({ id: 'heightCm', header: 'Height (T) (CM)', width: 17, align: 'center' });
+
+    const numCols = activeCols.length;
+    worksheet.columns = activeCols.map((c) => ({ width: c.width }));
+
+    // Row 1: Title and Ship By
+    const titleRow = worksheet.getRow(1);
+    titleRow.height = 32;
+
+    const shipByValue =
+      header.shipBy === 'OTHER' && header.customShipBy ? header.customShipBy : header.shipBy;
+
+    const shipByCols = numCols >= 8 ? 3 : 2;
+    const titleEndColIdx = Math.max(1, numCols - shipByCols);
+    const shipByStartColIdx = titleEndColIdx + 1;
+
+    if (titleEndColIdx > 1) {
+      worksheet.mergeCells(`A1:${colLetter(titleEndColIdx)}1`);
+    }
+    const titleCell = worksheet.getCell('A1');
+    titleCell.value = options && options.isHandwrittenTemplate
+      ? 'PACKING DETAILS SHEET (HANDWRITTEN TEMPLATE)'
+      : 'PACKING DETAILS SHEET';
+    titleCell.font = { name: 'Aptos', size: 16, bold: true, color: { argb: 'FF0F172A' } };
+    titleCell.alignment = { vertical: 'middle', horizontal: 'left' };
+
+    const shipByStartCellKey = `${colLetter(shipByStartColIdx)}1`;
+    if (numCols > shipByStartColIdx) {
+      worksheet.mergeCells(`${shipByStartCellKey}:${colLetter(numCols)}1`);
+    }
+    const shipByCell = worksheet.getCell(shipByStartCellKey);
+    shipByCell.value = `SHIP BY: ${shipByValue || 'FCL/LCL/AIR'}`;
+    shipByCell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FF0F172A' } };
+    shipByCell.alignment = { vertical: 'middle', horizontal: 'right' };
+
+    // Row 2: Metadata (DO NO, Destination, Date)
+    const metaRow = worksheet.getRow(2);
+    metaRow.height = 24;
+
+    const dateCols = numCols >= 9 ? 3 : 2;
+    const dateStartColIdx = Math.max(3, numCols - dateCols + 1);
+    const rem = dateStartColIdx - 1;
+    const doCols = Math.max(1, Math.floor(rem / 2));
+    const destCols = rem - doCols;
+
+    const doEndColIdx = doCols;
+    const destStartColIdx = doEndColIdx + 1;
+    const destEndColIdx = rem;
+
+    if (doEndColIdx > 1) {
+      worksheet.mergeCells(`A2:${colLetter(doEndColIdx)}2`);
+    }
+    const doCell = worksheet.getCell('A2');
+    doCell.value = `D.O. NO: ${header.doNo || '________________'}`;
+    doCell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FF1E293B' } };
+    doCell.alignment = { vertical: 'middle', horizontal: 'left' };
+
+    const destStartCellKey = `${colLetter(destStartColIdx)}2`;
+    if (destEndColIdx > destStartColIdx) {
+      worksheet.mergeCells(`${destStartCellKey}:${colLetter(destEndColIdx)}2`);
+    }
+    const destCell = worksheet.getCell(destStartCellKey);
+    destCell.value = `Destination: ${header.destination || '________________'}`;
+    destCell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FF1E293B' } };
+    destCell.alignment = { vertical: 'middle', horizontal: 'left' };
+
+    const dateStartCellKey = `${colLetter(dateStartColIdx)}2`;
+    if (numCols > dateStartColIdx) {
+      worksheet.mergeCells(`${dateStartCellKey}:${colLetter(numCols)}2`);
+    }
+    const dateCell = worksheet.getCell(dateStartCellKey);
+    dateCell.value = `Date: ${header.date || ''}`;
+    dateCell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FF1E293B' } };
+    dateCell.alignment = { vertical: 'middle', horizontal: 'right' };
+
+    worksheet.getRow(3).height = 10;
+
+    // Row 4: Column Headers
     const headerRow = worksheet.getRow(4);
     headerRow.height = 32;
 
     const lookupDb = options && options.lookupDb ? options.lookupDb : [];
     const getDesc = (code) => {
       if (!code) return '';
-      const match = lookupDb.find(e => e.code8D.toLowerCase() === String(code).trim().toLowerCase());
+      const match = lookupDb.find((e) => e.code8D.toLowerCase() === String(code).trim().toLowerCase());
       return match ? (match.description || '') : '';
     };
 
-    const headers = hideCarton
-      ? [
-          unitInfo.columnHeader, 'PRODUCT CODE', 'PRODUCT DESCRIPTION', 'Qty',
-          'Weight (B) (CM)', 'Length (P) (CM)', 'Width (L) (CM)', 'Height (T) (CM)',
-        ]
-      : [
-          unitInfo.columnHeader, 'PRODUCT CODE', 'PRODUCT DESCRIPTION', 'Qty', 'Total Carton',
-          'Weight (B) (CM)', 'Length (P) (CM)', 'Width (L) (CM)', 'Height (T) (CM)',
-        ];
-
-    headers.forEach((hText, colIdx) => {
+    activeCols.forEach((col, colIdx) => {
       const cell = headerRow.getCell(colIdx + 1);
-      cell.value = hText;
+      cell.value = col.header;
       cell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
       cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFF0000' } };
       cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
@@ -303,7 +315,6 @@
         const row = worksheet.getRow(currentRowIdx);
         row.height = isTemplate ? 28 : 22;
 
-        // For multi-model package: primary row shows skidNo, dimensions, and total weight (if merged)
         const showSkidNo = rowSubIdx === 0 ? pkg.skidNo : '';
         const showLength = rowSubIdx === 0 ? r.lengthCm : (isMulti ? '' : r.lengthCm);
         const showWidth = rowSubIdx === 0 ? r.widthCm : (isMulti ? '' : r.widthCm);
@@ -314,24 +325,23 @@
           showWeight = rowSubIdx === 0 ? (nonZeroWeights[0] ? nonZeroWeights[0].weightKg : r.weightKg) : '';
         }
 
-        const cellConfigs = [
-          { val: showSkidNo, align: 'center', bold: true },
-          { val: r.code8D, align: 'center' },
-          { val: getDesc(r.code8D), align: 'center' },
-          { val: r.qty, align: 'center', format: '#,##0' },
-          ...(hideCarton ? [] : [{ val: r.totalCarton, align: 'center', format: '#,##0' }]),
-          { val: showWeight, align: 'center', format: '0.0' },
-          { val: showLength, align: 'center' },
-          { val: showWidth, align: 'center' },
-          { val: showHeight, align: 'center' },
-        ];
+        activeCols.forEach((col, colIdx) => {
+          let val = '';
+          if (col.id === 'skidNo') val = showSkidNo;
+          else if (col.id === 'productCode') val = r.code8D || '';
+          else if (col.id === 'productDescription') val = getDesc(r.code8D);
+          else if (col.id === 'qty') val = r.qty;
+          else if (col.id === 'totalCarton') val = r.totalCarton;
+          else if (col.id === 'weightKg') val = showWeight;
+          else if (col.id === 'lengthCm') val = showLength;
+          else if (col.id === 'widthCm') val = showWidth;
+          else if (col.id === 'heightCm') val = showHeight;
 
-        cellConfigs.forEach((c, colIdx) => {
           const cell = row.getCell(colIdx + 1);
-          cell.value = c.val === undefined || c.val === null ? '' : c.val;
-          cell.font = { name: 'Aptos Display', size: 11, bold: !!c.bold, family: 2 };
-          if (c.format && c.val !== '') cell.numFmt = c.format;
-          cell.alignment = { vertical: 'middle', horizontal: c.align };
+          cell.value = val === undefined || val === null ? '' : val;
+          cell.font = { name: 'Aptos Display', size: 11, bold: !!col.bold, family: 2 };
+          if (col.format && val !== '') cell.numFmt = col.format;
+          cell.alignment = { vertical: 'middle', horizontal: col.align || 'center' };
           cell.border = thinBorder;
           cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowBg } };
         });
@@ -345,30 +355,36 @@
         worksheet.mergeCells(pkg.startRow, 1, pkg.endRow, 1);
         worksheet.getCell(pkg.startRow, 1).alignment = { vertical: 'middle', horizontal: 'center' };
 
-        const weightCol = hideCarton ? 5 : 6;
-        const lengthCol = hideCarton ? 6 : 7;
-        const widthCol = hideCarton ? 7 : 8;
-        const heightCol = hideCarton ? 8 : 9;
-
         // 2. Merge Dimensions (L, W, H)
-        worksheet.mergeCells(pkg.startRow, lengthCol, pkg.endRow, lengthCol);
-        worksheet.getCell(pkg.startRow, lengthCol).alignment = { vertical: 'middle', horizontal: 'center' };
+        const lengthColIdx = activeCols.findIndex((c) => c.id === 'lengthCm') + 1;
+        const widthColIdx = activeCols.findIndex((c) => c.id === 'widthCm') + 1;
+        const heightColIdx = activeCols.findIndex((c) => c.id === 'heightCm') + 1;
 
-        worksheet.mergeCells(pkg.startRow, widthCol, pkg.endRow, widthCol);
-        worksheet.getCell(pkg.startRow, widthCol).alignment = { vertical: 'middle', horizontal: 'center' };
-
-        worksheet.mergeCells(pkg.startRow, heightCol, pkg.endRow, heightCol);
-        worksheet.getCell(pkg.startRow, heightCol).alignment = { vertical: 'middle', horizontal: 'center' };
+        if (lengthColIdx > 0) {
+          worksheet.mergeCells(pkg.startRow, lengthColIdx, pkg.endRow, lengthColIdx);
+          worksheet.getCell(pkg.startRow, lengthColIdx).alignment = { vertical: 'middle', horizontal: 'center' };
+        }
+        if (widthColIdx > 0) {
+          worksheet.mergeCells(pkg.startRow, widthColIdx, pkg.endRow, widthColIdx);
+          worksheet.getCell(pkg.startRow, widthColIdx).alignment = { vertical: 'middle', horizontal: 'center' };
+        }
+        if (heightColIdx > 0) {
+          worksheet.mergeCells(pkg.startRow, heightColIdx, pkg.endRow, heightColIdx);
+          worksheet.getCell(pkg.startRow, heightColIdx).alignment = { vertical: 'middle', horizontal: 'center' };
+        }
 
         // 3. Merge Weight if single package-level weight
         if (shouldMergeWeight) {
-          worksheet.mergeCells(pkg.startRow, weightCol, pkg.endRow, weightCol);
-          worksheet.getCell(pkg.startRow, weightCol).alignment = { vertical: 'middle', horizontal: 'center' };
+          const weightColIdx = activeCols.findIndex((c) => c.id === 'weightKg') + 1;
+          if (weightColIdx > 0) {
+            worksheet.mergeCells(pkg.startRow, weightColIdx, pkg.endRow, weightColIdx);
+            worksheet.getCell(pkg.startRow, weightColIdx).alignment = { vertical: 'middle', horizontal: 'center' };
+          }
         }
       }
     });
 
-    // Pre-compute summary so totals row formula cells have pre-calculated results for viewers that don't auto-calculate
+    // Summary calculation
     const summary = (!isTemplate && displayRows.length > 0) ? computeSummary(displayRows) : null;
 
     // Totals Row
@@ -378,88 +394,60 @@
     if (displayRows.length > 0) {
       const totalRow = worksheet.getRow(currentRowIdx);
       totalRow.height = 26;
-      const totalCols = hideCarton ? 8 : 9;
 
-      for (let colIdx = 1; colIdx <= totalCols; colIdx++) {
-        const cell = totalRow.getCell(colIdx);
+      activeCols.forEach((col, colIdx) => {
+        const cell = totalRow.getCell(colIdx + 1);
+        const colNumber = colIdx + 1;
+        const colLet = colLetter(colNumber);
+
         cell.font = { name: 'Aptos Display', size: 10, bold: true, color: { argb: 'FF0F172A' }, family: 2 };
         cell.border = totalsBorder;
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
 
-        if (colIdx === 1) {
+        if (col.id === 'skidNo') {
           cell.value = 'TOTALS';
-        } else if (colIdx === 2 || colIdx === 3) {
+        } else if (col.id === 'productCode' || col.id === 'productDescription') {
           cell.value = '-';
-        } else if (colIdx === 4 && !isTemplate) {
+        } else if (col.id === 'qty' && !isTemplate) {
           cell.value = {
-            formula: `SUM(D${startRowNumber}:D${endRowNumber})`,
+            formula: `SUM(${colLet}${startRowNumber}:${colLet}${endRowNumber})`,
             result: summary ? summary.totalQty : undefined,
           };
           cell.numFmt = '#,##0';
-        } else if (!hideCarton && colIdx === 5 && !isTemplate) {
+        } else if (col.id === 'totalCarton' && !isTemplate) {
           cell.value = {
-            formula: `SUM(E${startRowNumber}:E${endRowNumber})`,
+            formula: `SUM(${colLet}${startRowNumber}:${colLet}${endRowNumber})`,
             result: summary ? summary.totalCartons : undefined,
           };
           cell.numFmt = '#,##0';
-        } else if (!hideCarton && colIdx === 6 && !isTemplate) {
+        } else if (col.id === 'weightKg' && !isTemplate) {
           cell.value = {
-            formula: `SUM(F${startRowNumber}:F${endRowNumber})`,
-            result: summary ? summary.grossWeight : undefined,
-          };
-          cell.numFmt = '0.0';
-        } else if (hideCarton && colIdx === 5 && !isTemplate) {
-          cell.value = {
-            formula: `SUM(E${startRowNumber}:E${endRowNumber})`,
+            formula: `SUM(${colLet}${startRowNumber}:${colLet}${endRowNumber})`,
             result: summary ? summary.grossWeight : undefined,
           };
           cell.numFmt = '0.0';
         } else {
           cell.value = '';
         }
-      }
+      });
 
       currentRowIdx++;
     }
 
     // Summary Section
     if (!isTemplate && displayRows.length > 0 && summary) {
-
       currentRowIdx += 1;
 
-      const hideCols = options && options.hideColumns ? options.hideColumns : {};
-      const isDHidden = hideCarton ? Boolean(hideCols.totalQuantity) : Boolean(hideCols.totalQuantity);
-      const isEHidden = hideCarton ? true : Boolean(hideCols.totalCarton);
-
-      let summaryValCol = 'D';
-      let shouldMergeVal = true;
-      let summaryColsCount = hideCarton ? 4 : 5;
-
-      if (!isDHidden && !isEHidden) {
-        summaryValCol = 'D';
-        shouldMergeVal = true;
-        summaryColsCount = hideCarton ? 4 : 5;
-      } else if (!isDHidden && isEHidden) {
-        summaryValCol = 'D';
-        shouldMergeVal = false;
-        summaryColsCount = 4;
-      } else if (isDHidden && !isEHidden) {
-        summaryValCol = 'E';
-        shouldMergeVal = false;
-        summaryColsCount = 5;
-      } else {
-        // Both D and E are hidden -> place value in F (Weight column)
-        summaryValCol = 'F';
-        shouldMergeVal = false;
-        summaryColsCount = 6;
-      }
+      const summaryColsCount = Math.min(numCols, 5);
+      const shouldMergeVal = summaryColsCount >= 5;
+      const labelEndCol = shouldMergeVal ? 3 : Math.max(1, summaryColsCount - 1);
+      const valStartCol = labelEndCol + 1;
 
       const summaryHeaderRow = worksheet.getRow(currentRowIdx);
       summaryHeaderRow.height = 24;
-      const summaryHeaderEndCol = summaryValCol === 'F' ? 'F' : (hideCarton ? 'E' : 'E');
-      const summaryHeaderRange = `A${currentRowIdx}:${summaryHeaderEndCol}${currentRowIdx}`;
-      worksheet.mergeCells(summaryHeaderRange);
+      const summaryHeaderEndColLetter = colLetter(summaryColsCount);
+      worksheet.mergeCells(`A${currentRowIdx}:${summaryHeaderEndColLetter}${currentRowIdx}`);
       const summaryHeaderCell = worksheet.getCell(`A${currentRowIdx}`);
       summaryHeaderCell.value = 'SUMMARY';
       summaryHeaderCell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
@@ -482,15 +470,11 @@
         summaryEntries.push({ label: 'Total Skids', value: summary.totalSkids, format: '#,##0' });
       }
 
-      if (!isDHidden) {
-        summaryEntries.push(
-          { label: 'Total Quantity', value: summary.totalQty, format: '#,##0' }
-        );
+      if (!hideCols.totalQuantity) {
+        summaryEntries.push({ label: 'Total Quantity', value: summary.totalQty, format: '#,##0' });
       }
-      if (!hideCarton && !isEHidden) {
-        summaryEntries.push(
-          { label: 'Total Cartons', value: summary.totalCartons, format: '#,##0' }
-        );
+      if (!hideCarton && !hideCols.totalCarton) {
+        summaryEntries.push({ label: 'Total Cartons', value: summary.totalCartons, format: '#,##0' });
       }
       summaryEntries.push(
         { label: 'Gross Weight (kg)', value: summary.grossWeight, format: '#,##0.0' },
@@ -502,16 +486,18 @@
         row.height = 20;
         const rowBg = idx % 2 === 1 ? 'FFF8FAFC' : 'FFFFFFFF';
 
-        worksheet.mergeCells(`A${currentRowIdx}:C${currentRowIdx}`);
+        if (labelEndCol > 1) {
+          worksheet.mergeCells(`A${currentRowIdx}:${colLetter(labelEndCol)}${currentRowIdx}`);
+        }
         const labelCell = worksheet.getCell(`A${currentRowIdx}`);
         labelCell.value = entry.label;
         labelCell.font = { name: 'Aptos Narrow', size: 11, bold: true, color: { argb: 'FF0F172A' }, family: 2 };
         labelCell.alignment = { vertical: 'middle', horizontal: 'left' };
 
-        if (shouldMergeVal) {
-          worksheet.mergeCells(`D${currentRowIdx}:E${currentRowIdx}`);
+        if (summaryColsCount > valStartCol) {
+          worksheet.mergeCells(`${colLetter(valStartCol)}${currentRowIdx}:${colLetter(summaryColsCount)}${currentRowIdx}`);
         }
-        const valueCell = worksheet.getCell(`${summaryValCol}${currentRowIdx}`);
+        const valueCell = worksheet.getCell(`${colLetter(valStartCol)}${currentRowIdx}`);
         valueCell.value = entry.value;
         if (entry.format) valueCell.numFmt = entry.format;
         valueCell.font = { name: 'Aptos Narrow', size: 11, bold: true, color: { argb: 'FF0F172A' }, family: 2 };
@@ -532,54 +518,24 @@
     const sigRow = worksheet.getRow(currentRowIdx);
     sigRow.height = 28;
 
-    const hideColsForSig = options && options.hideColumns ? options.hideColumns : {};
-    const isColDHiddenForSig = hideCarton ? Boolean(hideColsForSig.totalQuantity) : Boolean(hideColsForSig.totalQuantity);
-    const isColEHiddenForSig = hideCarton ? false : Boolean(hideColsForSig.totalCarton);
+    const packEndColIdx = Math.max(1, Math.floor(numCols / 2));
+    const appStartColIdx = packEndColIdx + 1;
 
-    // Pack By signature - end column avoids landing on a hidden column
-    const packEndCol = isColDHiddenForSig
-      ? (hideColsForSig.productDescription ? (hideColsForSig.productCode ? 'A' : 'B') : 'C')
-      : 'D';
-    worksheet.mergeCells(`A${currentRowIdx}:${packEndCol}${currentRowIdx}`);
+    if (packEndColIdx > 1) {
+      worksheet.mergeCells(`A${currentRowIdx}:${colLetter(packEndColIdx)}${currentRowIdx}`);
+    }
     const packCell = worksheet.getCell(`A${currentRowIdx}`);
     packCell.value = `Pack By: ${header.packBy || '___________________________'}`;
     packCell.font = { name: 'Aptos', size: 11, bold: true };
     packCell.alignment = { vertical: 'middle', horizontal: 'left' };
 
-    // Approved By signature - start column avoids landing on a hidden column
-    const appStartCol = isColEHiddenForSig ? 'F' : 'E';
-    const endSigCol = hideCarton ? `H${currentRowIdx}` : `I${currentRowIdx}`;
-    worksheet.mergeCells(`${appStartCol}${currentRowIdx}:${endSigCol}`);
-    const appCell = worksheet.getCell(`${appStartCol}${currentRowIdx}`);
+    if (numCols > appStartColIdx) {
+      worksheet.mergeCells(`${colLetter(appStartColIdx)}${currentRowIdx}:${colLetter(numCols)}${currentRowIdx}`);
+    }
+    const appCell = worksheet.getCell(`${colLetter(appStartColIdx)}${currentRowIdx}`);
     appCell.value = `Approved By (Area PIC): ${header.approvedBy || '___________________________'}`;
     appCell.font = { name: 'Aptos', size: 11, bold: true };
     appCell.alignment = { vertical: 'middle', horizontal: 'left' };
-
-    // Column widths & column hiding matching configuration
-    const hideCols = options && options.hideColumns ? options.hideColumns : {};
-    const targetWidths = hideCarton ? baseWidthsHideCarton : baseWidthsStandard;
-    const totalColsToFit = hideCarton ? 8 : 9;
-    for (let colIdx = 1; colIdx <= totalColsToFit; colIdx++) {
-      const column = worksheet.getColumn(colIdx);
-      column.width = targetWidths[colIdx - 1] || 16;
-
-      let isHidden = false;
-      if (hideCarton) {
-        // 8-column layout: 1:Skid, 2:Product Code, 3:Product Description, 4:Qty, 5:Weight, 6:Length, 7:Width, 8:Height
-        if (colIdx === 2 && hideCols.productCode) isHidden = true;
-        if (colIdx === 3 && hideCols.productDescription) isHidden = true;
-        if (colIdx === 4 && hideCols.totalQuantity) isHidden = true;
-      } else {
-        // 9-column layout: 1:Skid, 2:Product Code, 3:Product Description, 4:Qty, 5:Total Carton, 6:Weight, 7:Length, 8:Width, 9:Height
-        if (colIdx === 2 && hideCols.productCode) isHidden = true;
-        if (colIdx === 3 && hideCols.productDescription) isHidden = true;
-        if (colIdx === 4 && hideCols.totalQuantity) isHidden = true;
-        if (colIdx === 5 && hideCols.totalCarton) isHidden = true;
-      }
-      if (isHidden) {
-        column.hidden = true;
-      }
-    }
   }
 
 

@@ -1000,10 +1000,10 @@
                     (hiddenCount > 0
                       ? 'bg-[#007AFF]/10 hover:bg-[#007AFF]/15 dark:bg-[#0A84FF]/20 dark:hover:bg-[#0A84FF]/25 text-[#007AFF] dark:text-[#0A84FF] border-[#007AFF]/30 dark:border-[#0A84FF]/40 shadow-sm'
                       : 'bg-black/[0.04] dark:bg-white/[0.08] hover:bg-black/[0.07] dark:hover:bg-white/[0.12] text-gray-700 dark:text-gray-200 border-black/[0.08] dark:border-white/[0.12]'),
-                  title: 'Hide specific columns when exporting to Excel (Product Code, Description, Total Quantity, Total Carton)',
+                  title: 'Omit / delete specific columns when exporting to Excel & CSV (Product Code, Description, Total Quantity, Total Carton)',
                 },
                 h(Icon.EyeOff || Icon.Columns, { className: 'w-3.5 h-3.5', strokeWidth: 1.5 }),
-                h('span', null, 'Hide Columns'),
+                h('span', null, 'Omit Columns'),
                 hiddenCount > 0 &&
                   h(
                     'span',
@@ -1031,8 +1031,8 @@
                     h(
                       'div',
                       null,
-                      h('p', { className: 'font-bold text-gray-900 dark:text-[#F5F5F7]' }, 'Hide Columns in Excel'),
-                      h('p', { className: 'text-[11px] text-gray-500 dark:text-gray-400' }, 'Checked columns will be hidden')
+                      h('p', { className: 'font-bold text-gray-900 dark:text-[#F5F5F7]' }, 'Omit Columns in Excel'),
+                      h('p', { className: 'text-[11px] text-gray-500 dark:text-gray-400' }, 'Checked columns will be omitted from export')
                     ),
                     hiddenCount > 0 &&
                       onResetHideColumns &&
@@ -1071,7 +1071,7 @@
                           h('span', { className: 'font-medium text-gray-800 dark:text-gray-200' }, opt.label)
                         ),
                         Boolean(hideColumns[opt.key]) &&
-                          h('span', { className: 'text-[10px] font-semibold text-[#007AFF] dark:text-[#0A84FF]' }, 'Hidden')
+                          h('span', { className: 'text-[10px] font-semibold text-[#007AFF] dark:text-[#0A84FF]' }, 'Omitted')
                       )
                     )
                   ),
@@ -1081,7 +1081,7 @@
                       className:
                         'pt-1.5 border-t border-black/[0.06] dark:border-white/[0.1] text-[10px] text-gray-400 dark:text-gray-500',
                     },
-                    'Hides columns in exported Excel/CSV while maintaining layout.'
+                    'Omitted columns are completely removed from exported Excel & CSV.'
                   )
                 )
             );
