@@ -8,6 +8,61 @@
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/settings.js"></script>
 
+    <style>
+        .compact-kpi {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .compact-kpi .kpi-card { 
+            padding: 10px 14px !important; 
+            border-radius: 10px !important; 
+            min-height: 72px !important; 
+        }
+        .compact-kpi .kpi-card.blue { border-left: 3px solid #3b82f6; }
+        .compact-kpi .kpi-card-header { 
+            margin-bottom: 4px;
+        }
+        .compact-kpi .kpi-title { 
+            font-size: 11px !important; 
+            letter-spacing: 0.4px !important; 
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--fg-muted);
+        }
+        .compact-kpi .kpi-value { 
+            font-size: 20px !important; 
+            font-weight: 700 !important; 
+            margin-top: 2px !important;
+            line-height: 1.2;
+            color: var(--fg);
+        }
+        .compact-kpi .kpi-sub { 
+            font-size: 10px !important; 
+            margin-top: 2px !important; 
+            color: var(--fg-subtle);
+        }
+        .compact-kpi .kpi-icon { 
+            width: 32px !important; 
+            height: 32px !important; 
+            border-radius: 8px;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0;
+            transition: transform 0.2s ease;
+        }
+        .compact-kpi .kpi-icon svg { 
+            width: 18px !important; 
+            height: 18px !important; 
+            stroke-width: 2.2px;
+        }
+        .compact-kpi .kpi-card:hover .kpi-icon {
+            transform: scale(1.08);
+        }
+    </style>
+
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#1e40af">
 </head>
@@ -234,45 +289,49 @@
             </div>
 
             <!-- Executive KPI Metric Cards with Vector Icons -->
-            <div class="kpi-container">
-                <div class="kpi-card">
+            <div class="kpi-container compact-kpi">
+                <div class="kpi-card blue">
                     <div class="kpi-card-header">
-                        <div class="title">Total Selected DOs</div>
-                        <div class="kpi-icon" style="color: #3b82f6;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        <div class="kpi-title">Total Selected DOs</div>
+                        <div class="kpi-icon" style="color: #3b82f6; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.25);">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                         </div>
                     </div>
-                    <div class="value" id="kpiTotalDos">0</div>
+                    <div class="kpi-value" id="kpiTotalDos">0</div>
+                    <div class="kpi-sub">Selected Orders</div>
                 </div>
 
                 <div class="kpi-card cyan">
                     <div class="kpi-card-header">
-                        <div class="title">Unique SKUs</div>
-                        <div class="kpi-icon" style="color: #06b6d4;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                        <div class="kpi-title">Unique SKUs</div>
+                        <div class="kpi-icon" style="color: #06b6d4; background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.25);">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
                         </div>
                     </div>
-                    <div class="value" id="kpiTotalSkus">0</div>
+                    <div class="kpi-value" id="kpiTotalSkus">0</div>
+                    <div class="kpi-sub">Active Products</div>
                 </div>
 
                 <div class="kpi-card purple">
                     <div class="kpi-card-header">
-                        <div class="title">Total Quantity (Pcs)</div>
-                        <div class="kpi-icon" style="color: #8b5cf6;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                        <div class="kpi-title">Total Quantity</div>
+                        <div class="kpi-icon" style="color: #8b5cf6; background: rgba(139, 92, 246, 0.12); border: 1px solid rgba(139, 92, 246, 0.25);">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
                         </div>
                     </div>
-                    <div class="value" id="kpiTotalQty">0</div>
+                    <div class="kpi-value" id="kpiTotalQty">0</div>
+                    <div class="kpi-sub">Units Shipped</div>
                 </div>
 
                 <div class="kpi-card orange">
                     <div class="kpi-card-header">
-                        <div class="title">Total Volume (m³)</div>
-                        <div class="kpi-icon" style="color: #f59e0b;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                        <div class="kpi-title">Total Volume</div>
+                        <div class="kpi-icon" style="color: #f59e0b; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.25);">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
                         </div>
                     </div>
-                    <div class="value" id="kpiTotalM3">0.00 m³</div>
+                    <div class="kpi-value" id="kpiTotalM3">0.00 m³</div>
+                    <div class="kpi-sub">Cubic Meters</div>
                 </div>
             </div>
 
@@ -284,9 +343,9 @@
                     <div class="table-toolbar">
                         <h3>Daily Summary Manifest</h3>
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <button id="btnSimplifyMode" onclick="toggleSimplifyMode()" style="background-color: transparent; color: var(--fg, #f4f4f5); border: 1px solid var(--border, #3f3f46); padding: 5px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                            <button id="btnSimplifyMode" onclick="toggleSimplifyMode()" style="background-color: var(--accent, #8b5cf6); color: #ffffff; border: 1px solid var(--accent, #8b5cf6); padding: 5px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                                Simplify View: OFF
+                                Simplify View: ON
                             </button>
                             <button onclick="exportTruckPlanningToExcel()" style="background-color: #059669; color: #ffffff; border: none; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>

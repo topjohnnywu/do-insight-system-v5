@@ -1,4 +1,4 @@
-let isSimplifyMode = false;
+let isSimplifyMode = true;
 // Truck Planning & Daily Summary List Controller
 
 function isStatusOrNonTruck(val) {
@@ -747,7 +747,8 @@ function renderTruckPlanningDashboard() {
 
     if (filteredRows.length === 0) {
         if (manifestHeader) manifestHeader.style.display = "none";
-        tbody.innerHTML = `<tr><td colspan="${showManifestView ? 7 : 11}" style="text-align:center; padding:32px; color:#a1a1aa;">No DO manifests match current filter selection.</td></tr>`;
+        const emptyColspan = showManifestView ? (isSimplifyMode ? 5 : 7) : (isSimplifyMode ? 9 : 11);
+        tbody.innerHTML = `<tr><td colspan="${emptyColspan}" style="text-align:center; padding:32px; color:#a1a1aa;">No DO manifests match current filter selection.</td></tr>`;
         return;
     }
 
@@ -772,10 +773,9 @@ function renderTruckPlanningDashboard() {
                 headRow.innerHTML = `
                     <th>Batch</th>
                     <th>DO Number</th>
-                    <th>Unique SKUs</th>
-                    <th class="number-col">Total Qty</th>
-                    <th class="number-col">m³</th>
-                    <th>Item Breakdown</th>`;
+                    <th>SKUS</th>
+                    <th class="number-col">QTY</th>
+                    <th class="number-col">m³</th>`;
             } else {
                 headRow.innerHTML = `
                     <th>Batch</th>
@@ -796,6 +796,7 @@ function renderTruckPlanningDashboard() {
                         batch: row.batch,
                         doNo: row.doNo,
                         invRaw: row.invRaw,
+                        type: row.type,
                         totalQty: 0,
                         totalVol: 0,
                         items: []
@@ -807,16 +808,20 @@ function renderTruckPlanningDashboard() {
             });
 
             Object.values(groupedByDo).forEach(g => {
-                const breakdown = g.items.join(' | ');
                 const uniqueSkus = g.items.length;
+                const typeBadge = g.type === 'BIG' ? 'category-big' : g.type === 'SMALL' ? 'category-small' : 'category-mix';
                 tableHtml += `
                 <tr style="cursor: context-menu;" title="Right-click to inspect DO details" oncontextmenu="event.preventDefault(); openDoDetailsTab('${g.invRaw}')">
                     <td><strong style="color: #ef4444;">${g.batch}</strong></td>
-                    <td><strong>${g.doNo}</strong></td>
+                    <td>
+                        <div style="display: inline-flex; align-items: center; gap: 6px;">
+                            <strong>${g.doNo}</strong>
+                            <span class="category-badge ${typeBadge}">${g.type}</span>
+                        </div>
+                    </td>
                     <td><strong>${uniqueSkus}</strong></td>
                     <td class="number-col" style="font-weight: 800; color: #8b5cf6;">${g.totalQty.toLocaleString()}</td>
                     <td class="number-col" style="font-weight: 700; color: #f59e0b;">${g.totalVol.toFixed(2)}</td>
-                    <td style="font-size: 11px; color: var(--fg-muted); max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${breakdown}">${breakdown}</td>
                 </tr>
                 `;
             });
@@ -847,10 +852,9 @@ function renderTruckPlanningDashboard() {
                     <th>Route</th>
                     <th>Consignee</th>
                     <th>DO Number</th>
-                    <th>Unique SKUs</th>
-                    <th class="number-col">Total Qty</th>
-                    <th class="number-col">m³</th>
-                    <th>Item Breakdown</th>`;
+                    <th>SKUS</th>
+                    <th class="number-col">QTY</th>
+                    <th class="number-col">m³</th>`;
             } else {
                 headRow.innerHTML = `
                     <th>Batch</th>
@@ -879,6 +883,7 @@ function renderTruckPlanningDashboard() {
                         consignee: row.consignee,
                         doNo: row.doNo,
                         invRaw: row.invRaw,
+                        type: row.type,
                         totalQty: 0,
                         totalVol: 0,
                         items: []
@@ -890,8 +895,8 @@ function renderTruckPlanningDashboard() {
             });
 
             Object.values(groupedByDo).forEach(g => {
-                const breakdown = g.items.join(' | ');
                 const uniqueSkus = g.items.length;
+                const typeBadge = g.type === 'BIG' ? 'category-big' : g.type === 'SMALL' ? 'category-small' : 'category-mix';
                 tableHtml += `
                 <tr style="cursor: context-menu;" title="Right-click to inspect DO details" oncontextmenu="event.preventDefault(); openDoDetailsTab('${g.invRaw}')">
                     <td><strong style="color: #ef4444;">${g.batch}</strong></td>
@@ -899,11 +904,15 @@ function renderTruckPlanningDashboard() {
                     <td><strong>${g.hub}</strong></td>
                     <td>${g.route}</td>
                     <td style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${g.consignee}</td>
-                    <td><strong>${g.doNo}</strong></td>
+                    <td>
+                        <div style="display: inline-flex; align-items: center; gap: 6px;">
+                            <strong>${g.doNo}</strong>
+                            <span class="category-badge ${typeBadge}">${g.type}</span>
+                        </div>
+                    </td>
                     <td><strong>${uniqueSkus}</strong></td>
                     <td class="number-col" style="font-weight: 800; color: #8b5cf6;">${g.totalQty.toLocaleString()}</td>
                     <td class="number-col" style="font-weight: 700; color: #f59e0b;">${g.totalVol.toFixed(2)}</td>
-                    <td style="font-size: 11px; color: var(--fg-muted); max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${breakdown}">${breakdown}</td>
                 </tr>
                 `;
             });
