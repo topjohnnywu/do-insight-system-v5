@@ -61,6 +61,25 @@
         .compact-kpi .kpi-card:hover .kpi-icon {
             transform: scale(1.08);
         }
+
+        /* Scoped Font Scaling for Daily Summary Manifest Table */
+        #truckPlanningManifestTable {
+            font-size: 14px !important;
+        }
+        #truckPlanningManifestTable th {
+            font-size: 13px !important;
+            padding: 10px 12px !important;
+            letter-spacing: 0.3px;
+        }
+        #truckPlanningManifestTable td {
+            font-size: 14px !important;
+            padding: 9px 12px !important;
+            line-height: 1.4 !important;
+        }
+        #truckPlanningManifestTable .category-badge {
+            font-size: 11.5px !important;
+            padding: 3px 8px !important;
+        }
     </style>
 
     <link rel="manifest" href="./manifest.json">
@@ -364,7 +383,7 @@
                     </div>
 
                     <div class="compact-wrapper">
-                        <table class="compact-table">
+                        <table id="truckPlanningManifestTable" class="compact-table">
                             <thead>
                                 <tr id="truckPlanningTableHeadRow">
                                     <th>Batch</th>

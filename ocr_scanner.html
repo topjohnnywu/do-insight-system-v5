@@ -8,6 +8,7 @@
     <script src="js/settings.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         .ocr-grid { display:grid; grid-template-columns:minmax(280px, .8fr) minmax(320px, 1.2fr); gap:18px; max-width:1400px; }
         .ocr-card { background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius-card); padding:20px; box-shadow:var(--shadow-card); }
@@ -169,7 +170,518 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* Inverted Redaction & ROI Isolation Styles */
+        .roi-card {
+            grid-column: 1 / -1;
+            background: var(--surface-card, var(--bg-elevated));
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card, 12px);
+            padding: 20px;
+            box-shadow: var(--shadow-card);
+            margin-top: 6px;
+        }
+        .roi-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .roi-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .roi-title-wrap h2 {
+            margin: 0;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .roi-badge-pill {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .roi-toggle-btn {
+            background: var(--surface);
+            color: var(--fg);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        .roi-toggle-btn.active {
+            background: #8b5cf6;
+            color: #ffffff;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 14px rgba(139, 92, 246, 0.4);
+        }
+
+        /* AI Engine & API Key Controls */
+        .engine-selector-wrap {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            background: var(--surface, rgba(125, 125, 125, 0.08));
+            padding: 4px;
+            border-radius: var(--radius-control, 8px);
+            border: 1px solid var(--border);
+        }
+        .engine-tab-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            background: transparent;
+            color: var(--fg-muted);
+            border: 1px solid transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: all 0.2s ease;
+        }
+        .engine-tab-btn:hover {
+            color: var(--fg);
+        }
+        .engine-tab-btn.active {
+            background: var(--surface-card, var(--bg-elevated));
+            color: var(--fg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            border-color: var(--border-accent, var(--border));
+        }
+        .engine-tab-btn.active.ai {
+            color: #8b5cf6;
+            border-color: rgba(139, 92, 246, 0.4);
+            background: rgba(139, 92, 246, 0.12);
+        }
+        .ai-config-card {
+            display: none;
+            margin-top: 12px;
+            background: var(--surface, rgba(125, 125, 125, 0.05));
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            border-radius: var(--radius-control, 8px);
+            padding: 14px;
+            animation: ocrFadeIn 0.25s ease;
+        }
+        .ai-config-card.active { display: block; }
+        .ai-input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 8px;
+        }
+        .ai-key-input {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-family: var(--font-mono);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg-deep);
+            color: var(--fg);
+            outline: none;
+        }
+        .ai-key-input:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+        .ai-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .ai-badge.saved {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .ai-badge.missing {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .roi-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: var(--surface, rgba(125,125,125,0.06));
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+        }
+        .roi-toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .roi-toolbar-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--fg-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .roi-preset-btn {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            color: var(--fg);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .roi-preset-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent-bright);
+        }
+        .roi-preset-btn.active {
+            background: rgba(139, 92, 246, 0.15);
+            border-color: var(--accent);
+            color: var(--accent-bright);
+            font-weight: 600;
+        }
+        .roi-select {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            color: var(--fg);
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .roi-workspace {
+            display: grid;
+            grid-template-columns: minmax(320px, 1fr) 280px;
+            gap: 18px;
+            align-items: start;
+        }
+        @media (max-width: 900px) {
+            .roi-workspace { grid-template-columns: 1fr; }
+        }
+        .roi-preview-wrapper {
+            background: var(--bg-deep, #09090b);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+        .roi-page-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .roi-page-btn {
+            background: var(--surface);
+            color: var(--fg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .roi-page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .roi-container {
+            position: relative;
+            display: inline-block;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: crosshair;
+            user-select: none;
+            max-width: 100%;
+            min-height: 240px;
+            background: #18181b;
+        }
+        .roi-container canvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+        .roi-mask-overlay {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(1.5px);
+            pointer-events: none;
+            transition: all 0.05s ease-out;
+            z-index: 5;
+        }
+        .roi-mask-overlay.blackout {
+            background: rgba(0, 0, 0, 0.90);
+        }
+        .roi-preserved-box {
+            position: absolute;
+            border: 2px dashed #10b981;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.5), inset 0 0 20px rgba(16, 185, 129, 0.18);
+            pointer-events: none;
+            z-index: 10;
+            transition: all 0.05s ease-out;
+        }
+        .roi-badge-tag {
+            position: absolute;
+            top: -24px;
+            left: 0;
+            background: #10b981;
+            color: #000000;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            white-space: nowrap;
+            letter-spacing: 0.4px;
+        }
+        .roi-side-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .roi-coord-display {
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--fg);
+        }
+        .roi-coord-display .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        .roi-coord-display .row:last-child {
+            margin-bottom: 0;
+        }
+        .roi-coord-display .label {
+            color: var(--fg-muted);
+        }
+        .roi-coord-display .val {
+            color: #10b981;
+            font-weight: 700;
+        }
+        .roi-hint-box {
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--fg-muted);
+            padding: 10px;
+            background: var(--surface-card);
+            border-radius: 6px;
+            border-left: 3px solid #8b5cf6;
+        }
+
         @media (max-width:800px) { .ocr-grid { grid-template-columns:1fr; } .ocr-card { padding:16px; } }
+
+        /* Modern App Modal Dialog */
+        .app-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .app-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .app-modal-card {
+            background: var(--surface, #18181b);
+            border: 1px solid var(--border, #27272a);
+            border-radius: 14px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            max-width: 460px;
+            width: 100%;
+            overflow: hidden;
+            transform: scale(0.94) translateY(8px);
+            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .app-modal-overlay.active .app-modal-card {
+            transform: scale(1) translateY(0);
+        }
+        .app-modal-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border, #27272a);
+        }
+        .app-modal-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .app-modal-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .app-modal-icon.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .app-modal-icon.error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .app-modal-icon.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .app-modal-icon.info {
+            background: rgba(139, 92, 246, 0.15);
+            color: #8b5cf6;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        .app-modal-title {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--fg, #f4f4f5);
+        }
+        .app-modal-close {
+            background: transparent;
+            border: none;
+            color: var(--fg-muted, #71717a);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            line-height: 1;
+            transition: color 0.15s, background 0.15s;
+        }
+        .app-modal-close:hover {
+            color: var(--fg, #f4f4f5);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .app-modal-body {
+            padding: 20px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--fg-muted, #d4d4d8);
+            word-break: break-word;
+        }
+        .app-modal-actions {
+            padding: 12px 20px;
+            background: var(--bg-deep, #09090b);
+            border-top: 1px solid var(--border, #27272a);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Modern App Toast System */
+        .app-toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 10001;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .app-toast {
+            pointer-events: auto;
+            background: var(--surface, #18181b);
+            border: 1px solid var(--border, #27272a);
+            color: var(--fg, #f4f4f5);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .app-toast.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .app-toast.success { border-color: #10b981; }
+        .app-toast.success .toast-dot { background: #10b981; }
+        .app-toast.error { border-color: #ef4444; }
+        .app-toast.error .toast-dot { background: #ef4444; }
+        .app-toast.info { border-color: #8b5cf6; }
+        .app-toast.info .toast-dot { background: #8b5cf6; }
+        .toast-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 <body>
@@ -345,7 +857,104 @@
         </ul>
     </div><div style="padding:12px;border-top:1px solid var(--border);font-size:11px;color:var(--fg-subtle);text-align:center">DO Insight Dashboard</div></div>
     <main class="main-content"><div class="header"><div><h1 style="font-size:20px;margin:0">OCR Document Scanner</h1><p style="font-size:12px;color:var(--fg-muted);margin-top:4px">Extract text and isolate numerical values from scanned PDF documents</p></div></div>
-        <div class="ocr-grid"><section class="ocr-card"><h2>1. Select PDFs</h2><p class="ocr-help">Upload PDF documents only. Files are rendered and processed locally in this browser. Scanned pages are recognized with Tesseract.js. PNG/JPG image uploads are not supported in this workflow.</p><input id="pdfFiles" class="ocr-file" type="file" accept="application/pdf,.pdf" multiple><label class="ocr-help" style="display:block;margin-top:14px">OCR language <select id="ocrLanguage" class="search-box"><option value="eng">English</option></select></label><div class="ocr-actions"><button id="runOcr" class="action-btn primary">Run OCR</button><button id="clearOcr" class="action-btn secondary">Clear</button></div>
+        <div class="ocr-grid"><section class="ocr-card"><h2>1. Select PDFs</h2><p class="ocr-help">Upload PDF documents only. Files are rendered and processed locally in this browser. Scanned pages can be recognized with local Tesseract.js or Google Gemini AI Vision.</p><input id="pdfFiles" class="ocr-file" type="file" accept="application/pdf,.pdf" multiple>
+        
+        <!-- Engine Selector: Local OCR vs Gemini AI Vision -->
+        <div class="engine-selector-wrap">
+            <button type="button" id="btnEngineLocal" class="engine-tab-btn active" data-engine="local">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                Local OCR (Tesseract)
+            </button>
+            <button type="button" id="btnEngineAi" class="engine-tab-btn ai" data-engine="ai">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                <span id="btnEngineAiLabel">AI Vision</span>
+            </button>
+        </div>
+
+        <!-- Universal Multi-Provider AI Vision Configuration Card -->
+        <div id="aiConfigCard" class="ai-config-card">
+            <div id="rootsysCorsHint" style="display:none; font-size: 11px; padding: 7px 10px; border-radius: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); color: #f59e0b; margin-bottom: 10px; line-height: 1.5;">
+                ⚡ <strong>Tip:</strong> RootSys Cloud CORS security requires running via local server. <a href="http://localhost:3000/ocr_scanner.html" style="color: #f59e0b; font-weight: 700; text-decoration: underline;">Switch to http://localhost:3000</a>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+                <label style="font-size: 12px; font-weight: 700; color: #8b5cf6; display: flex; align-items: center; gap: 6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    AI Provider:
+                    <select id="aiProviderSelect" class="roi-select" style="padding: 3px 8px; font-weight: 600;">
+                        <option value="rootsys">RootSys Cloud (rootsys.cloud)</option>
+                        <option value="gemini" selected>Google Gemini</option>
+                        <option value="openai">OpenAI (ChatGPT)</option>
+                        <option value="anthropic">Anthropic (Claude)</option>
+                        <option value="groq">Groq (Ultra-Fast)</option>
+                        <option value="openrouter">OpenRouter</option>
+                        <option value="custom">Universal / Ollama / Local AI</option>
+                    </select>
+                </label>
+                <span id="aiKeyStatusBadge" class="ai-badge missing">Key Required</span>
+            </div>
+
+            <!-- Custom Endpoint (Shown for RootSys / OpenRouter / Custom / Ollama) -->
+            <div id="aiCustomEndpointRow" class="ai-input-row" style="display: none; margin-bottom: 8px;">
+                <input id="aiCustomEndpointInput" class="ai-key-input" type="text" placeholder="Base URL (e.g. https://rootsys.cloud/v1 or https://openrouter.ai/api/v1)">
+            </div>
+
+            <!-- API Key Input Row -->
+            <div class="ai-input-row">
+                <input id="aiApiKeyInput" class="ai-key-input" type="password" placeholder="Paste API Key" autocomplete="off">
+                <button type="button" id="btnToggleKeyVisibility" class="action-btn secondary" style="padding: 7px 10px; font-size: 12px;" title="Show/Hide Key">👁️</button>
+                <button type="button" id="btnSaveApiKey" class="action-btn primary" style="padding: 7px 12px; font-size: 12px; background: #8b5cf6; border-color: #8b5cf6;">Save</button>
+                <button type="button" id="btnClearApiKey" class="action-btn secondary" style="padding: 7px 10px; font-size: 12px; color: #ef4444; border-color: rgba(239, 68, 68, 0.35);" title="Clear saved API key from browser storage">🗑️ Clear</button>
+            </div>
+
+            <!-- Model & Docs Row -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <label style="font-size: 11px; color: var(--fg-muted); display: flex; align-items: center; gap: 6px;">
+                        Model:
+                        <select id="aiModelSelect" class="roi-select" style="padding: 2px 6px; font-size: 11px; max-width: 170px;">
+                        </select>
+                    </label>
+                    <button type="button" id="btnFetchModels" class="action-btn secondary" style="padding: 2px 7px; font-size: 10px; line-height: 1.4;" title="Discover all available models from this endpoint">🔄 Fetch Models</button>
+                    <input id="aiCustomModelInput" class="ai-key-input" type="text" placeholder="Type model ID..." style="display: none; width: 130px; padding: 2px 6px; font-size: 11px; height: 24px;">
+                    <label style="font-size: 11px; color: var(--fg-muted); display: flex; align-items: center; gap: 4px;">
+                        Speed:
+                        <select id="aiConcurrencySelect" class="roi-select" style="padding: 2px 6px; font-size: 11px;">
+                            <option value="8">8x Hyperspeed (Fastest)</option>
+                            <option value="6" selected>6x Turbo (Recommended)</option>
+                            <option value="4">4x Fast</option>
+                            <option value="2">2x Light</option>
+                            <option value="1">1x Sequential</option>
+                        </select>
+                    </label>
+                </div>
+                <a id="aiDocsLink" href="https://rootsys.cloud" target="_blank" rel="noopener noreferrer" style="font-size: 11px; color: #8b5cf6; text-decoration: underline;">
+                    Get API Key ↗
+                </a>
+            </div>
+
+            <!-- AI Prompt Mode & Custom Task Selector -->
+            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(139, 92, 246, 0.25); display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                    <label style="font-size: 11px; font-weight: 600; color: var(--fg-muted); display: flex; align-items: center; gap: 6px;">
+                        <span>💬 Prompt Task:</span>
+                        <select id="aiPromptPresetSelect" class="roi-select" style="padding: 2px 8px; font-size: 11px; font-weight: 600;">
+                            <option value="do_only" selected>🎯 DO Numbers Only (Fast & Clean)</option>
+                            <option value="full_ocr">📝 Full Text Transcription (Standard OCR)</option>
+                            <option value="custom">✏️ Custom Prompt...</option>
+                        </select>
+                    </label>
+                    <span id="aiPromptHelpHint" style="font-size: 10px; color: var(--fg-subtle);">Extracts 8-digit DOs (81/85)</span>
+                </div>
+                <div id="aiCustomPromptWrap" style="display: none; margin-top: 2px;">
+                    <textarea id="aiCustomPromptInput" class="ai-key-input" rows="2" style="width: 100%; font-family: monospace; font-size: 11px; resize: vertical; padding: 6px 8px; line-height: 1.4;" placeholder="Type custom instruction for AI Vision (e.g. Extract PO number and invoice date)..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div id="localLangWrap">
+            <label class="ocr-help" style="display:block;margin-top:14px">OCR language <select id="ocrLanguage" class="search-box"><option value="eng">English</option></select></label>
+        </div>
+        <div class="ocr-actions"><button id="runOcr" class="action-btn primary">Run OCR</button><button id="clearOcr" class="action-btn secondary">Clear</button></div>
         
         <!-- Animated Scanner HUD & Sarcastic Progress Component -->
         <div id="ocrProgressCard" class="ocr-progress-card">
@@ -376,18 +985,252 @@
         </div>
         
         <div id="ocrStatus" class="ocr-status" role="status">Choose one or more PDF files.</div></section>
-        <section class="ocr-card"><h2>2. Extracted Text</h2><textarea id="fullText" class="ocr-output" readonly placeholder="Extracted text will appear here..."></textarea><div class="ocr-actions"><button id="downloadText" class="action-btn secondary" disabled>Download TXT</button><button id="downloadNumbers" class="action-btn secondary" disabled>Download Numbers CSV</button></div></section>
-        <section class="ocr-card"><h2>DO Numbers</h2><p class="ocr-help">DO numbers must be exactly 8 digits and start with <code>81</code>, for example <code>81525408</code>. The scanner also tolerates OCR spaces, separators, and common character errors.</p><ol id="numberList" class="ocr-number-list"><li>No DO numbers extracted yet.</li></ol></section></div>
+        
+        <!-- Inverted Redaction / ROI Isolation Section -->
+        <section id="roiIsolationCard" class="roi-card">
+            <div class="roi-header">
+                <div class="roi-title-wrap">
+                    <h2>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #8b5cf6;">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <path d="M3 9h18"/>
+                            <path d="M9 21V9"/>
+                        </svg>
+                        Inverted Redaction / ROI Isolation
+                    </h2>
+                    <span id="roiStatusBadge" class="roi-badge-pill" style="display: none;">ROI ACTIVE</span>
+                </div>
+                <button id="btnToggleRoi" class="roi-toggle-btn" type="button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                    Isolate ROI / Blank Out Background: <strong id="roiToggleStateText">OFF</strong>
+                </button>
+            </div>
+
+            <div id="roiContentArea" style="display: none;">
+                <div class="roi-toolbar">
+                    <div class="roi-toolbar-group">
+                        <span class="roi-toolbar-label">Presets:</span>
+                        <button type="button" class="roi-preset-btn active" data-preset="do_header">Top Header / DO Area (0–35%)</button>
+                        <button type="button" class="roi-preset-btn" data-preset="upper_half">Upper Half (0–50%)</button>
+                        <button type="button" class="roi-preset-btn" data-preset="center">Center Area</button>
+                        <button type="button" class="roi-preset-btn" data-preset="full">Full Page</button>
+                    </div>
+                    <div class="roi-toolbar-group">
+                        <label class="roi-toolbar-label" for="roiScopeSelect">Scope:</label>
+                        <select id="roiScopeSelect" class="roi-select">
+                            <option value="all" selected>All Pages</option>
+                            <option value="current">Current Page Only</option>
+                        </select>
+                        <label class="roi-toolbar-label" for="roiFillColorSelect" style="margin-left: 8px;">Fill Color:</label>
+                        <select id="roiFillColorSelect" class="roi-select">
+                            <option value="#ffffff" selected>Solid White (#FFFFFF)</option>
+                            <option value="#000000">Solid Blackout (#000000)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Document Image Enhancement Toolbar -->
+                <div class="roi-toolbar" style="margin-top:-6px; background:var(--surface); border-top:1px dashed var(--border);">
+                    <div class="roi-toolbar-group">
+                        <span class="roi-toolbar-label" style="display:flex; align-items:center; gap:5px; color:#3b82f6;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                            Image Clarity Enhancement:
+                        </span>
+                        <button type="button" class="roi-preset-btn active" id="btnEnhanceNone" data-enhance="none">Original</button>
+                        <button type="button" class="roi-preset-btn" id="btnEnhanceAuto" data-enhance="auto" title="Dynamic contrast stretch + character edge unsharp mask">⚡ Auto Enhance</button>
+                        <button type="button" class="roi-preset-btn" id="btnEnhanceBinarize" data-enhance="binarize" title="Otsu adaptive thresholding: pure white paper & deep black text">🔲 Clean B&amp;W (Binarize)</button>
+                        <button type="button" class="roi-preset-btn" id="btnEnhanceSharpen" data-enhance="sharpen" title="High-frequency 3x3 unsharp convolution kernel">🔍 Sharpen Blurry Text</button>
+                        <button type="button" class="roi-preset-btn" id="btnEnhanceFaint" data-enhance="faint" title="Boosts faint blue, carbon-copy, or dot-matrix printer ink">🖋️ Faint Ink Boost</button>
+                    </div>
+                </div>
+
+                <div class="roi-workspace">
+                    <div class="roi-preview-wrapper">
+                        <div class="roi-page-nav">
+                            <button id="btnRoiPrevPage" class="roi-page-btn" type="button" disabled>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                                Prev Page
+                            </button>
+                            <span id="roiPageIndicator" style="font-size: 12px; font-weight: 600; color: var(--fg);">No PDF Loaded</span>
+                            <button id="btnRoiNextPage" class="roi-page-btn" type="button" disabled>
+                                Next Page
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- Interactive ROI Preview Container with 4 boundary outer masks -->
+                        <div id="roiContainer" class="roi-container" title="Click and drag cursor to draw custom DO ROI box">
+                            <canvas id="roiPreviewCanvas"></canvas>
+                            
+                            <!-- 4 boundary overlays outside the box -->
+                            <div id="roiMaskTop" class="roi-mask-overlay"></div>
+                            <div id="roiMaskBottom" class="roi-mask-overlay"></div>
+                            <div id="roiMaskLeft" class="roi-mask-overlay"></div>
+                            <div id="roiMaskRight" class="roi-mask-overlay"></div>
+                            
+                            <!-- Preserved ROI Box dashed highlight -->
+                            <div id="roiPreservedBox" class="roi-preserved-box">
+                                <div class="roi-badge-tag">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                                    PRESERVED ROI (DO AREA)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="roi-side-panel">
+                        <div style="font-size: 13px; font-weight: 700; color: var(--fg); display: flex; align-items: center; gap: 6px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                            Normalized ROI Box
+                        </div>
+                        <div class="roi-coord-display">
+                            <div class="row"><span class="label">X (Left):</span><span class="val" id="roiValX">5.0%</span></div>
+                            <div class="row"><span class="label">Y (Top):</span><span class="val" id="roiValY">5.0%</span></div>
+                            <div class="row"><span class="label">Width:</span><span class="val" id="roiValW">90.0%</span></div>
+                            <div class="row"><span class="label">Height:</span><span class="val" id="roiValH">35.0%</span></div>
+                            <div class="row" style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border);"><span class="label">Relative:</span><span class="val" id="roiValRel" style="font-size: 10px; color: var(--accent-bright);">{x:0.05, y:0.05, w:0.90, h:0.35}</span></div>
+                        </div>
+
+                        <div class="roi-hint-box">
+                            <strong>True Pixel Flattening:</strong> When exported, everything outside the highlighted box is permanently overwritten on canvas with solid fill and burned into a clean, unredactable PDF (zero hidden vector or metadata leaks).
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
+                            <button id="btnExportIsolatedPdf" class="action-btn primary" type="button" style="background: #059669; border-color: #059669; width: 100%; justify-content: center; font-weight: 700;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Export Flattened Isolated PDF
+                            </button>
+                            <button id="btnScanIsolatedRoi" class="action-btn secondary" type="button" style="width: 100%; justify-content: center; font-weight: 600;">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                Scan Isolated ROI Only
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="ocr-card">
+            <h2>2. Extracted DO Numbers</h2>
+            <p class="ocr-help" style="margin-bottom:8px">Clean list of unique 8-digit DO numbers starting with <code>81</code> or <code>85</code> (one per line). Table pipes, page markers, and extra spacing are stripped.</p>
+            <textarea id="fullText" class="ocr-output" readonly placeholder="Extracted 8-digit DO numbers will appear here (one per line)..."></textarea>
+            <div class="ocr-actions">
+                <button id="downloadText" class="action-btn secondary" disabled>Download TXT</button>
+                <button id="downloadNumbers" class="action-btn secondary" disabled>Download CSV</button>
+                <button id="copyNumbers" class="action-btn secondary" disabled style="margin-left: auto;">Copy All DOs</button>
+            </div>
+        </section>
+        <section class="ocr-card">
+            <h2>DO Numbers List</h2>
+            <p class="ocr-help">DO numbers must be exactly 8 digits and start with <code>81</code> or <code>85</code> (e.g. <code>81525414</code>, <code>85012345</code>). Table delimiters (<code>|</code>) and OCR errors are automatically sanitized.</p>
+            <ol id="numberList" class="ocr-number-list"><li>No DO numbers extracted yet.</li></ol>
+        </section></div>
     </main>
 </div>
+
+<!-- Modern In-App Modal Dialog -->
+<div id="appModalOverlay" class="app-modal-overlay" style="display:none;" onclick="if(event.target === this) closeAppModal()">
+    <div class="app-modal-card" role="dialog" aria-modal="true">
+        <div class="app-modal-header">
+            <div class="app-modal-title-wrap">
+                <div id="appModalIcon" class="app-modal-icon info">ℹ️</div>
+                <h3 id="appModalTitle" class="app-modal-title">Notification</h3>
+            </div>
+            <button type="button" class="app-modal-close" onclick="closeAppModal()" title="Close">✕</button>
+        </div>
+        <div id="appModalBody" class="app-modal-body">Message</div>
+        <div id="appModalActions" class="app-modal-actions">
+            <button type="button" id="appModalPrimaryBtn" class="action-btn primary" onclick="closeAppModal()">OK</button>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Toast Container -->
+<div id="appToastContainer" class="app-toast-container"></div>
+
 <script type="module">
 import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs';
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
 const $ = id => document.getElementById(id);
+
+// --- MODERN IN-APP MODAL & TOAST SYSTEM ---
+let appModalConfirmCallback = null;
+
+function showAppModal({ title = 'Notice', message = '', type = 'info', confirmText = 'OK', onConfirm = null }) {
+    const overlay = $('appModalOverlay');
+    const titleEl = $('appModalTitle');
+    const bodyEl = $('appModalBody');
+    const iconEl = $('appModalIcon');
+    const btnEl = $('appModalPrimaryBtn');
+    if (!overlay) return;
+
+    titleEl.textContent = title;
+    bodyEl.textContent = message;
+    btnEl.textContent = confirmText;
+    appModalConfirmCallback = onConfirm;
+
+    // Type styling
+    iconEl.className = `app-modal-icon ${type}`;
+    if (type === 'warning') {
+        iconEl.textContent = '⚠️';
+        btnEl.style.background = '#f59e0b';
+        btnEl.style.borderColor = '#f59e0b';
+    } else if (type === 'error') {
+        iconEl.textContent = '❌';
+        btnEl.style.background = '#ef4444';
+        btnEl.style.borderColor = '#ef4444';
+    } else if (type === 'success') {
+        iconEl.textContent = '✓';
+        btnEl.style.background = '#10b981';
+        btnEl.style.borderColor = '#10b981';
+    } else {
+        iconEl.textContent = 'ℹ️';
+        btnEl.style.background = '#8b5cf6';
+        btnEl.style.borderColor = '#8b5cf6';
+    }
+
+    overlay.style.display = 'flex';
+    requestAnimationFrame(() => overlay.classList.add('active'));
+}
+
+function closeAppModal() {
+    const overlay = $('appModalOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('active');
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        if (typeof appModalConfirmCallback === 'function') {
+            const cb = appModalConfirmCallback;
+            appModalConfirmCallback = null;
+            cb();
+        }
+    }, 200);
+}
+
+function showToast(message, type = 'info', duration = 3200) {
+    const container = $('appToastContainer');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `app-toast ${type}`;
+    toast.innerHTML = `<span class="toast-dot"></span><span>${message}</span>`;
+    container.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('active'));
+    setTimeout(() => {
+        toast.classList.remove('active');
+        setTimeout(() => toast.remove(), 250);
+    }, duration);
+}
+
+window.showAppModal = showAppModal;
+window.closeAppModal = closeAppModal;
+window.showToast = showToast;
+
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAppModal();
+});
 const doPatterns = [
-    /\b(?:D[AE]LIVERY|D[A-Z]TORY|DO)\s+ORDER\s*(?:NO\.?|NUMBER|#)\s*[:\-]?\s*(\d{7,8})\b/gi,
-    /\bDO\s*[:\-]\s*(81\d{6})\b/gi,
-    /(?<!\d)(81\d{6})(?!\d)/g
+    /(?:DELIVERY\s+ORDER|D[A-Z]TORY|D\/O|D\.O\.|DO)\s*(?:NO\.?|NUMBER|#)?\s*[:|\-]?\s*([|A-Z0-9\s._\-]{6,16})/gi,
+    /[|]\s*(?:[|]\s*)*([A-Z0-9\s._\-]{7,14})\s*[|]/gi,
+    /(?<![A-Z0-9])[8B][1IL5][\s._\-A-Z0-9]{6,12}(?![A-Z0-9])/gi
 ];
 
 const sarcasticQuotes = [
@@ -411,6 +1254,1643 @@ const sarcasticQuotes = [
 let commentTimer = null;
 let currentCommentIndex = 0;
 let extractedText = '', numbers = [];
+
+// --- INVERTED REDACTION / ROI ISOLATION STATE & ENGINE ---
+let roiBox = { x: 0.04, y: 0.04, width: 0.92, height: 0.35 }; // Normalized 0.0 - 1.0 percentages
+let isRoiActive = false;
+let roiCurrentDoc = null;
+let roiCurrentFile = null;
+let roiCurrentPageNum = 1;
+let roiTotalPages = 1;
+let isRoiDrawing = false;
+let roiDragStartX = 0, roiDragStartY = 0;
+let currentEnhancePreset = 'none'; // 'none' | 'auto' | 'binarize' | 'sharpen' | 'faint'
+
+// --- HIGH-SPEED DOCUMENT IMAGE ENHANCEMENT ENGINE (HTML5 CANVAS BUFFER) ---
+function applyCanvasEnhancement(canvas, preset) {
+    if (!preset || preset === 'none' || !canvas) return;
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+    if (width <= 0 || height <= 0) return;
+
+    try {
+        const imgData = ctx.getImageData(0, 0, width, height);
+        const d = imgData.data;
+        const len = d.length;
+
+        if (preset === 'auto') {
+            // Balanced: Grayscale + Dynamic Contrast Stretch + Edge Sharpen
+            for (let i = 0; i < len; i += 4) {
+                const gray = (d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114);
+                // Contrast expansion: push darks lower and light paper cleaner
+                let val = 1.35 * (gray - 128) + 128;
+                if (val > 215) val = 255;
+                else if (val < 65) val = Math.max(0, val * 0.7);
+                val = Math.min(255, Math.max(0, val));
+                d[i] = val;
+                d[i+1] = val;
+                d[i+2] = val;
+            }
+            ctx.putImageData(imgData, 0, 0);
+
+            // 3x3 unsharp convolution kernel - balanced to prevent bridging 5 into 8
+            applyConvolutionFilter(ctx, canvas, [
+                0, -0.3, 0,
+                -0.3, 2.2, -0.3,
+                0, -0.3, 0
+            ]);
+        }
+        else if (preset === 'binarize') {
+            // Otsu Adaptive Thresholding: pure white paper & deep solid black text
+            const hist = new Int32Array(256);
+            for (let i = 0; i < len; i += 4) {
+                const gray = Math.round(d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114);
+                hist[gray]++;
+            }
+            const total = width * height;
+            let sum = 0;
+            for (let t = 0; t < 256; t++) sum += t * hist[t];
+            let sumB = 0, wB = 0, varMax = 0, threshold = 140;
+            for (let t = 0; t < 256; t++) {
+                wB += hist[t];
+                if (wB === 0) continue;
+                const wF = total - wB;
+                if (wF === 0) break;
+                sumB += t * hist[t];
+                const mB = sumB / wB;
+                const mF = (sum - sumB) / wF;
+                const between = wB * wF * (mB - mF) * (mB - mF);
+                if (between > varMax) {
+                    varMax = between;
+                    threshold = t;
+                }
+            }
+            // Add slight bias to safeguard faint character strokes
+            threshold = Math.min(195, Math.max(105, threshold + 10));
+
+            for (let i = 0; i < len; i += 4) {
+                const gray = (d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114);
+                const binary = gray < threshold ? 0 : 255;
+                d[i] = binary;
+                d[i+1] = binary;
+                d[i+2] = binary;
+            }
+            ctx.putImageData(imgData, 0, 0);
+        }
+        else if (preset === 'sharpen') {
+            // High-pass 3x3 unsharp convolution kernel
+            ctx.putImageData(imgData, 0, 0);
+            applyConvolutionFilter(ctx, canvas, [
+                -0.3, -0.7, -0.3,
+                -0.7,  5.0, -0.7,
+                -0.3, -0.7, -0.3
+            ]);
+        }
+        else if (preset === 'faint') {
+            // Boost faint blue, carbon-copy, or dot-matrix printer ink
+            for (let i = 0; i < len; i += 4) {
+                const gray = (d[i] * 0.15 + d[i+1] * 0.45 + d[i+2] * 0.40);
+                let boosted = Math.pow(gray / 255, 1.6) * 255;
+                if (boosted > 190) boosted = 255;
+                else boosted = Math.max(0, boosted * 0.5);
+                d[i] = boosted;
+                d[i+1] = boosted;
+                d[i+2] = boosted;
+            }
+            ctx.putImageData(imgData, 0, 0);
+        }
+    } catch (e) {
+        console.warn('Canvas image enhancement failed:', e);
+    }
+}
+
+function applyConvolutionFilter(ctx, canvas, weights) {
+    const width = canvas.width;
+    const height = canvas.height;
+    const src = ctx.getImageData(0, 0, width, height);
+    const srcData = src.data;
+    const output = ctx.createImageData(width, height);
+    const dstData = output.data;
+
+    const w0 = weights[0], w1 = weights[1], w2 = weights[2];
+    const w3 = weights[3], w4 = weights[4], w5 = weights[5];
+    const w6 = weights[6], w7 = weights[7], w8 = weights[8];
+
+    for (let y = 1; y < height - 1; y++) {
+        const rowPrev = (y - 1) * width * 4;
+        const rowCurr = y * width * 4;
+        const rowNext = (y + 1) * width * 4;
+
+        for (let x = 1; x < width - 1; x++) {
+            const colPrev = (x - 1) * 4;
+            const colCurr = x * 4;
+            const colNext = (x + 1) * 4;
+            const idx = rowCurr + colCurr;
+
+            for (let c = 0; c < 3; c++) {
+                const val = 
+                    srcData[rowPrev + colPrev + c] * w0 +
+                    srcData[rowPrev + colCurr + c] * w1 +
+                    srcData[rowPrev + colNext + c] * w2 +
+                    srcData[rowCurr + colPrev + c] * w3 +
+                    srcData[rowCurr + colCurr + c] * w4 +
+                    srcData[rowCurr + colNext + c] * w5 +
+                    srcData[rowNext + colPrev + c] * w6 +
+                    srcData[rowNext + colCurr + c] * w7 +
+                    srcData[rowNext + colNext + c] * w8;
+                dstData[idx + c] = Math.min(255, Math.max(0, val));
+            }
+            dstData[idx + 3] = srcData[idx + 3];
+        }
+    }
+    ctx.putImageData(output, 0, 0);
+}
+
+function updateRoiOverlayUI() {
+    const { x, y, width, height } = roiBox;
+    const topEl = $('roiMaskTop');
+    const bottomEl = $('roiMaskBottom');
+    const leftEl = $('roiMaskLeft');
+    const rightEl = $('roiMaskRight');
+    const boxEl = $('roiPreservedBox');
+
+    // 1. Top: top: 0, left: 0, right: 0, height: (y * 100)%
+    if (topEl) {
+        topEl.style.top = '0';
+        topEl.style.left = '0';
+        topEl.style.right = '0';
+        topEl.style.height = `${(y * 100).toFixed(2)}%`;
+    }
+
+    // 2. Bottom: top: ((y + height) * 100)%, left: 0, right: 0, bottom: 0
+    if (bottomEl) {
+        bottomEl.style.top = `${((y + height) * 100).toFixed(2)}%`;
+        bottomEl.style.left = '0';
+        bottomEl.style.right = '0';
+        bottomEl.style.bottom = '0';
+    }
+
+    // 3. Left: top: (y * 100)%, left: 0, width: (x * 100)%, height: (height * 100)%
+    if (leftEl) {
+        leftEl.style.top = `${(y * 100).toFixed(2)}%`;
+        leftEl.style.left = '0';
+        leftEl.style.width = `${(x * 100).toFixed(2)}%`;
+        leftEl.style.height = `${(height * 100).toFixed(2)}%`;
+    }
+
+    // 4. Right: top: (y * 100)%, left: ((x + width) * 100)%, right: 0, height: (height * 100)%
+    if (rightEl) {
+        rightEl.style.top = `${(y * 100).toFixed(2)}%`;
+        rightEl.style.left = `${((x + width) * 100).toFixed(2)}%`;
+        rightEl.style.right = '0';
+        rightEl.style.height = `${(height * 100).toFixed(2)}%`;
+    }
+
+    // Dashed Highlight Box around Preserved ROI
+    if (boxEl) {
+        boxEl.style.top = `${(y * 100).toFixed(2)}%`;
+        boxEl.style.left = `${(x * 100).toFixed(2)}%`;
+        boxEl.style.width = `${(width * 100).toFixed(2)}%`;
+        boxEl.style.height = `${(height * 100).toFixed(2)}%`;
+    }
+
+    // Normalized Coordinate Readout
+    if ($('roiValX')) $('roiValX').textContent = `${(x * 100).toFixed(1)}%`;
+    if ($('roiValY')) $('roiValY').textContent = `${(y * 100).toFixed(1)}%`;
+    if ($('roiValW')) $('roiValW').textContent = `${(width * 100).toFixed(1)}%`;
+    if ($('roiValH')) $('roiValH').textContent = `${(height * 100).toFixed(1)}%`;
+    if ($('roiValRel')) $('roiValRel').textContent = `{x:${x.toFixed(3)}, y:${y.toFixed(3)}, w:${width.toFixed(3)}, h:${height.toFixed(3)}}`;
+}
+
+function updateRoiFillColor() {
+    const fillColor = $('roiFillColorSelect').value;
+    const isBlackout = fillColor === '#000000';
+    ['roiMaskTop', 'roiMaskBottom', 'roiMaskLeft', 'roiMaskRight'].forEach(id => {
+        const el = $(id);
+        if (el) {
+            if (isBlackout) el.classList.add('blackout');
+            else el.classList.remove('blackout');
+        }
+    });
+}
+
+function toggleRoiMode() {
+    isRoiActive = !isRoiActive;
+    const btn = $('btnToggleRoi');
+    const stateText = $('roiToggleStateText');
+    const content = $('roiContentArea');
+    const badge = $('roiStatusBadge');
+
+    if (isRoiActive) {
+        btn.classList.add('active');
+        stateText.textContent = 'ON';
+        content.style.display = 'block';
+        badge.style.display = 'inline-block';
+        
+        // If files are already loaded, render preview immediately
+        const files = [...$('pdfFiles').files];
+        if (files.length && (!roiCurrentDoc || roiCurrentFile !== files[0])) {
+            loadPdfPreviewForRoi(files[0]);
+        } else if (!roiCurrentDoc) {
+            drawEmptyRoiPlaceholder();
+        }
+        updateRoiOverlayUI();
+        updateRoiFillColor();
+    } else {
+        btn.classList.remove('active');
+        stateText.textContent = 'OFF';
+        content.style.display = 'none';
+        badge.style.display = 'none';
+    }
+}
+
+function drawEmptyRoiPlaceholder() {
+    const canvas = $('roiPreviewCanvas');
+    if (!canvas) return;
+    canvas.width = 600;
+    canvas.height = 360;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#1e1e24';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = '#3f3f46';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 6]);
+    ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#a1a1aa';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Select a PDF document above to preview and isolate DO region', canvas.width / 2, canvas.height / 2 - 10);
+    ctx.fillStyle = '#71717a';
+    ctx.font = '12px monospace';
+    ctx.fillText('Drag cursor across canvas to draw target DO box', canvas.width / 2, canvas.height / 2 + 16);
+    updateRoiOverlayUI();
+}
+
+async function loadPdfPreviewForRoi(file) {
+    if (!file) return;
+    try {
+        roiCurrentFile = file;
+        setStatus(`Rendering preview for ${file.name}...`);
+        const buffer = await file.arrayBuffer();
+        roiCurrentDoc = await pdfjsLib.getDocument({ data: buffer }).promise;
+        roiTotalPages = roiCurrentDoc.numPages;
+        roiCurrentPageNum = 1;
+        await renderRoiPage(1);
+        setStatus(`Preview loaded: ${file.name} (${roiTotalPages} page(s)).`);
+    } catch (err) {
+        console.error('Failed to load PDF preview:', err);
+        setStatus('Error generating preview for selected PDF.');
+        drawEmptyRoiPlaceholder();
+    }
+}
+
+async function renderRoiPage(pageNum) {
+    if (!roiCurrentDoc) return;
+    try {
+        const page = await roiCurrentDoc.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 1.4 });
+        const canvas = $('roiPreviewCanvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+        await page.render({ canvasContext: ctx, viewport }).promise;
+
+        // Apply Image Clarity Enhancement if active
+        if (currentEnhancePreset !== 'none') {
+            applyCanvasEnhancement(canvas, currentEnhancePreset);
+        }
+
+        // Update nav indicators
+        $('roiPageIndicator').textContent = `${roiCurrentFile ? roiCurrentFile.name : 'Document'} • Page ${pageNum} of ${roiTotalPages}`;
+        $('btnRoiPrevPage').disabled = pageNum <= 1;
+        $('btnRoiNextPage').disabled = pageNum >= roiTotalPages;
+
+        updateRoiOverlayUI();
+    } catch (err) {
+        console.error('Error rendering page:', err);
+    }
+}
+
+async function changeRoiPage(delta) {
+    if (!roiCurrentDoc) return;
+    const target = roiCurrentPageNum + delta;
+    if (target >= 1 && target <= roiTotalPages) {
+        roiCurrentPageNum = target;
+        await renderRoiPage(roiCurrentPageNum);
+    }
+}
+
+function applyRoiPreset(presetKey) {
+    document.querySelectorAll('.roi-preset-btn[data-preset]').forEach(btn => {
+        if (btn.dataset.preset === presetKey) btn.classList.add('active');
+        else btn.classList.remove('active');
+    });
+
+    switch (presetKey) {
+        case 'do_header':
+            roiBox = { x: 0.04, y: 0.04, width: 0.92, height: 0.35 };
+            break;
+        case 'upper_half':
+            roiBox = { x: 0.04, y: 0.04, width: 0.92, height: 0.50 };
+            break;
+        case 'center':
+            roiBox = { x: 0.10, y: 0.25, width: 0.80, height: 0.50 };
+            break;
+        case 'full':
+            roiBox = { x: 0.00, y: 0.00, width: 1.00, height: 1.00 };
+            break;
+    }
+    updateRoiOverlayUI();
+}
+
+function applyEnhancePreset(presetKey) {
+    currentEnhancePreset = presetKey;
+    document.querySelectorAll('.roi-preset-btn[data-enhance]').forEach(btn => {
+        if (btn.dataset.enhance === presetKey) btn.classList.add('active');
+        else btn.classList.remove('active');
+    });
+    if (roiCurrentDoc) {
+        renderRoiPage(roiCurrentPageNum);
+    }
+}
+
+// Mouse & Touch Drag-to-Select Box on ROI Container
+const roiContainer = $('roiContainer');
+function getRoiRelativePointerCoords(e) {
+    const rect = roiContainer.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const x = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    const y = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height));
+    return { x, y };
+}
+
+function onRoiDragStart(e) {
+    e.preventDefault();
+    isRoiDrawing = true;
+    const coords = getRoiRelativePointerCoords(e);
+    roiDragStartX = coords.x;
+    roiDragStartY = coords.y;
+    roiBox.x = roiDragStartX;
+    roiBox.y = roiDragStartY;
+    roiBox.width = 0.01;
+    roiBox.height = 0.01;
+    
+    // Clear active preset buttons styling since user is custom drawing
+    document.querySelectorAll('.roi-preset-btn').forEach(btn => btn.classList.remove('active'));
+    updateRoiOverlayUI();
+}
+
+function onRoiDragMove(e) {
+    if (!isRoiDrawing) return;
+    e.preventDefault();
+    const coords = getRoiRelativePointerCoords(e);
+    roiBox.x = Math.min(roiDragStartX, coords.x);
+    roiBox.y = Math.min(roiDragStartY, coords.y);
+    roiBox.width = Math.max(0.015, Math.abs(coords.x - roiDragStartX));
+    roiBox.height = Math.max(0.015, Math.abs(coords.y - roiDragStartY));
+    updateRoiOverlayUI();
+}
+
+function onRoiDragEnd(e) {
+    if (!isRoiDrawing) return;
+    isRoiDrawing = false;
+    updateRoiOverlayUI();
+}
+
+roiContainer.addEventListener('mousedown', onRoiDragStart);
+window.addEventListener('mousemove', onRoiDragMove);
+window.addEventListener('mouseup', onRoiDragEnd);
+
+roiContainer.addEventListener('touchstart', onRoiDragStart, { passive: false });
+window.addEventListener('touchmove', onRoiDragMove, { passive: false });
+window.addEventListener('touchend', onRoiDragEnd);
+
+// Event Listeners for ROI Controls
+$('btnToggleRoi').addEventListener('click', toggleRoiMode);
+$('roiFillColorSelect').addEventListener('change', updateRoiFillColor);
+$('btnRoiPrevPage').addEventListener('click', () => changeRoiPage(-1));
+$('btnRoiNextPage').addEventListener('click', () => changeRoiPage(1));
+document.querySelectorAll('.roi-preset-btn[data-preset]').forEach(btn => {
+    btn.addEventListener('click', () => applyRoiPreset(btn.dataset.preset));
+});
+document.querySelectorAll('.roi-preset-btn[data-enhance]').forEach(btn => {
+    btn.addEventListener('click', () => applyEnhancePreset(btn.dataset.enhance));
+});
+
+// Auto-load preview when user selects files
+$('pdfFiles').addEventListener('change', e => {
+    const files = [...e.target.files];
+    if (files.length) {
+        loadPdfPreviewForRoi(files[0]);
+    }
+});
+
+// --- UNIVERSAL MULTI-PROVIDER AI VISION CONFIGURATION & ENGINE ---
+let selectedEngine = localStorage.getItem('ocr_engine_preference') || 'local';
+let selectedAiProvider = localStorage.getItem('ai_provider_preference') || 'gemini';
+
+const AI_PROVIDERS = {
+    rootsys: {
+        name: 'RootSys Cloud',
+        keyStorage: 'rootsys_api_key',
+        modelStorage: 'rootsys_model_preference',
+        endpointStorage: 'rootsys_endpoint',
+        defaultEndpoint: 'https://rootsys.cloud/v1',
+        keyPlaceholder: 'Paste RootSys Bearer Key (sk-...)',
+        link: 'https://rootsys.cloud',
+        linkLabel: 'RootSys Cloud ↗',
+        defaultModel: 'gpt-4o-mini',
+        models: [
+            { id: 'gpt-4o-mini', name: 'gpt-4o-mini ⚡ (Fast & Accurate / Recommended)' },
+            { id: 'gemini-2.0-flash', name: 'gemini-2.0-flash 🚀 (Ultra-Fast)' },
+            { id: 'gemini-1.5-flash', name: 'gemini-1.5-flash 🚀 (Very Fast)' },
+            { id: 'claude-3-5-haiku', name: 'claude-3-5-haiku ⚡ (Fast)' },
+            { id: 'qwen2.5-vl-72b-instruct', name: 'qwen2.5-vl-72b-instruct ⚡ (High Accuracy)' },
+            { id: 'gpt-4o', name: 'gpt-4o 🐢 (Slower / Heavy)' },
+            { id: 'claude-3-5-sonnet', name: 'claude-3-5-sonnet 🐢 (Slower / Heavy)' },
+            { id: 'llama-3.2-11b-vision-preview', name: 'llama-3.2-11b-vision' },
+            { id: '__custom__', name: '✏️ Type Custom Model...' }
+        ]
+    },
+    gemini: {
+        name: 'Google Gemini',
+        keyStorage: 'gemini_api_key',
+        modelStorage: 'gemini_model_preference',
+        keyPlaceholder: 'Paste Gemini API Key (AIzaSy...)',
+        link: 'https://aistudio.google.com/app/apikey',
+        linkLabel: 'Get Free Gemini Key at Google AI Studio ↗',
+        defaultModel: 'gemini-3.8-flash',
+        models: [
+            { id: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash (Recommended)' },
+            { id: 'gemini-3.8-pro', name: 'Gemini 3.8 Pro' }
+        ]
+    },
+    openai: {
+        name: 'OpenAI (ChatGPT)',
+        keyStorage: 'openai_api_key',
+        modelStorage: 'openai_model_preference',
+        keyPlaceholder: 'Paste OpenAI API Key (sk-...)',
+        link: 'https://platform.openai.com/api-keys',
+        linkLabel: 'Get OpenAI API Key ↗',
+        defaultModel: 'gpt-4o-mini',
+        models: [
+            { id: 'gpt-4o-mini', name: 'gpt-4o-mini ⚡ (Fast & Recommended)' },
+            { id: 'gpt-4o', name: 'gpt-4o 🐢 (High Accuracy / Slower)' }
+        ]
+    },
+    anthropic: {
+        name: 'Anthropic (Claude)',
+        keyStorage: 'anthropic_api_key',
+        modelStorage: 'anthropic_model_preference',
+        keyPlaceholder: 'Paste Claude API Key (sk-ant-...)',
+        link: 'https://console.anthropic.com/settings/keys',
+        linkLabel: 'Get Claude API Key ↗',
+        defaultModel: 'claude-3-5-haiku-20241022',
+        models: [
+            { id: 'claude-3-5-haiku-20241022', name: 'claude-3-5-haiku ⚡ (Fast)' },
+            { id: 'claude-3-5-sonnet-20241022', name: 'claude-3-5-sonnet 🐢 (High Intelligence / Slower)' }
+        ]
+    },
+    groq: {
+        name: 'Groq',
+        keyStorage: 'groq_api_key',
+        modelStorage: 'groq_model_preference',
+        keyPlaceholder: 'Paste Groq API Key (gsk_...)',
+        link: 'https://console.groq.com/keys',
+        linkLabel: 'Get Free Groq API Key ↗',
+        defaultModel: 'llama-3.2-11b-vision-preview',
+        models: [
+            { id: 'llama-3.2-11b-vision-preview', name: 'llama-3.2-11b-vision 🚀 (Ultra-Fast)' },
+            { id: 'llama-3.2-90b-vision-preview', name: 'llama-3.2-90b-vision' }
+        ]
+    },
+    openrouter: {
+        name: 'OpenRouter',
+        keyStorage: 'openrouter_api_key',
+        modelStorage: 'openrouter_model_preference',
+        keyPlaceholder: 'Paste OpenRouter Key (sk-or-...)',
+        link: 'https://openrouter.ai/keys',
+        linkLabel: 'Get OpenRouter Key ↗',
+        defaultModel: 'openai/gpt-4o-mini',
+        models: [
+            { id: 'openai/gpt-4o-mini', name: 'GPT-4o-mini ⚡ (OpenRouter)' },
+            { id: 'google/gemini-flash-1.5', name: 'Gemini Flash 1.5 🚀' },
+            { id: 'meta-llama/llama-3.2-11b-vision-instruct', name: 'Llama 3.2 11B Vision' },
+            { id: 'qwen/qwen-2-vl-72b-instruct', name: 'Qwen 2 VL 72B' }
+        ]
+    },
+    custom: {
+        name: 'Universal / Local (Ollama)',
+        keyStorage: 'custom_api_key',
+        modelStorage: 'custom_model_preference',
+        keyPlaceholder: 'API Key / Bearer token (optional for local Ollama)',
+        link: 'https://ollama.com/',
+        linkLabel: 'Ollama Vision Guide ↗',
+        defaultModel: 'llama3.2-vision',
+        models: [
+            { id: 'llama3.2-vision', name: 'llama3.2-vision (Local)' },
+            { id: 'llava', name: 'llava (Local)' }
+        ]
+    }
+};
+
+const PROMPT_PRESETS = {
+    do_only: {
+        prompt: 
+            "You are an expert Document Order (DO) inspector. Analyze this Delivery Order document page.\n" +
+            "Extract ONLY the valid 8-digit Delivery Order (DO) number(s) (typically starting with 81 or 85, labelled 'Delivery Order No.', 'D/O No.', or located in the header table).\n\n" +
+            "CRITICAL RULES:\n" +
+            "1. Do NOT extract GST Registration numbers (e.g., MR-8500072-6).\n" +
+            "2. Do NOT extract Company Registration numbers (e.g., 199000682N).\n" +
+            "3. Do NOT extract part/item numbers (e.g., 18064511), telephone numbers, or sales order numbers.\n" +
+            "4. Carefully distinguish between '5' and '8'.\n" +
+            "5. Output ONLY the 8-digit DO number(s), one per line or separated by commas. If no DO number is found, return 'NONE'.\n" +
+            "6. Do NOT write explanations, apologies, markdown formatting, or preamble. Return ONLY numbers or NONE.",
+        maxTokens: 60,
+        hint: "Extracts 8-digit DOs (81/85) with noise filtering"
+    },
+    full_ocr: {
+        prompt: 
+            "Perform complete, accurate Optical Character Recognition (OCR) on this document page.\n" +
+            "Transcribe all readable text verbatim, preserving headings, numbers, tables, lines, and layout.\n" +
+            "Do NOT summarize, truncate, or omit any text.",
+        maxTokens: 1024,
+        hint: "Transcribes all text, tables, and labels verbatim"
+    }
+};
+
+const PROMPT_DO_INSPECTOR = PROMPT_PRESETS.do_only.prompt;
+
+function getActivePromptConfig() {
+    const mode = localStorage.getItem('ai_prompt_mode') || 'do_only';
+    if (mode === 'custom') {
+        const customText = (localStorage.getItem('ai_custom_prompt') || '').trim();
+        return {
+            mode: 'custom',
+            prompt: customText || PROMPT_PRESETS.do_only.prompt,
+            maxTokens: 512,
+            isDoOnly: false
+        };
+    }
+    const preset = PROMPT_PRESETS[mode] || PROMPT_PRESETS.do_only;
+    return {
+        mode: mode,
+        prompt: preset.prompt,
+        maxTokens: preset.maxTokens,
+        isDoOnly: (mode === 'do_only')
+    };
+}
+
+function getActiveProviderKey() {
+    const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
+    return localStorage.getItem(prov.keyStorage) || '';
+}
+
+function getActiveProviderModel() {
+    const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
+    return localStorage.getItem(prov.modelStorage) || prov.defaultModel;
+}
+
+function updateEngineUI() {
+    const isAi = selectedEngine === 'ai';
+    $('btnEngineLocal').classList.toggle('active', !isAi);
+    $('btnEngineAi').classList.toggle('active', isAi);
+    $('aiConfigCard').classList.toggle('active', isAi);
+    const langWrap = $('localLangWrap');
+    if (langWrap) langWrap.style.display = isAi ? 'none' : 'block';
+    
+    // Update Provider Config Details
+    const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
+    const shortName = prov.name.split(' ')[0];
+    const aiLabel = $('btnEngineAiLabel');
+    if (aiLabel) aiLabel.textContent = `AI Vision (${shortName})`;
+
+    // Update Run button text
+    $('runOcr').textContent = isAi ? `Run ${shortName} AI Vision Scan` : 'Run OCR';
+    $('aiProviderSelect').value = selectedAiProvider;
+    
+    // Show custom endpoint input for RootSys, OpenRouter, and Custom/Ollama
+    const endpointRow = $('aiCustomEndpointRow');
+    if (endpointRow) {
+        const needsEndpoint = (selectedAiProvider === 'rootsys' || selectedAiProvider === 'custom' || selectedAiProvider === 'openrouter');
+        endpointRow.style.display = needsEndpoint ? 'flex' : 'none';
+        if (selectedAiProvider === 'rootsys') {
+            $('aiCustomEndpointInput').value = localStorage.getItem('rootsys_endpoint') || 'https://rootsys.cloud/v1';
+        } else if (selectedAiProvider === 'openrouter') {
+            $('aiCustomEndpointInput').value = localStorage.getItem('openrouter_endpoint') || 'https://openrouter.ai/api/v1';
+        } else if (selectedAiProvider === 'custom') {
+            $('aiCustomEndpointInput').value = localStorage.getItem('custom_api_endpoint') || 'http://localhost:11434/v1';
+        }
+    }
+
+    const currentKey = getActiveProviderKey();
+    const keyInput = $('aiApiKeyInput');
+    if (keyInput) {
+        keyInput.value = currentKey;
+        keyInput.placeholder = prov.keyPlaceholder;
+    }
+
+    // Toggle Fetch Models Button
+    const fetchBtn = $('btnFetchModels');
+    if (fetchBtn) {
+        fetchBtn.style.display = (selectedAiProvider === 'rootsys' || selectedAiProvider === 'custom' || selectedAiProvider === 'openrouter' || selectedAiProvider === 'groq' || selectedAiProvider === 'openai') ? 'inline-flex' : 'none';
+    }
+
+    // Toggle RootSys CORS Hint Banner
+    const corsHint = $('rootsysCorsHint');
+    if (corsHint) {
+        corsHint.style.display = (window.location.protocol === 'file:' && selectedAiProvider === 'rootsys') ? 'block' : 'none';
+    }
+
+    // Populate Models Dropdown
+    const modelSelect = $('aiModelSelect');
+    if (modelSelect) {
+        modelSelect.innerHTML = '';
+        const savedModel = getActiveProviderModel();
+        let foundSaved = false;
+
+        prov.models.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m.id;
+            opt.textContent = m.name;
+            if (m.id === savedModel) foundSaved = true;
+            modelSelect.appendChild(opt);
+        });
+
+        if (!foundSaved && savedModel && savedModel !== '__custom__') {
+            const customOpt = document.createElement('option');
+            customOpt.value = savedModel;
+            customOpt.textContent = `★ ${savedModel}`;
+            modelSelect.insertBefore(customOpt, modelSelect.firstChild);
+        }
+
+        const customInput = $('aiCustomModelInput');
+        if (customInput) {
+            customInput.style.display = (savedModel === '__custom__' || (!foundSaved && savedModel)) ? 'inline-block' : 'none';
+            if (customInput.style.display !== 'none') customInput.value = savedModel || '';
+        }
+
+        modelSelect.value = savedModel;
+    }
+
+    // Update Doc link
+    const docLink = $('aiDocsLink');
+    if (docLink) {
+        docLink.href = prov.link;
+        docLink.textContent = prov.linkLabel;
+    }
+
+    // Update Status Badge
+    const badge = $('aiKeyStatusBadge');
+    if (badge) {
+        if (currentKey && currentKey.trim().length > 5) {
+            badge.className = 'ai-badge saved';
+            badge.textContent = `✓ ${prov.name} Key Saved`;
+        } else if (selectedAiProvider === 'custom') {
+            badge.className = 'ai-badge saved';
+            badge.textContent = 'Endpoint Ready';
+        } else {
+            badge.className = 'ai-badge missing';
+            badge.textContent = `${prov.name} Key Required`;
+        }
+    }
+}
+
+// Global auto-fetch model function
+async function autoFetchModels(silent = false) {
+    const prov = AI_PROVIDERS[selectedAiProvider];
+    if (!prov) return;
+    const key = getActiveProviderKey();
+    let endpoint = '';
+    if (selectedAiProvider === 'rootsys') {
+        endpoint = localStorage.getItem('rootsys_endpoint') || 'https://rootsys.cloud/v1';
+    } else if (selectedAiProvider === 'openrouter') {
+        endpoint = localStorage.getItem('openrouter_endpoint') || 'https://openrouter.ai/api/v1';
+    } else if (selectedAiProvider === 'custom') {
+        endpoint = localStorage.getItem('custom_api_endpoint') || 'http://localhost:11434/v1';
+    } else if (selectedAiProvider === 'groq') {
+        endpoint = 'https://api.groq.com/openai/v1';
+    } else if (selectedAiProvider === 'openai') {
+        endpoint = 'https://api.openai.com/v1';
+    }
+
+    if (!endpoint) return;
+
+    if (!key && selectedAiProvider !== 'custom') {
+        if (!silent) {
+            showAppModal({
+                title: 'API Key Required',
+                message: `Please paste and save your ${prov.name} API Key first before fetching available models.`,
+                type: 'warning',
+                onConfirm: () => {
+                    const keyInput = $('aiApiKeyInput');
+                    if (keyInput) keyInput.focus();
+                }
+            });
+        }
+        return;
+    }
+
+    const btn = $('btnFetchModels');
+    let originalText = '🔄 Fetch Models';
+    if (btn) {
+        originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = '⏳ Loading...';
+    }
+
+    try {
+        const cleanBase = endpoint.replace(/\/+$/, '').replace(/\/chat\/completions$/, '');
+        const targetUrl = cleanBase.endsWith('/models') ? cleanBase : `${cleanBase}/models`;
+
+        const headers = { 'Content-Type': 'application/json' };
+        if (key) {
+            headers['Authorization'] = `Bearer ${key}`;
+            headers['x-api-key'] = key;
+        }
+
+        let resp;
+        try {
+            resp = await fetch(targetUrl, { headers });
+        } catch (netErr) {
+            if (window.location.protocol.startsWith('http')) {
+                resp = await fetch('/api/ai-models-proxy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetUrl, headers })
+                });
+            } else {
+                throw netErr;
+            }
+        }
+        if (!resp.ok) {
+            throw new Error(`HTTP ${resp.status} (${resp.statusText})`);
+        }
+
+        const resData = await resp.json();
+        let modelList = [];
+        if (Array.isArray(resData.data)) modelList = resData.data;
+        else if (Array.isArray(resData.models)) modelList = resData.models;
+        else if (Array.isArray(resData)) modelList = resData;
+
+        if (!modelList.length) {
+            throw new Error('No models returned from endpoint.');
+        }
+
+        const modelIds = modelList.map(m => m.id || m.name).filter(Boolean);
+        modelIds.sort((a, b) => a.localeCompare(b));
+
+        const modelSelect = $('aiModelSelect');
+        modelSelect.innerHTML = '';
+        modelIds.forEach(id => {
+            const opt = document.createElement('option');
+            opt.value = id;
+            opt.textContent = id;
+            modelSelect.appendChild(opt);
+        });
+
+        const customOpt = document.createElement('option');
+        customOpt.value = '__custom__';
+        customOpt.textContent = '✏️ Type Custom Model...';
+        modelSelect.appendChild(customOpt);
+
+        const activeModel = getActiveProviderModel();
+        if (modelIds.includes(activeModel)) {
+            modelSelect.value = activeModel;
+        } else {
+            const bestDefault = modelIds.find(id => id.includes('4o-mini') || id.includes('vision') || id.includes('flash')) || modelIds[0];
+            modelSelect.value = bestDefault;
+            localStorage.setItem(prov.modelStorage, bestDefault);
+        }
+
+        showToast(`Auto-loaded ${modelIds.length} models from ${new URL(cleanBase).hostname}!`, 'success');
+    } catch (err) {
+        console.error('Fetch Models Error:', err);
+        if (!silent) {
+            if (window.location.protocol === 'file:' && selectedAiProvider === 'rootsys') {
+                showAppModal({
+                    title: 'Local Server Required for RootSys',
+                    message: `RootSys Cloud rejects browser requests made from "file:///" URLs due to CORS restrictions.\n\nYour local server is active on port 3000! Would you like to switch to http://localhost:3000 now?`,
+                    type: 'warning',
+                    confirmText: 'Switch to http://localhost:3000',
+                    onConfirm: () => {
+                        window.location.href = 'http://localhost:3000/ocr_scanner.html';
+                    }
+                });
+            } else {
+                showAppModal({
+                    title: 'Fetch Models Failed',
+                    message: `Could not load models from ${endpoint}:\n\n${err.message}\n\nYou can select one of the built-in RootSys models or type your model ID using "Type Custom Model...".`,
+                    type: 'error'
+                });
+            }
+        }
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+    }
+}
+
+// Initial UI setup
+updateEngineUI();
+if (selectedEngine === 'ai' && (selectedAiProvider === 'rootsys' || selectedAiProvider === 'openrouter') && getActiveProviderKey()) {
+    autoFetchModels(true);
+}
+
+$('btnEngineLocal').addEventListener('click', () => {
+    selectedEngine = 'local';
+    localStorage.setItem('ocr_engine_preference', 'local');
+    updateEngineUI();
+    setStatus('Switched to Local OCR engine (Tesseract.js).');
+});
+
+$('btnEngineAi').addEventListener('click', () => {
+    selectedEngine = 'ai';
+    localStorage.setItem('ocr_engine_preference', 'ai');
+    updateEngineUI();
+    const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
+    setStatus(`Switched to ${prov.name} AI Vision engine.`);
+    if (!getActiveProviderKey() && selectedAiProvider !== 'custom') {
+        $('aiApiKeyInput').focus();
+    } else if (selectedAiProvider === 'rootsys') {
+        autoFetchModels(true);
+    }
+});
+
+$('aiProviderSelect').addEventListener('change', (e) => {
+    selectedAiProvider = e.target.value;
+    localStorage.setItem('ai_provider_preference', selectedAiProvider);
+    updateEngineUI();
+    if (getActiveProviderKey()) {
+        autoFetchModels(false);
+    }
+});
+
+$('btnSaveApiKey').addEventListener('click', () => {
+    const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
+    const keyVal = $('aiApiKeyInput').value.trim();
+    localStorage.setItem(prov.keyStorage, keyVal);
+
+    if (selectedAiProvider === 'rootsys') {
+        localStorage.setItem('rootsys_endpoint', $('aiCustomEndpointInput').value.trim() || 'https://rootsys.cloud/v1');
+    } else if (selectedAiProvider === 'openrouter') {
+        localStorage.setItem('openrouter_endpoint', $('aiCustomEndpointInput').value.trim());
+    } else if (selectedAiProvider === 'custom') {
+        localStorage.setItem('custom_api_endpoint', $('aiCustomEndpointInput').value.trim());
+    }
+
+    updateEngineUI();
+    if (keyVal || selectedAiProvider === 'custom') {
+        setStatus(`${prov.name} settings saved in browser localStorage.`);
+        showToast(`${prov.name} credentials saved successfully.`, 'success');
+        if (selectedAiProvider === 'rootsys') {
+            autoFetchModels(false);
+        }
+    } else {
+        setStatus(`${prov.name} key cleared.`);
+        showToast(`${prov.name} key cleared.`, 'info');
+    }
+});
+
+$('btnClearApiKey').addEventListener('click', () => {
+    const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
+    localStorage.removeItem(prov.keyStorage);
+    $('aiApiKeyInput').value = '';
+    updateEngineUI();
+    setStatus(`${prov.name} API key removed from browser storage.`);
+    showToast(`${prov.name} API key removed from browser storage.`, 'info');
+});
+
+$('btnToggleKeyVisibility').addEventListener('click', () => {
+    const input = $('aiApiKeyInput');
+    if (input.type === 'password') {
+        input.type = 'text';
+        $('btnToggleKeyVisibility').textContent = '🔒';
+    } else {
+        input.type = 'password';
+        $('btnToggleKeyVisibility').textContent = '👁️';
+    }
+});
+
+$('aiModelSelect').addEventListener('change', (e) => {
+    const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
+    const customInput = $('aiCustomModelInput');
+    if (e.target.value === '__custom__') {
+        if (customInput) {
+            customInput.style.display = 'inline-block';
+            customInput.focus();
+        }
+    } else {
+        if (customInput) customInput.style.display = 'none';
+        localStorage.setItem(prov.modelStorage, e.target.value);
+    }
+});
+
+if ($('aiCustomModelInput')) {
+    $('aiCustomModelInput').addEventListener('input', (e) => {
+        const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
+        const val = e.target.value.trim();
+        if (val) {
+            localStorage.setItem(prov.modelStorage, val);
+        }
+    });
+}
+
+if ($('aiConcurrencySelect')) {
+    const savedConc = localStorage.getItem('ai_concurrency');
+    if (savedConc) $('aiConcurrencySelect').value = savedConc;
+    $('aiConcurrencySelect').addEventListener('change', (e) => {
+        localStorage.setItem('ai_concurrency', e.target.value);
+    });
+}
+
+// Prompt Task & Custom Prompt UI handlers
+const promptPresetSelect = $('aiPromptPresetSelect');
+const customPromptWrap = $('aiCustomPromptWrap');
+const customPromptInput = $('aiCustomPromptInput');
+const promptHelpHint = $('aiPromptHelpHint');
+
+if (promptPresetSelect) {
+    const savedMode = localStorage.getItem('ai_prompt_mode') || 'do_only';
+    promptPresetSelect.value = savedMode;
+    if (customPromptInput) {
+        customPromptInput.value = localStorage.getItem('ai_custom_prompt') || '';
+    }
+
+    const updatePromptModeUI = () => {
+        const mode = promptPresetSelect.value;
+        localStorage.setItem('ai_prompt_mode', mode);
+        if (customPromptWrap) {
+            customPromptWrap.style.display = (mode === 'custom') ? 'block' : 'none';
+        }
+        if (promptHelpHint) {
+            promptHelpHint.textContent = (mode === 'custom')
+                ? 'Custom prompt active'
+                : (PROMPT_PRESETS[mode]?.hint || '');
+        }
+        if (mode === 'custom' && customPromptInput) {
+            customPromptInput.focus();
+        }
+    };
+
+    promptPresetSelect.addEventListener('change', updatePromptModeUI);
+    updatePromptModeUI();
+
+    if (customPromptInput) {
+        customPromptInput.addEventListener('input', (e) => {
+            localStorage.setItem('ai_custom_prompt', e.target.value);
+        });
+    }
+}
+
+// --- OPTIMIZED IMAGE COMPRESSION FOR AI VISION ---
+function getOptimizedBase64Jpeg(canvas, maxDim = 1000, quality = 0.70) {
+    let w = canvas.width;
+    let h = canvas.height;
+    if (w > maxDim || h > maxDim) {
+        if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+        } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+        }
+        const temp = document.createElement('canvas');
+        temp.width = w;
+        temp.height = h;
+        const ctx = temp.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'medium';
+        ctx.drawImage(canvas, 0, 0, w, h);
+        return temp.toDataURL('image/jpeg', quality).split(',')[1];
+    }
+    return canvas.toDataURL('image/jpeg', quality).split(',')[1];
+}
+
+// --- INDIVIDUAL PROVIDER CALLERS ---
+async function callGeminiVision(canvas, apiKey, model, promptConfig) {
+    if (!apiKey) throw new Error('Gemini API key is missing.');
+    let targetModel = model || 'gemini-3.8-flash';
+    if (!targetModel || !targetModel.includes('3.8')) targetModel = 'gemini-3.8-flash';
+
+    const pConfig = promptConfig || getActivePromptConfig();
+    const base64Data = getOptimizedBase64Jpeg(canvas);
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
+
+    const payload = {
+        contents: [
+            {
+                parts: [
+                    { text: pConfig.prompt },
+                    { inlineData: { mimeType: 'image/jpeg', data: base64Data } }
+                ]
+            }
+        ],
+        generationConfig: {
+            temperature: 0.0,
+            maxOutputTokens: pConfig.maxTokens || 60
+        }
+    };
+
+    let resp;
+    try {
+        resp = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+    } catch (netErr) {
+        throw new Error(`Gemini connection error: ${netErr.message}`);
+    }
+
+    if (!resp.ok) {
+        const errJson = await resp.json().catch(() => ({}));
+        const errMsg = errJson.error?.message || `HTTP ${resp.status} (${resp.statusText})`;
+        throw new Error(`Gemini API: ${errMsg}`);
+    }
+
+    const data = await resp.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+async function callOpenAiVision(canvas, apiKey, model, customEndpoint, promptConfig) {
+    if (!apiKey && selectedAiProvider !== 'custom') throw new Error('API key is missing.');
+    const pConfig = promptConfig || getActivePromptConfig();
+    const base64Data = getOptimizedBase64Jpeg(canvas);
+    let baseUrl = (customEndpoint || 'https://api.openai.com/v1').replace(/\/+$/, '');
+    if (!baseUrl.endsWith('/chat/completions')) {
+        baseUrl += '/chat/completions';
+    }
+
+    const payload = {
+        model: model,
+        messages: [
+            {
+                role: 'user',
+                content: [
+                    { type: 'text', text: pConfig.prompt },
+                    {
+                        type: 'image_url',
+                        image_url: { url: `data:image/jpeg;base64,${base64Data}` }
+                    }
+                ]
+            }
+        ],
+        temperature: 0.0,
+        max_tokens: pConfig.maxTokens || 60
+    };
+
+    const headers = { 'Content-Type': 'application/json' };
+    if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+    if (selectedAiProvider === 'openrouter') {
+        headers['HTTP-Referer'] = window.location.href;
+        headers['X-Title'] = 'DO Insight Scanner';
+    }
+
+    let resp;
+    try {
+        resp = await fetch(baseUrl, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(payload)
+        });
+    } catch (netErr) {
+        if (window.location.protocol.startsWith('http')) {
+            try {
+                resp = await fetch('/api/ai-proxy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetUrl: baseUrl, headers, body: payload })
+                });
+            } catch (proxyErr) {
+                throw new Error(`Connection error to ${baseUrl}: ${netErr.message}`);
+            }
+        } else {
+            if (window.location.protocol === 'file:' && selectedAiProvider === 'rootsys') {
+                showAppModal({
+                    title: 'Local Server Recommended for RootSys',
+                    message: `RootSys Cloud blocked this direct browser call due to CORS restrictions when opened from a "file:///" URL.\n\nTo run locally, start the local server in your folder (run: npm start or node server.js) and open http://localhost:3000/ocr_scanner.html.`,
+                    type: 'warning'
+                });
+            }
+            throw new Error(`Connection error to ${baseUrl}: ${netErr.message}`);
+        }
+    }
+
+    if (!resp.ok) {
+        const errJson = await resp.json().catch(() => ({}));
+        const errMsg = errJson.error?.message || `HTTP ${resp.status} (${resp.statusText})`;
+        throw new Error(`OpenAI-compatible API: ${errMsg}`);
+    }
+
+    const data = await resp.json();
+    return data.choices?.[0]?.message?.content || '';
+}
+
+async function callAnthropicVision(canvas, apiKey, model, promptConfig) {
+    if (!apiKey) throw new Error('Anthropic API key is missing.');
+    const pConfig = promptConfig || getActivePromptConfig();
+    const base64Data = getOptimizedBase64Jpeg(canvas);
+    const endpoint = 'https://api.anthropic.com/v1/messages';
+
+    const payload = {
+        model: model,
+        max_tokens: pConfig.maxTokens || 60,
+        temperature: 0.0,
+        messages: [
+            {
+                role: 'user',
+                content: [
+                    {
+                        type: 'image',
+                        source: {
+                            type: 'base64',
+                            media_type: 'image/jpeg',
+                            data: base64Data
+                        }
+                    },
+                    { type: 'text', text: pConfig.prompt }
+                ]
+            }
+        ]
+    };
+
+    let resp;
+    try {
+        resp = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01',
+                'anthropic-dangerous-direct-browser-access': 'true'
+            },
+            body: JSON.stringify(payload)
+        });
+    } catch (netErr) {
+        throw new Error(`Anthropic connection error: ${netErr.message}`);
+    }
+
+    if (!resp.ok) {
+        const errJson = await resp.json().catch(() => ({}));
+        const errMsg = errJson.error?.message || `HTTP ${resp.status} (${resp.statusText})`;
+        throw new Error(`Anthropic API: ${errMsg}`);
+    }
+
+    const data = await resp.json();
+    return data.content?.[0]?.text || '';
+}
+
+// Universal AI Vision Dispatcher
+async function callUniversalAiVision(canvas, promptConfig) {
+    const provider = selectedAiProvider || 'gemini';
+    const apiKey = getActiveProviderKey();
+    const model = getActiveProviderModel();
+    const pConfig = promptConfig || getActivePromptConfig();
+
+    if (provider === 'gemini') {
+        return await callGeminiVision(canvas, apiKey, model, pConfig);
+    } else if (provider === 'anthropic') {
+        return await callAnthropicVision(canvas, apiKey, model, pConfig);
+    } else if (provider === 'groq') {
+        return await callOpenAiVision(canvas, apiKey, model, 'https://api.groq.com/openai/v1', pConfig);
+    } else if (provider === 'rootsys') {
+        const customEndpoint = localStorage.getItem('rootsys_endpoint') || 'https://rootsys.cloud/v1';
+        return await callOpenAiVision(canvas, apiKey, model, customEndpoint, pConfig);
+    } else {
+        // OpenAI, OpenRouter, or Custom Ollama
+        let customEndpoint = 'https://api.openai.com/v1';
+        if (provider === 'openrouter') {
+            customEndpoint = localStorage.getItem('openrouter_endpoint') || 'https://openrouter.ai/api/v1';
+        } else if (provider === 'custom') {
+            customEndpoint = localStorage.getItem('custom_api_endpoint') || 'http://localhost:11434/v1';
+        }
+        return await callOpenAiVision(canvas, apiKey, model, customEndpoint, pConfig);
+    }
+}
+
+// --- PERMANENT PIXEL BURN-IN EXPORT PIPELINE (jsPDF & CANVAS) ---
+async function exportFlattenedIsolatedPdf() {
+    const files = [...$('pdfFiles').files];
+    if (!files.length) {
+        setStatus('Please select at least one PDF file first.');
+        showAppModal({
+            title: 'PDF File Required',
+            message: 'Please select at least one PDF file using "1. Select PDFs" above first.',
+            type: 'warning'
+        });
+        return;
+    }
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        setStatus('PDF generation library (jsPDF) is loading. Please try again in a few seconds.');
+        return;
+    }
+
+    const scope = $('roiScopeSelect').value;
+    const fillColor = $('roiFillColorSelect').value;
+    const { jsPDF } = window.jspdf;
+
+    $('btnExportIsolatedPdf').disabled = true;
+    setProgress(15, 'Starting Inverted Redaction Burn-In');
+    setStatus('Flattening pages and permanently blacking/whiting out non-ROI zones...');
+
+    try {
+        for (let fIdx = 0; fIdx < files.length; fIdx++) {
+            const file = files[fIdx];
+            const buffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+            let outPdf = null;
+
+            const pagesToExport = (scope === 'current' && file === roiCurrentFile)
+                ? [roiCurrentPageNum]
+                : Array.from({ length: pdf.numPages }, (_, i) => i + 1);
+
+            for (let i = 0; i < pagesToExport.length; i++) {
+                const pageNo = pagesToExport[i];
+                const page = await pdf.getPage(pageNo);
+
+                // High-DPI scale (2.0) ensures crisp text/graphics in the burned-in result
+                const scale = 2.0;
+                const viewport = page.getViewport({ scale });
+                const baseViewport = page.getViewport({ scale: 1.0 });
+
+                const canvas = document.createElement('canvas');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                const ctx = canvas.getContext('2d');
+
+                // a. Render the PDF page raster onto the canvas
+                await page.render({ canvasContext: ctx, viewport }).promise;
+
+                // Apply Image Enhancement if active
+                if (currentEnhancePreset !== 'none') {
+                    applyCanvasEnhancement(canvas, currentEnhancePreset);
+                }
+
+                // b. Calculate absolute pixel coordinates:
+                const doX = roiBox.x * canvas.width;
+                const doY = roiBox.y * canvas.height;
+                const doW = roiBox.width * canvas.width;
+                const doH = roiBox.height * canvas.height;
+
+                // c. Fill the outer areas with solid color (pure white or blackout):
+                ctx.fillStyle = fillColor;
+                // Top
+                ctx.fillRect(0, 0, canvas.width, Math.max(0, doY));
+                // Bottom
+                ctx.fillRect(0, Math.min(canvas.height, doY + doH), canvas.width, Math.max(0, canvas.height - (doY + doH)));
+                // Left
+                ctx.fillRect(0, doY, Math.max(0, doX), doH);
+                // Right
+                ctx.fillRect(Math.min(canvas.width, doX + doW), doY, Math.max(0, canvas.width - (doX + doW)), doH);
+
+                // d. Convert canvas to JPEG image (guarantees 100% pixel flattening, destroys underlying vectors/metadata)
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const ptW = baseViewport.width;
+                const ptH = baseViewport.height;
+                const orientation = ptW > ptH ? 'landscape' : 'portrait';
+
+                if (i === 0) {
+                    outPdf = new jsPDF({
+                        orientation: orientation,
+                        unit: 'pt',
+                        format: [ptW, ptH]
+                    });
+                    outPdf.addImage(imgData, 'JPEG', 0, 0, ptW, ptH, undefined, 'FAST');
+                } else {
+                    outPdf.addPage([ptW, ptH], orientation);
+                    outPdf.addImage(imgData, 'JPEG', 0, 0, ptW, ptH, undefined, 'FAST');
+                }
+
+                canvas.width = 1;
+                canvas.height = 1;
+
+                const stepPct = 20 + (((fIdx * pagesToExport.length) + (i + 1)) / (files.length * pagesToExport.length)) * 75;
+                setProgress(stepPct, `Flattened: File ${fIdx + 1}/${files.length} • Page ${pageNo}/${pdf.numPages}`);
+            }
+
+            if (outPdf) {
+                const baseName = file.name.replace(/\.pdf$/i, '');
+                const finalFilename = `${baseName}_isolated_roi.pdf`;
+                outPdf.save(finalFilename);
+            }
+        }
+
+        setProgress(100, 'Security Burn-In Complete', '🔒 Flattened isolated PDF generated successfully. Zero hidden vector or text leaks.');
+        setStatus(`Successfully exported flattened isolated PDF for ${files.length} file(s).`);
+    } catch (err) {
+        console.error('Export error:', err);
+        setProgress(100, 'Export Failed', '💥 Failed to generate isolated PDF.');
+        setStatus('Error while exporting isolated PDF. Check console for details.');
+    } finally {
+        $('btnExportIsolatedPdf').disabled = false;
+    }
+}
+
+// --- SCAN ISOLATED ROI ONLY (FAST CROPPED CANVAS & DIGITAL HYBRID) ---
+async function runIsolatedRoiOcr() {
+    let files = [...$('pdfFiles').files];
+    if (!files.length && roiCurrentFile) {
+        files = [roiCurrentFile];
+    }
+    if (!files.length) {
+        setStatus('Please select at least one PDF file first using "1. Select PDFs".');
+        showAppModal({
+            title: 'PDF File Required',
+            message: 'Please choose a PDF file first using "1. Select PDFs" above to scan the isolated ROI.',
+            type: 'warning',
+            onConfirm: () => $('pdfFiles').click()
+        });
+        $('pdfFiles').focus();
+        return;
+    }
+
+    const btn = $('btnScanIsolatedRoi');
+    const originalBtnHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Scanning Preserved ROI...`;
+    $('runOcr').disabled = true;
+
+    extractedText = '';
+    numbers = [];
+    setProgress(5, 'Targeting Preserved DO Area');
+    startSarcasticComments();
+
+    let worker = null;
+    try {
+        const pdfDocs = [];
+        setProgress(10, 'Loading Documents');
+        for (const file of files) {
+            const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+            pdfDocs.push({ file, pdf });
+        }
+        const totalPages = pdfDocs.reduce((acc, item) => acc + item.pdf.numPages, 0) || 1;
+        let processedPages = 0;
+
+        // Lazy initialize Tesseract worker only if needed (for scanned documents)
+        const getWorker = async () => {
+            if (!worker) {
+                worker = await Tesseract.createWorker($('ocrLanguage').value, 1, {
+                    logger: message => {
+                        if (message.status === 'recognizing text' && typeof message.progress === 'number') {
+                            const pageBasePct = (processedPages / totalPages) * 75 + 15;
+                            const pagePortion = (1 / totalPages) * 75 * message.progress;
+                            const overall = Math.min(95, pageBasePct + pagePortion);
+                            setProgress(overall, `Scanning DO box: ${Math.round(message.progress * 100)}%`);
+                        }
+                    }
+                });
+            }
+            return worker;
+        };
+
+        if (selectedEngine === 'ai') {
+            const allPages = [];
+            for (let fIdx = 0; fIdx < pdfDocs.length; fIdx++) {
+                const { file, pdf } = pdfDocs[fIdx];
+                for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+                    allPages.push({ file, pdf, pageNo, fIdx });
+                }
+            }
+
+            const concurrencyVal = parseInt($('aiConcurrencySelect')?.value || localStorage.getItem('ai_concurrency') || '6', 10);
+            const concurrency = Math.max(1, Math.min(10, concurrencyVal));
+            const pageTexts = new Array(allPages.length);
+            let completed = 0;
+            let nextIndex = 0;
+            const provName = AI_PROVIDERS[selectedAiProvider]?.name || 'AI Vision';
+
+            async function roiAiWorker() {
+                while (nextIndex < allPages.length) {
+                    const idx = nextIndex++;
+                    const { file, pdf, pageNo } = allPages[idx];
+
+                    try {
+                        const page = await pdf.getPage(pageNo);
+                        const scale = 1.25;
+                        const viewport = page.getViewport({ scale });
+                        let pageCombinedText = '';
+
+                        // Step 1: Hybrid Check - Embedded Digital Text
+                        try {
+                            const textContent = await page.getTextContent();
+                            if (textContent && textContent.items && textContent.items.length > 0) {
+                                const roiItems = textContent.items.filter(item => {
+                                    if (!item.transform) return false;
+                                    const [tx, ty] = viewport.convertToViewportPoint(item.transform[4], item.transform[5]);
+                                    const normX = tx / viewport.width;
+                                    const normY = ty / viewport.height;
+                                    return normX >= (roiBox.x - 0.03) && normX <= (roiBox.x + roiBox.width + 0.03) &&
+                                           normY >= (roiBox.y - 0.03) && normY <= (roiBox.y + roiBox.height + 0.03);
+                                });
+                                pageCombinedText = roiItems.map(item => item.str).join(' ');
+                            }
+                        } catch (digitalErr) {}
+
+                        // Step 2: AI Vision strictly on cropped ROI canvas
+                        if (!pageCombinedText || pageCombinedText.trim().length < 3) {
+                            const fullCanvas = document.createElement('canvas');
+                            fullCanvas.width = viewport.width;
+                            fullCanvas.height = viewport.height;
+                            const fullCtx = fullCanvas.getContext('2d');
+                            await page.render({ canvasContext: fullCtx, viewport }).promise;
+
+                            const padX = Math.round(fullCanvas.width * 0.015);
+                            const padY = Math.round(fullCanvas.height * 0.015);
+                            const doX = Math.max(0, Math.floor(roiBox.x * fullCanvas.width) - padX);
+                            const doY = Math.max(0, Math.floor(roiBox.y * fullCanvas.height) - padY);
+                            const doW = Math.min(fullCanvas.width - doX, Math.ceil(roiBox.width * fullCanvas.width) + (padX * 2));
+                            const doH = Math.min(fullCanvas.height - doY, Math.ceil(roiBox.height * fullCanvas.height) + (padY * 2));
+
+                            const cropCanvas = document.createElement('canvas');
+                            cropCanvas.width = Math.max(20, doW);
+                            cropCanvas.height = Math.max(20, doH);
+                            const cropCtx = cropCanvas.getContext('2d');
+                            cropCtx.fillStyle = '#ffffff';
+                            cropCtx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
+                            cropCtx.drawImage(fullCanvas, doX, doY, doW, doH, 0, 0, doW, doH);
+
+                            // Apply Image Enhancement if active
+                            if (currentEnhancePreset !== 'none') {
+                                applyCanvasEnhancement(cropCanvas, currentEnhancePreset);
+                            }
+
+                            // Send strictly the cropped box to AI Vision
+                            pageCombinedText = await callUniversalAiVision(cropCanvas);
+
+                            cropCanvas.width = 1;
+                            cropCanvas.height = 1;
+                            fullCanvas.width = 1;
+                            fullCanvas.height = 1;
+                        }
+
+                        pageTexts[idx] = pageCombinedText;
+                    } catch (err) {
+                        console.error(`Error on ROI page ${pageNo}:`, err);
+                        pageTexts[idx] = '';
+                    }
+
+                    completed++;
+                    const currentPct = 15 + ((completed / allPages.length) * 75);
+                    setProgress(currentPct, `Parallel ROI ${concurrency}x: ${completed}/${allPages.length}`);
+                    setStatus(`${provName} ROI: page ${pageNo}/${pdf.numPages} • [${completed}/${allPages.length} done]`);
+                }
+            }
+
+            const pool = Array.from({ length: Math.min(concurrency, allPages.length) }, () => roiAiWorker());
+            await Promise.all(pool);
+            extractedText = pageTexts.filter(Boolean).join('\n');
+        } else {
+            // Local Tesseract OCR (sequential)
+            for (let fIdx = 0; fIdx < pdfDocs.length; fIdx++) {
+                const { file, pdf } = pdfDocs[fIdx];
+                for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+                    const currentPct = 15 + ((processedPages / totalPages) * 75);
+                    setProgress(currentPct, `Scanning: ${file.name} • P.${pageNo}/${pdf.numPages}`);
+                    setStatus(`Scanning ${file.name} (page ${pageNo} of ${pdf.numPages}) across ROI and page boundaries...`);
+
+                    const page = await pdf.getPage(pageNo);
+                    const scale = 2.0; // High DPI for crisp OCR
+                    const viewport = page.getViewport({ scale });
+
+                    let pageCombinedText = '';
+
+                    // Step 1: Hybrid Check - Embedded Digital Text
+                    try {
+                        const textContent = await page.getTextContent();
+                        if (textContent && textContent.items && textContent.items.length > 0) {
+                            const fullText = textContent.items.map(item => item.str).join(' ');
+                            const roiItems = textContent.items.filter(item => {
+                                if (!item.transform) return false;
+                                const [tx, ty] = viewport.convertToViewportPoint(item.transform[4], item.transform[5]);
+                                const normX = tx / viewport.width;
+                                const normY = ty / viewport.height;
+                                return normX >= (roiBox.x - 0.04) && normX <= (roiBox.x + roiBox.width + 0.04) &&
+                                       normY >= (roiBox.y - 0.04) && normY <= (roiBox.y + roiBox.height + 0.04);
+                            });
+                            const roiText = roiItems.map(item => item.str).join(' ');
+                            pageCombinedText = `${roiText}\n${fullText}`;
+                        }
+                    } catch (digitalErr) {
+                        console.warn('Digital text check skipped:', digitalErr);
+                    }
+
+                    // Step 2: If no embedded digital text found, perform fast OCR
+                    if (!pageCombinedText || pageCombinedText.trim().length < 3) {
+                        const fullCanvas = document.createElement('canvas');
+                        fullCanvas.width = viewport.width;
+                        fullCanvas.height = viewport.height;
+                        const fullCtx = fullCanvas.getContext('2d');
+                        await page.render({ canvasContext: fullCtx, viewport }).promise;
+
+                        const padX = Math.round(fullCanvas.width * 0.015);
+                        const padY = Math.round(fullCanvas.height * 0.015);
+                        const doX = Math.max(0, Math.floor(roiBox.x * fullCanvas.width) - padX);
+                        const doY = Math.max(0, Math.floor(roiBox.y * fullCanvas.height) - padY);
+                        const doW = Math.min(fullCanvas.width - doX, Math.ceil(roiBox.width * fullCanvas.width) + (padX * 2));
+                        const doH = Math.min(fullCanvas.height - doY, Math.ceil(roiBox.height * fullCanvas.height) + (padY * 2));
+
+                        const cropCanvas = document.createElement('canvas');
+                        cropCanvas.width = Math.max(20, doW);
+                        cropCanvas.height = Math.max(20, doH);
+                        const cropCtx = cropCanvas.getContext('2d');
+                        cropCtx.fillStyle = '#ffffff';
+                        cropCtx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
+                        cropCtx.drawImage(fullCanvas, doX, doY, doW, doH, 0, 0, doW, doH);
+
+                        const activeWorker = await getWorker();
+                        const roiOcrResult = await activeWorker.recognize(cropCanvas);
+                        const roiOcrText = (roiOcrResult && roiOcrResult.data && roiOcrResult.data.text) ? roiOcrResult.data.text.trim() : '';
+
+                        const roiCandidates = extractNumbers(roiOcrText);
+                        if (roiCandidates.length > 0) {
+                            pageCombinedText = roiOcrText;
+                        } else {
+                            setStatus(`Scanning full page ${pageNo} to ensure no DO numbers are missed...`);
+                            if (currentEnhancePreset !== 'none') {
+                                applyCanvasEnhancement(fullCanvas, currentEnhancePreset);
+                            }
+                            const fullOcrResult = await activeWorker.recognize(fullCanvas);
+                            pageCombinedText = `${roiOcrText}\n${(fullOcrResult && fullOcrResult.data && fullOcrResult.data.text) ? fullOcrResult.data.text.trim() : ''}`;
+                        }
+
+                        cropCanvas.width = 1;
+                        cropCanvas.height = 1;
+                        fullCanvas.width = 1;
+                        fullCanvas.height = 1;
+                    }
+
+                    extractedText += `\n${pageCombinedText}\n`;
+                    processedPages++;
+                }
+            }
+        }
+
+        // Clean output & results rendering based on selected Prompt Task
+        const pConfig = (selectedEngine === 'ai') ? getActivePromptConfig() : { isDoOnly: true };
+        numbers = extractNumbers(extractedText);
+        if (pConfig.isDoOnly) {
+            $('fullText').value = numbers.join('\n');
+        } else {
+            $('fullText').value = extractedText.trim();
+        }
+        renderNumbers();
+        $('downloadText').disabled = !$('fullText').value.length;
+        $('downloadNumbers').disabled = !numbers.length;
+        if ($('copyNumbers')) $('copyNumbers').disabled = !numbers.length;
+
+        const sarcasticFinish = numbers.length
+            ? `🎯 Extracted ${numbers.length} unique DO number(s) (81/85 prefixes). Cleaned and deduplicated.`
+            : (pConfig.isDoOnly ? `ℹ️ 0 DO numbers found matching 81xxxxxx or 85xxxxxx. Check document quality or adjust ROI box.` : `📄 Completed text extraction.`);
+
+        setProgress(100, 'Scan Complete', sarcasticFinish);
+        setStatus(pConfig.isDoOnly 
+            ? `Extraction complete: ${numbers.length} unique 8-digit DO number(s) found.` 
+            : `Completed: ${files.length} file(s) processed with custom/full OCR.`);
+
+        // Smooth scroll down to view results
+        setTimeout(() => {
+            const resultsSection = $('fullText');
+            if (resultsSection) {
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 200);
+
+    } catch (err) {
+        console.error('Scan Isolated ROI Error:', err);
+        const errText = err.message || 'Error during isolated ROI scan';
+        setProgress(100, 'Scan Error', `💥 ${errText}`);
+        setStatus(`Scan Failed: ${errText}`);
+        showAppModal({
+            title: 'Scan Error',
+            message: errText,
+            type: 'error'
+        });
+    } finally {
+        if (worker) {
+            try { await worker.terminate(); } catch (e) {}
+        }
+        btn.disabled = false;
+        btn.innerHTML = originalBtnHtml;
+        $('runOcr').disabled = false;
+    }
+}
+
+$('btnExportIsolatedPdf').addEventListener('click', exportFlattenedIsolatedPdf);
+$('btnScanIsolatedRoi').addEventListener('click', runIsolatedRoiOcr);
+
+// Attach globally for inline handlers if invoked
+window.toggleRoiMode = toggleRoiMode;
+window.applyRoiPreset = applyRoiPreset;
+window.changeRoiPage = changeRoiPage;
+window.updateRoiFillColor = updateRoiFillColor;
+window.exportFlattenedIsolatedPdf = exportFlattenedIsolatedPdf;
+window.runIsolatedRoiOcr = runIsolatedRoiOcr;
 
 function startSarcasticComments() {
     stopSarcasticComments();
@@ -467,7 +2947,71 @@ function setProgress(percent, stageText, finalComment = null) {
 }
 
 function setStatus(text) { $('ocrStatus').textContent = text; }
-function extractNumbers(text) { const found = []; const seen = new Set(); for (const pattern of doPatterns) { pattern.lastIndex = 0; let match; while ((match = pattern.exec(text))) { let value = match[1]; const labelled = pattern !== doPatterns[2]; if (labelled) value = value.length === 7 ? `8${value}` : `8${value.slice(1)}`; if (!/^81\d{6}$/.test(value) || seen.has(value)) continue; seen.add(value); found.push(value); } } return found; }
+
+function cleanDoCandidate(raw) {
+    if (!raw) return '';
+    // Strip markdown pipes, slashes, dashes, dots, brackets, spaces, colons, commas
+    let val = raw.replace(/[|/\s._\-#:,\(\)\[\]]/g, '').toUpperCase();
+    // Character disambiguation for OCR
+    val = val.replace(/O/g, '0').replace(/Q/g, '0');
+    val = val.replace(/[IL|!]/g, '1');
+    val = val.replace(/S/g, '5');
+    val = val.replace(/^B/, '8');
+    val = val.replace(/B/g, '8');
+    return val;
+}
+
+function isValidDoCandidate(val) {
+    // Rule 3: Validates 8-digit integers starting with standard prefixes 81 or 85
+    return /^8[15]\d{6}$/.test(val);
+}
+
+function extractNumbers(text) {
+    if (!text) return [];
+    const found = [];
+    const seen = new Set();
+
+    // Clean out known corporate / tax header noise like GST Registration (MR-8500072-6) and Company Reg
+    const sanitizedText = text
+        .replace(/(?:CO|GST)\.?\s*REG\.?\s*(?:NO\.?)?\s*[:\s\-]*[A-Z0-9\-]+/gi, ' ')
+        .replace(/MR\s*-\s*8500072\s*-\s*6/gi, ' ');
+
+    const addIfValid = (raw) => {
+        if (!raw) return;
+        const candidate = cleanDoCandidate(raw);
+        if (isValidDoCandidate(candidate) && !seen.has(candidate)) {
+            seen.add(candidate);
+            found.push(candidate);
+        }
+    };
+
+    // 1. Regular expression sweeps covering labelled, table pipes, and isolated batch numbers
+    for (const pattern of doPatterns) {
+        pattern.lastIndex = 0;
+        let match;
+        while ((match = pattern.exec(sanitizedText))) {
+            const raw = match[1] || match[0];
+            addIfValid(raw);
+        }
+    }
+
+    // 2. Token-level scan: Pattern Over Position
+    // Split by table pipes (|), blank columns, tabs, newlines, colons, semicolons
+    const segments = sanitizedText.split(/[|\t\r\n;,/:]+/);
+    for (const seg of segments) {
+        const trimmed = seg.trim();
+        if (!trimmed) continue;
+        addIfValid(trimmed);
+
+        const words = trimmed.split(/\s+/);
+        for (const w of words) {
+            addIfValid(w);
+        }
+    }
+
+    return found;
+}
+
 function renderNumbers() { $('numberList').innerHTML = numbers.length ? numbers.map(value => `<li>${value.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</li>`).join('') : '<li>No numerical values found.</li>'; }
 function download(name, content, type) { const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([content], {type})); link.download = name; link.click(); URL.revokeObjectURL(link.href); }
 
@@ -477,10 +3021,28 @@ async function runOcr() {
     const invalid = files.find(file => file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf'));
     if (invalid) { setStatus(`Unsupported file: ${invalid.name}. Please select PDF files only.`); return; }
     
+    if (selectedEngine === 'ai') {
+        const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
+        const currentKey = getActiveProviderKey();
+        if (!currentKey && selectedAiProvider !== 'custom') {
+            setStatus(`Please enter and save your ${prov.name} API Key above.`);
+            showAppModal({
+                title: `${prov.name} Key Required`,
+                message: `Please enter and save your ${prov.name} API key in the AI Vision panel above before scanning.`,
+                type: 'warning',
+                onConfirm: () => {
+                    const keyInput = $('aiApiKeyInput');
+                    if (keyInput) keyInput.focus();
+                }
+            });
+            return;
+        }
+    }
+
     $('runOcr').disabled = true;
     extractedText = '';
     numbers = [];
-    setProgress(5, 'Questioning Career Choices');
+    setProgress(5, selectedEngine === 'ai' ? 'Initializing AI Vision' : 'Questioning Career Choices');
     startSarcasticComments();
     
     let worker;
@@ -490,66 +3052,153 @@ async function runOcr() {
 
         // Preliminary count of total pages for accurate progress bar
         const pdfDocs = [];
-        setProgress(10, 'Reviewing Paperwork (Sigh)');
+        setProgress(10, selectedEngine === 'ai' ? 'Connecting to Gemini' : 'Reviewing Paperwork (Sigh)');
         for (const file of files) {
             const pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
             pdfDocs.push({ file, pdf });
         }
         const totalPages = pdfDocs.reduce((acc, item) => acc + item.pdf.numPages, 0) || 1;
 
-        worker = await Tesseract.createWorker($('ocrLanguage').value, 1, {
-            logger: message => {
-                if (message.status === 'recognizing text' && typeof message.progress === 'number') {
-                    const pageBasePct = (processedPages / totalPages) * 80 + 15;
-                    const pagePortion = (1 / totalPages) * 80 * message.progress;
-                    const overall = Math.min(95, pageBasePct + pagePortion);
-                    setProgress(overall, `Scanning page: ${Math.round(message.progress * 100)}%`);
+        if (selectedEngine === 'local') {
+            worker = await Tesseract.createWorker($('ocrLanguage').value, 1, {
+                logger: message => {
+                    if (message.status === 'recognizing text' && typeof message.progress === 'number') {
+                        const pageBasePct = (processedPages / totalPages) * 80 + 15;
+                        const pagePortion = (1 / totalPages) * 80 * message.progress;
+                        const overall = Math.min(95, pageBasePct + pagePortion);
+                        setProgress(overall, `Scanning page: ${Math.round(message.progress * 100)}%`);
+                    }
+                }
+            });
+        }
+
+        if (selectedEngine === 'ai') {
+            const allPages = [];
+            for (let fIdx = 0; fIdx < pdfDocs.length; fIdx++) {
+                const { file, pdf } = pdfDocs[fIdx];
+                for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+                    allPages.push({ file, pdf, pageNo, fIdx });
                 }
             }
-        });
 
-        for (let fIdx = 0; fIdx < pdfDocs.length; fIdx++) {
-            const { file, pdf } = pdfDocs[fIdx];
-            for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
-                const currentPct = 15 + ((processedPages / totalPages) * 80);
-                setProgress(currentPct, `File ${fIdx + 1}/${pdfDocs.length} • Page ${pageNo}/${pdf.numPages}`);
-                setStatus(`Reading ${file.name}: page ${pageNo} of ${pdf.numPages}...`);
-                
-                const page = await pdf.getPage(pageNo);
-                const textContent = await page.getTextContent();
-                const embeddedText = textContent.items.map(item => item.str).join(' ').replace(/\s+/g, ' ').trim();
-                let pageText = embeddedText;
-                
-                if (!embeddedText) {
-                    setStatus(`OCR scanning ${file.name}: page ${pageNo} of ${pdf.numPages}...`);
-                    const viewport = page.getViewport({scale: 1.5});
-                    const canvas = document.createElement('canvas');
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
-                    await page.render({canvasContext: canvas.getContext('2d'), viewport}).promise;
-                    const result = await worker.recognize(canvas);
-                    pageText = result.data.text.trim();
-                    canvas.width = 1;
-                    canvas.height = 1;
+            const concurrencyVal = parseInt($('aiConcurrencySelect')?.value || localStorage.getItem('ai_concurrency') || '6', 10);
+            const concurrency = Math.max(1, Math.min(10, concurrencyVal));
+            const pageTexts = new Array(allPages.length);
+            let completed = 0;
+            let nextIndex = 0;
+            const provName = AI_PROVIDERS[selectedAiProvider]?.name || 'AI Vision';
+
+            async function aiWorker() {
+                while (nextIndex < allPages.length) {
+                    const idx = nextIndex++;
+                    const { file, pdf, pageNo } = allPages[idx];
+
+                    try {
+                        const page = await pdf.getPage(pageNo);
+                        let text = '';
+
+                        // Step 1: Instant embedded digital text check (0ms)
+                        try {
+                            const textContent = await page.getTextContent();
+                            const embedded = textContent.items.map(item => item.str).join(' ').replace(/\s+/g, ' ').trim();
+                            if (embedded && embedded.length > 5) {
+                                text = embedded;
+                            }
+                        } catch (e) {}
+
+                        // Step 2: Scanned raster image
+                        if (!text) {
+                            const viewport = page.getViewport({ scale: 1.25 });
+                            const canvas = document.createElement('canvas');
+                            canvas.width = viewport.width;
+                            canvas.height = viewport.height;
+                            await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+
+                            if (currentEnhancePreset !== 'none') {
+                                applyCanvasEnhancement(canvas, currentEnhancePreset);
+                            }
+
+                            text = await callUniversalAiVision(canvas);
+
+                            canvas.width = 1;
+                            canvas.height = 1;
+                        }
+
+                        pageTexts[idx] = text;
+                    } catch (err) {
+                        console.error(`Error on page ${pageNo}:`, err);
+                        pageTexts[idx] = '';
+                    }
+
+                    completed++;
+                    const currentPct = 15 + ((completed / allPages.length) * 80);
+                    setProgress(currentPct, `Parallel ${concurrency}x: ${completed}/${allPages.length} pages done`);
+                    setStatus(`${provName} streaming: page ${pageNo}/${pdf.numPages} • [${completed}/${allPages.length} done]`);
                 }
-                
-                extractedText += `\n--- ${file.name} / page ${pageNo} ---\n${pageText}\n`;
-                processedPages++;
+            }
+
+            const pool = Array.from({ length: Math.min(concurrency, allPages.length) }, () => aiWorker());
+            await Promise.all(pool);
+
+            extractedText = pageTexts.filter(Boolean).join('\n');
+        } else {
+            // Local OCR engine (Sequential single-worker)
+            for (let fIdx = 0; fIdx < pdfDocs.length; fIdx++) {
+                const { file, pdf } = pdfDocs[fIdx];
+                for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+                    const currentPct = 15 + ((processedPages / totalPages) * 80);
+                    setProgress(currentPct, `File ${fIdx + 1}/${pdfDocs.length} • Page ${pageNo}/${pdf.numPages}`);
+                    setStatus(`Reading ${file.name}: page ${pageNo} of ${pdf.numPages}...`);
+                    
+                    const page = await pdf.getPage(pageNo);
+                    const textContent = await page.getTextContent();
+                    const embeddedText = textContent.items.map(item => item.str).join(' ').replace(/\s+/g, ' ').trim();
+                    let pageText = embeddedText;
+                    
+                    if (!embeddedText) {
+                        const viewport = page.getViewport({scale: 1.5});
+                        const canvas = document.createElement('canvas');
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        await page.render({canvasContext: canvas.getContext('2d'), viewport}).promise;
+
+                        setStatus(`OCR scanning ${file.name}: page ${pageNo} of ${pdf.numPages}...`);
+                        if (currentEnhancePreset !== 'none') {
+                            applyCanvasEnhancement(canvas, currentEnhancePreset);
+                        }
+                        const result = await worker.recognize(canvas);
+                        pageText = result.data.text.trim();
+                        canvas.width = 1;
+                        canvas.height = 1;
+                    }
+                    
+                    extractedText += `\n${pageText}\n`;
+                    processedPages++;
+                }
             }
         }
 
+        // Clean Output & results rendering based on selected Prompt Task
+        const pConfig = (selectedEngine === 'ai') ? getActivePromptConfig() : { isDoOnly: true };
         numbers = extractNumbers(extractedText);
-        $('fullText').value = extractedText.trim();
+        if (pConfig.isDoOnly) {
+            $('fullText').value = numbers.join('\n');
+        } else {
+            $('fullText').value = extractedText.trim();
+        }
         renderNumbers();
-        $('downloadText').disabled = !$('fullText').value;
+        $('downloadText').disabled = !$('fullText').value.length;
         $('downloadNumbers').disabled = !numbers.length;
+        if ($('copyNumbers')) $('copyNumbers').disabled = !numbers.length;
 
         const sarcasticFinish = numbers.length 
-            ? `🎉 Done. Extracted ${numbers.length} DO number(s). Now go pretend to be busy until 6 PM.`
-            : `😒 0 DO numbers found. This entire document could have been an email.`;
+            ? `🎉 Done. Extracted ${numbers.length} unique DO number(s) (81/85). Cleaned and deduplicated.`
+            : (pConfig.isDoOnly ? `😒 0 DO numbers found matching 81xxxxxx or 85xxxxxx. This entire document could have been an email.` : `📄 Completed text extraction.`);
 
         setProgress(100, 'Shift Complete', sarcasticFinish);
-        setStatus(`Completed: ${files.length} file(s), ${numbers.length} unique DO number(s).`);
+        setStatus(pConfig.isDoOnly 
+            ? `Completed: ${files.length} file(s), ${numbers.length} unique DO number(s).` 
+            : `Completed: ${files.length} file(s) processed with custom/full OCR.`);
     } catch (error) {
         console.error(error);
         $('fullText').value = '';
@@ -557,8 +3206,15 @@ async function runOcr() {
         renderNumbers();
         $('downloadText').disabled = true;
         $('downloadNumbers').disabled = true;
-        setProgress(100, 'Crash', "💥 Scanner crashed. Even the computer refused to work on this PDF today.");
-        setStatus('Unable to process this PDF. Confirm it is a valid, unencrypted PDF and try again.');
+        if ($('copyNumbers')) $('copyNumbers').disabled = true;
+        const errMsg = error.message || 'Unable to process this PDF.';
+        setProgress(100, 'Scan Error', `💥 ${errMsg}`);
+        setStatus(`Scan Failed: ${errMsg}`);
+        showAppModal({
+            title: 'Scan Error',
+            message: errMsg,
+            type: 'error'
+        });
     } finally {
         if (worker) await worker.terminate();
         $('runOcr').disabled = false;
@@ -573,10 +3229,29 @@ $('clearOcr').addEventListener('click', () => {
     renderNumbers();
     $('downloadText').disabled = true;
     $('downloadNumbers').disabled = true;
+    if ($('copyNumbers')) $('copyNumbers').disabled = true;
     setProgress(null);
     setStatus('Choose one or more PDF files.');
 });
-$('downloadText').addEventListener('click', () => download('ocr-extracted-text.txt', extractedText.trim(), 'text/plain'));
+$('downloadText').addEventListener('click', () => download('ocr-do-numbers.txt', numbers.join('\n'), 'text/plain'));
 $('downloadNumbers').addEventListener('click', () => download('ocr-do-numbers.csv', 'do_number\n' + numbers.map(value => `"${value.replace(/"/g, '""')}"`).join('\n'), 'text/csv'));
+
+if ($('copyNumbers')) {
+    $('copyNumbers').addEventListener('click', () => {
+        if (!numbers.length) return;
+        navigator.clipboard.writeText(numbers.join('\n')).then(() => {
+            const btn = $('copyNumbers');
+            const originalText = btn.textContent;
+            btn.textContent = 'Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.borderColor = '';
+                btn.style.color = '';
+            }, 1800);
+        });
+    });
+}
 </script>
 </body></html>

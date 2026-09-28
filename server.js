@@ -7,6 +7,43 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
+app.use(express.json({ limit: '50mb' }));
+
+// Built-in AI Proxy: bypasses browser CORS when running locally
+app.post('/api/ai-proxy', async (req, res) => {
+  const { targetUrl, headers, body } = req.body;
+  if (!targetUrl) return res.status(400).json({ error: 'Missing targetUrl' });
+
+  try {
+    const upstreamRes = await fetch(targetUrl, {
+      method: 'POST',
+      headers: headers || {},
+      body: JSON.stringify(body)
+    });
+    const data = await upstreamRes.json();
+    res.status(upstreamRes.status).json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Upstream request failed' });
+  }
+});
+
+// Proxy for fetching models
+app.post('/api/ai-models-proxy', async (req, res) => {
+  const { targetUrl, headers } = req.body;
+  if (!targetUrl) return res.status(400).json({ error: 'Missing targetUrl' });
+
+  try {
+    const upstreamRes = await fetch(targetUrl, {
+      method: 'GET',
+      headers: headers || {}
+    });
+    const data = await upstreamRes.json();
+    res.status(upstreamRes.status).json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to fetch models' });
+  }
+});
+
 // Serve static assets and HTML pages from root directory
 app.use(express.static(__dirname));
 
