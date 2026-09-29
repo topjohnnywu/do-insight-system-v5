@@ -1801,15 +1801,15 @@ const PROMPT_PRESETS = {
     do_only: {
         prompt: 
             "You are an expert Document Order (DO) inspector. Analyze this Delivery Order document page.\n" +
-            "Extract ONLY the valid 8-digit Delivery Order (DO) number(s) (typically starting with 81 or 85, labelled 'Delivery Order No.', 'D/O No.', or located in the header table).\n\n" +
-            "CRITICAL RULES:\n" +
-            "1. Do NOT extract GST Registration numbers (e.g., MR-8500072-6).\n" +
-            "2. Do NOT extract Company Registration numbers (e.g., 199000682N).\n" +
-            "3. Do NOT extract part/item numbers (e.g., 18064511), telephone numbers, or sales order numbers.\n" +
-            "4. Carefully distinguish between '5' and '8'.\n" +
+            "Extract ONLY the valid 8-digit Delivery Order (DO) number(s) (typically starting with 81 or 85, labelled 'Delivery Order No.', 'D/O No.', or located in the header table/box).\n\n" +
+            "CRITICAL OCR RULES:\n" +
+            "1. Pay extreme attention to digits: do NOT confuse '5' with '6' or '8', and do NOT confuse '0' with '8'.\n" +
+            "2. Do NOT extract GST Registration numbers (e.g., MR-8500072-6).\n" +
+            "3. Do NOT extract Company Registration numbers (e.g., 199000682N).\n" +
+            "4. Do NOT extract part/item numbers (e.g., 18064511), telephone numbers, or sales order numbers.\n" +
             "5. Output ONLY the 8-digit DO number(s), one per line or separated by commas. If no DO number is found, return 'NONE'.\n" +
             "6. Do NOT write explanations, apologies, markdown formatting, or preamble. Return ONLY numbers or NONE.",
-        maxTokens: 60,
+        maxTokens: 120,
         hint: "Extracts 8-digit DOs (81/85) with noise filtering"
     },
     full_ocr: {
@@ -2249,7 +2249,7 @@ if (promptPresetSelect) {
 }
 
 // --- OPTIMIZED IMAGE COMPRESSION FOR AI VISION ---
-function getOptimizedBase64Jpeg(canvas, maxDim = 1000, quality = 0.70) {
+function getOptimizedBase64Jpeg(canvas, maxDim = 1800, quality = 0.88) {
     let w = canvas.width;
     let h = canvas.height;
     if (w > maxDim || h > maxDim) {
@@ -2265,7 +2265,7 @@ function getOptimizedBase64Jpeg(canvas, maxDim = 1000, quality = 0.70) {
         temp.height = h;
         const ctx = temp.getContext('2d');
         ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'medium';
+        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(canvas, 0, 0, w, h);
         return temp.toDataURL('image/jpeg', quality).split(',')[1];
     }
@@ -2336,13 +2336,16 @@ async function callOpenAiVision(canvas, apiKey, model, customEndpoint, promptCon
                     { type: 'text', text: pConfig.prompt },
                     {
                         type: 'image_url',
-                        image_url: { url: `data:image/jpeg;base64,${base64Data}` }
+                        image_url: {
+                            url: `data:image/jpeg;base64,${base64Data}`,
+                            detail: 'high'
+                        }
                     }
                 ]
             }
         ],
         temperature: 0.0,
-        max_tokens: pConfig.maxTokens || 60
+        max_tokens: pConfig.maxTokens || 120
     };
 
     const headers = { 'Content-Type': 'application/json' };
@@ -2672,7 +2675,7 @@ async function runIsolatedRoiOcr() {
 
                     try {
                         const page = await pdf.getPage(pageNo);
-                        const scale = 1.25;
+                        const scale = 2.0; // High DPI for crisp AI ROI recognition
                         const viewport = page.getViewport({ scale });
                         let pageCombinedText = '';
 
@@ -3108,7 +3111,7 @@ async function runOcr() {
 
                         // Step 2: Scanned raster image
                         if (!text) {
-                            const viewport = page.getViewport({ scale: 1.25 });
+                            const viewport = page.getViewport({ scale: 1.75 }); // Crisp 1.75x DPI rendering
                             const canvas = document.createElement('canvas');
                             canvas.width = viewport.width;
                             canvas.height = viewport.height;
