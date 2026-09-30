@@ -15,6 +15,498 @@
 
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#1e40af">
+
+    <style>
+        /* --- Modern Detailed Status Manifest Styles & Typography --- */
+        .manifest-card {
+            border-radius: 12px !important;
+            overflow: hidden;
+            border: 1px solid var(--border, #27272a) !important;
+        }
+
+        .manifest-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border, #27272a);
+            background: var(--bg-card, #18181b);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        body.light-mode .manifest-card-header {
+            background: #ffffff !important;
+            border-bottom-color: #e2e8f0 !important;
+        }
+
+        .manifest-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .manifest-title {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--fg, #f4f4f5);
+        }
+
+        body.light-mode .manifest-title {
+            color: #0f172a !important;
+        }
+
+        .manifest-count-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            background: rgba(59, 130, 246, 0.12);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        body.light-mode .manifest-count-badge {
+            background: #eff6ff !important;
+            color: #2563eb !important;
+            border-color: #bfdbfe !important;
+        }
+
+        .manifest-subtitle {
+            font-size: 12px;
+            color: var(--fg-muted, #a1a1aa);
+            margin: 3px 0 0 0;
+        }
+
+        body.light-mode .manifest-subtitle {
+            color: #64748b !important;
+        }
+
+        /* Filter pills in toolbar */
+        .manifest-filter-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface-raised, #27272a);
+            border: 1px solid var(--border, #3f3f46);
+            padding: 3px 10px;
+            border-radius: 8px;
+            height: 32px;
+            box-sizing: border-box;
+        }
+
+        body.light-mode .manifest-filter-pill {
+            background: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        .manifest-filter-pill label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--fg-muted, #a1a1aa);
+            margin: 0;
+        }
+
+        body.light-mode .manifest-filter-pill label {
+            color: #64748b !important;
+        }
+
+        .manifest-filter-pill select {
+            background: transparent;
+            border: none;
+            color: var(--fg, #f4f4f5);
+            font-size: 12px;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+
+        body.light-mode .manifest-filter-pill select {
+            color: #0f172a !important;
+        }
+
+        .manifest-search-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .manifest-search-input {
+            height: 32px !important;
+            padding: 4px 10px 4px 30px !important;
+            font-size: 12px !important;
+            border-radius: 8px !important;
+            width: 230px !important;
+            background: var(--surface-raised, #27272a) !important;
+            border: 1px solid var(--border, #3f3f46) !important;
+            color: var(--fg, #f4f4f5) !important;
+            outline: none;
+            transition: all 0.15s ease;
+        }
+
+        .manifest-search-input:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25) !important;
+        }
+
+        body.light-mode .manifest-search-input {
+            background: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+
+        /* Manifest Table Layout & Typography */
+        .manifest-table {
+            width: 100%;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+            font-size: 12.5px !important;
+        }
+
+        .manifest-table thead th {
+            font-size: 10.5px !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.06em !important;
+            text-transform: uppercase !important;
+            color: var(--fg-muted, #a1a1aa) !important;
+            padding: 11px 16px !important;
+            background: var(--surface-raised, #18181b) !important;
+            border-bottom: 1px solid var(--border, #27272a) !important;
+            white-space: nowrap;
+        }
+
+        body.light-mode .manifest-table thead th {
+            background: #f8fafc !important;
+            color: #475569 !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+        }
+
+        .manifest-table tbody td {
+            padding: 10px 16px !important;
+            vertical-align: middle !important;
+            border-bottom: 1px solid var(--border, #27272a) !important;
+            color: var(--fg, #f4f4f5) !important;
+        }
+
+        body.light-mode .manifest-table tbody td {
+            border-bottom-color: #f1f5f9 !important;
+            color: #1e293b !important;
+        }
+
+        .manifest-table tbody tr {
+            transition: background-color 0.12s ease;
+        }
+
+        .manifest-table tbody tr:hover {
+            background-color: rgba(59, 130, 246, 0.06) !important;
+        }
+
+        body.light-mode .manifest-table tbody tr:nth-child(even) {
+            background-color: #fbfcfe;
+        }
+
+        body.light-mode .manifest-table tbody tr:hover {
+            background-color: #f0f7ff !important;
+        }
+
+        /* Monospace DO Link Button */
+        .btn-manifest-do {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #60a5fa;
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.28);
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-manifest-do:hover {
+            background: rgba(59, 130, 246, 0.22);
+            border-color: #60a5fa;
+            color: #93c5fd;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        body.light-mode .btn-manifest-do {
+            color: #1d4ed8 !important;
+            background: #eff6ff !important;
+            border-color: #bfdbfe !important;
+        }
+
+        body.light-mode .btn-manifest-do:hover {
+            background: #dbeafe !important;
+            border-color: #93c5fd !important;
+            color: #1e40af !important;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.12) !important;
+        }
+
+        /* Truck Pill Badge */
+        .manifest-truck-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--fg, #e4e4e7);
+            background: var(--surface-raised, #27272a);
+            border: 1px solid var(--border, #3f3f46);
+            padding: 2px 8px;
+            border-radius: 5px;
+            white-space: nowrap;
+        }
+
+        body.light-mode .manifest-truck-badge {
+            background: #f1f5f9 !important;
+            color: #334155 !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        /* Hub Chip */
+        .manifest-hub-chip {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11.5px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            color: var(--fg-muted, #a1a1aa);
+        }
+
+        body.light-mode .manifest-hub-chip {
+            color: #475569 !important;
+        }
+
+        /* Address & Route Breakdown */
+        .manifest-address-cell {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            max-width: 480px;
+        }
+
+        .manifest-route-tag {
+            display: inline-flex;
+            align-items: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(100, 116, 139, 0.2);
+            color: #cbd5e1;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        body.light-mode .manifest-route-tag {
+            background: #e2e8f0 !important;
+            color: #334155 !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        .manifest-address-text {
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--fg, #f4f4f5);
+            line-height: 1.35;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 400px;
+        }
+
+        body.light-mode .manifest-address-text {
+            color: #1e293b !important;
+        }
+
+        .manifest-na-text {
+            color: var(--fg-muted, #71717a);
+            font-size: 12px;
+            font-style: italic;
+        }
+
+        /* Modern Status Pill with live indicator dot */
+        .manifest-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 11px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+            border: 1px solid transparent;
+            line-height: 1.25;
+        }
+
+        .manifest-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* Completed (Scan Done) */
+        .manifest-status-pill.status-completed {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.35);
+        }
+        .manifest-status-pill.status-completed .manifest-status-dot {
+            background: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+        }
+        body.light-mode .manifest-status-pill.status-completed {
+            background: #ecfdf5 !important;
+            color: #065f46 !important;
+            border-color: #a7f3d0 !important;
+        }
+
+        /* Pending Confirm */
+        .manifest-status-pill.status-pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border-color: rgba(245, 158, 11, 0.35);
+        }
+        .manifest-status-pill.status-pending .manifest-status-dot {
+            background: #f59e0b;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+        }
+        body.light-mode .manifest-status-pill.status-pending {
+            background: #fffbeb !important;
+            color: #92400e !important;
+            border-color: #fde68a !important;
+        }
+
+        /* In Process */
+        .manifest-status-pill.status-process {
+            background: rgba(59, 130, 246, 0.15);
+            color: #93c5fd;
+            border-color: rgba(59, 130, 246, 0.35);
+        }
+        .manifest-status-pill.status-process .manifest-status-dot {
+            background: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+        }
+        body.light-mode .manifest-status-pill.status-process {
+            background: #eff6ff !important;
+            color: #1e40af !important;
+            border-color: #bfdbfe !important;
+        }
+
+        /* Unmatched DO */
+        .manifest-status-pill.status-unmatched {
+            background: rgba(168, 85, 247, 0.15);
+            color: #d8b4fe;
+            border-color: rgba(168, 85, 247, 0.35);
+        }
+        .manifest-status-pill.status-unmatched .manifest-status-dot {
+            background: #a855f7;
+            box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.25);
+        }
+        body.light-mode .manifest-status-pill.status-unmatched {
+            background: #faf5ff !important;
+            color: #6b21a8 !important;
+            border-color: #e9d5ff !important;
+        }
+
+        /* Incomplete / Fallback */
+        .manifest-status-pill.status-incomplete {
+            background: rgba(100, 116, 139, 0.15);
+            color: #cbd5e1;
+            border-color: rgba(148, 163, 184, 0.3);
+        }
+        .manifest-status-pill.status-incomplete .manifest-status-dot {
+            background: #94a3b8;
+        }
+        body.light-mode .manifest-status-pill.status-incomplete {
+            background: #f1f5f9 !important;
+            color: #475569 !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        /* DO Type Logistics Tags */
+        .manifest-type-pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .manifest-type-pill.type-big {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.35);
+        }
+        body.light-mode .manifest-type-pill.type-big {
+            background: #fffbeb !important;
+            color: #b45309 !important;
+            border-color: #fde68a !important;
+        }
+
+        .manifest-type-pill.type-small {
+            background: rgba(148, 163, 184, 0.15);
+            color: #cbd5e1;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+        body.light-mode .manifest-type-pill.type-small {
+            background: #f1f5f9 !important;
+            color: #475569 !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        .manifest-type-pill.type-mix {
+            background: rgba(59, 130, 246, 0.15);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.35);
+        }
+        body.light-mode .manifest-type-pill.type-mix {
+            background: #eff6ff !important;
+            color: #1e40af !important;
+            border-color: #bfdbfe !important;
+        }
+
+        .manifest-type-pill.type-unmatched {
+            background: rgba(168, 85, 247, 0.15);
+            color: #d8b4fe;
+            border: 1px solid rgba(168, 85, 247, 0.35);
+        }
+        body.light-mode .manifest-type-pill.type-unmatched {
+            background: #faf5ff !important;
+            color: #7e22ce !important;
+            border-color: #e9d5ff !important;
+        }
+
+        .manifest-type-pill.type-pending {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+        }
+        body.light-mode .manifest-type-pill.type-pending {
+            background: #fef2f2 !important;
+            color: #dc2626 !important;
+            border-color: #fca5a5 !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -355,45 +847,48 @@
             </div>
 
             <!-- Full Width Detailed Status Manifest Table Card -->
-            <div class="table-card" style="margin-bottom: 24px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <div class="table-card manifest-card" style="margin-bottom: 24px;">
+                <div class="manifest-card-header">
                     <div>
-                        <h3 style="margin: 0; font-size: 16px;">Detailed Status Manifest</h3>
-                        <p style="font-size: 12px; color: var(--fg-muted); margin-top: 2px;">Line-by-line scanning status and truck allocation</p>
+                        <div class="manifest-title-row">
+                            <h3 class="manifest-title">Detailed Status Manifest</h3>
+                            <span id="manifestCountBadge" class="manifest-count-badge">0 records</span>
+                        </div>
+                        <p class="manifest-subtitle">Line-by-line scanning status and truck allocation</p>
                     </div>
                     <div class="status-table-toolbar">
                         <!-- Truck Filter Dropdown -->
-                        <div class="filter-box">
-                            <label for="truckFilter" style="font-size: 12px; color: var(--fg-muted);">Truck:</label>
-                            <select id="truckFilter" onchange="applyInsightFilter()" style="font-size: 12px; padding: 4px 8px;">
+                        <div class="manifest-filter-pill">
+                            <label for="truckFilter">Truck:</label>
+                            <select id="truckFilter" onchange="applyInsightFilter()">
                                 <option value="ALL">All Trucks</option>
                             </select>
                         </div>
 
                         <!-- Hub Filter Dropdown -->
-                        <div class="filter-box">
-                            <label for="hubFilter" style="font-size: 12px; color: var(--fg-muted);">Hub:</label>
-                            <select id="hubFilter" onchange="applyInsightFilter()" style="font-size: 12px; padding: 4px 8px;">
+                        <div class="manifest-filter-pill">
+                            <label for="hubFilter">Hub:</label>
+                            <select id="hubFilter" onchange="applyInsightFilter()">
                                 <option value="ALL">All Hubs</option>
                             </select>
                         </div>
 
                         <!-- Search Input Box -->
-                        <div class="status-search-wrapper">
-                            <svg class="status-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                            <input type="text" id="insightSearch" class="search-box" placeholder="Search DOs, Status, Address..." onkeyup="applyInsightFilter()" style="padding-left: 32px;">
+                        <div class="manifest-search-wrapper">
+                            <svg class="status-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" id="insightSearch" class="search-box manifest-search-input" placeholder="Search DOs, Status, Address..." onkeyup="applyInsightFilter()">
                         </div>
                     </div>
                 </div>
 
-                <div class="compact-wrapper">
-                    <table class="compact-table">
+                <div class="compact-wrapper manifest-table-wrapper">
+                    <table class="compact-table manifest-table">
                         <thead>
                             <tr>
                                 <th>DO Number</th>
-                                <th>Truck Number</th>
+                                <th>Truck</th>
                                 <th>Hub</th>
-                                <th>Address</th>
+                                <th>Address / Destination</th>
                                 <th>Scanning Status</th>
                                 <th>DO Type</th>
                             </tr>
@@ -583,6 +1078,71 @@
             }
         }
 
+        // --- Manifest Table Formatting Helpers ---
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function formatTruckPill(truck) {
+            if (!truck || truck === "N/A") {
+                return '<span class="manifest-na-text">N/A</span>';
+            }
+            return `<span class="manifest-truck-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.65;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><span>Truck ${escapeHtml(String(truck))}</span></span>`;
+        }
+
+        function formatAddressCell(rawAddr) {
+            if (!rawAddr || rawAddr === "N/A") {
+                return '<span class="manifest-na-text">N/A</span>';
+            }
+            // Match standard route codes (e.g. SOP, LEA, LOR, LNO, HQ, WHS, EST)
+            const match = String(rawAddr).match(/^([A-Z0-9]{2,6})\s*[-–—]\s*(.+)$/i);
+            if (match) {
+                const route = escapeHtml(match[1].toUpperCase());
+                const dest = escapeHtml(match[2].trim());
+                return `<div class="manifest-address-cell"><span class="manifest-route-tag">${route}</span><span class="manifest-address-text" title="${dest}">${dest}</span></div>`;
+            }
+            const safeAddr = escapeHtml(String(rawAddr));
+            return `<div class="manifest-address-cell"><span class="manifest-address-text" title="${safeAddr}">${safeAddr}</span></div>`;
+        }
+
+        function formatStatusPill(status) {
+            let cls = "status-incomplete";
+            const safeStatus = escapeHtml(String(status || ''));
+            if (safeStatus.includes("Completed")) {
+                cls = "status-completed";
+            } else if (safeStatus.includes("Pending")) {
+                cls = "status-pending";
+            } else if (safeStatus.includes("Process")) {
+                cls = "status-process";
+            } else if (safeStatus.includes("Unmatched")) {
+                cls = "status-unmatched";
+            }
+            return `<span class="manifest-status-pill ${cls}"><span class="manifest-status-dot"></span><span>${safeStatus}</span></span>`;
+        }
+
+        function formatDoTypePill(doType) {
+            if (!doType || doType === "N/A") return '<span class="manifest-na-text">N/A</span>';
+            const upper = String(doType).toUpperCase();
+            if (upper === "BIG") {
+                return '<span class="manifest-type-pill type-big">BIG</span>';
+            } else if (upper === "SMALL") {
+                return '<span class="manifest-type-pill type-small">SMALL</span>';
+            } else if (upper === "MIX") {
+                return '<span class="manifest-type-pill type-mix">MIX</span>';
+            } else if (upper.includes("UNMATCHED")) {
+                return '<span class="manifest-type-pill type-unmatched">UNMATCHED</span>';
+            } else if (upper.includes("PENDING")) {
+                return '<span class="manifest-type-pill type-pending">PENDING</span>';
+            }
+            return `<span class="manifest-type-pill type-small">${escapeHtml(upper)}</span>`;
+        }
+
         function applyInsightFilter() {
             const SelectedType = document.getElementById("typeFilter").value;
             const SelectedTruck = document.getElementById("truckFilter") ? document.getElementById("truckFilter").value : "ALL";
@@ -699,6 +1259,12 @@
             document.getElementById("cat-small").innerText = SmallCount;
             document.getElementById("cat-mix").innerText = MixCount;
 
+            // Update manifest count badge
+            const countBadge = document.getElementById("manifestCountBadge");
+            if (countBadge) {
+                countBadge.innerText = `${Filtered.length} ${Filtered.length === 1 ? 'record' : 'records'}`;
+            }
+
             const tbody = document.getElementById("insightTableBody");
             tbody.innerHTML = "";
 
@@ -709,15 +1275,6 @@
                 tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:36px 20px; color:var(--fg-muted); font-size:13px;">${emptyMessage}</td></tr>`;
             } else {
                 Filtered.forEach(r => {
-                    let badgeCls = "badge-incomplete";
-                    if (r.status.includes("Completed")) badgeCls = "badge-completed";
-                    else if (r.status.includes("Process")) badgeCls = "badge-process";
-                    else if (r.status.includes("Pending")) badgeCls = "badge-pending";
-
-                    const DoTypeDisplay = (r.doType === "UNMATCHED DO") 
-                        ? `<span class="badge badge-unmatched">UNMATCHED DO</span>` 
-                        : `<strong>${r.doType}</strong>`;
-
                     const tr = document.createElement("tr");
                     tr.style.cursor = "context-menu";
                     tr.title = "Click or right-click to inspect DO details in a new tab";
@@ -726,7 +1283,21 @@
                         openDoDetailsTab(r.inv);
                     });
 
-                    tr.innerHTML = `<td><button type="button" class="btn-do-link tabular-nums" onclick="openDoDetailsTab('${r.inv}')" title="Inspect DO ${r.inv}">${r.inv}</button></td><td>${r.truck || "N/A"}</td><td>${r.hub || "N/A"}</td><td>${r.addr || "N/A"}</td><td><span class="badge ${badgeCls}">${r.status}</span></td><td>${DoTypeDisplay}</td>`;
+                    const safeInv = escapeHtml(r.inv || '');
+
+                    tr.innerHTML = `
+                        <td>
+                            <button type="button" class="btn-manifest-do tabular-nums" onclick="openDoDetailsTab('${safeInv}')" title="Inspect DO ${safeInv}">
+                                <span>${safeInv}</span>
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.65;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            </button>
+                        </td>
+                        <td>${formatTruckPill(r.truck)}</td>
+                        <td><span class="manifest-hub-chip">${escapeHtml(r.hub || "N/A")}</span></td>
+                        <td>${formatAddressCell(r.addr)}</td>
+                        <td>${formatStatusPill(r.status)}</td>
+                        <td>${formatDoTypePill(r.doType)}</td>
+                    `;
                     tbody.appendChild(tr);
                 });
             }
