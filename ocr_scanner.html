@@ -8,6 +8,7 @@
     <script src="js/settings.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/ort.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         .ocr-grid { display:grid; grid-template-columns:minmax(280px, .8fr) minmax(320px, 1.2fr); gap:18px; max-width:1400px; }
@@ -274,6 +275,11 @@
             color: #8b5cf6;
             border-color: rgba(139, 92, 246, 0.4);
             background: rgba(139, 92, 246, 0.12);
+        }
+        .engine-tab-btn.active.paddle {
+            color: #10b981;
+            border-color: rgba(16, 185, 129, 0.4);
+            background: rgba(16, 185, 129, 0.12);
         }
         .ai-config-card {
             display: none;
@@ -859,16 +865,40 @@
     <main class="main-content"><div class="header"><div><h1 style="font-size:20px;margin:0">OCR Document Scanner</h1><p style="font-size:12px;color:var(--fg-muted);margin-top:4px">Extract text and isolate numerical values from scanned PDF documents</p></div></div>
         <div class="ocr-grid"><section class="ocr-card"><h2>1. Select PDFs</h2><p class="ocr-help">Upload PDF documents only. Files are rendered and processed locally in this browser. Scanned pages can be recognized with local Tesseract.js or Google Gemini AI Vision.</p><input id="pdfFiles" class="ocr-file" type="file" accept="application/pdf,.pdf" multiple>
         
-        <!-- Engine Selector: Local OCR vs Gemini AI Vision -->
+        <!-- Engine Selector: Local OCR vs PaddleOCR vs Gemini AI Vision -->
         <div class="engine-selector-wrap">
             <button type="button" id="btnEngineLocal" class="engine-tab-btn active" data-engine="local">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
                 Local OCR (Tesseract)
             </button>
+            <button type="button" id="btnEnginePaddle" class="engine-tab-btn paddle" data-engine="paddle">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                PaddleOCR (Deep Learning)
+            </button>
             <button type="button" id="btnEngineAi" class="engine-tab-btn ai" data-engine="ai">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
                 <span id="btnEngineAiLabel">AI Vision</span>
             </button>
+        </div>
+
+        <!-- PaddleOCR Configuration Card -->
+        <div id="paddleConfigCard" class="ai-config-card" style="display:none; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.05); padding: 12px 14px; border-radius: 8px; margin-top: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <label style="font-size: 12px; font-weight: 700; color: #10b981; display: flex; align-items: center; gap: 6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    PaddleOCR Deep Learning Engine (PP-OCRv4)
+                </label>
+                <span id="paddleStatusBadge" class="ai-badge saved" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">⚡ In-Browser WASM</span>
+            </div>
+            <div style="font-size: 11px; color: var(--fg-muted); margin-top: 6px; line-height: 1.5;">
+                Runs PP-OCRv4 deep learning networks directly in your browser using WebAssembly. High-precision character recognition that reliably separates digits (e.g. 5 vs 8) with zero data leaving your machine.
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 11px; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 6px; color: var(--fg); cursor: pointer;">
+                    <input type="checkbox" id="chkPaddleLocalServer" style="accent-color: #10b981;"> Use Local Python Server (Optional)
+                </label>
+                <input id="paddleServerUrlInput" class="ai-key-input" type="text" placeholder="http://localhost:8866/predict/ocr_system" style="display: none; flex: 1; min-width: 220px; padding: 3px 8px; font-size: 11px; height: 26px;">
+            </div>
         </div>
 
         <!-- Universal Multi-Provider AI Vision Configuration Card -->
@@ -1856,11 +1886,17 @@ function getActiveProviderModel() {
 
 function updateEngineUI() {
     const isAi = selectedEngine === 'ai';
-    $('btnEngineLocal').classList.toggle('active', !isAi);
+    const isPaddle = selectedEngine === 'paddle';
+    const isLocal = selectedEngine === 'local';
+
+    $('btnEngineLocal').classList.toggle('active', isLocal);
+    if ($('btnEnginePaddle')) $('btnEnginePaddle').classList.toggle('active', isPaddle);
     $('btnEngineAi').classList.toggle('active', isAi);
+
     $('aiConfigCard').classList.toggle('active', isAi);
+    if ($('paddleConfigCard')) $('paddleConfigCard').style.display = isPaddle ? 'block' : 'none';
     const langWrap = $('localLangWrap');
-    if (langWrap) langWrap.style.display = isAi ? 'none' : 'block';
+    if (langWrap) langWrap.style.display = isLocal ? 'block' : 'none';
     
     // Update Provider Config Details
     const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
@@ -1869,7 +1905,13 @@ function updateEngineUI() {
     if (aiLabel) aiLabel.textContent = `AI Vision (${shortName})`;
 
     // Update Run button text
-    $('runOcr').textContent = isAi ? `Run ${shortName} AI Vision Scan` : 'Run OCR';
+    if (isPaddle) {
+        $('runOcr').textContent = 'Run PaddleOCR Deep Learning Scan';
+    } else if (isAi) {
+        $('runOcr').textContent = `Run ${shortName} AI Vision Scan`;
+    } else {
+        $('runOcr').textContent = 'Run OCR';
+    }
     $('aiProviderSelect').value = selectedAiProvider;
     
     // Show custom endpoint input for RootSys, OpenRouter, and Custom/Ollama
@@ -2107,6 +2149,31 @@ $('btnEngineLocal').addEventListener('click', () => {
     localStorage.setItem('ocr_engine_preference', 'local');
     updateEngineUI();
     setStatus('Switched to Local OCR engine (Tesseract.js).');
+});
+
+$('btnEnginePaddle').addEventListener('click', () => {
+    selectedEngine = 'paddle';
+    localStorage.setItem('ocr_engine_preference', 'paddle');
+    updateEngineUI();
+    setStatus('Switched to PaddleOCR (Deep Learning) engine.');
+});
+
+$('chkPaddleLocalServer')?.addEventListener('change', (e) => {
+    const isChecked = e.target.checked;
+    PaddleOcrManager.useServer = isChecked;
+    const urlInput = $('paddleServerUrlInput');
+    if (urlInput) {
+        urlInput.style.display = isChecked ? 'inline-block' : 'none';
+        if (isChecked && !urlInput.value) {
+            urlInput.value = PaddleOcrManager.serverUrl;
+        }
+    }
+});
+
+$('paddleServerUrlInput')?.addEventListener('input', (e) => {
+    const val = e.target.value.trim();
+    PaddleOcrManager.serverUrl = val;
+    localStorage.setItem('paddle_server_url', val);
 });
 
 $('btnEngineAi').addEventListener('click', () => {
@@ -2477,6 +2544,355 @@ async function callUniversalAiVision(canvas, promptConfig) {
     }
 }
 
+// --- PADDLEOCR ENGINE CONTROLLER (ONNX WebAssembly & API Fallback) ---
+const PaddleOcrManager = {
+    sessionRec: null,
+    dict: null,
+    isLoading: false,
+    loaded: false,
+    useServer: false,
+    serverUrl: localStorage.getItem('paddle_server_url') || 'http://localhost:8866/predict/ocr_system',
+
+    // Complete 436-character vocabulary matching monkt/paddleocr-onnx PP-OCR English model
+    getDefaultDict() {
+        if (this.dict) return this.dict;
+        const ppOcrDict = ["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","!","\"","#","$","%","&","'","(",")","*","+",",","-",".","/",":",";","<","=",">","?","@","[","\\","]","_","`","{","|","}","^","~","©","®","℉","№","Ω","℮","™","∆","✓","✔","✗","✘","✕","☑","☒","●","▪","▫","◼","▶","◀","⬆","¤","¦","§","¨","ª","«","¬","¯","°","²","³","´","µ","¶","¸","¹","º","»","¼","½","¾","¿","×","‐","‑","‒","—","―","‖","‗","‘","’","‚","‛","“","”","„","‟","†","‡","‣","․","…","‧","‰","‴","‵","‶","‷","‸","‹","›","※","‼","‽","‾","−","₤","₡","₹","₽","₴","₿","¢","€","£","¥","Ⅰ","Ⅱ","Ⅲ","Ⅳ","Ⅴ","Ⅵ","Ⅶ","Ⅷ","Ⅸ","Ⅹ","Ⅺ","Ⅻ","ⅰ","ⅱ","ⅲ","ⅳ","ⅴ","ⅵ","ⅶ","ⅷ","ⅸ","ⅹ","ⅺ","ⅻ","➀","➁","➂","➃","➄","➅","➆","➇","➈","➉","➊","➋","➌","➍","➎","➏","➐","➑","➒","➓","❶","❷","❸","❹","❺","❻","❼","❽","❾","❿","①","②","③","④","⑤","⑥","⑦","⑧","⑨","⑩","↑","→","↓","↕","←","↔","⇒","⇐","⇔","∀","∃","∄","∴","∵","∝","∞","∩","∪","∂","∫","∬","∭","∮","∯","∰","∑","∏","√","∛","∜","∱","∲","∳","∶","∷","∼","∖","∗","≈","≠","≡","≤","≥","⊂","⊃","⊥","⊾","⊿","□","∥","∋","ƒ","′","″","À","Á","Â","Ã","Ä","Å","Æ","Ç","È","É","Ê","Ë","Ì","Í","Î","Ï","Ð","Ñ","Ò","Ó","Ô","Õ","Ö","Ø","Ù","Ú","Û","Ü","Ý","Þ","à","á","â","ã","ä","å","æ","ç","è","é","ê","ë","ì","í","î","ï","ð","ñ","ò","ó","ô","õ","ö","ø","ù","ú","û","ü","ý","þ","ÿ","Α","Β","Γ","Δ","Ε","Ζ","Η","Θ","Ι","Κ","Λ","Μ","Ν","Ξ","Ο","Π","Ρ","Σ","Τ","Υ","Φ","Χ","Ψ","Ω","α","β","γ","δ","ε","ζ","η","θ","ι","κ","λ","μ","ν","ξ","ο","π","ρ","σ","ς","τ","υ","φ","χ","ψ","ω","Å","ℏ","⌀","⍺","⍵","𝑢","𝜓","०","‥","︽","﹥","•","÷","∕","∙","⋅","·","±","∓","∟","∠","∡","∢","℧","☺"];
+        this.dict = ['blank', ...ppOcrDict, ' '];
+        return this.dict;
+    },
+
+    async fetchModelBuffer(url, onProgress) {
+        const cacheName = 'paddleocr-models-v1';
+        try {
+            if ('caches' in window) {
+                const cache = await caches.open(cacheName);
+                const cachedResp = await cache.match(url);
+                if (cachedResp) {
+                    if (onProgress) onProgress(60, 'Loading cached PaddleOCR weights...');
+                    return await cachedResp.arrayBuffer();
+                }
+            }
+        } catch (e) {
+            console.warn('CacheStorage read skipped:', e);
+        }
+
+        if (onProgress) onProgress(15, 'Connecting to PaddleOCR model repository...');
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to download model weights (HTTP ${response.status})`);
+        }
+
+        const contentLength = +response.headers.get('Content-Length') || 7830888;
+        const reader = response.body.getReader();
+        let receivedLength = 0;
+        const chunks = [];
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+            receivedLength += value.length;
+            if (contentLength && onProgress) {
+                const pct = Math.min(85, Math.round(15 + (receivedLength / contentLength) * 70));
+                const mb = (receivedLength / (1024 * 1024)).toFixed(1);
+                const totalMb = (contentLength / (1024 * 1024)).toFixed(1);
+                onProgress(pct, `Downloading PaddleOCR: ${pct}% (${mb}MB / ${totalMb}MB)`);
+            }
+        }
+
+        const buffer = new Uint8Array(receivedLength);
+        let position = 0;
+        for (const chunk of chunks) {
+            buffer.set(chunk, position);
+            position += chunk.length;
+        }
+
+        try {
+            if ('caches' in window) {
+                const cache = await caches.open(cacheName);
+                cache.put(url, new Response(buffer.buffer.slice(0), {
+                    headers: { 'Content-Type': 'application/octet-stream' }
+                }));
+            }
+        } catch (e) {
+            console.warn('CacheStorage write skipped:', e);
+        }
+
+        return buffer.buffer;
+    },
+
+    async init(onProgress) {
+        if (this.loaded) return true;
+        if (this.isLoading) {
+            while (this.isLoading) await new Promise(r => setTimeout(r, 100));
+            return this.loaded;
+        }
+
+        this.isLoading = true;
+        try {
+            if (typeof ort === 'undefined') {
+                throw new Error('ONNX Runtime Web library (ort) is not available.');
+            }
+
+            ort.env.wasm.numThreads = Math.min(4, navigator.hardwareConcurrency || 2);
+            ort.env.wasm.proxy = false;
+
+            const REC_URL = 'https://huggingface.co/monkt/paddleocr-onnx/resolve/main/languages/english/rec.onnx';
+
+            const modelBuffer = await this.fetchModelBuffer(REC_URL, onProgress);
+
+            if (onProgress) onProgress(90, 'Compiling WebAssembly Neural Network...');
+            this.sessionRec = await ort.InferenceSession.create(modelBuffer, {
+                executionProviders: ['wasm'],
+                graphOptimizationLevel: 'all'
+            });
+
+            this.getDefaultDict();
+            this.loaded = true;
+            this.isLoading = false;
+            if (onProgress) onProgress(100, 'PaddleOCR Engine Ready');
+            return true;
+        } catch (err) {
+            this.isLoading = false;
+            console.warn('Browser ONNX PaddleOCR loading error:', err);
+            throw err;
+        }
+    },
+
+    async recognize(canvas, onProgress) {
+        if (this.useServer) {
+            return await this.recognizeViaServer(canvas);
+        }
+
+        try {
+            await this.init(onProgress);
+            // If already a single text line strip (height <= 60), recognize directly
+            if (canvas.height <= 60) {
+                return await this.recognizeCanvasOnnx(canvas, onProgress);
+            }
+            // For full page or multi-line document, segment into lines
+            return await this.recognizeMultiLineOnnx(canvas, onProgress);
+        } catch (onnxErr) {
+            console.warn('PaddleOCR ONNX failed, checking local server fallback...', onnxErr);
+            if (this.serverUrl && this.useServer) {
+                return await this.recognizeViaServer(canvas);
+            }
+            throw new Error(`PaddleOCR ONNX load error: ${onnxErr.message}. Ensure internet access to download model weights, or switch to Local Tesseract.`);
+        }
+    },
+
+    async recognizeMultiLineOnnx(canvas, onProgress) {
+        const lines = this.segmentTextLines(canvas);
+        if (!lines || lines.length === 0) {
+            return await this.recognizeCanvasOnnx(canvas, onProgress);
+        }
+
+        const fullText = [];
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const lineCanvas = document.createElement('canvas');
+            lineCanvas.width = line.w;
+            lineCanvas.height = line.h;
+            const ctx = lineCanvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, line.w, line.h);
+            ctx.drawImage(canvas, line.x, line.y, line.w, line.h, 0, 0, line.w, line.h);
+
+            try {
+                const lineText = await this.recognizeCanvasOnnx(lineCanvas);
+                if (lineText && lineText.trim().length > 0) {
+                    fullText.push(lineText.trim());
+                }
+            } catch (e) {
+                console.warn('Line recognition warning:', e);
+            }
+
+            lineCanvas.width = 1;
+            lineCanvas.height = 1;
+
+            if (onProgress && lines.length > 1) {
+                const pct = Math.round(((i + 1) / lines.length) * 100);
+                onProgress(pct, `PaddleOCR: reading text line ${i + 1}/${lines.length}...`);
+            }
+        }
+
+        return fullText.join('\n');
+    },
+
+    segmentTextLines(canvas) {
+        const sampleW = Math.min(600, canvas.width);
+        const scale = sampleW / canvas.width;
+        const sampleH = Math.round(canvas.height * scale);
+
+        const sampleCanvas = document.createElement('canvas');
+        sampleCanvas.width = sampleW;
+        sampleCanvas.height = sampleH;
+        const sCtx = sampleCanvas.getContext('2d');
+        sCtx.drawImage(canvas, 0, 0, sampleW, sampleH);
+        const imgData = sCtx.getImageData(0, 0, sampleW, sampleH).data;
+
+        const rowCounts = new Int32Array(sampleH);
+        for (let y = 0; y < sampleH; y++) {
+            let darkCount = 0;
+            const rowOffset = y * sampleW * 4;
+            for (let x = 0; x < sampleW; x++) {
+                const idx = rowOffset + x * 4;
+                const lum = (imgData[idx] * 299 + imgData[idx + 1] * 587 + imgData[idx + 2] * 114) / 1000;
+                if (lum < 185) darkCount++;
+            }
+            rowCounts[y] = darkCount;
+        }
+
+        sampleCanvas.width = 1;
+        sampleCanvas.height = 1;
+
+        const darkThreshold = Math.max(2, Math.round(sampleW * 0.01));
+        const lineBands = [];
+        let inBand = false;
+        let bandStart = 0;
+
+        for (let y = 0; y < sampleH; y++) {
+            const hasText = rowCounts[y] >= darkThreshold;
+            if (hasText && !inBand) {
+                inBand = true;
+                bandStart = y;
+            } else if (!hasText && inBand) {
+                inBand = false;
+                if (y - bandStart >= 4) {
+                    lineBands.push({ start: bandStart, end: y });
+                }
+            }
+        }
+        if (inBand && sampleH - bandStart >= 4) {
+            lineBands.push({ start: bandStart, end: sampleH });
+        }
+
+        const invScale = 1.0 / scale;
+        const lines = [];
+
+        for (const band of lineBands) {
+            const origY = Math.max(0, Math.floor((band.start - 3) * invScale));
+            const origEndY = Math.min(canvas.height, Math.ceil((band.end + 3) * invScale));
+            const origH = origEndY - origY;
+
+            if (origH >= 14) {
+                lines.push({ x: 0, y: origY, w: canvas.width, h: origH });
+            }
+        }
+
+        // If no distinct lines found, split into standard overlapping horizontal bands
+        if (lines.length === 0) {
+            const stripH = 70;
+            const step = 50;
+            for (let y = 0; y < canvas.height; y += step) {
+                const h = Math.min(stripH, canvas.height - y);
+                lines.push({ x: 0, y, w: canvas.width, h });
+            }
+        }
+
+        return lines;
+    },
+
+    async recognizeCanvasOnnx(canvas, onProgress) {
+        if (!this.sessionRec) throw new Error('PaddleOCR Recognition session not loaded');
+
+        // Dynamically detect expected input height (48 for PP-OCRv4/v5, 32 for v3)
+        let targetH = 48;
+        try {
+            const inputMeta = this.sessionRec.inputMetadata;
+            const inputName = this.sessionRec.inputNames[0] || 'x';
+            if (inputMeta && inputMeta[inputName] && Array.isArray(inputMeta[inputName].dimensions)) {
+                const hDim = inputMeta[inputName].dimensions[2];
+                if (typeof hDim === 'number' && hDim > 0) targetH = hDim;
+            }
+        } catch (e) {}
+
+        const targetW = Math.max(32, Math.min(1024, Math.round((canvas.width * targetH) / canvas.height)));
+
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = targetW;
+        tempCanvas.height = targetH;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.fillStyle = '#ffffff';
+        tempCtx.fillRect(0, 0, targetW, targetH);
+        tempCtx.drawImage(canvas, 0, 0, targetW, targetH);
+        const resizedData = tempCtx.getImageData(0, 0, targetW, targetH).data;
+
+        const floatData = new Float32Array(3 * targetH * targetW);
+        for (let y = 0; y < targetH; y++) {
+            for (let x = 0; x < targetW; x++) {
+                const srcIdx = (y * targetW + x) * 4;
+                const r = (resizedData[srcIdx] / 255.0 - 0.5) / 0.5;
+                const g = (resizedData[srcIdx + 1] / 255.0 - 0.5) / 0.5;
+                const b = (resizedData[srcIdx + 2] / 255.0 - 0.5) / 0.5;
+
+                floatData[0 * targetH * targetW + y * targetW + x] = r;
+                floatData[1 * targetH * targetW + y * targetW + x] = g;
+                floatData[2 * targetH * targetW + y * targetW + x] = b;
+            }
+        }
+
+        const inputTensor = new ort.Tensor('float32', floatData, [1, 3, targetH, targetW]);
+        const inputName = this.sessionRec.inputNames[0] || 'x';
+        const feeds = {};
+        feeds[inputName] = inputTensor;
+
+        const results = await this.sessionRec.run(feeds);
+        const outputName = this.sessionRec.outputNames[0];
+        const outputTensor = results[outputName];
+
+        const text = this.ctcDecode(outputTensor);
+        tempCanvas.width = 1;
+        tempCanvas.height = 1;
+        return text;
+    },
+
+    ctcDecode(outputTensor) {
+        const [batch, steps, numClasses] = outputTensor.dims;
+        const data = outputTensor.data;
+        const dict = this.getDefaultDict();
+
+        let lastIdx = -1;
+        let recognizedChars = [];
+
+        for (let t = 0; t < steps; t++) {
+            let maxProb = -Infinity;
+            let maxIdx = 0;
+            const offset = t * numClasses;
+
+            for (let c = 0; c < numClasses; c++) {
+                const prob = data[offset + c];
+                if (prob > maxProb) {
+                    maxProb = prob;
+                    maxIdx = c;
+                }
+            }
+
+            if (maxIdx > 0 && maxIdx !== lastIdx && maxIdx < dict.length) {
+                recognizedChars.push(dict[maxIdx]);
+            }
+            lastIdx = maxIdx;
+        }
+
+        return recognizedChars.join('');
+    },
+
+    async recognizeViaServer(canvas) {
+        const base64 = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+        const resp = await fetch(this.serverUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ images: [base64] })
+        });
+        if (!resp.ok) throw new Error(`PaddleOCR Server returned HTTP ${resp.status}`);
+        const data = await resp.json();
+        if (data.results && Array.isArray(data.results[0])) {
+            return data.results[0].map(item => item.text).join('\n');
+        }
+        return JSON.stringify(data);
+    }
+};
+
 // --- PERMANENT PIXEL BURN-IN EXPORT PIPELINE (jsPDF & CANVAS) ---
 async function exportFlattenedIsolatedPdf() {
     const files = [...$('pdfFiles').files];
@@ -2748,6 +3164,56 @@ async function runIsolatedRoiOcr() {
             const pool = Array.from({ length: Math.min(concurrency, allPages.length) }, () => roiAiWorker());
             await Promise.all(pool);
             extractedText = pageTexts.filter(Boolean).join('\n');
+        } else if (selectedEngine === 'paddle') {
+            // PaddleOCR deep learning on cropped ROI
+            for (let fIdx = 0; fIdx < pdfDocs.length; fIdx++) {
+                const { file, pdf } = pdfDocs[fIdx];
+                for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+                    const currentPct = 15 + ((processedPages / totalPages) * 75);
+                    setProgress(currentPct, `PaddleOCR ROI: ${file.name} • P.${pageNo}/${pdf.numPages}`);
+                    setStatus(`PaddleOCR scanning ROI ${file.name} (page ${pageNo} of ${pdf.numPages})...`);
+
+                    const page = await pdf.getPage(pageNo);
+                    const scale = 2.0;
+                    const viewport = page.getViewport({ scale });
+
+                    const fullCanvas = document.createElement('canvas');
+                    fullCanvas.width = viewport.width;
+                    fullCanvas.height = viewport.height;
+                    const fullCtx = fullCanvas.getContext('2d');
+                    await page.render({ canvasContext: fullCtx, viewport }).promise;
+
+                    const padX = Math.round(fullCanvas.width * 0.015);
+                    const padY = Math.round(fullCanvas.height * 0.015);
+                    const doX = Math.max(0, Math.floor(roiBox.x * fullCanvas.width) - padX);
+                    const doY = Math.max(0, Math.floor(roiBox.y * fullCanvas.height) - padY);
+                    const doW = Math.min(fullCanvas.width - doX, Math.ceil(roiBox.width * fullCanvas.width) + (padX * 2));
+                    const doH = Math.min(fullCanvas.height - doY, Math.ceil(roiBox.height * fullCanvas.height) + (padY * 2));
+
+                    const cropCanvas = document.createElement('canvas');
+                    cropCanvas.width = Math.max(20, doW);
+                    cropCanvas.height = Math.max(20, doH);
+                    const cropCtx = cropCanvas.getContext('2d');
+                    cropCtx.fillStyle = '#ffffff';
+                    cropCtx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
+                    cropCtx.drawImage(fullCanvas, doX, doY, doW, doH, 0, 0, doW, doH);
+
+                    if (currentEnhancePreset !== 'none') {
+                        applyCanvasEnhancement(cropCanvas, currentEnhancePreset);
+                    }
+
+                    const roiText = await PaddleOcrManager.recognize(cropCanvas, (p, msg) => {
+                        setProgress(currentPct, msg);
+                    });
+                    extractedText += `\n${roiText}\n`;
+
+                    cropCanvas.width = 1;
+                    cropCanvas.height = 1;
+                    fullCanvas.width = 1;
+                    fullCanvas.height = 1;
+                    processedPages++;
+                }
+            }
         } else {
             // Local Tesseract OCR (sequential)
             for (let fIdx = 0; fIdx < pdfDocs.length; fIdx++) {
@@ -3075,7 +3541,42 @@ async function runOcr() {
             });
         }
 
-        if (selectedEngine === 'ai') {
+        if (selectedEngine === 'paddle') {
+            for (let fIdx = 0; fIdx < pdfDocs.length; fIdx++) {
+                const { file, pdf } = pdfDocs[fIdx];
+                for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+                    const currentPct = 15 + ((processedPages / totalPages) * 80);
+                    setProgress(currentPct, `PaddleOCR: ${file.name} • Page ${pageNo}/${pdf.numPages}`);
+                    setStatus(`PaddleOCR scanning ${file.name}: page ${pageNo} of ${pdf.numPages}...`);
+
+                    const page = await pdf.getPage(pageNo);
+                    const textContent = await page.getTextContent();
+                    const embeddedText = textContent.items.map(item => item.str).join(' ').replace(/\s+/g, ' ').trim();
+                    let pageText = embeddedText;
+
+                    if (!embeddedText) {
+                        const viewport = page.getViewport({ scale: 2.0 });
+                        const canvas = document.createElement('canvas');
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+
+                        if (currentEnhancePreset !== 'none') {
+                            applyCanvasEnhancement(canvas, currentEnhancePreset);
+                        }
+
+                        pageText = await PaddleOcrManager.recognize(canvas, (p, msg) => {
+                            setProgress(currentPct, msg);
+                        });
+                        canvas.width = 1;
+                        canvas.height = 1;
+                    }
+
+                    extractedText += `\n${pageText}\n`;
+                    processedPages++;
+                }
+            }
+        } else if (selectedEngine === 'ai') {
             const allPages = [];
             for (let fIdx = 0; fIdx < pdfDocs.length; fIdx++) {
                 const { file, pdf } = pdfDocs[fIdx];
@@ -3185,7 +3686,11 @@ async function runOcr() {
         const pConfig = (selectedEngine === 'ai') ? getActivePromptConfig() : { isDoOnly: true };
         numbers = extractNumbers(extractedText);
         if (pConfig.isDoOnly) {
-            $('fullText').value = numbers.join('\n');
+            if (numbers.length > 0) {
+                $('fullText').value = numbers.join('\n');
+            } else {
+                $('fullText').value = `[Notice: 0 numbers matching 81xxxxxx or 85xxxxxx pattern]\n\n--- RAW EXTRACTED TEXT FROM SCAN ---\n${extractedText.trim() || '(No characters detected by OCR engine. Try switching to Local Tesseract or adjusting scan contrast)'}`;
+            }
         } else {
             $('fullText').value = extractedText.trim();
         }
