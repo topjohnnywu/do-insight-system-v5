@@ -506,6 +506,63 @@
             color: #dc2626 !important;
             border-color: #fca5a5 !important;
         }
+
+        /* Copy Manifest DOs Button */
+        .btn-copy-manifest {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 32px;
+            padding: 0 12px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 8px;
+            background: var(--surface-raised, #27272a);
+            border: 1px solid var(--border, #3f3f46);
+            color: var(--fg, #f4f4f5);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        .btn-copy-manifest:hover:not(:disabled) {
+            background: var(--accent, #3b82f6);
+            border-color: var(--accent, #3b82f6);
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.25);
+        }
+
+        .btn-copy-manifest:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-copy-manifest:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .btn-copy-manifest.copied {
+            background: #059669 !important;
+            border-color: #10b981 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3) !important;
+        }
+
+        body.light-mode .btn-copy-manifest {
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            color: #334155 !important;
+        }
+
+        body.light-mode .btn-copy-manifest:hover:not(:disabled) {
+            background: #2563eb !important;
+            border-color: #2563eb !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25) !important;
+        }
     </style>
 </head>
 <body>
@@ -878,6 +935,15 @@
                             <svg class="status-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                             <input type="text" id="insightSearch" class="search-box manifest-search-input" placeholder="Search DOs, Status, Address..." onkeyup="applyInsightFilter()">
                         </div>
+
+                        <!-- Copy Filtered DOs Button -->
+                        <button type="button" id="btnCopyManifestDos" class="btn-copy-manifest" onclick="copyFilteredManifestDos()" title="Copy all currently filtered DO numbers (newline-separated)">
+                            <svg class="copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                            <span id="btnCopyManifestText">Copy DOs</span>
+                        </button>
                     </div>
                 </div>
 
@@ -1143,6 +1209,55 @@
             return `<span class="manifest-type-pill type-small">${escapeHtml(upper)}</span>`;
         }
 
+        let copyManifestTimeout = null;
+        async function copyFilteredManifestDos() {
+            const dos = window.currentFilteredDos || [];
+            if (!dos.length) return;
+
+            const textToCopy = dos.join('\n');
+            const copyBtn = document.getElementById("btnCopyManifestDos");
+
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(textToCopy);
+                } else {
+                    const textarea = document.createElement("textarea");
+                    textarea.value = textToCopy;
+                    textarea.style.position = "fixed";
+                    textarea.style.opacity = "0";
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(textarea);
+                }
+
+                if (copyBtn) {
+                    if (copyManifestTimeout) clearTimeout(copyManifestTimeout);
+                    copyBtn.classList.add("copied");
+                    copyBtn.innerHTML = `
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Copied ${dos.length} DOs!</span>
+                    `;
+
+                    copyManifestTimeout = setTimeout(() => {
+                        copyBtn.classList.remove("copied");
+                        const count = (window.currentFilteredDos || []).length;
+                        copyBtn.innerHTML = `
+                            <svg class="copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                            <span id="btnCopyManifestText">${count > 0 ? `Copy DOs (${count})` : "Copy DOs"}</span>
+                        `;
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error("Failed to copy DOs:", err);
+            }
+        }
+
         function applyInsightFilter() {
             const SelectedType = document.getElementById("typeFilter").value;
             const SelectedTruck = document.getElementById("truckFilter") ? document.getElementById("truckFilter").value : "ALL";
@@ -1300,6 +1415,16 @@
                     `;
                     tbody.appendChild(tr);
                 });
+            }
+
+            // Update Copy DOs Button with currently filtered DO numbers
+            window.currentFilteredDos = Filtered.map(item => item.inv).filter(Boolean);
+            const copyBtn = document.getElementById("btnCopyManifestDos");
+            const copyText = document.getElementById("btnCopyManifestText");
+            if (copyBtn && copyText && !copyBtn.classList.contains("copied")) {
+                const count = window.currentFilteredDos.length;
+                copyText.innerText = count > 0 ? `Copy DOs (${count})` : "Copy DOs";
+                copyBtn.disabled = (count === 0);
             }
 
             // Dynamic 3-stage gauge completion status color: 0-49% Red, 50-80% Yellow, 81-100% Green
