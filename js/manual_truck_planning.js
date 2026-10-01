@@ -306,7 +306,7 @@ function renderDoBadgeWithBreakdown(doObj, theme = 'green') {
     const splitInfo = getDoSplitInfo(doObj);
 
     const fractionBadge = splitInfo.isSplit 
-        ? `<span class="badge" style="background: rgba(245, 158, 11, 0.18); color: #fbbf24; font-size: 0.72rem; font-family: Aptos Display, sans-serif; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.35); padding: 1px 5px;">${splitInfo.fraction}</span>`
+        ? `<span class="badge" style="background: rgba(245, 158, 11, 0.18); color: #fbbf24; font-size: 0.72rem; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.35); padding: 1px 5px;">${splitInfo.fraction}</span>`
         : '';
 
     if (!doObj.remark) {
@@ -324,9 +324,9 @@ function renderDoBadgeWithBreakdown(doObj, theme = 'green') {
         if (match) {
             const model = match[1].trim();
             const pcs = parseInt(match[2].trim(), 10).toLocaleString();
-            return `<span style="background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.28); padding: 1px 6px; border-radius: 4px; font-size: 0.72rem; font-family: Aptos Display, sans-serif; font-weight: 700; white-space: nowrap;">✂️ ${model}: ${pcs} pcs</span>`;
+            return `<span style="background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.28); padding: 1px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; white-space: nowrap;">✂️ ${model}: ${pcs} pcs</span>`;
         }
-        return `<span style="background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.28); padding: 1px 6px; border-radius: 4px; font-size: 0.72rem; font-family: Aptos Display, sans-serif; font-weight: 700; white-space: nowrap;">✂️ ${p}</span>`;
+        return `<span style="background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.28); padding: 1px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; white-space: nowrap;">✂️ ${p}</span>`;
     }).join(' ');
 
     return `
@@ -360,7 +360,7 @@ function renderUnassignedDOs() {
             <td style="text-align: center;"><input type="checkbox" class="do-checkbox" value="${doObj.inv}" onchange="updateAssignButtonState()"></td>
             <td>${renderDoBadgeWithBreakdown(doObj, 'blue')}</td>
             <td style="font-size: 0.84rem; color: var(--fg);">${doObj.name}</td>
-            <td style="text-align: right; font-family: Aptos Display, sans-serif; font-size: 0.85rem; font-weight: 500;">${effectiveQty.toLocaleString()}</td>
+            <td style="text-align: right; font-size: 0.85rem; font-weight: 500;">${effectiveQty.toLocaleString()}</td>
             <td style="text-align: center;">
                 <button onclick="window.openSplitModal('${doObj.inv}')" style="background: none; border: none; color: var(--fg-muted); cursor: pointer; padding: 4px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center;" title="Split DO">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"></path><path d="M8 3H3v5"></path><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.828L3 3"></path><path d="M15 16l6-6"></path></svg>
@@ -606,7 +606,7 @@ function renderTruckBoards() {
                     <span style="color: var(--fg-subtle); margin-left: 4px;">${doObj.name || ''}</span>
                     ${tagBadge}
                 </td>
-                <td style="text-align: right; font-family: Aptos Display, sans-serif; font-size: 0.85rem; font-weight: 600; color: #fbbf24;">${rowQty.toLocaleString()}</td>
+                <td style="text-align: right; font-size: 0.85rem; font-weight: 600; color: #fbbf24;">${rowQty.toLocaleString()}</td>
                 <td style="text-align: center; white-space: nowrap;">
                     ${switchDropBtn}
                     <button onclick="window.openSplitModal('${doObj.inv}')" style="background: none; border: none; color: var(--fg-muted); cursor: pointer; padding: 4px; border-radius: 4px;" title="Split DO">
@@ -766,7 +766,7 @@ function renderTruckBoards() {
                                 ${(currentStatus1 === 'Top Urgent') ? renderRouteDropdown(tId, 1, routes1) : ''}
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="font-size: 0.72rem; color: var(--fg-muted); font-family: Aptos Display, sans-serif;">${drop1List.length} DOs • ${drop1Qty.toLocaleString()} pcs</span>
+                                <span style="font-size: 0.72rem; color: var(--fg-muted); ">${drop1List.length} DOs • ${drop1Qty.toLocaleString()} pcs</span>
                                 <button type="button" onclick="window.openManualDoModal('${tId}', 1)" class="action-btn" style="padding: 2px 7px; font-size: 0.7rem; border-radius: 4px; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" title="Add manual DO to 1st Drop">
                                     + Add DO
                                 </button>
@@ -799,7 +799,7 @@ function renderTruckBoards() {
                                 ${(currentStatus2 === 'Top Urgent') ? renderRouteDropdown(tId, 2, routes2) : ''}
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="font-size: 0.72rem; color: var(--fg-muted); font-family: Aptos Display, sans-serif;">${drop2List.length} DOs • ${drop2Qty.toLocaleString()} pcs</span>
+                                <span style="font-size: 0.72rem; color: var(--fg-muted); ">${drop2List.length} DOs • ${drop2Qty.toLocaleString()} pcs</span>
                                 <button type="button" onclick="window.openManualDoModal('${tId}', 2)" class="action-btn" style="padding: 2px 7px; font-size: 0.7rem; border-radius: 4px; background: rgba(167, 139, 250, 0.15); color: #c084fc; border: 1px solid rgba(167, 139, 250, 0.3); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" title="Add manual DO to 2nd Drop">
                                     + Add DO
                                 </button>
@@ -843,7 +843,7 @@ function renderTruckBoards() {
                                 : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg><span>Hide in Plan</span>`}
                         </button>
                         <span class="badge" style="background: var(--surface); color: var(--fg-subtle); font-size: 0.75rem; border: 1px solid var(--border);">${assignedList.length} DOs</span>
-                        <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 0.75rem; font-family: Aptos Display, sans-serif; font-weight: 600;">${totalQty.toLocaleString()} pcs</span>
+                        <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 0.75rem; font-weight: 600;">${totalQty.toLocaleString()} pcs</span>
                         <button type="button" id="batchHubBtn-${tId}" onclick="window.openBatchHubModal('${tId}')" class="action-btn" style="padding: 3px 8px; font-size: 0.74rem; border-radius: var(--radius-control); background: rgba(245, 158, 11, 0.14); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;" title="Assign or change Hub for selected DOs in this truck">
                             <span>🏷️</span>
                             <span id="batchHubBtnText-${tId}">Assign Hub</span>
@@ -1952,7 +1952,7 @@ window.renderVerificationErrors = function(consigneeViolations, hubViolations) {
         const directListHtml = v.directItems.map(d => 
             `<div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 6px; font-size: 12px; margin-bottom: 4px;">
                 <div>
-                    <strong style="color: var(--fg); font-family: monospace;">${d.displayInv}</strong>
+                    <strong style="color: var(--fg); font-weight: 700;">${d.displayInv}</strong>
                     <span style="color: var(--fg-muted); margin-left: 6px;">(${d.truckLabel} • ${d.dropLabel})</span>
                 </div>
                 <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px;">Direct</span>
@@ -1962,7 +1962,7 @@ window.renderVerificationErrors = function(consigneeViolations, hubViolations) {
         const problematicListHtml = v.problematicItems.map(d => 
             `<div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 6px; font-size: 12px; margin-bottom: 4px;">
                 <div>
-                    <strong style="color: #ef4444; font-family: monospace;">${d.displayInv}</strong>
+                    <strong style="color: #ef4444; font-weight: 700;">${d.displayInv}</strong>
                     <span style="color: var(--fg-muted); margin-left: 6px;">(${d.truckLabel} • ${d.dropLabel})</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 6px;">
@@ -2013,7 +2013,7 @@ window.renderVerificationErrors = function(consigneeViolations, hubViolations) {
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <span style="width: 22px; height: 22px; border-radius: 50%; background: rgba(245, 158, 11, 0.15); color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">${index++}</span>
-                        <strong style="font-size: 13px; color: var(--fg);">Duplicate Hub: <span style="color: #f59e0b; font-family: monospace;">${v.hub}</span></strong>
+                        <strong style="font-size: 13px; color: var(--fg);">Duplicate Hub: <span style="color: #f59e0b; font-weight: 700;">${v.hub}</span></strong>
                     </div>
                     <span style="font-size: 11px; color: #f59e0b; background: rgba(245, 158, 11, 0.1); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(245, 158, 11, 0.25); font-weight: 600;">${v.locationSummaries.length} Conflicting Locations</span>
                 </div>
@@ -2037,7 +2037,7 @@ window.renderAndShowFinalPlanModal = function() {
     const content = document.getElementById('finalPlanContent');
     if (!modal || !content) return;
     
-    let html = '<div class="manifest-plan-container" style="font-family: Aptos Display, sans-serif; font-size: 1.05rem; line-height: 1.5; color: var(--fg); background: var(--surface); padding: 16px; border-radius: 8px; border: 1px solid var(--border); columns: 2; column-gap: 36px; column-rule: 1.5px solid #000000; -webkit-column-rule: 1.5px solid #000000;">';
+    let html = '<div class="manifest-plan-container" style="font-size: 1.05rem; line-height: 1.5; color: var(--fg); background: var(--surface); padding: 16px; border-radius: 8px; border: 1px solid var(--border); columns: 2; column-gap: 36px; column-rule: 1.5px solid #000000; -webkit-column-rule: 1.5px solid #000000;">';
     
     const truckKeys = Object.keys(trucks);
     if (truckKeys.length === 0) {
@@ -2295,7 +2295,7 @@ window.printFinalPlan = function() {
     doc.write('@page { margin: 10mm 12mm; size: auto; }');
     doc.write('* { box-sizing: border-box; }');
     doc.write('html, body { height: 100%; margin: 0; padding: 0; }');
-    doc.write('body { font-family: Aptos Display, "Segoe UI", Arial, sans-serif; font-size: 12.5px; line-height: 1.45; padding: 12px; color: black; background: #fff; position: relative; }');
+    doc.write('body { font-family: var(--app-font-family, -apple-system, BlinkMacSystemFont, sans-serif); font-size: 12.5px; line-height: 1.45; padding: 12px; color: black; background: #fff; position: relative; }');
     doc.write('.manifest-plan-container { columns: 2; column-gap: 36px; column-rule: 1.5px solid #000000; -webkit-column-rule: 1.5px solid #000000; column-fill: auto; width: 100%; border: none !important; padding: 0 !important; background: transparent !important; }');
     doc.write('.manifest-truck-entry { break-inside: avoid-page; page-break-inside: avoid; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1.5px solid #000000 !important; white-space: pre-wrap; display: inline-block; width: 100%; }');
     doc.write('.manifest-truck-entry:last-child { border-bottom: none !important; margin-bottom: 0; padding-bottom: 0; }');
@@ -2850,7 +2850,7 @@ window.renderTruckPlanCanvas = function() {
                     ${dropTag}
                     <strong style="color: var(--fg-subtle);">${d.inv}</strong>
                     ${remarkTag}
-                    ${d.qty ? `<span style="color: var(--fg-muted); font-family: Aptos Display, sans-serif;">${(d.qty || 0).toLocaleString()} pcs</span>` : ''}
+                    ${d.qty ? `<span style="color: var(--fg-muted); ">${(d.qty || 0).toLocaleString()} pcs</span>` : ''}
                 </span>
             `;
         });
@@ -2875,15 +2875,15 @@ window.renderTruckPlanCanvas = function() {
                     <div style="display: flex; align-items: center; gap: 14px; font-size: 0.82rem;">
                         <div style="display: flex; align-items: center; gap: 6px; color: var(--fg-muted);">
                             <span>DOs:</span>
-                            <strong style="color: var(--fg); font-family: Aptos Display, sans-serif;">${assignedList.length}</strong>
+                            <strong style="color: var(--fg); ">${assignedList.length}</strong>
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px; color: var(--fg-muted);">
                             <span>Total Qty:</span>
-                            <strong style="color: #fbbf24; font-family: Aptos Display, sans-serif;">${totalQty.toLocaleString()} pcs</strong>
+                            <strong style="color: #fbbf24; ">${totalQty.toLocaleString()} pcs</strong>
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px; color: var(--fg-muted);">
                             <span>Volume:</span>
-                            <strong style="color: #34d399; font-family: Aptos Display, sans-serif;">${totalVol.toFixed(2)} m³</strong>
+                            <strong style="color: #34d399; ">${totalVol.toFixed(2)} m³</strong>
                         </div>
                     </div>
                 </div>
@@ -2913,7 +2913,7 @@ window.renderTruckPlanCanvas = function() {
                             <!-- Truck Vector Body -->
                             <div style="display: flex; align-items: center; background: #1e1b4b; border: 1.5px solid ${status1Color}; border-radius: 6px; padding: 4px 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.6), 0 0 10px ${status1Color}40; gap: 6px;">
                                 <!-- Container Box -->
-                                <div style="font-size: 0.7rem; font-weight: 800; color: #ffffff; font-family: Aptos Display, sans-serif; white-space: nowrap; display: flex; align-items: center; gap: 4px;">
+                                <div style="font-size: 0.7rem; font-weight: 800; color: #ffffff; white-space: nowrap; display: flex; align-items: center; gap: 4px;">
                                     <span>🚛 T${index + 1}</span>
                                     <span style="font-size: 0.65rem; color: ${status1Color}; opacity: 0.9;">${meta.size || '40'}</span>
                                 </div>
@@ -2922,7 +2922,7 @@ window.renderTruckPlanCanvas = function() {
                             </div>
                             
                             <!-- Payload floating tag -->
-                            <div style="font-size: 0.65rem; font-weight: 700; color: #fbbf24; font-family: Aptos Display, sans-serif; background: rgba(0,0,0,0.8); padding: 1px 5px; border-radius: 4px; margin-top: 3px; white-space: nowrap;">
+                            <div style="font-size: 0.65rem; font-weight: 700; color: #fbbf24; background: rgba(0,0,0,0.8); padding: 1px 5px; border-radius: 4px; margin-top: 3px; white-space: nowrap;">
                                 ${totalQty.toLocaleString()} pcs
                             </div>
                         </div>
@@ -2936,7 +2936,7 @@ window.renderTruckPlanCanvas = function() {
                         <div style="font-size: 0.74rem; font-weight: 700; color: #38bdf8; margin-top: 4px; white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis;">
                             ${isTwoDrop ? '1st Drop: ' : ''}${dest1Label}
                         </div>
-                        <div style="font-size: 0.65rem; color: var(--fg-muted); font-family: Aptos Display, sans-serif;">
+                        <div style="font-size: 0.65rem; color: var(--fg-muted); ">
                             ${meta.hub ? hub1Label + ' • ' : ''}${drop1List.length} DOs (${drop1Qty.toLocaleString()} pcs)
                         </div>
                     </div>
@@ -2950,7 +2950,7 @@ window.renderTruckPlanCanvas = function() {
                             <div style="font-size: 0.74rem; font-weight: 700; color: #c084fc; margin-top: 4px; white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis;">
                                 2nd Drop: ${dest2Label}
                             </div>
-                            <div style="font-size: 0.65rem; color: var(--fg-muted); font-family: Aptos Display, sans-serif;">
+                            <div style="font-size: 0.65rem; color: var(--fg-muted); ">
                                 ${meta.hub2 ? hub2Label + ' • ' : ''}${drop2List.length} DOs (${drop2Qty.toLocaleString()} pcs)
                             </div>
                         </div>
@@ -2972,4 +2972,65 @@ window.renderTruckPlanCanvas = function() {
     });
     
     container.innerHTML = html;
+};
+
+// Global shadcn/ui AlertDialog Handler for Manual Truck Planning
+window.showConfirmDialog = function({ title = "Are you absolutely sure?", message = "This action cannot be undone.", confirmText = "Continue", cancelText = "Cancel", isDanger = true } = {}) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById("shadcnConfirmModal");
+        if (!modal) {
+            resolve(window.confirm(message));
+            return;
+        }
+
+        const elTitle = document.getElementById("shadcnConfirmTitle");
+        const elMsg = document.getElementById("shadcnConfirmDescription");
+        const btnOk = document.getElementById("shadcnConfirmOkBtn");
+        const btnCancel = document.getElementById("shadcnConfirmCancelBtn");
+
+        if (elTitle) elTitle.innerText = title;
+        if (elMsg) elMsg.innerHTML = message.replace(/\n/g, "<br>");
+        if (btnCancel) btnCancel.innerText = cancelText;
+
+        if (btnOk) {
+            btnOk.innerText = confirmText;
+            btnOk.className = "alert-dialog-action " + (isDanger ? "action-destructive" : "action-primary");
+        }
+
+        modal.style.display = "flex";
+
+        const onKeyDown = (e) => {
+            if (e.key === "Escape") {
+                cleanup();
+                resolve(false);
+            }
+        };
+        window.addEventListener("keydown", onKeyDown);
+
+        const cleanup = () => {
+            modal.style.display = "none";
+            window.removeEventListener("keydown", onKeyDown);
+            if (btnOk) btnOk.onclick = null;
+            if (btnCancel) btnCancel.onclick = null;
+        };
+
+        if (btnOk) {
+            btnOk.onclick = () => {
+                cleanup();
+                resolve(true);
+            };
+        }
+
+        if (btnCancel) {
+            btnCancel.onclick = () => {
+                cleanup();
+                resolve(false);
+            };
+        }
+    });
+};
+
+window.handleShadcnConfirm = function(confirmed) {
+    const btn = confirmed ? document.getElementById("shadcnConfirmOkBtn") : document.getElementById("shadcnConfirmCancelBtn");
+    if (btn) btn.click();
 };

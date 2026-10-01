@@ -280,22 +280,22 @@
     --fg-muted: #8A8F98;
     --fg-subtle: rgba(255, 255, 255, 0.60);
 
-    --accent: #5E6AD2;
-    --accent-bright: #6872D9;
-    --accent-glow: rgba(94, 106, 210, 0.3);
-    --accent-glow-strong: rgba(94, 106, 210, 0.5);
+    --accent: #3b82f6;
+    --accent-bright: #60a5fa;
+    --accent-glow: rgba(59, 130, 246, 0.25);
+    --accent-glow-strong: rgba(59, 130, 246, 0.45);
 
-    --border: rgba(255, 255, 255, 0.06);
-    --border-hover: rgba(255, 255, 255, 0.10);
-    --border-accent: rgba(94, 106, 210, 0.30);
+    --border: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 255, 255, 0.14);
+    --border-accent: rgba(59, 130, 246, 0.35);
 
     --radius-card: 16px;
     --radius-control: 8px;
     --radius-pill: 9999px;
 
     --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 2px 20px rgba(0, 0, 0, 0.4), 0 0 40px rgba(0, 0, 0, 0.2);
-    --shadow-card-hover: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 80px rgba(94, 106, 210, 0.1);
-    --shadow-cta: 0 0 0 1px rgba(94, 106, 210, 0.5), 0 4px 12px rgba(94, 106, 210, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+    --shadow-card-hover: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 80px rgba(59, 130, 246, 0.15);
+    --shadow-cta: 0 0 0 1px rgba(59, 130, 246, 0.5), 0 4px 12px rgba(59, 130, 246, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
     --highlight-top: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
 
     --btn-export: var(--accent);
@@ -327,13 +327,13 @@
     --fg: #f4f4f5;
     --fg-muted: #a1a1aa;
     --fg-subtle: #71717a;
-    --accent: #10b981;
-    --accent-bright: #34d399;
-    --accent-glow: rgba(16, 185, 129, 0.25);
-    --accent-glow-strong: rgba(16, 185, 129, 0.45);
+    --accent: #3b82f6;
+    --accent-bright: #60a5fa;
+    --accent-glow: rgba(59, 130, 246, 0.25);
+    --accent-glow-strong: rgba(59, 130, 246, 0.45);
     --border: #18181b;
     --border-hover: #27272a;
-    --border-accent: rgba(16, 185, 129, 0.30);
+    --border-accent: rgba(59, 130, 246, 0.35);
     --radius-card: 8px;
     --radius-control: 6px;
     --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.8);
@@ -341,15 +341,15 @@
     --shadow-cta: 0 2px 6px rgba(0, 0, 0, 0.4);
     --highlight-top: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
 
-    --btn-export: #3b82f6;
-    --btn-export-hover: #2563eb;
-    --btn-compile: #8b5cf6;
-    --btn-compile-hover: #7c3aed;
-    --btn-email: #06b6d4;
-    --btn-email-hover: #0891b2;
-    --btn-danger-bg: linear-gradient(135deg, #b91c1c 0%, #dc2626 50%, #ef4444 100%);
-    --btn-danger-fg: #ffffff;
-    --btn-danger-hover-bg: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
+    --btn-export: var(--accent);
+    --btn-export-hover: var(--accent-bright);
+    --btn-compile: var(--accent);
+    --btn-compile-hover: var(--accent-bright);
+    --btn-email: var(--accent);
+    --btn-email-hover: var(--accent-bright);
+    --btn-danger-bg: rgba(239, 68, 68, 0.16);
+    --btn-danger-fg: #fca5a5;
+    --btn-danger-hover-bg: rgba(239, 68, 68, 0.32);
     --btn-danger-hover-fg: #ffffff;
 
     --ambient: 0;
@@ -367,13 +367,13 @@
     --fg: #0f172a;
     --fg-muted: #475569;
     --fg-subtle: #64748b;
-    --accent: #3b82f6;
-    --accent-bright: #2563eb;
-    --accent-glow: rgba(59, 130, 246, 0.25);
-    --accent-glow-strong: rgba(59, 130, 246, 0.45);
+    --accent: #2563eb;
+    --accent-bright: #1d4ed8;
+    --accent-glow: rgba(37, 99, 235, 0.25);
+    --accent-glow-strong: rgba(37, 99, 235, 0.45);
     --border: #e2e8f0;
     --border-hover: #cbd5e1;
-    --border-accent: rgba(59, 130, 246, 0.35);
+    --border-accent: rgba(37, 99, 235, 0.35);
     --radius-card: 12px;
     --radius-control: 6px;
     --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -381,12 +381,12 @@
     --shadow-cta: 0 1px 3px rgba(37, 99, 235, 0.25);
     --highlight-top: inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
 
-    --btn-export: #3b82f6;
-    --btn-export-hover: #2563eb;
-    --btn-compile: #8b5cf6;
-    --btn-compile-hover: #7c3aed;
-    --btn-email: #0891b2;
-    --btn-email-hover: #0e7490;
+    --btn-export: var(--accent);
+    --btn-export-hover: var(--accent-bright);
+    --btn-compile: var(--accent);
+    --btn-compile-hover: var(--accent-bright);
+    --btn-email: var(--accent);
+    --btn-email-hover: var(--accent-bright);
     --btn-danger-bg: rgba(239, 68, 68, 0.15);
     --btn-danger-fg: #dc2626;
     --btn-danger-hover-bg: #dc2626;
@@ -5174,9 +5174,6 @@ body.light-mode .glass-card {
 }
 
 .excel-check-item input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
-    accent-color: var(--accent, #3b82f6);
     cursor: pointer;
     margin: 0;
 }
@@ -5526,9 +5523,6 @@ body.light-mode .glass-card {
 
 .do-picker-item input[type="checkbox"] {
     cursor: pointer;
-    width: 15px;
-    height: 15px;
-    accent-color: var(--accent);
     margin: 0;
 }
 
@@ -5993,3 +5987,316 @@ body.light-mode .celebration-banner-text {
     color: #0f172a;
     text-shadow: none;
 }
+
+/* ==========================================================
+   shadcn/ui "Nova" (Base UI) Checkbox Specification
+   ========================================================== */
+input[type="checkbox"],
+.shadcn-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    flex-shrink: 0 !important;
+    border-radius: 4.5px !important;
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.22)) !important;
+    background-color: var(--surface-card, rgba(255, 255, 255, 0.03)) !important;
+    margin: 0;
+    padding: 0;
+    display: inline-grid;
+    place-content: center;
+    cursor: pointer;
+    vertical-align: middle;
+    position: relative;
+    transition: background-color 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 0.15s ease;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 12.5px 12.5px;
+    box-sizing: border-box;
+}
+
+/* Light Theme Unchecked State - Clean Zinc Border with Subtle Depth */
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:not(:checked):not(:indeterminate),
+html[data-theme="light"] input[type="checkbox"]:not(:checked):not(:indeterminate),
+body.light-mode input[type="checkbox"]:not(:checked):not(:indeterminate) {
+    border: 1.5px solid #71717a !important;
+    background-color: #ffffff !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* Hover State (Unchecked Only) */
+input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled) {
+    border-color: var(--accent, #3b82f6) !important;
+    background-color: var(--surface-hover, rgba(255, 255, 255, 0.08)) !important;
+}
+
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled),
+html[data-theme="light"] input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled),
+body.light-mode input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled) {
+    background-color: #f4f4f5 !important;
+    border-color: #09090b !important;
+}
+
+/* Hover State (Checked & Indeterminate - Keep solid fill and white icon with subtle boost) */
+input[type="checkbox"]:checked:hover:not(:disabled),
+input[type="checkbox"]:indeterminate:hover:not(:disabled) {
+    filter: brightness(1.12);
+}
+
+/* Checked State - Solid Accent in Dark/AMOLED */
+input[type="checkbox"]:checked {
+    background-color: var(--accent, #3b82f6) !important;
+    border-color: var(--accent, #3b82f6) !important;
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27white%27%20stroke-width%3D%273.5%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M20%206%209%2017l-5-5%27%2F%3E%3C%2Fsvg%3E") !important;
+}
+
+/* Light Mode Explicit Checked State - Solid Pitch Black with Crisp White Checkmark */
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:checked,
+html[data-theme="light"] input[type="checkbox"]:checked,
+body.light-mode input[type="checkbox"]:checked {
+    background-color: #09090b !important;
+    border-color: #09090b !important;
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27white%27%20stroke-width%3D%273.5%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M20%206%209%2017l-5-5%27%2F%3E%3C%2Fsvg%3E") !important;
+}
+
+/* Indeterminate State - Solid Accent in Dark/AMOLED */
+input[type="checkbox"]:indeterminate {
+    background-color: var(--accent, #3b82f6) !important;
+    border-color: var(--accent, #3b82f6) !important;
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27white%27%20stroke-width%3D%273.5%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M5%2012h14%27%2F%3E%3C%2Fsvg%3E") !important;
+}
+
+/* Light Mode Explicit Indeterminate State - Solid Pitch Black with Horizontal Dash */
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:indeterminate,
+html[data-theme="light"] input[type="checkbox"]:indeterminate,
+body.light-mode input[type="checkbox"]:indeterminate {
+    background-color: #09090b !important;
+    border-color: #09090b !important;
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27white%27%20stroke-width%3D%273.5%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M5%2012h14%27%2F%3E%3C%2Fsvg%3E") !important;
+}
+
+/* Focus Visible - Sharp Nova Offset Ring */
+input[type="checkbox"]:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 2px var(--bg, #0f172a), 0 0 0 4px var(--accent, #3b82f6) !important;
+}
+
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:focus-visible,
+html[data-theme="light"] input[type="checkbox"]:focus-visible,
+body.light-mode input[type="checkbox"]:focus-visible {
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #09090b !important;
+}
+
+/* Disabled State */
+input[type="checkbox"]:disabled {
+    opacity: 0.45 !important;
+    cursor: not-allowed !important;
+    filter: grayscale(0.5);
+}
+
+/* ==========================================================
+   shadcn/ui AlertDialog Component Specification
+   ========================================================== */
+.alert-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background-color: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    animation: alert-dialog-overlay-fade 0.15s ease-out;
+}
+
+@keyframes alert-dialog-overlay-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.alert-dialog-content {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    padding: 24px;
+    border-radius: 12px;
+    background-color: var(--surface-card, #18181b);
+    border: 1px solid var(--border-color, #27272a);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-sizing: border-box;
+    animation: alert-dialog-content-zoom 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: inherit;
+}
+
+@keyframes alert-dialog-content-zoom {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.alert-dialog-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+}
+
+.alert-dialog-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--fg, #fafafa);
+    letter-spacing: -0.015em;
+    font-family: inherit;
+}
+
+.alert-dialog-description {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--fg-muted, #a1a1aa);
+    font-family: inherit;
+}
+
+.alert-dialog-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.alert-dialog-cancel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    height: 38px;
+    padding: 0 16px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--fg, #fafafa);
+    border: 1px solid var(--border-color, #27272a);
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    font-family: inherit;
+}
+
+.alert-dialog-cancel:hover {
+    background-color: var(--surface-hover, rgba(255, 255, 255, 0.08));
+    color: var(--fg, #ffffff);
+}
+
+.alert-dialog-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    height: 38px;
+    padding: 0 16px;
+    cursor: pointer;
+    border: none;
+    transition: filter 0.15s ease, opacity 0.15s ease, background-color 0.15s ease;
+    font-family: inherit;
+}
+
+.alert-dialog-action.action-primary {
+    background-color: var(--accent, #3b82f6);
+    color: #ffffff;
+}
+
+.alert-dialog-action.action-primary:hover {
+    filter: brightness(1.1);
+}
+
+.alert-dialog-action.action-destructive {
+    background-color: #ef4444;
+    color: #ffffff;
+}
+
+.alert-dialog-action.action-destructive:hover {
+    background-color: #dc2626;
+}
+
+/* Light Theme Dynamic Adaptation */
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) .alert-dialog-overlay,
+html[data-theme="light"] .alert-dialog-overlay,
+body.light-mode .alert-dialog-overlay {
+    background-color: rgba(0, 0, 0, 0.45);
+}
+
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) .alert-dialog-content,
+html[data-theme="light"] .alert-dialog-content,
+body.light-mode .alert-dialog-content {
+    background-color: #ffffff;
+    border: 1px solid #e4e4e7;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) .alert-dialog-title,
+html[data-theme="light"] .alert-dialog-title,
+body.light-mode .alert-dialog-title {
+    color: #09090b;
+}
+
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) .alert-dialog-description,
+html[data-theme="light"] .alert-dialog-description,
+body.light-mode .alert-dialog-description {
+    color: #71717a;
+}
+
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) .alert-dialog-cancel,
+html[data-theme="light"] .alert-dialog-cancel,
+body.light-mode .alert-dialog-cancel {
+    background-color: #ffffff;
+    color: #09090b;
+    border: 1px solid #e4e4e7;
+}
+
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) .alert-dialog-cancel:hover,
+html[data-theme="light"] .alert-dialog-cancel:hover,
+body.light-mode .alert-dialog-cancel:hover {
+    background-color: #f4f4f5;
+    border-color: #d4d4d8;
+}
+
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) .alert-dialog-action.action-primary,
+html[data-theme="light"] .alert-dialog-action.action-primary,
+body.light-mode .alert-dialog-action.action-primary {
+    background-color: #09090b;
+    color: #f8fafc;
+}
+
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) .alert-dialog-action.action-primary:hover,
+html[data-theme="light"] .alert-dialog-action.action-primary:hover,
+body.light-mode .alert-dialog-action.action-primary:hover {
+    background-color: #27272a;
+}
+
+/* AMOLED Theme Dynamic Adaptation */
+html[data-theme="amoled"] .alert-dialog-content {
+    background-color: #000000;
+    border-color: #222222;
+}
+

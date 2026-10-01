@@ -196,7 +196,7 @@ class DOSummaryGenerator {
         }, duration);
     }
 
-    showConfirmDialog({ title = "Confirm Action", message = "Are you sure?", confirmText = "Confirm", isDanger = true, icon = "⚠️" }) {
+    showConfirmDialog({ title = "Are you absolutely sure?", message = "This action cannot be undone.", confirmText = "Continue", isDanger = true }) {
         return new Promise((resolve) => {
             const modal = document.getElementById("customConfirmModal");
             if (!modal) {
@@ -206,34 +206,30 @@ class DOSummaryGenerator {
 
             const elTitle = document.getElementById("confirmModalTitle");
             const elMsg = document.getElementById("confirmModalMessage");
-            const elIcon = document.getElementById("confirmModalIcon");
-            const iconBadge = document.getElementById("confirmModalIconBadge");
             const btnOk = document.getElementById("confirmModalOkBtn");
             const btnCancel = document.getElementById("confirmModalCancelBtn");
 
             if (elTitle) elTitle.innerText = title;
             if (elMsg) elMsg.innerHTML = message.replace(/\n/g, "<br>");
-            if (elIcon) elIcon.innerText = icon;
-
-            if (iconBadge) {
-                if (isDanger) {
-                    iconBadge.style.background = "rgba(239, 68, 68, 0.12)";
-                    iconBadge.style.borderColor = "rgba(239, 68, 68, 0.25)";
-                } else {
-                    iconBadge.style.background = "rgba(59, 130, 246, 0.12)";
-                    iconBadge.style.borderColor = "rgba(59, 130, 246, 0.25)";
-                }
-            }
             
             if (btnOk) {
                 btnOk.innerText = confirmText;
-                btnOk.style.background = isDanger ? "#ef4444" : "var(--accent, #2563eb)";
+                btnOk.className = "alert-dialog-action " + (isDanger ? "action-destructive" : "action-primary");
             }
 
             modal.style.display = "flex";
 
+            const onKeyDown = (e) => {
+                if (e.key === "Escape") {
+                    cleanup();
+                    resolve(false);
+                }
+            };
+            window.addEventListener("keydown", onKeyDown);
+
             const cleanup = () => {
                 modal.style.display = "none";
+                window.removeEventListener("keydown", onKeyDown);
                 btnOk.onclick = null;
                 btnCancel.onclick = null;
             };
@@ -248,6 +244,11 @@ class DOSummaryGenerator {
                 resolve(false);
             };
         });
+    }
+
+    handleConfirmModalResult(confirmed) {
+        const btn = confirmed ? document.getElementById("confirmModalOkBtn") : document.getElementById("confirmModalCancelBtn");
+        if (btn) btn.click();
     }
 
     async reset() {
@@ -2588,10 +2589,10 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
             if (isManual) {
                 html += `<tr style="background: rgba(59, 130, 246, 0.05);">
                     <td class="checkbox-cell" style="text-align: center; width: 44px;">
-                        <input type="checkbox" class="row-select-checkbox" ${isChecked} onchange="summaryGenerator.toggleRowSelect(${idx}, this.checked)" style="cursor: pointer; width: 18px; height: 18px; accent-color: #2563eb;">
+                        <input type="checkbox" class="row-select-checkbox" ${isChecked} onchange="summaryGenerator.toggleRowSelect(${idx}, this.checked)" style="cursor: pointer; width: 18px; height: 18px;">
                     </td>
                     <td><input type="text" class="compact-input" value="${r.invoiceNo}" placeholder="DO Number" 
-                        onchange="summaryGenerator.updateField(${bi}, ${idx}, 'invoiceNo', this.value)" style="width: 110px; font-family: monospace; font-weight: 700; color: #60a5fa;"></td>
+                        onchange="summaryGenerator.updateField(${bi}, ${idx}, 'invoiceNo', this.value)" style="width: 110px; font-weight: 700; color: var(--fg);"></td>
                     <td><input type="text" class="compact-input" value="${r.division || ''}" placeholder="DIV" 
                         onchange="summaryGenerator.updateField(${bi}, ${idx}, 'division', this.value)" style="width: 50px;"></td>
                     <td><input type="text" class="compact-input" value="${r.shpCode || ''}" placeholder="SHP" 
@@ -2615,10 +2616,10 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
             } else {
                 html += `<tr>
                     <td class="checkbox-cell" style="text-align: center; width: 44px;">
-                        <input type="checkbox" class="row-select-checkbox" ${isChecked} onchange="summaryGenerator.toggleRowSelect(${idx}, this.checked)" style="cursor: pointer; width: 18px; height: 18px; accent-color: #2563eb;">
+                        <input type="checkbox" class="row-select-checkbox" ${isChecked} onchange="summaryGenerator.toggleRowSelect(${idx}, this.checked)" style="cursor: pointer; width: 18px; height: 18px;">
                     </td>
                     <td><input type="text" class="compact-input" value="${r.invoiceNo}" placeholder="DO Number" 
-                        onchange="summaryGenerator.updateField(${bi}, ${idx}, 'invoiceNo', this.value)" style="width: 110px; font-family: monospace; font-weight: 700; color: #60a5fa;"></td>
+                        onchange="summaryGenerator.updateField(${bi}, ${idx}, 'invoiceNo', this.value)" style="width: 110px; font-weight: 700; color: var(--fg);"></td>
                     <td><input type="text" class="compact-input" value="${r.division || ''}" placeholder="DIV" 
                         onchange="summaryGenerator.updateField(${bi}, ${idx}, 'division', this.value)" style="width: 50px;"></td>
                     <td><input type="text" class="compact-input" value="${r.shpCode || ''}" placeholder="SHP" 

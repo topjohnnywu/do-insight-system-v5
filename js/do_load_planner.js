@@ -758,7 +758,7 @@ function renderTable() {
                 <td style="padding: 12px 8px;"><strong>${g.hub}</strong></td>
                 <td style="padding: 12px 8px;">${g.route}</td>
                 <td style="padding: 12px 8px; font-weight: 500;">${g.consignee}</td>
-                <td style="padding: 12px 8px; font-family: monospace; font-size: 13px;">${g.doNo}</td>
+                <td style="padding: 12px 8px; font-size: 13px; font-weight: 500;">${g.doNo}</td>
                 <td style="text-align: right; padding: 12px 8px; color: var(--accent); font-weight: 600;">${uniqueSkus}</td>
                 <td style="text-align: right; padding: 12px 8px; font-weight: 600;">${g.totalQty.toLocaleString()}</td>
                 <td style="text-align: right; padding: 12px 8px; color: #10b981; font-weight: 600;">${g.totalVol.toFixed(3)}</td>
