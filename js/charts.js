@@ -8,20 +8,19 @@ function updateThemeToggleButton(themeName) {
     const ToggleBtn = document.getElementById('themeToggleBtn');
     if (!ToggleBtn) return;
     const paletteIconSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: middle;"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg>`;
-    const label = ({ linear: "Linear", terminal: "Terminal", amoled: "AMOLED", light: "Light", organic: "Organic", cyber: "Cyberpunk", bitcoin: "Bitcoin", github: "GitHub" })[themeName] || "Themes";
+    const label = ({ linear: "Linear", amoled: "AMOLED", light: "Light" })[themeName] || "Themes";
     ToggleBtn.innerHTML = `${paletteIconSvg} <span>${label}</span>`;
     ToggleBtn.setAttribute("title", "Open Theme Settings");
 }
 
 function getCurrentTheme() {
     const t = document.documentElement.getAttribute("data-theme");
-    return (t === "linear" || t === "terminal" || t === "amoled" || t === "light" || t === "organic" || t === "cyber" || t === "bitcoin" || t === "github") ? t : "linear";
+    return (t === "linear" || t === "amoled" || t === "light") ? t : "linear";
 }
 
 function isLightTheme() {
     const t = getCurrentTheme();
-    if (t === "github") return document.body.classList.contains('github-light');
-    return t === "light" || t === "organic";
+    return t === "light";
 }
 
 function updateThemeMenu(themeName) {
@@ -40,12 +39,7 @@ let activeTheme = "linear";
 const THEME_PALETTES = {
     linear:   ["#5E6AD2", "#6872D9", "#a78bfa", "#18181b"],
     amoled:   ["#10b981", "#34d399", "#000000", "#27272a"],
-    light:    ["#3b82f6", "#2563eb", "#ffffff", "#e2e8f0"],
-    terminal: ["#33ff00", "#66ff33", "#0a0a0a", "#1f521f"],
-    organic:  ["#5D7052", "#6E8260", "#DED8CF", "#FDFCF8"],
-    cyber:    ["#00ff88", "#4dffab", "#ff2a6d", "#0a0a0f"],
-    bitcoin:  ["#F7931A", "#FFA93F", "#94A3B8", "#1E293B"],
-    github:   ["#58a6ff", "#3fb950", "#f0f6fc", "#0d1117"]
+    light:    ["#3b82f6", "#2563eb", "#ffffff", "#e2e8f0"]
 };
 
 function renderThemeSwatches() {
@@ -91,9 +85,7 @@ function buildThemeSidebar() {
     
     // Convert THEME_PALETTES to sidebar cards
     const themeNames = {
-        linear: "Linear (Default)", amoled: "AMOLED Dark", light: "Light Mode",
-        terminal: "Terminal", organic: "Organic",
-        cyber: "Cyberpunk", bitcoin: "Bitcoin", github: "GitHub"
+        linear: "Linear (Default)", amoled: "AMOLED Dark", light: "Light Mode"
     };
     
     Object.keys(THEME_PALETTES).forEach(themeKey => {
@@ -101,7 +93,7 @@ function buildThemeSidebar() {
         card.href = "#";
         card.className = "theme-card theme-option";
         card.setAttribute("data-theme-option", themeKey);
-        card.onclick = (e) => { e.preventDefault(); setTheme(themeKey); };
+        card.onclick = (e) => { e.preventDefault(); setTheme(themeKey, true, e); };
         
         const palette = THEME_PALETTES[themeKey];
         const swatch = document.createElement('div');
@@ -150,56 +142,121 @@ function applyChartTheme(themeName) {
     if (themeName === "light") {
         Chart.defaults.color = '#334155';
         Chart.defaults.borderColor = '#cbd5e1';
-    } else if (themeName === "terminal") {
-        Chart.defaults.color = '#33ff00';
-        Chart.defaults.borderColor = '#1f521f';
-    } else if (themeName === "organic") {
-        Chart.defaults.color = '#78786C';
-        Chart.defaults.borderColor = '#E6DCCD';
-    } else if (themeName === "cyber") {
-        Chart.defaults.color = '#00ff88';
-        Chart.defaults.borderColor = '#1c1c2e';
-    } else if (themeName === "bitcoin") {
-        Chart.defaults.color = '#94A3B8';
-        Chart.defaults.borderColor = '#1E293B';
-    } else if (themeName === "github") {
-        if (document.body.classList.contains('github-light')) {
-            Chart.defaults.color = '#59636e';
-            Chart.defaults.borderColor = '#d0d7de';
-        } else {
-            Chart.defaults.color = '#8d96a0';
-            Chart.defaults.borderColor = '#30363d';
-        }
     } else {
         Chart.defaults.color = '#a1a1aa';
         Chart.defaults.borderColor = '#18181b';
     }
 }
 
-// Apply a theme to the whole app. Valid themes: linear, terminal, amoled, light, organic, cyber, bitcoin, github.
-function setTheme(themeName, persist) {
-    const valid = ["linear", "terminal", "amoled", "light", "organic", "cyber", "bitcoin", "github"];
+// Track active view transition to prevent overlapping animations
+let isThemeTransitioning = false;
+
+// Apply a theme to the whole app. Valid themes: linear, amoled, light.
+function setTheme(themeName, persist, clickEvent) {
+    const valid = ["linear", "amoled", "light"];
     if (!valid.includes(themeName)) themeName = "linear";
     if (persist === undefined) persist = true;
 
     const changed = themeName !== getCurrentTheme();
-    document.documentElement.setAttribute("data-theme", themeName);
-    document.body.classList.toggle('light-mode', themeName === "light");
-    document.body.classList.remove('github-light');
 
     if (persist) {
         localStorage.setItem("AppThemeMode", themeName);
         activeTheme = themeName;
     }
 
-    updateThemeToggleButton(themeName);
-    updateThemeMenu(themeName);
-    applyChartTheme(themeName);
+    const applyThemeDOM = () => {
+        document.documentElement.setAttribute("data-theme", themeName);
+        document.body.classList.toggle('light-mode', themeName === "light");
 
-    if (!changed) return;
-    if (typeof refreshDashboard === 'function') refreshDashboard();
-    if (typeof applyInsightFilter === 'function') applyInsightFilter();
-    if (window.activityTrend && typeof window.activityTrend.renderUI === 'function') window.activityTrend.renderUI();
+        updateThemeToggleButton(themeName);
+        updateThemeMenu(themeName);
+        applyChartTheme(themeName);
+
+        if (!changed) return;
+        if (typeof refreshDashboard === 'function') refreshDashboard();
+        if (typeof applyInsightFilter === 'function') applyInsightFilter();
+        if (window.activityTrend && typeof window.activityTrend.renderUI === 'function') window.activityTrend.renderUI();
+    };
+
+    const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const canAnimate = clickEvent && typeof document.startViewTransition === 'function' && !prefersReducedMotion && !isThemeTransitioning;
+
+    if (!canAnimate) {
+        applyThemeDOM();
+        return;
+    }
+
+    // Determine coordinate origin from click or trigger element
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    let cx = vw / 2;
+    let cy = vh / 2;
+
+    if (clickEvent) {
+        if (typeof clickEvent.clientX === 'number' && typeof clickEvent.clientY === 'number' && (clickEvent.clientX !== 0 || clickEvent.clientY !== 0)) {
+            cx = clickEvent.clientX;
+            cy = clickEvent.clientY;
+        } else if (clickEvent.currentTarget && typeof clickEvent.currentTarget.getBoundingClientRect === 'function') {
+            const rect = clickEvent.currentTarget.getBoundingClientRect();
+            cx = rect.left + rect.width / 2;
+            cy = rect.top + rect.height / 2;
+        }
+    }
+
+    // Radius to reach furthest viewport corner
+    const maxRadius = Math.hypot(
+        Math.max(cx, vw - cx),
+        Math.max(cy, vh - cy)
+    );
+
+    const toX = (x) => `${(x / vw) * 100}%`;
+    const toY = (y) => `${(y / vh) * 100}%`;
+    const toRadius = (r) => `${(r / (Math.hypot(vw, vh) / Math.SQRT2)) * 100}%`;
+
+    const clipPath = [
+        `circle(0% at ${toX(cx)} ${toY(cy)})`,
+        `circle(${toRadius(maxRadius)} at ${toX(cx)} ${toY(cy)})`
+    ];
+
+    const root = document.documentElement;
+    root.dataset.themeVt = "active";
+    root.style.setProperty("--theme-toggle-vt-duration", "420ms");
+    isThemeTransitioning = true;
+
+    const cleanup = () => {
+        isThemeTransitioning = false;
+        delete root.dataset.themeVt;
+        root.style.removeProperty("--theme-toggle-vt-duration");
+    };
+
+    try {
+        const transition = document.startViewTransition(() => {
+            applyThemeDOM();
+        });
+
+        if (transition && typeof transition.finished?.finally === 'function') {
+            transition.finished.finally(cleanup).catch(() => {});
+        } else {
+            setTimeout(cleanup, 450);
+        }
+
+        if (transition && transition.ready && typeof transition.ready.then === 'function') {
+            transition.ready.then(() => {
+                document.documentElement.animate(
+                    { clipPath },
+                    {
+                        duration: 420,
+                        easing: "ease-in-out",
+                        fill: "forwards",
+                        pseudoElement: "::view-transition-new(root)"
+                    }
+                );
+            }).catch(() => {});
+        }
+    } catch (err) {
+        cleanup();
+        applyThemeDOM();
+    }
 }
 
 // Initialize theme state on page boot
@@ -208,13 +265,8 @@ function initTheme() {
     let theme = "linear";
     if (saved === "light") theme = "light";
     else if (saved === "dark" || saved === "amoled") theme = "amoled";
-    else if (saved === "terminal") theme = "terminal";
-    else if (saved === "organic") theme = "organic";
-    else if (saved === "cyber") theme = "cyber";
-    else if (saved === "bitcoin") theme = "bitcoin";
-    else if (saved === "github") theme = "github";
     else if (saved === "linear") theme = "linear";
-    // removed themes (dopamine/retro/mono/bauhaus/premium/winxp/win7) fall back to linear via setTheme validation
+    // Any legacy removed themes fall back to linear
     
     buildThemeSidebar(); // Ensure sidebar exists
     setTheme(theme, false);

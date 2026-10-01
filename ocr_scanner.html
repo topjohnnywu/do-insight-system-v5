@@ -21,79 +21,311 @@
         .ocr-status { margin:14px 0 0; color:var(--fg-muted); font-size:13px; min-height:20px; }
         .ocr-number-list { max-height:320px; overflow:auto; margin:0; padding-left:25px; font:13px var(--font-mono); color:var(--accent-bright); }
         
-        /* Animated Scanner HUD & Sarcastic Progress (Universal Theme-Adaptive) */
-        .ocr-progress-card {
+        /* ==========================================================
+           MacOS Terminal & CLI Progress Architecture (Modal Popup Window)
+           ========================================================== */
+        .terminal-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 10000;
             display: none;
-            margin-top: 14px;
-            background: var(--surface-card, var(--bg-elevated));
-            border: 1px solid var(--border-accent, var(--border));
-            border-radius: var(--radius-control, 8px);
-            padding: 14px 16px;
-            box-shadow: var(--shadow-card, 0 4px 20px rgba(0, 0, 0, 0.2));
-            position: relative;
-            overflow: hidden;
-            animation: ocrFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .ocr-progress-card.active { display: block; }
-        @keyframes ocrFadeIn {
-            from { opacity: 0; transform: translateY(-6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .ocr-scanner-visual {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 10px;
-        }
-        .scanner-hud-window {
-            position: relative;
-            width: 44px;
-            height: 44px;
-            background: var(--surface, rgba(125, 125, 125, 0.08));
-            border: 1px solid var(--border-accent, var(--border));
-            border-radius: var(--radius-control, 6px);
-            display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
+            animation: termBackdropFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .terminal-modal-backdrop.active {
+            display: flex;
+        }
+        @keyframes termBackdropFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .ocr-progress-card {
+            width: 100%;
+            max-width: 880px;
+            background: #09090b;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 14px;
+            padding: 0;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08);
+            position: relative;
             overflow: hidden;
+            animation: termWindowPop 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: max-width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            font-family: var(--font-mono, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace);
+        }
+        .ocr-progress-card.compact {
+            max-width: 640px;
+        }
+        [data-theme="light"] .ocr-progress-card {
+            background: #ffffff;
+            border-color: rgba(0, 0, 0, 0.12);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.08);
+        }
+        @keyframes termWindowPop {
+            from { opacity: 0; transform: scale(0.95) translateY(12px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .term-floating-reopen-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #09090b;
+            color: var(--fg);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 999px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+            font-family: var(--font-mono, monospace);
+        }
+        .term-floating-reopen-btn:hover {
+            transform: translateY(-2px);
+            border-color: #10b981;
+        }
+        .term-floating-reopen-btn.active {
+            display: flex;
+        }
+        [data-theme="light"] .term-floating-reopen-btn {
+            background: #ffffff;
+            border-color: rgba(0, 0, 0, 0.16);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .term-btn-dismiss {
+            display: none;
+            background: #10b981;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .term-btn-dismiss.active {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .term-btn-dismiss:hover {
+            background: #059669;
+        }
+
+        /* MacOS Window Header */
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            user-select: none;
+        }
+        [data-theme="light"] .terminal-header {
+            background: #f8fafc;
+            border-bottom-color: rgba(0, 0, 0, 0.08);
+        }
+        .terminal-dots {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .terminal-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            display: inline-block;
+            cursor: pointer;
+            transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+        .terminal-dot:hover { transform: scale(1.15); }
+        .dot-red { background: #ef4444; box-shadow: 0 0 6px rgba(239, 68, 68, 0.4); }
+        .dot-yellow { background: #f59e0b; box-shadow: 0 0 6px rgba(245, 158, 11, 0.4); }
+        .dot-green { background: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.4); }
+
+        .terminal-title {
+            font-size: 11px;
+            color: var(--fg-muted, #8a8f98);
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+        .terminal-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .terminal-btn-pill {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--fg-muted, #8a8f98);
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .terminal-btn-pill:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: var(--fg);
+        }
+        [data-theme="light"] .terminal-btn-pill {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
+
+        /* Terminal Body Console & Stick Figure Fight Canvas */
+        .terminal-body-wrap {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+        .terminal-fight-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.35;
+            transition: opacity 0.25s ease;
+        }
+        [data-theme="light"] .terminal-fight-canvas {
+            opacity: 0.25;
+        }
+        .terminal-fight-canvas.disabled {
+            display: none !important;
+        }
+        .terminal-body {
+            position: relative;
+            z-index: 1;
+            background: transparent;
+            padding: 14px 18px;
+            height: 440px;
+            max-height: 65vh;
+            min-height: 140px;
+            overflow-y: auto;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #d4d4d8;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: height 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .ocr-progress-card.compact .terminal-body {
+            height: 220px;
+        }
+        [data-theme="light"] .terminal-body {
+            color: #1e293b;
+        }
+        .terminal-body pre {
+            margin: 0;
+            font-family: inherit;
+        }
+        .terminal-cmd-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--fg);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .terminal-prompt {
+            color: #10b981;
+            user-select: none;
+            font-weight: 700;
+        }
+        .terminal-cursor {
+            display: inline-block;
+            width: 7px;
+            height: 14px;
+            background: var(--accent, #6366f1);
+            margin-left: 2px;
+            animation: terminalBlink 0.9s infinite;
+            vertical-align: middle;
+        }
+        @keyframes terminalBlink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        .terminal-line {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            animation: terminalLineFade 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            word-break: break-word;
+        }
+        @keyframes terminalLineFade {
+            from { opacity: 0; transform: translateY(-3px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .t-time {
+            color: #52525b;
+            font-size: 10px;
+            font-variant-numeric: tabular-nums;
             flex-shrink: 0;
         }
-        .scanner-hud-window svg {
-            width: 22px;
-            height: 22px;
-            stroke: var(--accent);
+        [data-theme="light"] .t-time { color: #94a3b8; }
+        .t-icon {
+            font-weight: 700;
+            flex-shrink: 0;
         }
-        .scanner-laser {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent), var(--accent-bright), var(--accent), transparent);
-            box-shadow: 0 0 8px var(--accent), 0 0 14px var(--accent-glow);
-            animation: laserSweep 1.4s ease-in-out infinite alternate;
+        .t-icon.success { color: #10b981; }
+        .t-icon.info { color: #38bdf8; }
+        .t-icon.warning { color: #f59e0b; }
+        .t-icon.error { color: #ef4444; }
+        .t-icon.gear { color: #a855f7; }
+        .t-text {
+            flex: 1;
+            min-width: 0;
         }
-        @keyframes laserSweep {
-            0% { transform: translateY(0); opacity: 0.8; }
-            50% { opacity: 1; }
-            100% { transform: translateY(42px); opacity: 0.8; }
+
+        /* Terminal Footer: Progress Bar & Status */
+        .terminal-footer {
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.25);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
-        .scanner-details { flex: 1; min-width: 0; }
-        .scanner-header-row {
+        [data-theme="light"] .terminal-footer {
+            background: #f1f5f9;
+            border-top-color: rgba(0, 0, 0, 0.06);
+        }
+        .terminal-progress-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            font-size: 11px;
         }
         .scanner-stage-badge {
             font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.4px;
+            font-weight: 600;
             color: var(--accent-bright, var(--accent));
-            background: var(--surface, rgba(125, 125, 125, 0.12));
-            padding: 2px 9px;
-            border-radius: var(--radius-pill, 999px);
-            border: 1px solid var(--border-accent, var(--border));
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -112,28 +344,30 @@
             to { opacity: 1; transform: scale(1.2); }
         }
         .scanner-percent {
-            font-family: var(--font-mono);
-            font-size: 13px;
+            font-family: inherit;
+            font-size: 12px;
             font-weight: 700;
             color: var(--fg);
         }
         .ocr-progress-track {
             width: 100%;
-            height: 8px;
-            background: var(--surface, rgba(125, 125, 125, 0.15));
-            border-radius: var(--radius-pill, 999px);
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
             overflow: hidden;
             position: relative;
-            border: 1px solid var(--border);
+        }
+        [data-theme="light"] .ocr-progress-track {
+            background: #e2e8f0;
         }
         .ocr-progress-fill {
             height: 100%;
             width: 0%;
-            border-radius: var(--radius-pill, 999px);
-            background: linear-gradient(90deg, var(--accent), var(--accent-bright), var(--accent));
+            border-radius: 999px;
+            background: linear-gradient(90deg, #10b981, #38bdf8, var(--accent));
             background-size: 200% 100%;
             animation: progressShimmer 2s linear infinite;
-            box-shadow: 0 0 10px var(--accent-glow);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         @keyframes progressShimmer {
@@ -141,36 +375,18 @@
             100% { background-position: -100% 0; }
         }
         .ocr-sarcastic-comment-box {
-            margin-top: 10px;
-            padding: 8px 12px;
-            background: var(--surface, rgba(125, 125, 125, 0.05));
-            border-left: 3px solid var(--accent);
-            border-radius: 0 var(--radius-control, 6px) var(--radius-control, 6px) 0;
+            font-size: 11px;
+            color: #71717a;
             display: flex;
-            align-items: flex-start;
-            gap: 8px;
-        }
-        .ocr-sarcastic-icon {
-            font-size: 13px;
-            line-height: 1.4;
-            flex-shrink: 0;
-            color: var(--accent);
-        }
-        .ocr-sarcastic-text {
-            font-size: 12px;
-            color: var(--fg-muted);
+            align-items: center;
+            gap: 6px;
             font-style: italic;
-            line-height: 1.4;
-            transition: opacity 0.25s ease, transform 0.25s ease;
         }
-        .ocr-sarcastic-text.fade-out {
-            opacity: 0;
-            transform: translateY(-4px);
+        [data-theme="light"] .ocr-sarcastic-comment-box {
+            color: #64748b;
         }
-        .ocr-sarcastic-text.fade-in {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        .ocr-sarcastic-icon { flex-shrink: 0; }
+        .ocr-sarcastic-text { line-height: 1.3; }
 
         /* Inverted Redaction & ROI Isolation Styles */
         .roi-card {
@@ -692,176 +908,208 @@
 </head>
 <body>
 <div class="app-container">
-    <div class="sidebar"><div>
-        <div class="sidebar-brand">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="1" y="3" width="15" height="13"/>
-                <polygon points="16 8 20 8 23 11 23 16 16 16 8"/>
-                <circle cx="5.5" cy="18.5" r="2.5"/>
-                <circle cx="18.5" cy="18.5" r="2.5"/>
-            </svg>
-            <div>
-                <div class="sidebar-brand-title">DO Insight Dashboard</div>
-                <div class="sidebar-brand-subtitle">DO Analytics & Truck Planning</div>
+        <div class="sidebar">
+        <div>
+            <!-- Sidebar Brand Header & Trigger -->
+            <div class="sidebar-brand">
+                <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                        <rect x="1" y="3" width="15" height="13"/>
+                        <polygon points="16 8 20 8 23 11 23 16 16 8"/>
+                        <circle cx="5.5" cy="18.5" r="2.5"/>
+                        <circle cx="18.5" cy="18.5" r="2.5"/>
+                    </svg>
+                    <div>
+                        <div class="sidebar-brand-title">DO Insight</div>
+                        <div class="sidebar-brand-subtitle">Analytics & Planning</div>
+                    </div>
+                </div>
+                <button type="button" class="sidebar-trigger-btn" onclick="window.setGlobalSidebarAutoHide && window.setGlobalSidebarAutoHide(document.documentElement.getAttribute('data-sidebar-autohide') !== 'true', true)" title="Toggle Sidebar (Ctrl+B / Cmd+B)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="18" height="18" x="3" y="3" rx="2"/>
+                        <path d="M9 3v18"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Group 1: Analytics & Tracking -->
+            <div class="sidebar-group">
+                <div class="sidebar-group-label">Analytics & Tracking</div>
+                <ul class="sidebar-nav">
+                    <li>
+                        <a href="index.html" class="sidebar-nav-item" data-title="Summary Analytics">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="9"/>
+                                <rect x="14" y="3" width="7" height="5"/>
+                                <rect x="14" y="12" width="7" height="9"/>
+                                <rect x="3" y="16" width="7" height="5"/>
+                            </svg>
+                            <span>Summary Analytics</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="shipping_insight.html" class="sidebar-nav-item" data-title="Tracking DO Status">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10"/>
+                                <line x1="12" y1="20" x2="12" y2="4"/>
+                                <line x1="6" y1="20" x2="6" y2="14"/>
+                            </svg>
+                            <span>Tracking DO Status</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="do_activity_trend.html" class="sidebar-nav-item" data-title="DO Activity Trend">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2 20h20"/>
+                                <path d="M4 20v-6"/>
+                                <path d="M9 20V10"/>
+                                <path d="M14 20V6"/>
+                                <path d="M19 20V2"/>
+                            </svg>
+                            <span>DO Activity Trend</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="batch_analytics.html" class="sidebar-nav-item" data-title="Batch Analytics">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            </svg>
+                            <span>Batch Analytics</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Group 2: Truck & Capacity Planning -->
+            <div class="sidebar-group">
+                <div class="sidebar-group-label">Truck & Capacity Planning</div>
+                <ul class="sidebar-nav">
+                    <li>
+                        <a href="manual_truck_planning.html" class="sidebar-nav-item" data-title="Truck Planning">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="1" y="3" width="15" height="13"/>
+                                <polygon points="16 8 20 8 23 11 23 16 16 8"/>
+                                <circle cx="5.5" cy="18.5" r="2.5"/>
+                                <circle cx="18.5" cy="18.5" r="2.5"/>
+                                <line x1="8" y1="11" x2="8" y2="11.01" stroke-width="4" stroke-linecap="round"/>
+                            </svg>
+                            <span>Truck Planning</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="truck_planning.html" class="sidebar-nav-item" data-title="Picking List Summary">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="1" y="3" width="15" height="13"/>
+                                <polygon points="16 8 20 8 23 11 23 16 16 8"/>
+                                <circle cx="5.5" cy="18.5" r="2.5"/>
+                                <circle cx="18.5" cy="18.5" r="2.5"/>
+                            </svg>
+                            <span>Picking List Summary</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="volume_capacity_planner.html" class="sidebar-nav-item" data-title="Volume Capacity Planner">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"/>
+                                <rect x="9" y="9" width="6" height="6"/>
+                                <line x1="9" y1="1" x2="9" y2="4"/>
+                                <line x1="15" y1="1" x2="15" y2="4"/>
+                                <line x1="9" y1="20" x2="9" y2="23"/>
+                                <line x1="15" y1="20" x2="15" y2="23"/>
+                                <line x1="20" y1="9" x2="23" y2="9"/>
+                                <line x1="20" y1="14" x2="23" y2="14"/>
+                                <line x1="1" y1="9" x2="4" y2="9"/>
+                                <line x1="1" y1="14" x2="4" y2="14"/>
+                            </svg>
+                            <span>Volume Capacity Planner</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="do_load_planner.html" class="sidebar-nav-item" data-title="DO Load Planner">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            </svg>
+                            <span>DO Load Planner</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="loose_load_planner.html" class="sidebar-nav-item" data-title="Loose Load Planning">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="1" y="3" width="15" height="13"/>
+                                <polygon points="16 8 20 8 23 11 23 16 16 8"/>
+                                <circle cx="5.5" cy="18.5" r="2.5"/>
+                                <circle cx="18.5" cy="18.5" r="2.5"/>
+                            </svg>
+                            <span>Loose Load Planning</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Group 3: Reporting & Scanner Tools -->
+            <div class="sidebar-group">
+                <div class="sidebar-group-label">Reporting & Scanner Tools</div>
+                <ul class="sidebar-nav">
+                    <li>
+                        <a href="ocr_scanner.html" class="sidebar-nav-item active" data-title="OCR Document Scanner">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/>
+                                <path d="M7 12h10M9 8v8M15 8v8"/>
+                            </svg>
+                            <span>OCR Document Scanner</span>
+                            <span class="sidebar-menu-badge">AI / FAST</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="do_details.html" class="sidebar-nav-item" data-title="DO Inspector">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                            <span>DO Inspector</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="do_summary_generator.html" class="sidebar-nav-item" data-title="DO Summary List">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="12" y1="18" x2="12" y2="12"/>
+                                <line x1="9" y1="15" x2="15" y2="15"/>
+                            </svg>
+                            <span>DO Summary List</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="challenger_list.html" class="sidebar-nav-item" data-title="Challenger List">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 11l3 3L22 4"/>
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                            </svg>
+                            <span>Challenger List</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="packing_sheet.html" class="sidebar-nav-item" data-title="Packing List">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 8V21H3V8"/>
+                                <path d="M1 3h22v5H1z"/>
+                                <path d="M10 12h4"/>
+                            </svg>
+                            <span>Packing List</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
-        <ul class="sidebar-nav">
-            <li>
-                <a href="index.html" class="sidebar-nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="7" height="9"/>
-                        <rect x="14" y="3" width="7" height="5"/>
-                        <rect x="14" y="12" width="7" height="9"/>
-                        <rect x="3" y="16" width="7" height="5"/>
-                    </svg>
-                    <span>Summary Analytics</span>
-                </a>
-            </li>
-            <li>
-                <a href="shipping_insight.html" class="sidebar-nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="20" x2="18" y2="10"/>
-                        <line x1="12" y1="20" x2="12" y2="4"/>
-                        <line x1="6" y1="20" x2="6" y2="14"/>
-                    </svg>
-                    <span>Tracking DO Status</span>
-                </a>
-            </li>
-            <li>
-                <a href="do_details.html" class="sidebar-nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/>
-                        <line x1="16" y1="17" x2="8" y2="17"/>
-                    </svg>
-                    <span>DO Inspector</span>
-                </a>
-            </li>
-            <li>
-                <a href="truck_planning.html" class="sidebar-nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="1" y="3" width="15" height="13"/>
-                        <polygon points="16 8 20 8 23 11 23 16 16 16 8"/>
-                        <circle cx="5.5" cy="18.5" r="2.5"/>
-                        <circle cx="18.5" cy="18.5" r="2.5"/>
-                    </svg>
-                    <span>Picking List Summary</span>
-                </a>
-            </li>
-            <li>
-                <a href="manual_truck_planning.html" class="sidebar-nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="1" y="3" width="15" height="13"/>
-                        <polygon points="16 8 20 8 23 11 23 16 16 16 8"/>
-                        <circle cx="5.5" cy="18.5" r="2.5"/>
-                        <circle cx="18.5" cy="18.5" r="2.5"/>
-                        <line x1="8" y1="11" x2="8" y2="11.01" stroke-width="4" stroke-linecap="round"/>
-                    </svg>
-                    <span>Truck Planning</span>
-                </a>
-            </li>
-            <li>
-                <a href="batch_analytics.html" class="sidebar-nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                        <line x1="12" y1="22.08" x2="12" y2="12"/>
-                    </svg>
-                    <span>Batch Analytics</span>
-                </a>
-            </li>
-            <li>
-                <a href="do_summary_generator.html" class="sidebar-nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="12" y1="18" x2="12" y2="12"/>
-                        <line x1="9" y1="15" x2="15" y2="15"/>
-                    </svg>
-                    <span>DO Summary List</span>
-                </a>
-            </li>
-            <li>
-                <a href="challenger_list.html" class="sidebar-nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 11l3 3L22 4"/>
-                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-                    </svg>
-                    <span>Challenger List</span>
-                </a>
-            </li>
-            <li>
-                <a href="do_activity_trend.html" class="sidebar-nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M2 20h20"/>
-                        <path d="M4 20v-6"/>
-                        <path d="M9 20V10"/>
-                        <path d="M14 20V6"/>
-                        <path d="M19 20V2"/>
-                    </svg>
-                    <span>DO Activity Trend</span>
-                </a>
-            </li>
-            <li>
-                <a href="volume_capacity_planner.html" class="sidebar-nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="4" y="4" width="16" height="16" rx="2" ry="2"/>
-                        <rect x="9" y="9" width="6" height="6"/>
-                        <line x1="9" y1="1" x2="9" y2="4"/>
-                        <line x1="15" y1="1" x2="15" y2="4"/>
-                        <line x1="9" y1="20" x2="9" y2="23"/>
-                        <line x1="15" y1="20" x2="15" y2="23"/>
-                        <line x1="20" y1="9" x2="23" y2="9"/>
-                        <line x1="20" y1="14" x2="23" y2="14"/>
-                        <line x1="1" y1="9" x2="4" y2="9"/>
-                        <line x1="1" y1="14" x2="4" y2="14"/>
-                    </svg>
-                    <span>Volume Capacity Planner</span>
-                </a>
-            </li>
-            <li>
-                <a href="do_load_planner.html" class="sidebar-nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                        <line x1="12" y1="22.08" x2="12" y2="12"/>
-                    </svg>
-                    <span>DO Load Planner</span>
-                </a>
-            </li>
-            <li>
-                <a href="loose_load_planner.html" class="sidebar-nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="1" y="3" width="15" height="13"/>
-                        <polygon points="16 8 20 8 23 11 23 16 16 16 8"/>
-                        <circle cx="5.5" cy="18.5" r="2.5"/>
-                        <circle cx="18.5" cy="18.5" r="2.5"/>
-                    </svg>
-                    <span>Loose Load Planning</span>
-                </a>
-            </li>
-            <li>
-                <a href="packing_sheet.html" class="sidebar-nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 8V21H3V8"/>
-                        <path d="M1 3h22v5H1z"/>
-                        <path d="M10 12h4"/>
-                    </svg>
-                    <span>Packing List</span>
-                </a>
-            </li>
-            <li>
-                <a href="ocr_scanner.html" class="sidebar-nav-item active">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/>
-                        <path d="M7 12h10M9 8v8M15 8v8"/>
-                    </svg>
-                    <span>OCR Document Scanner</span>
-                </a>
-            </li>
-        </ul>
-    </div><div style="padding:12px;border-top:1px solid var(--border);font-size:11px;color:var(--fg-subtle);text-align:center">DO Insight Dashboard</div></div>
+        <div style="padding:12px;border-top:1px solid var(--border);font-size:11px;color:var(--fg-subtle);text-align:center">DO Insight Dashboard</div>
+    </div>
     <main class="main-content"><div class="header"><div><h1 style="font-size:20px;margin:0">OCR Document Scanner</h1><p style="font-size:12px;color:var(--fg-muted);margin-top:4px">Extract text and isolate numerical values from scanned PDF documents</p></div></div>
         <div class="ocr-grid"><section class="ocr-card"><h2>1. Select PDFs</h2><p class="ocr-help">Upload PDF documents only. Files are rendered and processed locally in this browser. Scanned pages can be recognized with local Tesseract.js or Google Gemini AI Vision.</p><input id="pdfFiles" class="ocr-file" type="file" accept="application/pdf,.pdf" multiple>
         
@@ -986,33 +1234,65 @@
         </div>
         <div class="ocr-actions"><button id="runOcr" class="action-btn primary">Run OCR</button><button id="clearOcr" class="action-btn secondary">Clear</button></div>
         
-        <!-- Animated Scanner HUD & Sarcastic Progress Component -->
-        <div id="ocrProgressCard" class="ocr-progress-card">
-            <div class="ocr-scanner-visual">
-                <div class="scanner-hud-window">
-                    <div class="scanner-laser"></div>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                    </svg>
+        <!-- Modal Popup Backdrop for MacOS Terminal Console -->
+        <div id="terminalModalOverlay" class="terminal-modal-backdrop">
+            <!-- Animated MacOS Terminal Console (Magic UI Style) -->
+            <div id="ocrProgressCard" class="ocr-progress-card">
+                <!-- MacOS Window Header -->
+                <div class="terminal-header">
+                    <div class="terminal-dots">
+                        <span class="terminal-dot dot-red" id="termDotRed" title="Close Window"></span>
+                        <span class="terminal-dot dot-yellow" id="termDotYellow" title="Minimize to background"></span>
+                        <span class="terminal-dot dot-green" id="termDotGreen" title="Toggle Maximize / Restore"></span>
+                    </div>
+                    <div class="terminal-title">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #10b981;"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                        terminal — do-pipeline — zsh 80x24
+                    </div>
+                    <div class="terminal-controls">
+                        <button type="button" class="terminal-btn-pill" id="termBtnToggleFight" title="Toggle Stick Fight Background">🥋 Fight: ON</button>
+                        <button type="button" class="terminal-btn-pill" id="termBtnCopyLogs" title="Copy log stream to clipboard">📋 Copy</button>
+                        <button type="button" class="terminal-btn-pill" id="termBtnClearLogs" title="Clear terminal screen">🗑️ Clear</button>
+                    </div>
                 </div>
-                <div class="scanner-details">
-                    <div class="scanner-header-row">
-                        <span id="ocrStageBadge" class="scanner-stage-badge">Starting Engines</span>
-                        <span id="ocrPercent" class="scanner-percent">0%</span>
+
+                <!-- Terminal Output Stream with Background Stick Figure Fight Canvas -->
+                <div class="terminal-body-wrap">
+                    <canvas id="termFightCanvas" class="terminal-fight-canvas"></canvas>
+                    <div class="terminal-body" id="terminalLogBody">
+                        <div class="terminal-cmd-line">
+                            <span class="terminal-prompt">$</span>
+                            <span id="termActiveCmd">do-scanner --pipeline=ocr --isolate-roi</span>
+                            <span class="terminal-cursor"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terminal Footer: Realtime Progress Tracker -->
+                <div class="terminal-footer">
+                    <div class="terminal-progress-row">
+                        <span id="ocrStageBadge" class="scanner-stage-badge">Idle</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="ocrPercent" class="scanner-percent">0%</span>
+                            <button type="button" id="termBtnDismiss" class="term-btn-dismiss">Close Window ✕</button>
+                        </div>
                     </div>
                     <div class="ocr-progress-track">
                         <div id="ocrProgressFill" class="ocr-progress-fill"></div>
                     </div>
+                    <div class="ocr-sarcastic-comment-box">
+                        <span class="ocr-sarcastic-icon">☕</span>
+                        <div id="ocrSarcasticText" class="ocr-sarcastic-text">Ready for command execution...</div>
+                    </div>
                 </div>
             </div>
-            <div class="ocr-sarcastic-comment-box">
-                <span class="ocr-sarcastic-icon">☕</span>
-                <div id="ocrSarcasticText" class="ocr-sarcastic-text">Staring at the progress bar like it's 5:59 PM on a Friday...</div>
-            </div>
         </div>
+
+        <!-- Floating Badge to Re-open Terminal if user closed it during an active run -->
+        <button type="button" id="termFloatingReopenBtn" class="term-floating-reopen-btn" title="Click to view live Terminal">
+            <span class="terminal-dot dot-green" style="width: 8px; height: 8px;"></span>
+            <span>Live Terminal (<span id="termFloatingPercent">0%</span>)</span>
+        </button>
         
         <div id="ocrStatus" class="ocr-status" role="status">Choose one or more PDF files.</div></section>
         
@@ -3303,6 +3583,9 @@ async function runIsolatedRoiOcr() {
         // Clean output & results rendering based on selected Prompt Task
         const pConfig = (selectedEngine === 'ai') ? getActivePromptConfig() : { isDoOnly: true };
         numbers = extractNumbers(extractedText);
+        if (numbers.length > 0) {
+            TerminalConsole.log(`Indexed ${numbers.length} DO candidate(s): ${numbers.slice(0, 3).join(', ')}${numbers.length > 3 ? '...' : ''}`, 'success');
+        }
         if (pConfig.isDoOnly) {
             $('fullText').value = numbers.join('\n');
         } else {
@@ -3387,31 +3670,841 @@ function stopSarcasticComments() {
     }
 }
 
+// --- RETRO STICK FIGURE MARTIAL ARTS FIGHT ANIMATION ---
+const StickFigureFight = {
+    canvas: null,
+    ctx: null,
+    animId: null,
+    enabled: true,
+    running: false,
+    width: 0,
+    height: 0,
+    groundY: 0,
+    tick: 0,
+    currentMove: 0,
+    moveTimer: 0,
+    sparks: [],
+    rings: [],
+    
+    // Fighter 1 (Hero - Emerald Neon)
+    p1: {
+        x: 180,
+        y: 0,
+        vx: 0,
+        vy: 0,
+        color: '#10b981',
+        facing: 1, // 1: right, -1: left
+        state: 'idle', // idle, approach, punch, kick, jump_kick, sweep, duck, block, hit, flip, bow
+        frame: 0
+    },
+    
+    // Fighter 2 (Rival - Cyber Purple)
+    p2: {
+        x: 420,
+        y: 0,
+        vx: 0,
+        vy: 0,
+        color: '#a855f7',
+        facing: -1,
+        state: 'idle',
+        frame: 0
+    },
+
+    init() {
+        if (this.canvas) return;
+        this.canvas = $('termFightCanvas');
+        if (!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+        
+        // Restore fight preference if saved
+        const saved = localStorage.getItem('do_term_fight');
+        if (saved !== null) {
+            this.enabled = saved === '1';
+        }
+        this.updateToggleBtn();
+
+        window.addEventListener('resize', () => {
+            if (this.running) this.resize();
+        });
+    },
+
+    updateToggleBtn() {
+        const btn = $('termBtnToggleFight');
+        if (btn) {
+            btn.textContent = this.enabled ? '🥋 Fight: ON' : '🥋 Fight: OFF';
+            btn.style.borderColor = this.enabled ? '#10b981' : '';
+        }
+        if (this.canvas) {
+            if (this.enabled) {
+                this.canvas.classList.remove('disabled');
+            } else {
+                this.canvas.classList.add('disabled');
+            }
+        }
+    },
+
+    toggle() {
+        this.enabled = !this.enabled;
+        localStorage.setItem('do_term_fight', this.enabled ? '1' : '0');
+        this.updateToggleBtn();
+        if (this.enabled) {
+            this.start();
+        } else {
+            this.stop();
+            if (this.ctx) this.ctx.clearRect(0, 0, this.width, this.height);
+        }
+    },
+
+    resize() {
+        if (!this.canvas) return;
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        this.width = rect.width || 800;
+        this.height = rect.height || 440;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        this.groundY = this.height - 24;
+        
+        if (!this.running) {
+            this.p1.x = Math.max(80, this.width * 0.35);
+            this.p2.x = Math.min(this.width - 80, this.width * 0.65);
+            this.p1.y = this.groundY;
+            this.p2.y = this.groundY;
+        }
+    },
+
+    start() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.canvas) return;
+        this.resize();
+        if (this.running) return;
+        this.running = true;
+        this.tick = 0;
+        this.currentMove = 0;
+        this.moveTimer = 0;
+        this.sparks = [];
+        this.rings = [];
+        this.p1.y = this.groundY;
+        this.p2.y = this.groundY;
+        this.p1.state = 'idle';
+        this.p2.state = 'idle';
+        this.loop = this.loop.bind(this);
+        this.animId = requestAnimationFrame(this.loop);
+    },
+
+    stop() {
+        this.running = false;
+        if (this.animId) {
+            cancelAnimationFrame(this.animId);
+            this.animId = null;
+        }
+    },
+
+    setVictoryBow() {
+        if (!this.running) return;
+        this.p1.state = 'bow';
+        this.p2.state = 'bow';
+        this.p1.frame = 0;
+        this.p2.frame = 0;
+    },
+
+    spawnSparks(x, y, color, count = 8) {
+        for (let i = 0; i < count; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 1.5 + Math.random() * 4.5;
+            this.sparks.push({
+                x, y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed - 1.2,
+                color,
+                life: 1,
+                decay: 0.04 + Math.random() * 0.04,
+                size: 1.5 + Math.random() * 2
+            });
+        }
+        this.rings.push({
+            x, y, r: 2, maxR: 20 + Math.random() * 12,
+            color, alpha: 0.9
+        });
+    },
+
+    // Combat choreography director
+    updateCombatAI() {
+        this.moveTimer++;
+        const p1 = this.p1;
+        const p2 = this.p2;
+
+        // Keep fighters facing each other unless doing a backflip/bow
+        if (p1.state !== 'flip' && p1.state !== 'bow') {
+            p1.facing = p2.x > p1.x ? 1 : -1;
+        }
+        if (p2.state !== 'flip' && p2.state !== 'bow') {
+            p2.facing = p1.x > p2.x ? 1 : -1;
+        }
+
+        // Cycle through choreographies every 42 frames
+        if (this.moveTimer > 42 && p1.state !== 'bow' && p2.state !== 'bow') {
+            this.moveTimer = 0;
+            this.currentMove = (this.currentMove + 1) % 9;
+
+            switch (this.currentMove) {
+                case 0: // Approach / Close-in
+                    p1.state = 'approach';
+                    p2.state = 'approach';
+                    break;
+                case 1: // P1 Jabs, P2 Blocks (sparks fly!)
+                    p1.state = 'punch';
+                    p1.frame = 0;
+                    p2.state = 'block';
+                    p2.frame = 0;
+                    setTimeout(() => {
+                        this.spawnSparks((p1.x + p2.x) / 2, this.groundY - 36, '#10b981', 10);
+                    }, 120);
+                    break;
+                case 2: // P2 Counter High Kick, P1 Ducks!
+                    p2.state = 'kick';
+                    p2.frame = 0;
+                    p1.state = 'duck';
+                    p1.frame = 0;
+                    break;
+                case 3: // P1 Low Sweep, P2 Aerial Backflip Dodge!
+                    p1.state = 'sweep';
+                    p1.frame = 0;
+                    p2.state = 'flip';
+                    p2.frame = 0;
+                    p2.vy = -7;
+                    break;
+                case 4: // P2 Flying Jump Kick connects, P1 knocked back!
+                    p2.state = 'jump_kick';
+                    p2.frame = 0;
+                    p2.vy = -6;
+                    p1.state = 'hit';
+                    p1.frame = 0;
+                    p1.vx = -4 * p2.facing;
+                    setTimeout(() => {
+                        this.spawnSparks(p1.x, this.groundY - 32, '#f59e0b', 14);
+                    }, 140);
+                    break;
+                case 5: // P1 recovery ninja flip back onto feet
+                    p1.state = 'flip';
+                    p1.frame = 0;
+                    p1.vy = -7;
+                    p2.state = 'idle';
+                    break;
+                case 6: // P1 High Flying Roundhouse Kick, P2 Blocks!
+                    p1.state = 'jump_kick';
+                    p1.frame = 0;
+                    p1.vy = -6;
+                    p2.state = 'block';
+                    p2.frame = 0;
+                    setTimeout(() => {
+                        this.spawnSparks((p1.x + p2.x) / 2, this.groundY - 40, '#a855f7', 12);
+                    }, 130);
+                    break;
+                case 7: // Rapid exchange flurry (punches clash in mid-air!)
+                    p1.state = 'punch';
+                    p2.state = 'punch';
+                    p1.frame = 0;
+                    p2.frame = 0;
+                    setTimeout(() => {
+                        this.spawnSparks((p1.x + p2.x) / 2, this.groundY - 34, '#38bdf8', 8);
+                    }, 100);
+                    break;
+                case 8: // Both jump back into ready martial arts stances
+                    p1.vx = -3;
+                    p2.vx = 3;
+                    p1.state = 'idle';
+                    p2.state = 'idle';
+                    break;
+            }
+        }
+
+        // Update positions with physics
+        [p1, p2].forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vx *= 0.85;
+
+            // Gravity
+            if (p.y < this.groundY) {
+                p.vy += 0.45;
+            } else {
+                p.y = this.groundY;
+                p.vy = 0;
+            }
+
+            // Boundary constraints
+            const minX = 70;
+            const maxX = this.width - 70;
+            if (p.x < minX) { p.x = minX; p.vx = 0; }
+            if (p.x > maxX) { p.x = maxX; p.vx = 0; }
+
+            // Approach logic
+            if (p.state === 'approach') {
+                const targetX = p === p1 ? p2.x - 65 : p1.x + 65;
+                p.x += (targetX - p.x) * 0.08;
+            }
+
+            p.frame++;
+        });
+    },
+
+    drawStickFigure(p) {
+        const ctx = this.ctx;
+        const x = p.x;
+        const y = p.y;
+        const f = p.facing;
+        const s = p.state;
+        const fr = p.frame;
+        const color = p.color;
+
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 2.4;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = color;
+
+        // Base stick figure dimensions
+        const headR = 6.5;
+        let headX = x;
+        let headY = y - 48;
+        let neckX = x;
+        let neckY = y - 41;
+        let hipX = x;
+        let hipY = y - 22;
+
+        let leftHandX = x - 8 * f, leftHandY = y - 30;
+        let rightHandX = x + 8 * f, rightHandY = y - 30;
+        let leftElbowX = x - 4 * f, leftElbowY = y - 35;
+        let rightElbowX = x + 4 * f, rightElbowY = y - 35;
+
+        let leftFootX = x - 8 * f, leftFootY = y;
+        let rightFootX = x + 8 * f, rightFootY = y;
+        let leftKneeX = x - 6 * f, leftKneeY = y - 11;
+        let rightKneeX = x + 6 * f, rightKneeY = y - 11;
+
+        // Animate poses based on state
+        if (s === 'idle') {
+            const bounce = Math.sin(this.tick * 0.15) * 2;
+            headY += bounce;
+            neckY += bounce;
+            hipY += bounce * 0.7;
+            leftHandX = x + 10 * f; leftHandY = y - 38 + bounce;
+            rightHandX = x + 16 * f; rightHandY = y - 35 + bounce;
+            rightFootX = x + 12 * f;
+            leftFootX = x - 10 * f;
+        } else if (s === 'approach') {
+            const step = Math.sin(this.tick * 0.3) * 6;
+            neckX += 4 * f;
+            headX += 5 * f;
+            leftFootX = x - step * f;
+            rightFootX = x + step * f;
+            leftHandX = x + 12 * f; leftHandY = y - 36;
+            rightHandX = x + 16 * f; rightHandY = y - 34;
+        } else if (s === 'punch') {
+            const ext = Math.min(26, fr * 6);
+            neckX += 6 * f;
+            rightHandX = x + (18 + ext) * f; rightHandY = y - 38;
+            leftHandX = x - 4 * f; leftHandY = y - 38;
+            rightFootX = x + 14 * f;
+            leftFootX = x - 12 * f;
+        } else if (s === 'kick') {
+            neckX -= 8 * f; headX -= 10 * f;
+            rightFootX = x + 30 * f; rightFootY = y - 36;
+            rightKneeX = x + 16 * f; rightKneeY = y - 26;
+            leftFootX = x - 6 * f;
+            leftHandX = x - 10 * f; leftHandY = y - 32;
+            rightHandX = x + 8 * f; rightHandY = y - 42;
+        } else if (s === 'jump_kick') {
+            headY -= 12; neckY -= 12; hipY -= 12;
+            rightFootX = x + 34 * f; rightFootY = y - 34;
+            rightKneeX = x + 18 * f; rightKneeY = y - 24;
+            leftFootX = x - 6 * f; leftFootY = y - 18;
+            leftHandX = x - 12 * f; leftHandY = y - 40;
+            rightHandX = x + 10 * f; rightHandY = y - 46;
+        } else if (s === 'block') {
+            neckX -= 2 * f;
+            leftHandX = x + 14 * f; leftHandY = y - 42;
+            rightHandX = x + 16 * f; rightHandY = y - 36;
+            leftFootX = x - 10 * f;
+            rightFootX = x + 8 * f;
+        } else if (s === 'duck') {
+            headY += 14; neckY += 14; hipY += 12;
+            leftFootX = x - 16 * f; rightFootX = x + 16 * f;
+            leftKneeX = x - 18 * f; leftKneeY = y - 6;
+            rightKneeX = x + 18 * f; rightKneeY = y - 6;
+            leftHandX = x - 8 * f; leftHandY = y - 18;
+            rightHandX = x + 8 * f; rightHandY = y - 18;
+        } else if (s === 'sweep') {
+            headY += 16; neckY += 16; hipY += 14;
+            rightFootX = x + 32 * f; rightFootY = y - 2;
+            rightKneeX = x + 16 * f; rightKneeY = y - 6;
+            leftFootX = x - 14 * f;
+            leftHandX = x + 2 * f; leftHandY = y - 8;
+            rightHandX = x + 8 * f; rightHandY = y - 8;
+        } else if (s === 'hit') {
+            headX -= 12 * f; headY -= 4;
+            neckX -= 8 * f;
+            hipX -= 4 * f;
+            leftHandX = x - 18 * f; leftHandY = y - 42;
+            rightHandX = x - 12 * f; rightHandY = y - 46;
+            leftFootX = x - 14 * f;
+            rightFootX = x + 6 * f;
+        } else if (s === 'flip') {
+            const rot = fr * 0.45;
+            ctx.translate(x, y - 25);
+            ctx.rotate(rot * -f);
+            ctx.translate(-x, -(y - 25));
+            leftHandX = x - 12; leftHandY = y - 44;
+            rightHandX = x + 12; rightHandY = y - 44;
+            leftFootX = x - 14; leftFootY = y - 12;
+            rightFootX = x + 14; rightFootY = y - 12;
+        } else if (s === 'bow') {
+            // Respectful Kung-fu salute
+            neckX += 2 * f;
+            headX += 4 * f; headY += 4;
+            leftHandX = x + 10 * f; leftHandY = y - 36;
+            rightHandX = x + 10 * f; rightHandY = y - 36;
+            leftFootX = x - 6 * f;
+            rightFootX = x + 6 * f;
+        }
+
+        // Draw Head
+        ctx.beginPath();
+        ctx.arc(headX, headY, headR, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Ninja Headband / Ribbon tail blowing in wind
+        ctx.beginPath();
+        ctx.lineWidth = 1.6;
+        ctx.strokeStyle = p === this.p1 ? '#ef4444' : '#fbbf24';
+        const wave = Math.sin(this.tick * 0.25) * 3;
+        ctx.moveTo(headX - (headR - 1) * f, headY);
+        ctx.quadraticCurveTo(headX - (headR + 8) * f, headY + wave, headX - (headR + 15) * f, headY + wave * 1.5 + 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2.4;
+
+        // Draw Spine (Neck to Hip)
+        ctx.beginPath();
+        ctx.moveTo(neckX, neckY);
+        ctx.lineTo(hipX, hipY);
+        ctx.stroke();
+
+        // Draw Left Arm (Shoulder -> Elbow -> Hand)
+        ctx.beginPath();
+        ctx.moveTo(neckX, neckY + 2);
+        ctx.lineTo(leftElbowX, leftElbowY);
+        ctx.lineTo(leftHandX, leftHandY);
+        ctx.stroke();
+
+        // Draw Right Arm (Shoulder -> Elbow -> Hand)
+        ctx.beginPath();
+        ctx.moveTo(neckX, neckY + 2);
+        ctx.lineTo(rightElbowX, rightElbowY);
+        ctx.lineTo(rightHandX, rightHandY);
+        ctx.stroke();
+
+        // Draw Left Leg (Hip -> Knee -> Foot)
+        ctx.beginPath();
+        ctx.moveTo(hipX, hipY);
+        ctx.lineTo(leftKneeX, leftKneeY);
+        ctx.lineTo(leftFootX, leftFootY);
+        ctx.stroke();
+
+        // Draw Right Leg (Hip -> Knee -> Foot)
+        ctx.beginPath();
+        ctx.moveTo(hipX, hipY);
+        ctx.lineTo(rightKneeX, rightKneeY);
+        ctx.lineTo(rightFootX, rightFootY);
+        ctx.stroke();
+
+        ctx.restore();
+    },
+
+    drawFloor() {
+        const ctx = this.ctx;
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([4, 6]);
+        ctx.beginPath();
+        ctx.moveTo(30, this.groundY + 1);
+        ctx.lineTo(this.width - 30, this.groundY + 1);
+        ctx.stroke();
+        ctx.restore();
+    },
+
+    drawEffects() {
+        const ctx = this.ctx;
+        ctx.save();
+
+        // Draw sparks
+        for (let i = this.sparks.length - 1; i >= 0; i--) {
+            const s = this.sparks[i];
+            s.x += s.vx;
+            s.y += s.vy;
+            s.vy += 0.15;
+            s.life -= s.decay;
+
+            if (s.life <= 0) {
+                this.sparks.splice(i, 1);
+                continue;
+            }
+
+            ctx.fillStyle = s.color;
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = s.color;
+            ctx.globalAlpha = Math.max(0, s.life);
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size * s.life, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Draw shockwave rings
+        for (let i = this.rings.length - 1; i >= 0; i--) {
+            const r = this.rings[i];
+            r.r += (r.maxR - r.r) * 0.22;
+            r.alpha -= 0.08;
+
+            if (r.alpha <= 0) {
+                this.rings.splice(i, 1);
+                continue;
+            }
+
+            ctx.strokeStyle = r.color;
+            ctx.lineWidth = 1.8;
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = r.color;
+            ctx.globalAlpha = Math.max(0, r.alpha);
+            ctx.beginPath();
+            ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        ctx.restore();
+    },
+
+    loop() {
+        if (!this.running) return;
+        this.tick++;
+
+        this.ctx.clearRect(0, 0, this.width, this.height);
+
+        this.drawFloor();
+        this.updateCombatAI();
+        this.drawStickFigure(this.p1);
+        this.drawStickFigure(this.p2);
+        this.drawEffects();
+
+        this.animId = requestAnimationFrame(this.loop);
+    }
+};
+
+// --- MACOS TERMINAL CONSOLE LOGGER (Magic UI Style Modal Popup) ---
+const TerminalConsole = {
+    overlay: null,
+    card: null,
+    body: null,
+    lines: [],
+    initialized: false,
+    isUserMinimized: false,
+    currentRunActive: false,
+    
+    init() {
+        if (this.initialized) return;
+        this.initialized = true;
+        this.overlay = $('terminalModalOverlay');
+        this.card = $('ocrProgressCard');
+        this.body = $('terminalLogBody');
+        StickFigureFight.init();
+        
+        // Clicking backdrop closes/minimizes modal and shows floating badge if run is active
+        if (this.overlay) {
+            this.overlay.addEventListener('click', (e) => {
+                if (e.target === this.overlay) {
+                    this.minimize();
+                }
+            });
+        }
+
+        // Escape key minimizes modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.overlay && this.overlay.classList.contains('active')) {
+                this.minimize();
+            }
+        });
+
+        const toggleFightBtn = $('termBtnToggleFight');
+        if (toggleFightBtn) {
+            toggleFightBtn.onclick = (e) => {
+                e.preventDefault();
+                StickFigureFight.toggle();
+            };
+        }
+
+        const copyBtn = $('termBtnCopyLogs');
+        if (copyBtn) {
+            copyBtn.onclick = (e) => {
+                e.preventDefault();
+                const logs = this.lines.join('\n');
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(logs).then(() => {
+                        copyBtn.textContent = '✔ Copied!';
+                        setTimeout(() => { copyBtn.textContent = '📋 Copy'; }, 1500);
+                    });
+                }
+            };
+        }
+        
+        const clearBtn = $('termBtnClearLogs');
+        if (clearBtn) {
+            clearBtn.onclick = (e) => {
+                e.preventDefault();
+                this.clear();
+            };
+        }
+
+        const dotRed = $('termDotRed');
+        if (dotRed) {
+            dotRed.onclick = (e) => {
+                e.stopPropagation();
+                this.minimize();
+            };
+        }
+        
+        const dismissBtn = $('termBtnDismiss');
+        if (dismissBtn) {
+            dismissBtn.onclick = (e) => {
+                e.stopPropagation();
+                this.close();
+            };
+        }
+
+        const dotYellow = $('termDotYellow');
+        if (dotYellow) {
+            dotYellow.onclick = (e) => {
+                e.stopPropagation();
+                this.minimize();
+            };
+        }
+        
+        const dotGreen = $('termDotGreen');
+        if (dotGreen) {
+            dotGreen.onclick = (e) => {
+                e.stopPropagation();
+                if (this.card) {
+                    this.card.classList.toggle('compact');
+                    setTimeout(() => StickFigureFight.resize(), 260);
+                }
+            };
+        }
+
+        const floatingBtn = $('termFloatingReopenBtn');
+        if (floatingBtn) {
+            floatingBtn.onclick = () => {
+                this.showModal();
+            };
+        }
+    },
+
+    startNewRun(commandText) {
+        this.init();
+        this.currentRunActive = true;
+        this.isUserMinimized = false;
+        if (this.card) this.card.classList.remove('compact');
+        this.clear();
+        this.setCommand(commandText);
+        this.showModal();
+        const floatBtn = $('termFloatingReopenBtn');
+        if (floatBtn) {
+            floatBtn.classList.remove('active');
+            floatBtn.innerHTML = `
+                <span class="terminal-dot dot-green" style="width: 8px; height: 8px;"></span>
+                <span>Live Terminal (<span id="termFloatingPercent">0%</span>)</span>
+            `;
+        }
+    },
+
+    showModal() {
+        this.init();
+        this.isUserMinimized = false;
+        if (this.overlay) this.overlay.classList.add('active');
+        const floatBtn = $('termFloatingReopenBtn');
+        if (floatBtn) floatBtn.classList.remove('active');
+        StickFigureFight.start();
+    },
+
+    minimize() {
+        this.init();
+        this.isUserMinimized = true;
+        if (this.overlay) this.overlay.classList.remove('active');
+        StickFigureFight.stop();
+        
+        // Show floating reopen badge if operation is in progress or completed
+        const percentText = $('ocrPercent')?.textContent || '0%';
+        const pVal = parseInt(percentText, 10) || 0;
+        const floatBtn = $('termFloatingReopenBtn');
+        if (floatBtn) {
+            floatBtn.classList.add('active');
+            if (pVal >= 100) {
+                floatBtn.innerHTML = `
+                    <span class="terminal-dot dot-green" style="width: 8px; height: 8px; background: #10b981;"></span>
+                    <span>✔ Terminal: Done (100%)</span>
+                `;
+            } else {
+                floatBtn.innerHTML = `
+                    <span class="terminal-dot dot-green" style="width: 8px; height: 8px;"></span>
+                    <span>Live Terminal (<span id="termFloatingPercent">${percentText}</span>)</span>
+                `;
+            }
+        }
+    },
+
+    close() {
+        this.init();
+        this.isUserMinimized = true;
+        this.currentRunActive = false;
+        if (this.overlay) this.overlay.classList.remove('active');
+        const floatBtn = $('termFloatingReopenBtn');
+        if (floatBtn) floatBtn.classList.remove('active');
+        StickFigureFight.stop();
+    },
+
+    clear() {
+        if (!this.body) this.body = $('terminalLogBody');
+        if (this.body) {
+            this.body.innerHTML = `
+                <div class="terminal-cmd-line">
+                    <span class="terminal-prompt">$</span>
+                    <span id="termActiveCmd">do-scanner --ready</span>
+                    <span class="terminal-cursor"></span>
+                </div>
+            `;
+        }
+        this.lines = ['$ do-scanner --ready'];
+    },
+
+    setCommand(cmdText) {
+        if (!this.body) this.body = $('terminalLogBody');
+        if (!this.body) return;
+        const cmdEl = $('termActiveCmd');
+        if (cmdEl) cmdEl.textContent = cmdText;
+        this.lines = [`$ ${cmdText}`];
+        this.scrollToBottom();
+    },
+
+    log(message, type = 'info') {
+        this.init();
+        if (!this.body) return;
+
+        const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+        let icon = '<span class="t-icon info">ℹ</span>';
+        if (type === 'success') icon = '<span class="t-icon success">✔</span>';
+        else if (type === 'warning') icon = '<span class="t-icon warning">⚠</span>';
+        else if (type === 'error') icon = '<span class="t-icon error">✖</span>';
+        else if (type === 'gear') icon = '<span class="t-icon gear">⚙</span>';
+
+        const line = document.createElement('div');
+        line.className = 'terminal-line';
+        line.innerHTML = `<span class="t-time">[${time}]</span> ${icon} <span class="t-text">${this.escape(message)}</span>`;
+        this.body.appendChild(line);
+        this.lines.push(`[${time}] ${message}`);
+
+        if (this.body.children.length > 120) {
+            this.body.removeChild(this.body.children[1]);
+        }
+        this.scrollToBottom();
+    },
+
+    scrollToBottom() {
+        if (this.body) {
+            this.body.scrollTop = this.body.scrollHeight;
+        }
+    },
+
+    escape(str) {
+        return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+};
+
+let lastLoggedStage = '';
+
 function setProgress(percent, stageText, finalComment = null) {
-    const card = $('ocrProgressCard');
+    const overlay = $('terminalModalOverlay');
     const fill = $('ocrProgressFill');
     const percentEl = $('ocrPercent');
     const badgeEl = $('ocrStageBadge');
     const commentEl = $('ocrSarcasticText');
+    const dismissBtn = $('termBtnDismiss');
+    const floatBtn = $('termFloatingReopenBtn');
 
     if (percent === null) {
-        card.classList.remove('active');
+        TerminalConsole.close();
         fill.style.width = '0%';
         percentEl.textContent = '0%';
         stopSarcasticComments();
+        lastLoggedStage = '';
+        if (dismissBtn) dismissBtn.classList.remove('active');
         return;
     }
 
-    card.classList.add('active');
+    TerminalConsole.init();
+
+    // Start a new run if one isn't currently active
+    if (!TerminalConsole.currentRunActive) {
+        const engineLabel = selectedEngine === 'ai' ? `ai-${selectedAiProvider}` : selectedEngine;
+        TerminalConsole.startNewRun(`do-scanner --engine=${engineLabel} --roi=${isRoiActive ? 'active' : 'off'}`);
+        TerminalConsole.log('Preflight check complete. System ready.', 'success');
+    } else if (!TerminalConsole.isUserMinimized && overlay && !overlay.classList.contains('active')) {
+        TerminalConsole.showModal();
+    }
+
     const clamped = Math.min(100, Math.max(0, Math.round(percent)));
     fill.style.width = `${clamped}%`;
     percentEl.textContent = `${clamped}%`;
-    if (stageText) badgeEl.textContent = stageText;
+
+    // If user has minimized, update floating button in the background without popping window
+    if (TerminalConsole.isUserMinimized && floatBtn) {
+        floatBtn.classList.add('active');
+        if (clamped >= 100) {
+            floatBtn.innerHTML = `
+                <span class="terminal-dot dot-green" style="width: 8px; height: 8px; background: #10b981;"></span>
+                <span>✔ Terminal: Done (100%)</span>
+            `;
+        } else {
+            const fp = $('termFloatingPercent');
+            if (fp) fp.textContent = `${clamped}%`;
+        }
+    }
+    
+    if (stageText) {
+        badgeEl.textContent = stageText;
+        if (stageText !== lastLoggedStage) {
+            lastLoggedStage = stageText;
+            const isErr = stageText.toLowerCase().includes('error') || stageText.toLowerCase().includes('fail');
+            const isDone = clamped >= 100 || stageText.toLowerCase().includes('complete') || stageText.toLowerCase().includes('finish');
+            TerminalConsole.log(stageText, isErr ? 'error' : (isDone ? 'success' : 'info'));
+        }
+    }
+
+    if (clamped >= 100) {
+        TerminalConsole.currentRunActive = false;
+        StickFigureFight.setVictoryBow();
+        if (dismissBtn) dismissBtn.classList.add('active');
+    } else {
+        if (dismissBtn) dismissBtn.classList.remove('active');
+    }
 
     if (finalComment) {
         stopSarcasticComments();
         commentEl.className = 'ocr-sarcastic-text fade-in';
         commentEl.textContent = finalComment;
+        TerminalConsole.log(finalComment, 'success');
     }
 }
 
@@ -3685,6 +4778,9 @@ async function runOcr() {
         // Clean Output & results rendering based on selected Prompt Task
         const pConfig = (selectedEngine === 'ai') ? getActivePromptConfig() : { isDoOnly: true };
         numbers = extractNumbers(extractedText);
+        if (numbers.length > 0) {
+            TerminalConsole.log(`Indexed ${numbers.length} DO candidate(s): ${numbers.slice(0, 3).join(', ')}${numbers.length > 3 ? '...' : ''}`, 'success');
+        }
         if (pConfig.isDoOnly) {
             if (numbers.length > 0) {
                 $('fullText').value = numbers.join('\n');

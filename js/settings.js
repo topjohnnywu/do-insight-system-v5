@@ -4,11 +4,7 @@
     let themeToSetForBoot = "linear";
     if (savedThemeForBoot === "light") themeToSetForBoot = "light";
     else if (savedThemeForBoot === "dark" || savedThemeForBoot === "amoled") themeToSetForBoot = "amoled";
-    else if (savedThemeForBoot === "terminal") themeToSetForBoot = "terminal";
-    else if (savedThemeForBoot === "organic") themeToSetForBoot = "organic";
-    else if (savedThemeForBoot === "cyber") themeToSetForBoot = "cyber";
-    else if (savedThemeForBoot === "bitcoin") themeToSetForBoot = "bitcoin";
-    else if (savedThemeForBoot === "github") themeToSetForBoot = "github";
+    // Legacy removed themes fall back to linear
 
     document.documentElement.setAttribute("data-theme", themeToSetForBoot);
     
@@ -29,7 +25,7 @@
     observer.observe(document.documentElement, { childList: true });
 
     // 1. Immediately apply saved settings to prevent flicker
-    const savedFont = localStorage.getItem('universalFontFamily') || 'Inter, system-ui, sans-serif';
+    const savedFont = localStorage.getItem('universalFontFamily') || "'Optimistic', -apple-system, BlinkMacSystemFont, sans-serif";
     const savedZoom = localStorage.getItem('universalZoom') || '1';
     
     // Inject Google Fonts
@@ -46,7 +42,10 @@
             --app-zoom: ${savedZoom};
         }
         body, h1, h2, h3, h4, h5, h6, input, button, select, textarea, div, span, p, a, td, th {
-            font-family: var(--app-font-family) !important;
+            font-family: var(--app-font-family);
+        }
+        code, pre, .tabular-nums, .btn-manifest-do, .manifest-route-tag, .manifest-hub-chip, [data-mono="true"] {
+            font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace !important;
         }
         body {
             zoom: var(--app-zoom);
@@ -121,6 +120,7 @@
                     <div class="usm-group">
                         <label>Font Style</label>
                         <select id="usmFontSelect">
+                            <option value="'Optimistic', -apple-system, BlinkMacSystemFont, sans-serif">Optimistic (Muse AI / Meta / Modern)</option>
                             <option value="'Netflix Sans', sans-serif">Netflix Sans (Modern / Cinematic)</option>
                             <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica Neue (Swiss / Clean)</option>
                             <option value="'YouTube Sans', sans-serif">YouTube Sans (Modern / Geometric)</option>
@@ -172,7 +172,7 @@
         const usmAutoHideToggle = document.getElementById('usmAutoHideToggle');
         
         // Sync inputs with current settings
-        fontSelect.value = localStorage.getItem('universalFontFamily') || 'Inter, system-ui, sans-serif';
+        fontSelect.value = localStorage.getItem('universalFontFamily') || "'Optimistic', -apple-system, BlinkMacSystemFont, sans-serif";
         const currentZoom = localStorage.getItem('universalZoom') || '1';
         zoomSlider.value = currentZoom;
         zoomLabel.innerText = Math.round(currentZoom * 100) + '%';
@@ -211,6 +211,15 @@
                 window.dispatchEvent(new Event('resize'));
             }, 260);
         };
+
+        // Shadcn Sidebar Keyboard Shortcut: Cmd+B (Mac) / Ctrl+B (Windows)
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b' && !e.target.matches('input, textarea, select, [contenteditable="true"]')) {
+                e.preventDefault();
+                const isCurrently = document.documentElement.getAttribute('data-sidebar-autohide') === 'true';
+                window.setGlobalSidebarAutoHide(!isCurrently, true);
+            }
+        });
 
         if (usmAutoHideToggle) {
             usmAutoHideToggle.addEventListener('click', () => {
@@ -262,22 +271,30 @@
             modal.style.display = 'none';
         });
 
-        // Insert Button in Sidebar
-        const sidebarNavs = document.querySelectorAll('.sidebar-nav');
-        const settingsLi = document.createElement('li');
-        settingsLi.innerHTML = `
-            <a href="javascript:void(0)" class="sidebar-nav-item" onclick="document.getElementById('universalSettingsModal').style.display='flex'">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"></circle>
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                </svg>
-                <span>Display & Font Settings</span>
-            </a>
-        `;
-        
-        if (sidebarNavs.length > 0) {
-            // Append to every sidebar-nav just in case there are multiple
-            sidebarNavs.forEach(nav => nav.appendChild(settingsLi.cloneNode(true)));
+        // Insert Button in Sidebar Footer (Only Once Per Sidebar)
+        const sidebars = document.querySelectorAll('.sidebar');
+        if (sidebars.length > 0) {
+            sidebars.forEach(sidebar => {
+                if (sidebar.querySelector('.sidebar-footer-settings')) return;
+                const settingsWrapper = document.createElement('div');
+                settingsWrapper.className = 'sidebar-footer-settings';
+                settingsWrapper.style.cssText = 'padding: 4px 0 2px 0; border-top: 1px solid var(--border); margin-top: auto;';
+                settingsWrapper.innerHTML = `
+                    <a href="javascript:void(0)" class="sidebar-nav-item" data-title="Display & Font Settings" onclick="document.getElementById('universalSettingsModal').style.display='flex'">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        <span>Display & Font Settings</span>
+                    </a>
+                `;
+                const footerEl = sidebar.lastElementChild;
+                if (footerEl) {
+                    sidebar.insertBefore(settingsWrapper, footerEl);
+                } else {
+                    sidebar.appendChild(settingsWrapper);
+                }
+            });
         } else {
             // Fallback floating button if no sidebar
             const floatBtn = document.createElement('button');
@@ -290,7 +307,6 @@
         // ==========================================================
         // Sidebar Auto-Hide Spacer, Hover Debounce & Toggle Controller
         // ==========================================================
-        const sidebars = document.querySelectorAll('.sidebar');
         const appContainers = document.querySelectorAll('.app-container');
 
         // Ensure spacer for fixed sidebar alignment
