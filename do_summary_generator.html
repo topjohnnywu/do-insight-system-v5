@@ -790,16 +790,15 @@
                             <p style="font-size: 13px; color: #94a3b8; margin-top: 2px;">Validated DO summary entries with wave mapping</p>
                         </div>
 
-                        <!-- Real-time Batch Search Box -->
-                        <div style="position: relative; width: 250px;">
-                            <input type="text" id="batchSearchInput" placeholder="Search Invoice, Consignee, Route..." oninput="summaryGenerator.setSearchQuery(this.value)"
-                                   style="width: 100%; padding: 5px 10px 5px 28px; font-size: 12px; outline: none;">
-                            <span style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-size: 12px; opacity: 0.5; display: inline-flex;">
+                        <!-- Real-time Batch Search Box (InputGroup: leading search icon) -->
+                        <div class="input-group" style="width: 250px;">
+                            <span class="input-group-addon" data-align="inline-start">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="11" cy="11" r="8"/>
                                     <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                                 </svg>
                             </span>
+                            <input type="text" id="batchSearchInput" class="input-group-control" placeholder="Search Invoice, Consignee, Route..." oninput="summaryGenerator.setSearchQuery(this.value)">
                         </div>
 
                         <span id="batchSearchCount" style="font-size: 11px; color: var(--accent-text, var(--accent)); font-weight: 600; background: var(--accent-glow); border: 1px solid var(--border-accent); padding: 2px 8px; border-radius: 12px; display: none;">0 DOs</span>
@@ -1270,6 +1269,9 @@
         document.write('<script src="js/charts.js?t=' + _dsgVersion + '"><\/script>');
         document.write('<script src="js/do_summary_generator.js?t=' + _dsgVersion + '"><\/script>');
     </script>
+    <!-- Base UI-style select enhancement (module scripts are deferred, so this
+         runs after the document.write scripts above). -->
+    <script type="module" src="js/components/ui-select.js"></script>
 
     <script>
         if ('serviceWorker' in navigator) {

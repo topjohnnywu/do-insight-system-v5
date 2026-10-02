@@ -33,7 +33,31 @@
             border-bottom: 1px solid var(--border, #27272a);
             background: var(--bg-card, #18181b);
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 12px 16px;
+        }
+
+        /* Tidy, balanced toolbar: controls right-aligned in one row; the search
+           grows to fill the leftover space so there's no empty gap in the header. */
+        .manifest-card-header .status-table-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex: 1 1 auto;
+            justify-content: flex-end;
+            min-width: 0;
+        }
+        /* Search expands to absorb free space (eliminates the middle void) */
+        .manifest-card-header .status-table-toolbar .input-group {
+            flex: 1 1 240px;
+            min-width: 180px;
+            max-width: 460px;
+            height: 34px;
+        }
+        /* Keep pills & button at natural size, vertically aligned */
+        .manifest-card-header .status-table-toolbar .manifest-filter-pill,
+        .manifest-card-header .status-table-toolbar .btn-copy-manifest {
+            flex: 0 0 auto;
         }
 
         body.light-mode .manifest-card-header {
@@ -969,9 +993,11 @@
                         </div>
 
                         <!-- Search Input Box -->
-                        <div class="manifest-search-wrapper">
-                            <svg class="status-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                            <input type="text" id="insightSearch" class="search-box manifest-search-input" placeholder="Search DOs, Status, Address..." onkeyup="applyInsightFilter()">
+                        <div class="input-group">
+                            <span class="input-group-addon" data-align="inline-start">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            </span>
+                            <input type="text" id="insightSearch" class="input-group-control" placeholder="Search DOs, Status, Address..." onkeyup="applyInsightFilter()">
                         </div>
 
                         <!-- Copy Filtered DOs Button -->
@@ -1005,6 +1031,7 @@
     </div> <!-- End .app-container -->
     <script src="js/parsers.js"></script>
     <script src="js/charts.js"></script>
+    <script type="module" src="js/components/ui-select.js"></script>
     <script>
         let RawPayload = JSON.parse(localStorage.getItem("ShippingInsightData")) || [];
         let StatusChartObj = null;

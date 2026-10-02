@@ -515,12 +515,14 @@
                                 <span id="unassignedCountBadge" class="badge" style="background: var(--surface); color: var(--fg-muted); font-size: 0.75rem; border: 1px solid var(--border);">0</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px; flex: 1; max-width: 240px;">
-                                <div style="position: relative; width: 100%;">
-                                    <input type="text" id="unassignedSearch" placeholder="Search DO or Consignee..." style="width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--fg); padding: 6px 10px 6px 28px; border-radius: var(--radius-control); font-size: 0.82rem; outline: none; transition: border-color 0.2s;" onkeyup="renderUnassignedDOs()" onfocus="this.style.borderColor='var(--border-accent)'" onblur="this.style.borderColor='var(--border)'">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--fg-muted); pointer-events: none;">
-                                        <circle cx="11" cy="11" r="8"></circle>
-                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                    </svg>
+                                <div class="input-group" style="width: 100%;">
+                                    <span class="input-group-addon" data-align="inline-start">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="11" cy="11" r="8"></circle>
+                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                        </svg>
+                                    </span>
+                                    <input type="text" id="unassignedSearch" class="input-group-control" placeholder="Search DO or Consignee..." onkeyup="renderUnassignedDOs()">
                                 </div>
                             </div>
                         </div>
@@ -706,6 +708,9 @@
     <script src="js/charts.js"></script>
     <script src="js/mtp_source_upload.js"></script>
     <script src="js/manual_truck_planning.js"></script>
+    <!-- Base UI-style select enhancement (dependency-free). Upgrades native <select>
+         to the accessible popover dropdown. Remove this line to revert to native. -->
+    <script type="module" src="js/components/ui-select.js"></script>
 
     <script>
         if ('serviceWorker' in navigator) {

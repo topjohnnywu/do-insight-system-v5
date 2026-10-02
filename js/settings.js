@@ -1,11 +1,11 @@
 (function() {
     // 0. Immediately apply saved theme to prevent FOUC (Flash of Unstyled Content)
-    const savedThemeForBoot = localStorage.getItem("AppThemeMode") || "linear";
-    let themeToSetForBoot = "linear";
+    // shadcn is the default dark theme; Light stays. Legacy themes (linear,
+    // amoled, dark) migrate to shadcn.
+    const savedThemeForBoot = localStorage.getItem("AppThemeMode") || "shadcn";
+    let themeToSetForBoot = "shadcn";
     if (savedThemeForBoot === "light") themeToSetForBoot = "light";
-    else if (savedThemeForBoot === "dark" || savedThemeForBoot === "amoled") themeToSetForBoot = "amoled";
     else if (savedThemeForBoot === "shadcn") themeToSetForBoot = "shadcn";
-    // Legacy removed themes fall back to linear
 
     document.documentElement.setAttribute("data-theme", themeToSetForBoot);
     

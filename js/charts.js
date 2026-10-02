@@ -7,15 +7,18 @@ const moonIconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"
 function updateThemeToggleButton(themeName) {
     const ToggleBtn = document.getElementById('themeToggleBtn');
     if (!ToggleBtn) return;
-    const paletteIconSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: middle;"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg>`;
-    const label = ({ linear: "Linear", amoled: "AMOLED", light: "Light", shadcn: "shadcn/ui" })[themeName] || "Themes";
-    ToggleBtn.innerHTML = `${paletteIconSvg} <span>${label}</span>`;
-    ToggleBtn.setAttribute("title", "Open Theme Settings");
+    const isLight = themeName === "light";
+    // Sun icon in dark mode (click to go light), moon icon in light mode (click to go dark)
+    const icon = isLight ? moonIconSvg : sunIconSvg;
+    const label = isLight ? "Light" : "shadcn/ui";
+    const nextLabel = isLight ? "shadcn/ui Dark" : "Light";
+    ToggleBtn.innerHTML = `${icon} <span>${label}</span>`;
+    ToggleBtn.setAttribute("title", `Switch to ${nextLabel} theme`);
 }
 
 function getCurrentTheme() {
     const t = document.documentElement.getAttribute("data-theme");
-    return (t === "linear" || t === "amoled" || t === "light" || t === "shadcn") ? t : "linear";
+    return (t === "light" || t === "shadcn") ? t : "shadcn";
 }
 
 function isLightTheme() {
@@ -34,109 +37,15 @@ function updateThemeMenu(themeName) {
 }
 
 // Live theme picker: per-theme palette dots (click commits)
-let activeTheme = "linear";
+let activeTheme = "shadcn";
 
 const THEME_PALETTES = {
-    linear:   ["#5E6AD2", "#6872D9", "#a78bfa", "#18181b"],
-    amoled:   ["#10b981", "#34d399", "#000000", "#27272a"],
-    light:    ["#3b82f6", "#2563eb", "#ffffff", "#e2e8f0"],
-    shadcn:   ["#fafafa", "#a1a1aa", "#0a0a0a", "#262626"]
+    shadcn:   ["#fafafa", "#a1a1aa", "#0a0a0a", "#262626"],
+    light:    ["#3b82f6", "#2563eb", "#ffffff", "#e2e8f0"]
 };
 
-function renderThemeSwatches() {
-    document.querySelectorAll('.theme-chip[data-theme]').forEach(chip => {
-        const palette = THEME_PALETTES[chip.getAttribute('data-theme')];
-        const swatch = chip.querySelector('.tc-swatch');
-        if (!palette || !swatch) return;
-        swatch.innerHTML = "";
-        palette.forEach(color => {
-            const dot = document.createElement('span');
-            dot.className = 'tc-dot';
-            dot.style.backgroundColor = color;
-            swatch.appendChild(dot);
-        });
-    });
-}
-
-function buildThemeSidebar() {
-    if (document.getElementById('theme-settings-sidebar')) return;
-    
-    const sidebar = document.createElement('div');
-    sidebar.id = 'theme-settings-sidebar';
-    sidebar.className = 'theme-settings-sidebar';
-    
-    const header = document.createElement('div');
-    header.className = 'theme-settings-header';
-    header.innerHTML = `
-        <h2>Theme Settings</h2>
-        <button class="theme-settings-close" onclick="closeThemeSidebar()" title="Close">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        </button>
-    `;
-    
-    const content = document.createElement('div');
-    content.className = 'theme-settings-content';
-    
-    const grid = document.createElement('div');
-    grid.className = 'theme-grid';
-    grid.id = 'theme-grid-container';
-    
-    // Convert THEME_PALETTES to sidebar cards
-    const themeNames = {
-        linear: "Linear (Default)", amoled: "AMOLED Dark", light: "Light Mode", shadcn: "shadcn/ui Dark"
-    };
-    
-    Object.keys(THEME_PALETTES).forEach(themeKey => {
-        const card = document.createElement('a');
-        card.href = "#";
-        card.className = "theme-card theme-option";
-        card.setAttribute("data-theme-option", themeKey);
-        card.onclick = (e) => { e.preventDefault(); setTheme(themeKey, true, e); };
-        
-        const palette = THEME_PALETTES[themeKey];
-        const swatch = document.createElement('div');
-        swatch.className = 'theme-card-swatch';
-        swatch.style.background = `conic-gradient(${palette[0]} 0deg 90deg, ${palette[1]} 90deg 180deg, ${palette[2]} 180deg 270deg, ${palette[3]} 270deg 360deg)`;
-        
-        const label = document.createElement('div');
-        label.className = 'theme-card-name';
-        label.innerText = themeNames[themeKey] || themeKey;
-        
-        card.appendChild(swatch);
-        card.appendChild(label);
-        grid.appendChild(card);
-    });
-    
-    content.appendChild(grid);
-    sidebar.appendChild(header);
-    sidebar.appendChild(content);
-    document.body.appendChild(sidebar);
-
-    // Close on click outside
-    document.addEventListener('mousedown', (e) => {
-        if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !e.target.closest('#themeToggleBtn')) {
-            closeThemeSidebar();
-        }
-    });
-}
-
-function openThemeSidebar() {
-    buildThemeSidebar();
-    const sidebar = document.getElementById('theme-settings-sidebar');
-    if (sidebar) sidebar.classList.add('open');
-}
-
-function closeThemeSidebar() {
-    const sidebar = document.getElementById('theme-settings-sidebar');
-    if (sidebar) sidebar.classList.remove('open');
-}
-
-function initThemePicker() {
-    renderThemeSwatches();
-}
+// NOTE: With only two themes (shadcn + light), the old theme-settings sidebar
+// was removed — the header button now toggles directly (see toggleTheme).
 
 function applyChartTheme(themeName) {
     if (!window.Chart) return;
@@ -155,10 +64,10 @@ function applyChartTheme(themeName) {
 // Track active view transition to prevent overlapping animations
 let isThemeTransitioning = false;
 
-// Apply a theme to the whole app. Valid themes: linear, amoled, light, shadcn.
+// Apply a theme to the whole app. Valid themes: shadcn (default dark), light.
 function setTheme(themeName, persist, clickEvent) {
-    const valid = ["linear", "amoled", "light", "shadcn"];
-    if (!valid.includes(themeName)) themeName = "linear";
+    const valid = ["shadcn", "light"];
+    if (!valid.includes(themeName)) themeName = "shadcn";
     if (persist === undefined) persist = true;
 
     const changed = themeName !== getCurrentTheme();
@@ -266,22 +175,24 @@ function setTheme(themeName, persist, clickEvent) {
 // Initialize theme state on page boot
 function initTheme() {
     const saved = localStorage.getItem("AppThemeMode");
-    let theme = "linear";
+    // shadcn is the default dark theme. Light stays. Any legacy/removed theme
+    // (linear, amoled, dark, etc.) migrates to shadcn.
+    let theme = "shadcn";
     if (saved === "light") theme = "light";
-    else if (saved === "dark" || saved === "amoled") theme = "amoled";
-    else if (saved === "linear") theme = "linear";
     else if (saved === "shadcn") theme = "shadcn";
-    // Any legacy removed themes fall back to linear
     
-    buildThemeSidebar(); // Ensure sidebar exists
     setTheme(theme, false);
     activeTheme = theme;
     initSpotlights();
-    initThemePicker();
 }
 
-function toggleTheme() {
-    openThemeSidebar();
+// With only two themes (shadcn dark + light), the button toggles directly
+// instead of opening the theme sidebar. Uses the click event (or window.event
+// from inline onclick handlers) as the view-transition animation origin.
+function toggleTheme(clickEvent) {
+    const evt = clickEvent || (typeof window !== "undefined" ? window.event : null);
+    const next = getCurrentTheme() === "light" ? "shadcn" : "light";
+    setTheme(next, true, evt);
 }
 
 // KPI card mouse-tracking spotlight (dashboard-tuned)

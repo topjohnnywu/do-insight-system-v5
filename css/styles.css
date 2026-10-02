@@ -260,8 +260,10 @@
 
 /* ==========================================================
    DO Insight System — Design Token System
-   Themes: linear (default) / amoled / light
-   Linear: layered ambient lighting, indigo accent, multi-layer shadows
+   Themes: shadcn (default dark) / light
+   :root below holds the shared fallback values; [data-theme="shadcn"] and
+   [data-theme="light"] override them. (The former Linear & AMOLED themes
+   were removed; shadcn is the default and is always set by the theme JS.)
    ========================================================== */
 :root {
     --font-sans: "Netflix Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -316,49 +318,11 @@
     --dur: 200ms;
 }
 
-[data-theme="amoled"] {
-    --bg-deep: #000000;
-    --bg-base: #000000;
-    --bg-elevated: #09090b;
-    --sidebar-bg: #050505;
-    --surface: #09090b;
-    --surface-hover: #18181b;
-    --surface-solid: #050505;
-    --surface-card: #09090b;
-    --fg: #f4f4f5;
-    --fg-muted: #a1a1aa;
-    --fg-subtle: #71717a;
-    --accent: #3b82f6;
-    --accent-bright: #60a5fa;
-    --accent-foreground: #ffffff;
-    --accent-glow: rgba(59, 130, 246, 0.25);
-    --accent-glow-strong: rgba(59, 130, 246, 0.45);
-    --border: #18181b;
-    --border-hover: #27272a;
-    --border-accent: rgba(59, 130, 246, 0.35);
-    --radius-card: 8px;
-    --radius-control: 6px;
-    --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.8);
-    --shadow-card-hover: 0 6px 22px rgba(0, 0, 0, 0.9);
-    --shadow-cta: 0 2px 6px rgba(0, 0, 0, 0.4);
-    --highlight-top: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
-
-    --btn-export: var(--accent);
-    --btn-export-hover: var(--accent-bright);
-    --btn-compile: var(--accent);
-    --btn-compile-hover: var(--accent-bright);
-    --btn-email: var(--accent);
-    --btn-email-hover: var(--accent-bright);
-    --btn-danger-bg: rgba(239, 68, 68, 0.16);
-    --btn-danger-fg: #fca5a5;
-    --btn-danger-hover-bg: rgba(239, 68, 68, 0.32);
-    --btn-danger-hover-fg: #ffffff;
-
-    --ambient: 0;
-}
+/* NOTE: The AMOLED and Linear themes were removed. shadcn is the default dark
+   theme and Light is the only alternative; both are defined below / in :root. */
 
 /* ==========================================================
-   shadcn/ui Dark Theme
+   shadcn/ui Dark Theme (DEFAULT)
    (mapped onto the app's existing variables so every component
    inherits the look automatically)
    ----------------------------------------------------------
@@ -6104,24 +6068,7 @@ body.light-mode .glass-card {
     }
 }
 
-/* 5. AMOLED Mode: Pitch Black & Pure Emerald */
-[data-theme="amoled"] .celebration-banner {
-    border-radius: 8px;
-    border: 2px solid #10b981;
-    background: #000000;
-    color: #f4f4f5;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.95), 0 0 30px rgba(16, 185, 129, 0.3);
-}
-[data-theme="amoled"] .celebration-icon-circle {
-    border-radius: 50%;
-    border-color: #10b981;
-    background: rgba(16, 185, 129, 0.15);
-    color: #34d399;
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
-}
-[data-theme="amoled"] .celebration-banner-text {
-    color: #f4f4f5;
-}
+/* (AMOLED celebration overrides removed with the AMOLED theme.) */
 
 /* 6. Light Mode: Pure White, Slate & Professional Azure */
 [data-theme="light"] .celebration-banner,
@@ -6260,33 +6207,33 @@ input[type="checkbox"]:focus-visible {
     box-shadow: 0 0 0 2px var(--bg, #0f172a), 0 0 0 4px var(--accent, #3b82f6) !important;
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:focus-visible,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) input[type="checkbox"]:focus-visible,
 html[data-theme="light"] input[type="checkbox"]:focus-visible,
 body.light-mode input[type="checkbox"]:focus-visible {
     box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #09090b !important;
 }
 
 /* Light Theme Unchecked State - white box with clean zinc outline */
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:not(:checked):not(:indeterminate),
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) input[type="checkbox"]:not(:checked):not(:indeterminate),
 html[data-theme="light"] input[type="checkbox"]:not(:checked):not(:indeterminate),
 body.light-mode input[type="checkbox"]:not(:checked):not(:indeterminate) {
     background-color: #ffffff;
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:not(:checked):not(:indeterminate)::after,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) input[type="checkbox"]:not(:checked):not(:indeterminate)::after,
 html[data-theme="light"] input[type="checkbox"]:not(:checked):not(:indeterminate)::after,
 body.light-mode input[type="checkbox"]:not(:checked):not(:indeterminate)::after {
     border-color: #71717a;
 }
 
 /* Light Theme Hover (Unchecked Only) */
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled),
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled),
 html[data-theme="light"] input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled),
 body.light-mode input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled) {
     background-color: #f4f4f5;
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled)::after,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled)::after,
 html[data-theme="light"] input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled)::after,
 body.light-mode input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled)::after {
     border-color: #09090b;
@@ -6439,13 +6386,13 @@ input[type="checkbox"]:disabled {
 }
 
 /* Light Theme Dynamic Adaptation */
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) .alert-dialog-overlay,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) .alert-dialog-overlay,
 html[data-theme="light"] .alert-dialog-overlay,
 body.light-mode .alert-dialog-overlay {
     background-color: rgba(0, 0, 0, 0.45);
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) .alert-dialog-content,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) .alert-dialog-content,
 html[data-theme="light"] .alert-dialog-content,
 body.light-mode .alert-dialog-content {
     background-color: #ffffff;
@@ -6453,19 +6400,19 @@ body.light-mode .alert-dialog-content {
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) .alert-dialog-title,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) .alert-dialog-title,
 html[data-theme="light"] .alert-dialog-title,
 body.light-mode .alert-dialog-title {
     color: #09090b;
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) .alert-dialog-description,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) .alert-dialog-description,
 html[data-theme="light"] .alert-dialog-description,
 body.light-mode .alert-dialog-description {
     color: #71717a;
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) .alert-dialog-cancel,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) .alert-dialog-cancel,
 html[data-theme="light"] .alert-dialog-cancel,
 body.light-mode .alert-dialog-cancel {
     background-color: #ffffff;
@@ -6473,29 +6420,311 @@ body.light-mode .alert-dialog-cancel {
     border: 1px solid #e4e4e7;
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) .alert-dialog-cancel:hover,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) .alert-dialog-cancel:hover,
 html[data-theme="light"] .alert-dialog-cancel:hover,
 body.light-mode .alert-dialog-cancel:hover {
     background-color: #f4f4f5;
     border-color: #d4d4d8;
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) .alert-dialog-action.action-primary,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) .alert-dialog-action.action-primary,
 html[data-theme="light"] .alert-dialog-action.action-primary,
 body.light-mode .alert-dialog-action.action-primary {
     background-color: #09090b;
     color: #f8fafc;
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) .alert-dialog-action.action-primary:hover,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) .alert-dialog-action.action-primary:hover,
 html[data-theme="light"] .alert-dialog-action.action-primary:hover,
 body.light-mode .alert-dialog-action.action-primary:hover {
     background-color: #27272a;
 }
 
-/* AMOLED Theme Dynamic Adaptation */
-html[data-theme="amoled"] .alert-dialog-content {
-    background-color: #000000;
-    border-color: #222222;
+/* (AMOLED alert-dialog override removed with the AMOLED theme.) */
+
+/* ==========================================================================
+   UI Select — Base UI / shadcn design, dependency-free
+   Replicates @base-ui/react Select visuals on top of the app's theme tokens.
+   Trigger -> floating popover list -> items w/ check indicator, focus rings.
+   ========================================================================== */
+
+/* ---- Trigger ---- */
+.ui-select-trigger {
+    display: inline-flex;
+    width: fit-content;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 0 8px 0 10px;
+    height: 32px;
+    font-size: 13px;
+    font-family: inherit;
+    white-space: nowrap;
+    user-select: none;
+    cursor: pointer;
+    color: var(--fg, #f4f4f5);
+    background: transparent;
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
 }
+.ui-select-trigger[data-size="sm"] { height: 28px; border-radius: 7px; }
+.ui-select-trigger:hover { background: var(--surface-hover, rgba(255, 255, 255, 0.04)); }
+.ui-select-trigger:focus-visible {
+    border-color: var(--accent, #5E6AD2);
+    box-shadow: 0 0 0 3px var(--accent-glow, rgba(94, 106, 210, 0.25));
+}
+.ui-select-trigger:disabled,
+.ui-select-trigger[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+.ui-select-trigger .ui-select-value {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    line-clamp: 1;
+}
+.ui-select-trigger[data-placeholder] .ui-select-value { color: var(--fg-muted, #a1a1aa); }
+.ui-select-trigger .ui-select-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    pointer-events: none;
+    color: var(--fg-muted, #a1a1aa);
+}
+.ui-select-trigger .ui-select-icon svg { width: 16px; height: 16px; }
+
+/* ---- Popover / content ---- */
+.ui-select-content {
+    position: absolute;
+    z-index: 10050; /* above page modals (10000) and sidebar tooltip (10001) */
+    min-width: 144px;
+    max-height: 280px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 4px;
+    background: var(--surface-card, var(--surface, #15151b));
+    color: var(--fg, #f4f4f5);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    transform-origin: top center;
+    animation: uiSelectIn 0.12s ease;
+}
+.ui-select-content[data-side="top"] { transform-origin: bottom center; }
+.ui-select-content.closing { animation: uiSelectOut 0.1s ease forwards; }
+@keyframes uiSelectIn {
+    from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes uiSelectOut {
+    from { opacity: 1; transform: scale(1); }
+    to   { opacity: 0; transform: scale(0.96); }
+}
+.ui-select-content::-webkit-scrollbar { width: 8px; }
+.ui-select-content::-webkit-scrollbar-track { background: transparent; }
+.ui-select-content::-webkit-scrollbar-thumb { background: var(--border, rgba(255,255,255,0.12)); border-radius: 4px; }
+.ui-select-content::-webkit-scrollbar-thumb:hover { background: var(--border-hover, rgba(255,255,255,0.2)); }
+
+/* ---- Group label / separator ---- */
+.ui-select-label {
+    padding: 6px 6px 4px 6px;
+    font-size: 11px;
+    color: var(--fg-muted, #a1a1aa);
+}
+.ui-select-separator {
+    height: 1px;
+    margin: 4px -4px;
+    background: var(--border, rgba(255, 255, 255, 0.1));
+    pointer-events: none;
+}
+
+/* ---- Item ---- */
+.ui-select-item {
+    position: relative;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 28px 6px 6px;
+    font-size: 13px;
+    border-radius: 6px;
+    cursor: default;
+    user-select: none;
+    outline: none;
+    color: var(--fg, #f4f4f5);
+    box-sizing: border-box;
+}
+.ui-select-item .ui-select-item-text {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+/* Highlight uses a NEUTRAL gray (Base UI's `focus:bg-accent`), not the brand
+   accent — matches the reference design: subtle light-gray row + light text in
+   dark themes, subtle dark-gray row + dark text in the light theme. */
+.ui-select-item[data-highlighted] {
+    background: var(--surface-hover, rgba(255, 255, 255, 0.08));
+    color: var(--fg, #f4f4f5);
+}
+.ui-select-item[data-highlighted] .ui-select-item-indicator { color: var(--fg, #f4f4f5); }
+/* Selected (checked) row keeps a faint accent tint so it reads as "current" */
+.ui-select-item[data-selected] { color: var(--fg, #f4f4f5); font-weight: 500; }
+.ui-select-item[data-disabled] { pointer-events: none; opacity: 0.5; }
+.ui-select-item-indicator {
+    position: absolute;
+    right: 8px;
+    display: inline-flex;
+    width: 16px;
+    height: 16px;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    color: var(--fg, #f4f4f5);
+    opacity: 0;
+}
+.ui-select-item[data-selected] .ui-select-item-indicator { opacity: 1; }
+.ui-select-item-indicator svg { width: 16px; height: 16px; }
+
+/* ---- Scroll arrows ---- */
+.ui-select-scroll-btn {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 0;
+    background: var(--surface-card, var(--surface, #15151b));
+    color: var(--fg-muted, #a1a1aa);
+    cursor: default;
+    z-index: 1;
+}
+.ui-select-scroll-btn svg { width: 16px; height: 16px; }
+
+/* ==========================================================================
+   Input Group — Base UI / shadcn design, dependency-free
+   An input with attached "addons" (icon / button / text) on inline-start /
+   inline-end / block-start / block-end. Replaces the hand-rolled
+   "position:relative + padding-left:28px + absolute <svg>" search pattern.
+   ========================================================================== */
+
+.input-group {
+    position: relative;
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    height: 32px;
+    align-items: stretch; /* addons stretch full height so icons center cleanly */
+    background: transparent;
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    border-radius: 8px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.input-group:hover { background: var(--surface-hover, rgba(255, 255, 255, 0.03)); }
+/* Focus ring when the inner control is focused (Base UI: has-[:focus-visible]) */
+.input-group:focus-within {
+    border-color: var(--accent, #5E6AD2);
+    box-shadow: 0 0 0 3px var(--accent-glow, rgba(94, 106, 210, 0.25));
+}
+.input-group.input-group-disabled { background: var(--surface, rgba(255,255,255,0.03)); opacity: 0.5; }
+.input-group[aria-invalid="true"] { border-color: var(--sem-red, #ef4444); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2); }
+/* Block layouts grow to fit stacked addons */
+.input-group:has(> [data-align="block-start"]),
+.input-group:has(> [data-align="block-end"]) { height: auto; flex-direction: column; }
+.input-group:has(> textarea) { height: auto; }
+
+/* ---- Addon (icon / text / button container) ---- */
+.input-group-addon {
+    display: inline-flex;
+    align-items: center;      /* vertically center the icon within full height */
+    justify-content: center;
+    align-self: stretch;
+    gap: 6px;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--fg-muted, #a1a1aa);
+    cursor: text;
+    user-select: none;
+    flex-shrink: 0;
+}
+.input-group-addon > svg { width: 16px; height: 16px; flex-shrink: 0; display: block; }
+.input-group-addon[data-align="inline-start"] { order: -1; padding-left: 10px; }
+.input-group-addon[data-align="inline-end"]   { order: 1;  padding-right: 10px; }
+.input-group-addon[data-align="block-start"]  { order: -1; width: 100%; justify-content: flex-start; padding: 8px 10px 2px 10px; }
+.input-group-addon[data-align="block-end"]    { order: 1;  width: 100%; justify-content: flex-start; padding: 2px 10px 8px 10px; }
+/* Clicking an addon focuses the input (Base UI InputGroupAddon behaviour) */
+.input-group[data-disabled] .input-group-addon { opacity: 0.5; }
+
+/* ---- Trailing text addon ---- */
+.input-group-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--fg-muted, #a1a1aa);
+}
+.input-group-text svg { pointer-events: none; width: 16px; height: 16px; }
+
+/* ---- Button addon ---- */
+.input-group-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    height: 24px;
+    padding: 0 6px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--fg-muted, #a1a1aa);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+.input-group-button:hover { background: var(--surface-hover, rgba(255,255,255,0.06)); color: var(--fg, #f4f4f5); }
+.input-group-button > svg { width: 14px; height: 14px; }
+
+/* ---- The control (input / textarea) — flush inside the group ---- */
+.input-group > .input-group-control,
+.input-group > input.input-group-control,
+.input-group > textarea.input-group-control {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    padding: 0 10px;
+    font-size: 13px;
+    line-height: 1;
+    font-family: inherit;
+    color: var(--fg, #f4f4f5);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    outline: none;
+    box-shadow: none;
+}
+.input-group > textarea.input-group-control { padding: 8px 10px; resize: none; height: auto; }
+.input-group > .input-group-control::placeholder { color: var(--fg-subtle, #71717a); }
+.input-group > .input-group-control:disabled { background: transparent; }
+/* Comfortable gap between a leading/trailing addon and the control text */
+.input-group > [data-align="inline-start"] ~ .input-group-control { padding-left: 6px; }
+.input-group > [data-align="inline-end"] ~ .input-group-control,
+.input-group > .input-group-control:has(~ [data-align="inline-end"]) { padding-right: 6px; }
 
