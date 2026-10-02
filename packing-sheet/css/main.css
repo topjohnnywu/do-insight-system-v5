@@ -135,3 +135,120 @@ html datalist option {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 }
+
+/* ==========================================================
+   "Calm Cat 84" Checkbox Specification (iOS variant)
+   (adapted from uiverse.io/SelfMadeSystem/calm-cat-84)
+   ----------------------------------------------------------
+   Animated ::after border-rotation checkmark. Check fill
+   follows the iOS system blue; adapts to the .dark theme.
+   ========================================================== */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  flex-shrink: 0;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 3.5px;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.25s ease, filter 0.25s ease;
+  box-sizing: border-box;
+}
+
+input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  /* inset:0 (no width/height) sizes the pseudo exactly to the 18px input box,
+     eliminating the offset/double-box artifact from the old fixed 14.5px square. */
+  inset: 0;
+  border: 1.5px solid #c7c7cc;
+  border-radius: 3.5px;
+  transform: rotate(0deg);
+  transition: all 0.25s ease, border-width 0.1s ease;
+  box-sizing: border-box;
+}
+
+input[type="checkbox"]:hover:not(:checked):not(:disabled)::after {
+  border-color: #007AFF;
+  background-color: rgba(0, 122, 255, 0.08);
+}
+
+input[type="checkbox"]:checked {
+  background-color: #007AFF;
+}
+
+input[type="checkbox"]:checked::after {
+  /* Center the tick within the 18px box: left=(18-5)/2, top slightly up. */
+  inset: auto;
+  left: 6.5px;
+  top: 3.5px;
+  width: 5px;
+  height: 9px;
+  /* White right+bottom edges (the two with width below) form the checkmark
+     when rotated 45deg. Previously white was on the zero-width top edge, so
+     the tick was invisible. */
+  border-color: transparent #ffffff #ffffff transparent;
+  border-width: 0 2px 2px 0;
+  border-radius: 0;
+  transform: rotate(45deg);
+}
+
+input[type="checkbox"]:checked:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+
+input[type="checkbox"]:indeterminate {
+  background-color: #007AFF;
+}
+
+input[type="checkbox"]:indeterminate::after {
+  /* Center the 10x2 dash within the 18px box: left=(18-10)/2, top=(18-2)/2 */
+  inset: auto;
+  left: 4px;
+  top: 8px;
+  width: 10px;
+  height: 2px;
+  border: none;
+  border-radius: 1px;
+  background-color: #ffffff;
+  transform: rotate(0deg);
+}
+
+input[type="checkbox"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #007AFF;
+}
+
+html.dark input[type="checkbox"]:focus-visible {
+  box-shadow: 0 0 0 2px #000000, 0 0 0 4px #0A84FF;
+}
+
+html.dark input[type="checkbox"]::after {
+  border-color: #48484a;
+}
+
+html.dark input[type="checkbox"]:hover:not(:checked):not(:disabled)::after {
+  border-color: #0A84FF;
+  background-color: rgba(10, 132, 255, 0.12);
+}
+
+html.dark input[type="checkbox"]:checked {
+  background-color: #0A84FF;
+}
+
+html.dark input[type="checkbox"]:indeterminate {
+  background-color: #0A84FF;
+}
+
+input[type="checkbox"]:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
