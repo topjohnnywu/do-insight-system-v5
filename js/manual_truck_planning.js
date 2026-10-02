@@ -637,10 +637,10 @@ function renderTruckBoards() {
         // Mode segmented button toggle for ALL trucks
         const dropModeToggle = `
             <div style="display: inline-flex; align-items: center; background: var(--surface-solid, #09090b); border: 1px solid var(--border); border-radius: 6px; padding: 2px;">
-                <button type="button" onclick="window.toggleTruckDropMode('${tId}', 'single')" style="background: ${!isTwoDrop ? 'var(--accent, #5E6AD2)' : 'transparent'}; color: ${!isTwoDrop ? '#fff' : 'var(--fg-muted)'}; border: none; padding: 3px 8px; font-size: 0.75rem; font-weight: 600; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
+                <button type="button" onclick="window.toggleTruckDropMode('${tId}', 'single')" style="background: ${!isTwoDrop ? 'var(--accent, #5E6AD2)' : 'transparent'}; color: ${!isTwoDrop ? 'var(--accent-foreground, #fff)' : 'var(--fg-muted)'}; border: none; padding: 3px 8px; font-size: 0.75rem; font-weight: 600; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
                     Single Drop
                 </button>
-                <button type="button" onclick="window.toggleTruckDropMode('${tId}', 'two_drop')" style="background: ${isTwoDrop ? 'var(--accent, #5E6AD2)' : 'transparent'}; color: ${isTwoDrop ? '#fff' : 'var(--fg-muted)'}; border: none; padding: 3px 8px; font-size: 0.75rem; font-weight: 600; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
+                <button type="button" onclick="window.toggleTruckDropMode('${tId}', 'two_drop')" style="background: ${isTwoDrop ? 'var(--accent, #5E6AD2)' : 'transparent'}; color: ${isTwoDrop ? 'var(--accent-foreground, #fff)' : 'var(--fg-muted)'}; border: none; padding: 3px 8px; font-size: 0.75rem; font-weight: 600; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
                     2 Drops
                 </button>
             </div>
@@ -976,7 +976,7 @@ window.openManualDoModal = function(truckId, dropSeq = 1) {
             <!-- Footer -->
             <div style="padding: 12px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; background: var(--surface-hover, transparent);">
                 <button type="button" class="action-btn" onclick="document.getElementById('manualDoModal').style.display='none'" style="padding: 7px 16px; font-size: 0.82rem; border-radius: var(--radius-control); background: var(--surface); color: var(--fg); border: 1px solid var(--border); cursor: pointer;">Cancel</button>
-                <button type="button" class="action-btn primary" onclick="window.submitModalManualDo('${truckId}', ${dropSeq})" style="padding: 7px 18px; font-size: 0.82rem; font-weight: 700; border-radius: var(--radius-control); background: var(--accent, #5E6AD2); color: #fff; cursor: pointer;">Add to Truck</button>
+                <button type="button" class="action-btn primary" onclick="window.submitModalManualDo('${truckId}', ${dropSeq})" style="padding: 7px 18px; font-size: 0.82rem; font-weight: 700; border-radius: var(--radius-control); background: var(--accent, #5E6AD2); color: var(--accent-foreground, #fff); cursor: pointer;">Add to Truck</button>
             </div>
         </div>
     `;

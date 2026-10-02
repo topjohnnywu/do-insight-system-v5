@@ -8,14 +8,14 @@ function updateThemeToggleButton(themeName) {
     const ToggleBtn = document.getElementById('themeToggleBtn');
     if (!ToggleBtn) return;
     const paletteIconSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: middle;"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg>`;
-    const label = ({ linear: "Linear", amoled: "AMOLED", light: "Light" })[themeName] || "Themes";
+    const label = ({ linear: "Linear", amoled: "AMOLED", light: "Light", shadcn: "shadcn/ui" })[themeName] || "Themes";
     ToggleBtn.innerHTML = `${paletteIconSvg} <span>${label}</span>`;
     ToggleBtn.setAttribute("title", "Open Theme Settings");
 }
 
 function getCurrentTheme() {
     const t = document.documentElement.getAttribute("data-theme");
-    return (t === "linear" || t === "amoled" || t === "light") ? t : "linear";
+    return (t === "linear" || t === "amoled" || t === "light" || t === "shadcn") ? t : "linear";
 }
 
 function isLightTheme() {
@@ -39,7 +39,8 @@ let activeTheme = "linear";
 const THEME_PALETTES = {
     linear:   ["#5E6AD2", "#6872D9", "#a78bfa", "#18181b"],
     amoled:   ["#10b981", "#34d399", "#000000", "#27272a"],
-    light:    ["#3b82f6", "#2563eb", "#ffffff", "#e2e8f0"]
+    light:    ["#3b82f6", "#2563eb", "#ffffff", "#e2e8f0"],
+    shadcn:   ["#fafafa", "#a1a1aa", "#0a0a0a", "#262626"]
 };
 
 function renderThemeSwatches() {
@@ -85,7 +86,7 @@ function buildThemeSidebar() {
     
     // Convert THEME_PALETTES to sidebar cards
     const themeNames = {
-        linear: "Linear (Default)", amoled: "AMOLED Dark", light: "Light Mode"
+        linear: "Linear (Default)", amoled: "AMOLED Dark", light: "Light Mode", shadcn: "shadcn/ui Dark"
     };
     
     Object.keys(THEME_PALETTES).forEach(themeKey => {
@@ -142,6 +143,9 @@ function applyChartTheme(themeName) {
     if (themeName === "light") {
         Chart.defaults.color = '#334155';
         Chart.defaults.borderColor = '#cbd5e1';
+    } else if (themeName === "shadcn") {
+        Chart.defaults.color = '#a1a1aa';   /* zinc-400 */
+        Chart.defaults.borderColor = '#262626'; /* zinc-800 hairline */
     } else {
         Chart.defaults.color = '#a1a1aa';
         Chart.defaults.borderColor = '#18181b';
@@ -151,9 +155,9 @@ function applyChartTheme(themeName) {
 // Track active view transition to prevent overlapping animations
 let isThemeTransitioning = false;
 
-// Apply a theme to the whole app. Valid themes: linear, amoled, light.
+// Apply a theme to the whole app. Valid themes: linear, amoled, light, shadcn.
 function setTheme(themeName, persist, clickEvent) {
-    const valid = ["linear", "amoled", "light"];
+    const valid = ["linear", "amoled", "light", "shadcn"];
     if (!valid.includes(themeName)) themeName = "linear";
     if (persist === undefined) persist = true;
 
@@ -266,6 +270,7 @@ function initTheme() {
     if (saved === "light") theme = "light";
     else if (saved === "dark" || saved === "amoled") theme = "amoled";
     else if (saved === "linear") theme = "linear";
+    else if (saved === "shadcn") theme = "shadcn";
     // Any legacy removed themes fall back to linear
     
     buildThemeSidebar(); // Ensure sidebar exists

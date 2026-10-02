@@ -4,6 +4,7 @@
     let themeToSetForBoot = "linear";
     if (savedThemeForBoot === "light") themeToSetForBoot = "light";
     else if (savedThemeForBoot === "dark" || savedThemeForBoot === "amoled") themeToSetForBoot = "amoled";
+    else if (savedThemeForBoot === "shadcn") themeToSetForBoot = "shadcn";
     // Legacy removed themes fall back to linear
 
     document.documentElement.setAttribute("data-theme", themeToSetForBoot);
@@ -523,6 +524,8 @@
             if (btnOk) {
                 btnOk.innerText = confirmText;
                 btnOk.style.background = isDanger ? "#ef4444" : "var(--accent, #2563eb)";
+                // Dark text on the (white) shadcn accent; white on danger red / blue accents.
+                btnOk.style.color = isDanger ? "#ffffff" : "var(--accent-foreground, #ffffff)";
                 btnOk.style.boxShadow = isDanger ? "0 4px 12px rgba(239, 68, 68, 0.3)" : "0 4px 12px rgba(37, 99, 235, 0.3)";
             }
 

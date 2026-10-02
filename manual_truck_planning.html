@@ -128,7 +128,7 @@
 
         .sim-speed-btn.active {
             background: var(--accent, #5E6AD2) !important;
-            color: #ffffff !important;
+            color: var(--accent-foreground, #ffffff) !important;
         }
     </style>
 
@@ -582,7 +582,7 @@
                             
                             <!-- Contextual Fleet Toolbar -->
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <button onclick="addTruck()" class="action-btn primary" title="Add another truck to plan" style="background: var(--accent, #5E6AD2); color: #fff; border: 1px solid var(--border-accent, rgba(94,106,210,0.5)); padding: 6px 14px; border-radius: var(--radius-control); font-size: 0.82rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 8px var(--accent-glow, rgba(94,106,210,0.3));">
+                                <button onclick="addTruck()" class="action-btn primary" title="Add another truck to plan" style="background: var(--accent, #5E6AD2); color: var(--accent-foreground, #fff); border: 1px solid var(--border-accent, rgba(94,106,210,0.5)); padding: 6px 14px; border-radius: var(--radius-control); font-size: 0.82rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 8px var(--accent-glow, rgba(94,106,210,0.3));">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <line x1="12" y1="5" x2="12" y2="19"></line>
                                         <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -665,7 +665,7 @@
                                 </button>
                                 <div style="height: 16px; width: 1px; background: var(--border);"></div>
                                 <span style="font-size: 0.74rem; color: var(--fg-muted); font-weight: 600;">Speed:</span>
-                                <button type="button" onclick="setTruckSimSpeed(1)" class="sim-speed-btn active" id="btnSpeed1x" style="background: var(--accent, #5E6AD2); color: #fff; border: none; padding: 2px 7px; border-radius: 4px; font-size: 0.74rem; font-weight: 600; cursor: pointer;">1x</button>
+                                <button type="button" onclick="setTruckSimSpeed(1)" class="sim-speed-btn active" id="btnSpeed1x" style="background: var(--accent, #5E6AD2); color: var(--accent-foreground, #fff); border: none; padding: 2px 7px; border-radius: 4px; font-size: 0.74rem; font-weight: 600; cursor: pointer;">1x</button>
                                 <button type="button" onclick="setTruckSimSpeed(2)" class="sim-speed-btn" id="btnSpeed2x" style="background: transparent; color: var(--fg-muted); border: none; padding: 2px 7px; border-radius: 4px; font-size: 0.74rem; font-weight: 600; cursor: pointer;">2x</button>
                                 <button type="button" onclick="setTruckSimSpeed(4)" class="sim-speed-btn" id="btnSpeed4x" style="background: transparent; color: var(--fg-muted); border: none; padding: 2px 7px; border-radius: 4px; font-size: 0.74rem; font-weight: 600; cursor: pointer;">4x</button>
                             </div>
@@ -681,7 +681,7 @@
 
                         <!-- Right: Add Truck + Fullscreen + Return to Grid -->
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <button type="button" onclick="addTruck(); renderTruckPlanCanvas();" class="action-btn primary" style="background: var(--accent, #5E6AD2); color: #fff; padding: 6px 12px; border-radius: var(--radius-control); font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;">
+                            <button type="button" onclick="addTruck(); renderTruckPlanCanvas();" class="action-btn primary" style="background: var(--accent, #5E6AD2); color: var(--accent-foreground, #fff); padding: 6px 12px; border-radius: var(--radius-control); font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;">
                                 <span>+ Add Truck</span>
                             </button>
                             <button type="button" onclick="toggleFullscreenCanvas()" class="action-btn" title="Toggle Fullscreen for Large Monitors" style="background: var(--surface); border: 1px solid var(--border); color: var(--fg); padding: 6px 10px; border-radius: var(--radius-control); font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">

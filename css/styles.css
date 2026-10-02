@@ -282,6 +282,7 @@
 
     --accent: #3b82f6;
     --accent-bright: #60a5fa;
+    --accent-foreground: #ffffff;
     --accent-glow: rgba(59, 130, 246, 0.25);
     --accent-glow-strong: rgba(59, 130, 246, 0.45);
 
@@ -329,6 +330,7 @@
     --fg-subtle: #71717a;
     --accent: #3b82f6;
     --accent-bright: #60a5fa;
+    --accent-foreground: #ffffff;
     --accent-glow: rgba(59, 130, 246, 0.25);
     --accent-glow-strong: rgba(59, 130, 246, 0.45);
     --border: #18181b;
@@ -355,6 +357,151 @@
     --ambient: 0;
 }
 
+/* ==========================================================
+   shadcn/ui Dark Theme
+   (mapped onto the app's existing variables so every component
+   inherits the look automatically)
+   ----------------------------------------------------------
+   - Neutral zinc surfaces (no blue tint)
+   - Monochrome WHITE primary (shadcn's signature): --accent is
+     near-white, NOT a saturated color
+   - Flat cards: hairline #262626 borders, essentially no glow
+   - Radius follows shadcn's --radius scale (0.5rem base)
+   ========================================================== */
+[data-theme="shadcn"] {
+    /* Surfaces: pure zinc, flat */
+    --bg-deep: #09090b;          /* zinc-950 */
+    --bg-base: #0a0a0a;          /* shadcn background */
+    --bg-elevated: #0a0a0a;
+    --sidebar-bg: #09090b;
+    --surface: #141414;          /* barely-lifted card */
+    --surface-hover: #1f1f1f;    /* zinc-800-ish hover */
+    --surface-solid: #0a0a0a;
+    --surface-card: #111113;     /* card */
+
+    /* Text: shadcn foreground + muted-foreground */
+    --fg: #fafafa;               /* zinc-50 */
+    --fg-muted: #a1a1aa;         /* zinc-400 */
+    --fg-subtle: #71717a;        /* zinc-500 */
+
+    /* Accent: MONOCHROME white primary (the key shadcn trait) */
+    --accent: #fafafa;           /* primary = white on dark */
+    --accent-bright: #ffffff;
+    /* Text/icons drawn ON the white accent must be dark to stay visible.
+       This is shadcn's "primary-foreground". */
+    --accent-foreground: #0a0a0a;
+    /* Accent used for TEXT/icon emphasis (links, active labels, highlights).
+       On the white-accent shadcn theme this must be a legible light-on-dark
+       neutral, NOT the white fill color. */
+    --accent-text: #e4e4e7;
+    --accent-glow: rgba(255, 255, 255, 0.08);
+    --accent-glow-strong: rgba(255, 255, 255, 0.14);
+
+    /* Borders: solid hairline zinc-800, no translucency games */
+    --border: #262626;           /* zinc-800 */
+    --border-hover: #3f3f46;     /* zinc-700 */
+    --border-accent: #52525b;    /* zinc-600 (neutral, not blue) */
+
+    /* Radius: shadcn scale */
+    --radius-card: 10px;
+    --radius-control: 6px;
+
+    /* Shadows: flat, hairline-defined (no colored ambient glow) */
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --shadow-cta: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --highlight-top: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+
+    /* Primary buttons become white-on-dark */
+    --btn-export: var(--accent);
+    --btn-export-hover: var(--accent-bright);
+    --btn-compile: var(--accent);
+    --btn-compile-hover: var(--accent-bright);
+    --btn-email: var(--accent);
+    --btn-email-hover: var(--accent-bright);
+    --btn-danger-bg: rgba(239, 68, 68, 0.16);
+    --btn-danger-fg: #fca5a5;
+    --btn-danger-hover-bg: rgba(239, 68, 68, 0.32);
+    --btn-danger-hover-fg: #ffffff;
+
+    --ambient: 0;
+}
+
+/* Elements whose BACKGROUND is the (white) accent must render their text/icons
+   in the dark accent-foreground, otherwise they appear white-on-white.
+   This covers class-based and inline-styled primary buttons/toggles. */
+[data-theme="shadcn"] .btn-primary,
+[data-theme="shadcn"] .action-btn.primary,
+[data-theme="shadcn"] button[style*="var(--accent)"],
+[data-theme="shadcn"] [style*="background: var(--accent)"],
+[data-theme="shadcn"] [style*="background-color: var(--accent)"] {
+    color: var(--accent-foreground, #0a0a0a);
+}
+
+/* Text/icons that other themes color with the (blue) --accent become the WHITE
+   accent in this theme and can vanish on light surfaces. Force them to the
+   legible --accent-text neutral so emphasis text stays readable. */
+[data-theme="shadcn"] .sidebar-nav-item.active svg,
+[data-theme="shadcn"] .remark-note-text,
+[data-theme="shadcn"] .manifest-label,
+[data-theme="shadcn"] .dat-json-export-btn,
+[data-theme="shadcn"] .sticky-remarks-card .panel-toggle-btn,
+[data-theme="shadcn"] .spreadsheet-table th.sortable-th:hover,
+[data-theme="shadcn"] .spreadsheet-table th.sorted .sort-icon,
+[data-theme="shadcn"] .do-picker-action-btn,
+[data-theme="shadcn"] .quick-filter-direct-btn svg,
+[data-theme="shadcn"] .quick-filter-direct-btn.active,
+[data-theme="shadcn"] .quick-filter-direct-btn.active svg,
+[data-theme="shadcn"] .chart-action-btn,
+[data-theme="shadcn"] .dashboard-header-brand-icon,
+[data-theme="shadcn"] .btn-do-link,
+[data-theme="shadcn"] .btn-do-link:hover {
+    color: var(--accent-text, #e4e4e7);
+}
+
+/* CRITICAL white-on-white fix: many components hard-code `color:#ffffff` on a
+   `var(--accent)` background. With the white shadcn accent that becomes
+   white-on-white. Force their foreground to the dark accent-foreground.
+   These selectors mirror every rule that pairs an accent background with a
+   hard-coded light text color. */
+[data-theme="shadcn"] .pagination-btn.active,
+[data-theme="shadcn"] .slicer-btn.active,
+[data-theme="shadcn"] .action-btn.primary,
+[data-theme="shadcn"] .batch-tab-btn.active-tab,
+[data-theme="shadcn"] .file-chips-wrapper .file-chip.active,
+[data-theme="shadcn"] .btn-sync,
+[data-theme="shadcn"] .filter-preset-chip.active,
+[data-theme="shadcn"] .excel-filter-btn.active,
+[data-theme="shadcn"] .excel-btn-ok,
+[data-theme="shadcn"] .do-picker-badge,
+[data-theme="shadcn"] .btn-tick-action.active,
+[data-theme="shadcn"] .alert-dialog-action.action-primary,
+[data-theme="shadcn"] .view-toggle-btn.active,
+[data-theme="shadcn"] #shippingInsightBtn,
+[data-theme="shadcn"] #shippingInsightBtn:hover,
+[data-theme="shadcn"] .chart-action-btn.active,
+[data-theme="shadcn"] .filter-count-badge,
+/* Class-based accent-fill components found in per-page audits (DSG, manifest,
+   truck-planning speed toggle) that hard-code white text on var(--accent). */
+[data-theme="shadcn"] .dsg-btn-import-csv,
+[data-theme="shadcn"] .dsg-btn-import-csv:hover,
+[data-theme="shadcn"] .dsg-btn-simplify.active-on,
+[data-theme="shadcn"] .dsg-btn-simplify.active-on:hover,
+[data-theme="shadcn"] .btn-copy-manifest:hover:not(:disabled),
+[data-theme="shadcn"] .sim-speed-btn.active,
+[data-theme="shadcn"] .dsg-compile-btn,
+[data-theme="shadcn"] .dsg-compile-btn:hover,
+[data-theme="shadcn"] .dsg-export-btn,
+[data-theme="shadcn"] .dsg-export-btn:hover,
+[data-theme="shadcn"] .dsg-email-btn,
+[data-theme="shadcn"] .dsg-email-btn:hover,
+[data-theme="shadcn"] .dat-export-btn,
+[data-theme="shadcn"] .dat-export-btn:hover,
+[data-theme="shadcn"] .ch-export-btn,
+[data-theme="shadcn"] .ch-export-btn:hover {
+    color: var(--accent-foreground, #0a0a0a) !important;
+}
+
 [data-theme="light"] {
     --bg-deep: #f1f5f9;
     --bg-base: #f8fafc;
@@ -369,6 +516,7 @@
     --fg-subtle: #64748b;
     --accent: #2563eb;
     --accent-bright: #1d4ed8;
+    --accent-foreground: #ffffff;
     --accent-glow: rgba(37, 99, 235, 0.25);
     --accent-glow-strong: rgba(37, 99, 235, 0.45);
     --border: #e2e8f0;
@@ -953,7 +1101,9 @@ html[data-sidebar-autohide="true"] .sidebar.is-hovered > div:last-child {
 
 .sidebar-autohide-toggle[aria-checked="true"] .switch-thumb {
     transform: translateX(18px);
-    background: #ffffff;
+    /* Thumb sits ON the accent track: use accent-foreground so it stays visible
+       (dark thumb on the white shadcn track, white thumb on blue tracks). */
+    background: var(--accent-foreground, #ffffff);
 }
 
 /* Collapsed widget representation in Icon-Rail Mode */
@@ -2007,14 +2157,14 @@ input[type="file"]::file-selector-button:focus-visible {
 
 #shippingInsightBtn {
     background-color: var(--accent) !important;
-    color: #ffffff !important;
+    color: var(--accent-foreground, #ffffff) !important;
     border: 1px solid transparent !important;
     box-shadow: var(--shadow-cta);
 }
 
 #shippingInsightBtn:hover {
     background-color: var(--accent-bright) !important;
-    color: #ffffff !important;
+    color: var(--accent-foreground, #ffffff) !important;
     border-color: transparent !important;
     box-shadow: 0 0 0 1px var(--accent-glow-strong), 0 6px 20px var(--accent-glow);
     transform: translateY(-1px);
@@ -2310,7 +2460,7 @@ body.light-mode .slicer-btn.active {
 .action-btn.warning:hover { background-color: var(--sem-orange); color: #ffffff; transform: translateY(-2px); box-shadow: 0 4px 12px var(--sem-orange-bg); }
 .action-btn.ghost { background-color: transparent; color: var(--fg-muted); border: 1px solid transparent; box-shadow: none; }
 .action-btn.ghost:hover { color: var(--fg); background-color: var(--surface-hover); }
-.action-btn.active { background-color: var(--accent); color: #ffffff; border: 1px solid var(--accent-bright); box-shadow: var(--shadow-cta); }
+.action-btn.active { background-color: var(--accent); color: var(--accent-foreground, #ffffff); border: 1px solid var(--accent-bright); box-shadow: var(--shadow-cta); }
 
 .action-btn:active {
     transform: scale(0.98);
@@ -2742,7 +2892,9 @@ body.light-mode #challengerSearchCount {
     font-weight: 700;
     letter-spacing: 0.3px;
     cursor: pointer;
-    color: #ffffff;
+    /* Text sits on the accent background: use accent-foreground so it stays
+       readable in every theme (dark text on the white shadcn accent). */
+    color: var(--accent-foreground, #ffffff);
     background: var(--btn-export);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), var(--highlight-top);
     transition: background-color 0.2s var(--ease), transform 0.2s var(--ease), box-shadow 0.2s var(--ease), filter 0.2s var(--ease);
@@ -2859,6 +3011,7 @@ body.light-mode #challengerSearchCount {
 /* DO Activity Trend Export */
 .dat-export-btn {
     background: var(--btn-export);
+    color: var(--accent-foreground, #ffffff);
 }
 
 .dat-export-btn:hover {
@@ -2873,6 +3026,9 @@ body.light-mode #challengerSearchCount {
 /* Compile Final Summary */
 .dsg-compile-btn {
     background: var(--btn-compile);
+    /* Text sits on the accent background; use accent-foreground so it stays
+       readable in every theme (dark text on the white shadcn accent). */
+    color: var(--accent-foreground, #ffffff);
 }
 
 .dsg-compile-btn:hover {
@@ -2887,6 +3043,7 @@ body.light-mode #challengerSearchCount {
 /* Export Workbook */
 .dsg-export-btn {
     background: var(--btn-export);
+    color: var(--accent-foreground, #ffffff);
 }
 
 .dsg-export-btn:hover {
@@ -2897,6 +3054,7 @@ body.light-mode #challengerSearchCount {
 /* Generate Email */
 .dsg-email-btn {
     background: var(--btn-email);
+    color: var(--accent-foreground, #ffffff);
 }
 
 .dsg-email-btn:hover {
@@ -5462,13 +5620,13 @@ body.light-mode .glass-card {
     font-size: 11px;
     font-weight: 700;
     background: var(--accent, #3b82f6);
-    color: #ffffff;
+    color: var(--accent-foreground, #ffffff);
     line-height: 1;
 }
 
 .quick-filter-direct-btn.active .filter-count-badge {
     background: var(--accent-bright, #60a5fa);
-    color: #0f172a;
+    color: var(--accent-foreground, #0f172a);
 }
 
 .chart-action-btn {
@@ -5493,7 +5651,7 @@ body.light-mode .glass-card {
 
 .chart-action-btn.active {
     background: var(--accent, #3b82f6);
-    color: #ffffff;
+    color: var(--accent-foreground, #ffffff);
     border-color: var(--accent-bright, #60a5fa);
     box-shadow: 0 1px 4px rgba(59, 130, 246, 0.35);
 }
@@ -6058,10 +6216,11 @@ input[type="checkbox"]:checked::after {
     top: 3.5px;
     width: 5px;
     height: 9px;
-    /* White right+bottom edges (the two that have width below); rotated 45deg
-       they form the checkmark. Previously the white was on the zero-width top
-       edge and the visible edges were transparent, so the tick was invisible. */
-    border-color: transparent #ffffff #ffffff transparent;
+    /* Tick uses --accent-foreground (the color drawn ON the accent fill), so it
+       stays visible in every theme: dark tick on the white shadcn accent, white
+       tick on the blue accents. Hard-coding white here made the tick invisible
+       on the shadcn (white-accent) theme. */
+    border-color: transparent var(--accent-foreground, #ffffff) var(--accent-foreground, #ffffff) transparent;
     border-width: 0 2px 2px 0;
     border-radius: 0;
     transform: rotate(45deg);
@@ -6086,7 +6245,7 @@ input[type="checkbox"]:indeterminate::after {
     height: 2px;
     border: none;
     border-radius: 1px;
-    background-color: #ffffff;
+    background-color: var(--accent-foreground, #ffffff);
     transform: rotate(0deg);
 }
 

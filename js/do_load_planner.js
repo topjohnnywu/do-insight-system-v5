@@ -52,10 +52,10 @@ function setDataSourceMode(mode) {
     DataSourceMode = mode;
     
     document.getElementById('mode-summary-btn').style.background = mode === 'summary' ? 'var(--accent)' : 'transparent';
-    document.getElementById('mode-summary-btn').style.color = mode === 'summary' ? 'white' : 'var(--fg-muted)';
+    document.getElementById('mode-summary-btn').style.color = mode === 'summary' ? 'var(--accent-foreground, #ffffff)' : 'var(--fg-muted)';
     
     document.getElementById('mode-route-btn').style.background = mode === 'route' ? 'var(--accent)' : 'transparent';
-    document.getElementById('mode-route-btn').style.color = mode === 'route' ? 'white' : 'var(--fg-muted)';
+    document.getElementById('mode-route-btn').style.color = mode === 'route' ? 'var(--accent-foreground, #ffffff)' : 'var(--fg-muted)';
     
     const uploader = document.getElementById('route-upload-container');
     if (uploader) {

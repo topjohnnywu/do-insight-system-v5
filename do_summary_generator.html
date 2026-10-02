@@ -442,7 +442,7 @@
                         /* 1. Import Summary CSV (Primary Solid) */
                         .dsg-btn-import-csv {
                             background: var(--accent, #3b82f6) !important;
-                            color: #ffffff !important;
+                            color: var(--accent-foreground, #ffffff) !important;
                         }
                         .dsg-btn-import-csv:hover {
                             filter: brightness(1.1) !important;
@@ -497,7 +497,7 @@
                         }
                         .dsg-btn-simplify.active-on {
                             background: var(--accent, #3b82f6) !important;
-                            color: #ffffff !important;
+                            color: var(--accent-foreground, #ffffff) !important;
                             border-color: var(--accent, #3b82f6) !important;
                         }
                         .dsg-btn-simplify.active-on:hover {
@@ -802,7 +802,7 @@
                             </span>
                         </div>
 
-                        <span id="batchSearchCount" style="font-size: 11px; color: var(--accent); font-weight: 600; background: var(--accent-glow); border: 1px solid var(--border-accent); padding: 2px 8px; border-radius: 12px; display: none;">0 DOs</span>
+                        <span id="batchSearchCount" style="font-size: 11px; color: var(--accent-text, var(--accent)); font-weight: 600; background: var(--accent-glow); border: 1px solid var(--border-accent); padding: 2px 8px; border-radius: 12px; display: none;">0 DOs</span>
                         
                         <button id="btnSimplifyMode" class="action-btn dsg-solid-action-btn dsg-btn-simplify" onclick="summaryGenerator.toggleSimplifyMode()" style="padding: 4px 10px; font-size: 11px;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
@@ -891,7 +891,7 @@
 
                         <div style="display: flex; align-items: center; gap: 5px;">
                             <input type="text" id="filteredRemarkInput" placeholder="Custom remark..." style="font-size: 11px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid); color: var(--fg); width: 140px;">
-                            <button type="button" class="action-btn" onclick="summaryGenerator.applyCustomFilteredRemark()" style="font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 600; background: #2563eb; color: #ffffff; border: none; cursor: pointer;">Apply to All Filtered</button>
+                            <button type="button" class="action-btn" onclick="summaryGenerator.applyCustomFilteredRemark()" style="font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 600; background: var(--accent, #2563eb); color: var(--accent-foreground, #ffffff); border: none; cursor: pointer;">Apply to All Filtered</button>
                         </div>
                     </div>
                 </div>
@@ -1083,7 +1083,7 @@
                             <option value="gray">⚪ Gray Tag</option>
                             <option value="dark">⬛ Dark Tag</option>
                         </select>
-                        <button type="button" onclick="summaryGenerator.addNewPresetRemark()" class="action-btn" style="font-size: 12px; font-weight: 700; padding: 7px 16px; border-radius: 6px; background: #2563eb; color: #ffffff; border: none; cursor: pointer;">Add</button>
+                        <button type="button" onclick="summaryGenerator.addNewPresetRemark()" class="action-btn" style="font-size: 12px; font-weight: 700; padding: 7px 16px; border-radius: 6px; background: var(--accent, #2563eb); color: var(--accent-foreground, #ffffff); border: none; cursor: pointer;">Add</button>
                     </div>
                 </div>
 
@@ -1240,7 +1240,7 @@
 
             <div style="padding: 14px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; background: var(--surface-hover, transparent);">
                 <button type="button" onclick="summaryGenerator.cancelImportModal()" class="action-btn" style="font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 6px; background: var(--surface); color: var(--fg); border: 1px solid var(--border); cursor: pointer;">Cancel</button>
-                <button type="button" onclick="summaryGenerator.confirmImportBatch()" class="action-btn" style="font-size: 12px; font-weight: 600; padding: 7px 18px; border-radius: 6px; background: var(--accent, #3b82f6); color: #ffffff; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <button type="button" onclick="summaryGenerator.confirmImportBatch()" class="action-btn" style="font-size: 12px; font-weight: 600; padding: 7px 18px; border-radius: 6px; background: var(--accent, #3b82f6); color: var(--accent-foreground, #ffffff); border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                     <span>✓ Confirm & Import Batch</span>
                 </button>
             </div>

@@ -1,4 +1,8 @@
-const CACHE_NAME = 'planner-cache-v4';
+// Bump this version on EVERY code deploy/edit. A new version forces the
+// browser to install a fresh service worker and (via `activate`) delete the
+// old cache, so users always receive the latest HTML/CSS/JS instead of stale
+// cached copies. v5: shadcn theme + white-on-white fixes.
+const CACHE_NAME = 'planner-cache-v9';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -45,6 +49,9 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', event => {
+    // Take control as soon as the new SW finishes installing (no waiting for
+    // all existing tabs to close), so cache-busting version bumps apply fast.
+    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
@@ -60,36 +67,65 @@ self.addEventListener('install', event => {
     );
 });
 
+// App code (HTML/CSS/JS) must ALWAYS come from the network when online so
+// users never see stale code. Only fall back to cache when offline.
+// Static vendor assets keep the network-first-then-cache behaviour.
+function isAppCode(request) {
+    const url = new URL(request.url);
+    if (url.origin !== self.location.origin) return false;
+    return request.mode === 'navigate'
+        || /\.(html|css|js)$/.test(url.pathname)
+        || url.pathname === '/' ;
+}
+
 self.addEventListener('fetch', event => {
+    const { request } = event;
+
+    // Only handle GET; let everything else pass through.
+    if (request.method !== 'GET') return;
+
+    // NETWORK-FIRST for app code: try network, update cache, fall back to cache offline.
+    if (isAppCode(request)) {
+        event.respondWith(
+            fetch(request, { cache: 'no-store' })
+                .then(networkResponse => {
+                    if (networkResponse && networkResponse.status === 200) {
+                        const responseClone = networkResponse.clone();
+                        caches.open(CACHE_NAME).then(cache => cache.put(request, responseClone));
+                    }
+                    return networkResponse;
+                })
+                .catch(() => caches.match(request))
+        );
+        return;
+    }
+
+    // DEFAULT (vendor/CDN/etc.): network-first, cache update, offline fallback.
     event.respondWith(
-        fetch(event.request)
+        fetch(request)
             .then(networkResponse => {
-                // If network fetch is successful, clone it and update the cache
                 if (networkResponse && networkResponse.status === 200) {
                     const responseClone = networkResponse.clone();
-                    caches.open(CACHE_NAME).then(cache => {
-                        cache.put(event.request, responseClone);
-                    });
+                    caches.open(CACHE_NAME).then(cache => cache.put(request, responseClone));
                 }
                 return networkResponse;
             })
-            .catch(() => {
-                // If network fails (offline), fallback to cache
-                return caches.match(event.request);
-            })
+            .catch(() => caches.match(request))
     );
 });
 
 self.addEventListener('activate', event => {
     event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
+        caches.keys()
+            .then(cacheNames => Promise.all(
                 cacheNames.map(cacheName => {
                     if (cacheName !== CACHE_NAME) {
                         return caches.delete(cacheName);
                     }
                 })
-            );
-        })
+            ))
+            // Immediately control all open pages so the new cache/code is used
+            // without requiring a manual reload.
+            .then(() => self.clients.claim())
     );
 });
