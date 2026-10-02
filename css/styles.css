@@ -6728,3 +6728,118 @@ body.light-mode .alert-dialog-action.action-primary:hover {
 .input-group > [data-align="inline-end"] ~ .input-group-control,
 .input-group > .input-group-control:has(~ [data-align="inline-end"]) { padding-right: 6px; }
 
+/* ==========================================================================
+   Toast — Base UI / shadcn (Sonner-style) design, dependency-free, no emoji
+   Bottom-right stacked toasts with collapsed "peek" effect, SVG type icons,
+   title + description, and a close button. Replaces the inline-styled toast.
+   ========================================================================== */
+
+.ui-toast-viewport {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    left: auto;
+    z-index: 100000;
+    display: flex;
+    flex-direction: column-reverse; /* newest at the visual bottom; stack grows upward */
+    align-items: flex-end;
+    width: 100%;
+    max-width: 380px;
+    pointer-events: none;
+    outline: none;
+}
+@media (max-width: 480px) {
+    .ui-toast-viewport { left: 16px; right: 16px; max-width: none; }
+}
+
+.ui-toast {
+    pointer-events: auto;
+    position: relative;
+    display: flex;
+    align-items: center; /* vertically center body + action + close like Sonner */
+    gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    margin-top: 10px;
+    background: var(--surface-card, var(--bg-elevated, #15151b));
+    color: var(--fg, #f4f4f5);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.03);
+    font-family: var(--app-font-family, inherit);
+    user-select: none;
+    cursor: default;
+    transform-origin: bottom center;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease, height 0.2s ease;
+    opacity: 0;
+    transform: translateY(150%);
+    will-change: transform, opacity;
+}
+.ui-toast.ui-toast-open { opacity: 1; transform: translateY(0) scale(1); }
+.ui-toast.ui-toast-leaving { opacity: 0; transform: translateY(150%); }
+/* Collapsed stack: earlier toasts shrink & peek behind the frontmost */
+.ui-toast.ui-toast-behind { /* set inline via JS --toast-index */ }
+.ui-toast:focus-visible { border-color: var(--accent, #5E6AD2); box-shadow: 0 0 0 3px var(--accent-glow, rgba(94,106,210,0.25)); }
+
+.ui-toast-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.ui-toast-title {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--fg, #f4f4f5);
+    word-wrap: break-word;
+}
+.ui-toast-description {
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--fg-muted, #a1a1aa);
+    word-wrap: break-word;
+}
+/* If there is only a message (no separate title), it renders as the title */
+/* Sonner-style action button (e.g. "Undo"): subtle outline pill */
+.ui-toast-action {
+    flex-shrink: 0;
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--fg, #f4f4f5);
+    background: var(--surface-hover, rgba(255, 255, 255, 0.06));
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.ui-toast-action:hover { background: var(--surface-solid, rgba(255, 255, 255, 0.1)); }
+.ui-toast-close {
+    position: relative;
+    flex-shrink: 0;
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: var(--fg-muted, #a1a1aa);
+    cursor: pointer;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+.ui-toast-close:hover { color: var(--fg, #f4f4f5); background: var(--surface-hover, rgba(255,255,255,0.06)); }
+.ui-toast-close svg { width: 14px; height: 14px; display: block; }
+

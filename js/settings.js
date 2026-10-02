@@ -397,74 +397,107 @@
     // ==========================================================
     // Universal Hub Toast & Async Confirmation Modal System
     // ==========================================================
-    window.showToast = function(message, type = "info", duration = 3500) {
-        let container = document.getElementById("hubToastContainer") || document.getElementById("dsgToastContainer");
-        if (!container) {
-            container = document.createElement("div");
-            container.id = "hubToastContainer";
-            container.style.cssText = "position: fixed; top: 20px; right: 20px; z-index: 100000; display: flex; flex-direction: column; gap: 8px; pointer-events: none;";
-            document.body.appendChild(container);
+    // Clean Sonner-style toast (no type icon, no emoji). Title + description on
+    // the left, optional action + close on the right.
+    // Backward-compatible signature: showToast(message, type, duration)
+    //   type: "info" | "success" | "error" | "warning" | "loading"
+    // Rich form: showToast({ title, description, type, duration, action })
+    const TOAST_TYPES = ["info", "success", "error", "warning", "loading"];
+    const TOAST_CLOSE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+
+    function _toastViewport() {
+        let vp = document.getElementById("uiToastViewport");
+        if (!vp) {
+            vp = document.createElement("div");
+            vp.id = "uiToastViewport";
+            vp.className = "ui-toast-viewport";
+            document.body.appendChild(vp);
         }
+        return vp;
+    }
+
+    // Keep z-order sane (newest on top). Layout/stacking is handled by the
+    // viewport's column-reverse flex; no manual transforms needed.
+    function _restackToasts() {
+        const vp = document.getElementById("uiToastViewport");
+        if (!vp) return;
+        const toasts = Array.from(vp.querySelectorAll(".ui-toast:not(.ui-toast-leaving)"));
+        const n = toasts.length;
+        toasts.forEach((t, i) => { t.style.zIndex = 1000 + i; });
+    }
+
+    window.showToast = function(message, type = "info", duration = 3500) {
+        // Support rich object form: showToast({ title, description, type, duration, action })
+        let title, description, action;
+        if (message && typeof message === "object") {
+            ({ title, description, type = "info", duration = 3500, action } = message);
+        } else {
+            title = message;
+        }
+        if (!TOAST_TYPES.includes(type)) type = "info";
+
+        const viewport = _toastViewport();
 
         const toast = document.createElement("div");
-        toast.style.cssText = `
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 18px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--border, rgba(255,255,255,0.1));
-            pointer-events: auto;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            opacity: 0;
-            transform: translateY(-12px) scale(0.96);
-            max-width: 420px;
-            line-height: 1.45;
-            backdrop-filter: blur(12px);
-            background: var(--surface-card, var(--bg-elevated, #18181b));
-            color: var(--fg, #ffffff);
-            font-family: var(--app-font-family, inherit);
-        `;
+        toast.className = "ui-toast";
+        toast.dataset.type = type;
+        toast.setAttribute("role", "status");
+        toast.tabIndex = 0;
 
-        let icon = "ℹ️";
-        let borderColor = "var(--accent, #3b82f6)";
-
-        if (type === "success") {
-            icon = "✅";
-            borderColor = "#10b981";
-        } else if (type === "error") {
-            icon = "❌";
-            borderColor = "#ef4444";
-        } else if (type === "warning") {
-            icon = "⚠️";
-            borderColor = "#f59e0b";
+        // Clean Sonner layout: NO type icon. Title + description on the left,
+        // optional action + close on the right (vertically centered).
+        const body = document.createElement("div");
+        body.className = "ui-toast-body";
+        if (title) {
+            const t = document.createElement("div");
+            t.className = "ui-toast-title";
+            t.innerHTML = String(title).replace(/\n/g, "<br>");
+            body.appendChild(t);
+        }
+        if (description) {
+            const d = document.createElement("div");
+            d.className = "ui-toast-description";
+            d.innerHTML = String(description).replace(/\n/g, "<br>");
+            body.appendChild(d);
         }
 
-        toast.style.border = `1px solid ${borderColor}`;
-        toast.innerHTML = `<span style="font-size: 16px;">${icon}</span><span style="flex:1;">${String(message).replace(/\n/g, '<br>')}</span><span style="font-size: 12px; opacity: 0.6; padding: 2px;">✕</span>`;
+        toast.appendChild(body);
 
-        toast.onclick = () => {
-            toast.style.opacity = "0";
-            toast.style.transform = "translateY(-12px) scale(0.96)";
-            setTimeout(() => toast.remove(), 250);
-        };
+        if (action && action.label && typeof action.onClick === "function") {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "ui-toast-action";
+            btn.textContent = action.label;
+            btn.onclick = (e) => { e.stopPropagation(); action.onClick(); dismiss(); };
+            toast.appendChild(btn);
+        }
 
-        container.appendChild(toast);
+        const closeBtn = document.createElement("button");
+        closeBtn.type = "button";
+        closeBtn.className = "ui-toast-close";
+        closeBtn.setAttribute("aria-label", "Close toast");
+        closeBtn.innerHTML = TOAST_CLOSE_ICON;
+        closeBtn.onclick = (e) => { e.stopPropagation(); dismiss(); };
+        toast.appendChild(closeBtn);
+
+        let removed = false;
+        function dismiss() {
+            if (removed) return;
+            removed = true;
+            toast.classList.remove("ui-toast-open");
+            toast.classList.add("ui-toast-leaving");
+            setTimeout(() => { if (toast.parentElement) toast.remove(); _restackToasts(); }, 400);
+        }
+
+        // Newest toast goes on top (append, then restack so it becomes frontmost)
+        viewport.appendChild(toast);
         requestAnimationFrame(() => {
-            toast.style.opacity = "1";
-            toast.style.transform = "translateY(0) scale(1)";
+            toast.classList.add("ui-toast-open");
+            _restackToasts();
         });
 
-        setTimeout(() => {
-            if (toast.parentElement) {
-                toast.style.opacity = "0";
-                toast.style.transform = "translateY(-12px) scale(0.96)";
-                setTimeout(() => toast.remove(), 250);
-            }
-        }, duration);
+        if (duration && duration > 0) setTimeout(dismiss, duration);
+        return { dismiss };
     };
 
     window.showConfirmDialog = function({ title = "Confirm Action", message = "Are you sure?", confirmText = "Confirm", cancelText = "Cancel", isDanger = true, icon = "⚠️" } = {}) {

@@ -2,7 +2,7 @@
 // browser to install a fresh service worker and (via `activate`) delete the
 // old cache, so users always receive the latest HTML/CSS/JS instead of stale
 // cached copies. v5: shadcn theme + white-on-white fixes.
-const CACHE_NAME = 'planner-cache-v17';
+const CACHE_NAME = 'planner-cache-v20';
 const urlsToCache = [
     '/',
     '/index.html',

@@ -119,81 +119,28 @@ class DOSummaryGenerator {
         localStorage.setItem("DSG_Preset_Sort_Mode", this.presetSortMode);
     }
 
+    // Delegate to the global clean Sonner-style toast (settings.js), which has
+    // no emoji/type icon. Falls back to a minimal version if settings.js
+    // hasn't loaded yet.
     showToast(message, type = "info", duration = 3500) {
-        const container = document.getElementById("dsgToastContainer");
-        if (!container) return;
-
-        const toast = document.createElement("div");
-        toast.style.cssText = `
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 18px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--border);
-            pointer-events: auto;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            opacity: 0;
-            transform: translateY(-12px) scale(0.96);
-            max-width: 420px;
-            line-height: 1.45;
-            backdrop-filter: blur(12px);
-        `;
-
-        let icon = "ℹ️";
-        let bg = "var(--surface-card, var(--bg-elevated, #ffffff))";
-        let border = "1px solid var(--border)";
-        let fg = "var(--fg)";
-
-        if (type === "success") {
-            icon = "✅";
-            bg = "var(--bg-elevated, #ffffff)";
-            border = "1px solid #10b981";
-            fg = "var(--fg)";
-        } else if (type === "error") {
-            icon = "❌";
-            bg = "var(--bg-elevated, #ffffff)";
-            border = "1px solid #ef4444";
-            fg = "var(--fg)";
-        } else if (type === "warning") {
-            icon = "⚠️";
-            bg = "var(--bg-elevated, #ffffff)";
-            border = "1px solid #f59e0b";
-            fg = "var(--fg)";
-        } else if (type === "info") {
-            icon = "ℹ️";
-            bg = "var(--bg-elevated, #ffffff)";
-            border = "1px solid var(--accent, #3b82f6)";
-            fg = "var(--fg)";
+        if (typeof window.showToast === "function") {
+            return window.showToast(message, type, duration);
         }
-
-        toast.style.background = bg;
-        toast.style.border = border;
-        toast.style.color = fg;
-        toast.innerHTML = `<span style="font-size: 16px;">${icon}</span><span style="flex:1;">${message.replace(/\n/g, '<br>')}</span><span style="font-size: 12px; opacity: 0.6; padding: 2px;">✕</span>`;
-
-        toast.onclick = () => {
-            toast.style.opacity = "0";
-            toast.style.transform = "translateY(-12px) scale(0.96)";
-            setTimeout(() => toast.remove(), 250);
-        };
-
-        container.appendChild(toast);
-        requestAnimationFrame(() => {
-            toast.style.opacity = "1";
-            toast.style.transform = "translateY(0) scale(1)";
-        });
-
-        setTimeout(() => {
-            if (toast.parentElement) {
-                toast.style.opacity = "0";
-                toast.style.transform = "translateY(-12px) scale(0.96)";
-                setTimeout(() => toast.remove(), 250);
-            }
-        }, duration);
+        // Minimal fallback (should rarely run — settings.js loads first)
+        const vp = document.getElementById("uiToastViewport") || (() => {
+            const el = document.createElement("div");
+            el.id = "uiToastViewport";
+            el.className = "ui-toast-viewport";
+            document.body.appendChild(el);
+            return el;
+        })();
+        const toast = document.createElement("div");
+        toast.className = "ui-toast";
+        toast.dataset.type = type;
+        toast.innerHTML = `<div class="ui-toast-body"><div class="ui-toast-title">${String(message).replace(/\n/g, "<br>")}</div></div>`;
+        vp.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add("ui-toast-open"));
+        setTimeout(() => { toast.classList.remove("ui-toast-open"); toast.classList.add("ui-toast-leaving"); setTimeout(() => toast.remove(), 400); }, duration);
     }
 
     showConfirmDialog({ title = "Are you absolutely sure?", message = "This action cannot be undone.", confirmText = "Continue", isDanger = true }) {
