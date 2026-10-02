@@ -414,7 +414,7 @@
                 const checked = selectedModelKeys.has(item.key) ? "checked" : "";
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
-                    <td style="text-align:center;"><input type="checkbox" ${checked} data-key="${item.key.replace(/"/g, '&quot;')}" onchange="toggleModelByEl(this)" style="cursor:pointer;"></td>
+                    <td style="text-align:center;"><input type="checkbox" ${checked} data-idx="${idx}" onchange="toggleModelByEl(this)" style="cursor:pointer;"></td>
                     <td><strong>${idx + 1}</strong></td>
                     <td><span style="color:#0284c7; font-weight:600;">${item.route}</span></td>
                     <td><span style="color:#3b82f6; font-weight:700;">${item.code || "Unspecified"}</span></td>
@@ -427,8 +427,13 @@
         }
 
         function toggleModelByEl(el) {
-            const key = el.getAttribute("data-key");
-            if (el.checked) selectedModelKeys.add(key); else selectedModelKeys.delete(key);
+            // Resolve by stable row index into modelItemsCache, avoiding any
+            // HTML-attribute round-trip of the composite key (which could contain
+            // quotes / special chars and fail to match the raw stored key).
+            const idx = parseInt(el.getAttribute("data-idx"), 10);
+            const item = modelItemsCache[idx];
+            if (!item) return;
+            if (el.checked) selectedModelKeys.add(item.key); else selectedModelKeys.delete(item.key);
             updateSelCount();
         }
 

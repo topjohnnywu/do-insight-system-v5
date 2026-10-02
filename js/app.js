@@ -426,8 +426,8 @@ function populateDoPickerList() {
         const info = doSummaryMap[inv] || {};
 
         html += `
-            <div class="do-picker-item ${isChecked ? 'selected' : ''}" id="do_item_${escapeAttr(inv)}" onclick="toggleDoCheckboxItem('${escapeAttr(inv)}')">
-                <input type="checkbox" id="do_check_${escapeAttr(inv)}" class="spreadsheet-row-check" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); handleDoCheckboxToggle('${escapeAttr(inv)}', this.checked)">
+            <div class="do-picker-item ${isChecked ? 'selected' : ''}" id="do_item_${escapeAttr(inv)}" data-inv="${escapeAttr(inv)}" onclick="toggleDoCheckboxItem(this.dataset.inv)">
+                <input type="checkbox" id="do_check_${escapeAttr(inv)}" class="spreadsheet-row-check" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); handleDoCheckboxToggle(this.closest('.do-picker-item').dataset.inv, this.checked)">
                 <div class="do-picker-item-info">
                     <div class="do-picker-item-title">${inv}</div>
                     <div class="do-picker-item-sub">${escapeHtml(info.consignee)} • ${escapeHtml(info.route)} • ${info.vol > 0 ? Number(info.vol).toFixed(3) + 'm³' : '0m³'}</div>
@@ -469,11 +469,21 @@ function filterDoPickerList(query) {
 
 // Toggle DO Checkbox item when clicked
 function toggleDoCheckboxItem(inv) {
-    const chk = document.getElementById(`do_check_${inv}`);
+    const itemEl = findDoPickerItem(inv);
+    const chk = itemEl ? itemEl.querySelector('input[type="checkbox"]') : null;
     if (chk) {
         chk.checked = !chk.checked;
         handleDoCheckboxToggle(inv, chk.checked);
     }
+}
+
+// Resolve a DO picker item element by its raw (unescaped) inv value
+function findDoPickerItem(inv) {
+    const items = document.querySelectorAll('#doPickerList .do-picker-item');
+    for (const el of items) {
+        if (el.dataset.inv === inv) return el;
+    }
+    return null;
 }
 
 // Handle single DO checkbox change in Popover
@@ -491,7 +501,7 @@ function handleDoCheckboxToggle(inv, checked) {
         explorerFilters.selectedDos.delete(inv);
     }
 
-    const itemEl = document.getElementById(`do_item_${inv}`);
+    const itemEl = findDoPickerItem(inv);
     if (itemEl) {
         if (checked) itemEl.classList.add('selected');
         else itemEl.classList.remove('selected');
@@ -650,96 +660,11 @@ function updateDoPickerTriggerBadge() {
     updateTickedToolbarButtons();
 }
 
-// Spreadsheet Table Row Checkbox Handlers
-function toggleSelectAllVisibleRows(checked) {
-    if (!explorerFilters.isDoSelectionActive) {
-        explorerFilters.isDoSelectionActive = true;
-        // Start with all if checking, empty if unchecking
-        explorerFilters.selectedDos = checked ? new Set(DataHoarderArray.map(r => r.inv)) : new Set();
-    }
-
-    currentFilteredDataset.forEach(row => {
-        if (checked) {
-            explorerFilters.selectedDos.add(row.inv);
-        } else {
-            explorerFilters.selectedDos.delete(row.inv);
-        }
-    });
-
-    // Update row checkboxes in DOM
-    document.querySelectorAll('.row-do-checkbox').forEach(chk => {
-        chk.checked = checked;
-        const tr = chk.closest('tr');
-        if (tr) {
-            if (checked) tr.classList.add('row-selected');
-            else tr.classList.remove('row-selected');
-        }
-    });
-
-    updateDoPickerTriggerBadge();
-    updateTickedToolbarButtons();
-
-    // If in filterOnlyTicked mode, re-filter
-    if (explorerFilters.filterOnlyTicked) {
-        applyExplorerFilters();
-    }
-}
-
-function handleRowCheckboxChange(inputEl, inv) {
-    if (!explorerFilters.isDoSelectionActive) {
-        explorerFilters.isDoSelectionActive = true;
-        explorerFilters.selectedDos = new Set(DataHoarderArray.map(r => r.inv));
-    }
-
-    if (inputEl.checked) {
-        explorerFilters.selectedDos.add(inv);
-    } else {
-        explorerFilters.selectedDos.delete(inv);
-    }
-
-    const tr = inputEl.closest('tr');
-    if (tr) {
-        if (inputEl.checked) tr.classList.add('row-selected');
-        else tr.classList.remove('row-selected');
-    }
-
-    // Update master checkbox state
-    updateMasterCheckboxState();
-    updateDoPickerTriggerBadge();
-    updateTickedToolbarButtons();
-
-    // If in filterOnlyTicked mode, re-filter
-    if (explorerFilters.filterOnlyTicked) {
-        applyExplorerFilters();
-    }
-}
-
-function updateMasterCheckboxState() {
-    const masterChk = document.getElementById("masterDoCheckbox");
-    if (!masterChk) return;
-
-    if (currentFilteredDataset.length === 0) {
-        masterChk.checked = false;
-        masterChk.indeterminate = false;
-        return;
-    }
-
-    const visibleDos = currentFilteredDataset.map(r => r.inv);
-    const checkedCount = visibleDos.filter(inv => 
-        !explorerFilters.isDoSelectionActive || explorerFilters.selectedDos.has(inv)
-    ).length;
-
-    if (checkedCount === visibleDos.length) {
-        masterChk.checked = true;
-        masterChk.indeterminate = false;
-    } else if (checkedCount > 0) {
-        masterChk.checked = false;
-        masterChk.indeterminate = true;
-    } else {
-        masterChk.checked = false;
-        masterChk.indeterminate = false;
-    }
-}
+// NOTE: The former "spreadsheet table row checkbox" handlers
+// (toggleSelectAllVisibleRows / handleRowCheckboxChange / updateMasterCheckboxState)
+// were removed: their DOM elements (.row-do-checkbox, #masterDoCheckbox) are never
+// rendered anywhere and the functions had no callers. DO selection is handled
+// entirely via the DO picker popover (handleDoCheckboxToggle / selectAllDoCheckboxes).
 
 // Toggle Filter Only Ticked Mode
 function toggleFilterOnlyTicked() {
@@ -1005,8 +930,8 @@ function renderExcelCheckboxList() {
     visibleItems.forEach((it) => {
         const isChecked = tempSelected.has(it.value);
         html += `
-            <label class="excel-check-item" data-val="${escapeAttr(it.value)}" onclick="handleExcelItemClick(event, '${escapeAttr(it.value)}')">
-                <input type="checkbox" class="excel-row-val-check" data-val="${escapeAttr(it.value)}" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation()" onchange="handleExcelItemCheckboxChange(event, '${escapeAttr(it.value)}', this.checked)">
+            <label class="excel-check-item" data-val="${escapeAttr(it.value)}" onclick="handleExcelItemClick(event, this.dataset.val)">
+                <input type="checkbox" class="excel-row-val-check" data-val="${escapeAttr(it.value)}" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation()" onchange="handleExcelItemCheckboxChange(event, this.dataset.val, this.checked)">
                 <span class="excel-check-label" title="${escapeAttr(it.label)}">${escapeHtml(it.label)}</span>
                 <span class="excel-check-count">(${it.count})</span>
             </label>

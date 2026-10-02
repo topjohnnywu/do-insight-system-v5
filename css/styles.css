@@ -5989,7 +5989,13 @@ body.light-mode .celebration-banner-text {
 }
 
 /* ==========================================================
-   shadcn/ui "Nova" (Base UI) Checkbox Specification
+   "Calm Cat 84" Checkbox Specification
+   (adapted from uiverse.io/SelfMadeSystem/calm-cat-84)
+   ----------------------------------------------------------
+   Pure-CSS animated checkmark via ::after border rotation.
+   Theme-adapted: check fill follows var(--accent), outline
+   adapts light/dark. Indeterminate/focus/disabled states
+   carried over from the previous Nova spec.
    ========================================================== */
 input[type="checkbox"],
 .shadcn-checkbox {
@@ -6001,87 +6007,95 @@ input[type="checkbox"],
     min-width: 18px !important;
     min-height: 18px !important;
     flex-shrink: 0 !important;
-    border-radius: 4.5px !important;
-    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.22)) !important;
-    background-color: var(--surface-card, rgba(255, 255, 255, 0.03)) !important;
+    position: relative;
+    vertical-align: middle;
     margin: 0;
     padding: 0;
-    display: inline-grid;
-    place-content: center;
+    border: none;
+    border-radius: 3.5px;
+    background-color: transparent;
     cursor: pointer;
-    vertical-align: middle;
-    position: relative;
-    transition: background-color 0.15s cubic-bezier(0.16, 1, 0.3, 1),
-                border-color 0.15s cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 0.15s cubic-bezier(0.16, 1, 0.3, 1),
-                filter 0.15s ease;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 12.5px 12.5px;
+    transition: background-color 0.25s ease, filter 0.25s ease;
     box-sizing: border-box;
 }
 
-/* Light Theme Unchecked State - Clean Zinc Border with Subtle Depth */
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:not(:checked):not(:indeterminate),
-html[data-theme="light"] input[type="checkbox"]:not(:checked):not(:indeterminate),
-body.light-mode input[type="checkbox"]:not(:checked):not(:indeterminate) {
-    border: 1.5px solid #71717a !important;
-    background-color: #ffffff !important;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+/* Rest-state outline drawn by the ::after square (uiverse mechanic).
+   On check, this same ::after morphs into the tick mark.
+   NOTE: inset:0 makes the outline exactly overlay the 18px input box,
+   eliminating the "double/offset box" artifact caused by the old fixed
+   14.5px square anchored at top-left. */
+input[type="checkbox"]::after,
+.shadcn-checkbox::after {
+    content: "";
+    position: absolute;
+    /* inset:0 alone (no width/height) sizes the pseudo exactly to the input's
+       18px box, so the outline is a single crisp square with no offset. */
+    inset: 0;
+    border: 1.5px solid var(--border-color, rgba(255, 255, 255, 0.3));
+    border-radius: 3.5px;
+    transform: rotate(0deg);
+    transition: all 0.25s ease, border-width 0.1s ease;
+    box-sizing: border-box;
 }
 
-/* Hover State (Unchecked Only) */
-input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled) {
-    border-color: var(--accent, #3b82f6) !important;
-    background-color: var(--surface-hover, rgba(255, 255, 255, 0.08)) !important;
+/* Hover State (Unchecked Only) - outline highlights toward accent */
+input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled)::after {
+    border-color: var(--accent, #3b82f6);
+    background-color: var(--surface-hover, rgba(255, 255, 255, 0.08));
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled),
-html[data-theme="light"] input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled),
-body.light-mode input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled) {
-    background-color: #f4f4f5 !important;
-    border-color: #09090b !important;
+/* Checked State - solid accent fill, ::after morphs into white tick */
+input[type="checkbox"]:checked {
+    background-color: var(--accent, #3b82f6);
 }
 
-/* Hover State (Checked & Indeterminate - Keep solid fill and white icon with subtle boost) */
-input[type="checkbox"]:checked:hover:not(:disabled),
+input[type="checkbox"]:checked::after {
+    /* Position the tick glyph, centered within the 18px box.
+       Box is 18px wide; tick is 5px wide / 9px tall, so left = (18-5)/2 = 6.5px,
+       top pulled up slightly so the rotated mark reads as centered. */
+    inset: auto;
+    left: 6.5px;
+    top: 3.5px;
+    width: 5px;
+    height: 9px;
+    /* White right+bottom edges (the two that have width below); rotated 45deg
+       they form the checkmark. Previously the white was on the zero-width top
+       edge and the visible edges were transparent, so the tick was invisible. */
+    border-color: transparent #ffffff #ffffff transparent;
+    border-width: 0 2px 2px 0;
+    border-radius: 0;
+    transform: rotate(45deg);
+}
+
+/* Hover State (Checked - keep solid fill, subtle boost) */
+input[type="checkbox"]:checked:hover:not(:disabled) {
+    filter: brightness(1.12);
+}
+
+/* Indeterminate State - solid accent fill with white dash */
+input[type="checkbox"]:indeterminate {
+    background-color: var(--accent, #3b82f6);
+}
+
+input[type="checkbox"]:indeterminate::after {
+    /* Center the 10x2 dash within the 18px box: left=(18-10)/2, top=(18-2)/2 */
+    inset: auto;
+    left: 4px;
+    top: 8px;
+    width: 10px;
+    height: 2px;
+    border: none;
+    border-radius: 1px;
+    background-color: #ffffff;
+    transform: rotate(0deg);
+}
+
+/* Hover State (Indeterminate - subtle boost) */
 input[type="checkbox"]:indeterminate:hover:not(:disabled) {
     filter: brightness(1.12);
 }
 
-/* Checked State - Solid Accent in Dark/AMOLED */
-input[type="checkbox"]:checked {
-    background-color: var(--accent, #3b82f6) !important;
-    border-color: var(--accent, #3b82f6) !important;
-    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27white%27%20stroke-width%3D%273.5%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M20%206%209%2017l-5-5%27%2F%3E%3C%2Fsvg%3E") !important;
-}
-
-/* Light Mode Explicit Checked State - Solid Pitch Black with Crisp White Checkmark */
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:checked,
-html[data-theme="light"] input[type="checkbox"]:checked,
-body.light-mode input[type="checkbox"]:checked {
-    background-color: #09090b !important;
-    border-color: #09090b !important;
-    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27white%27%20stroke-width%3D%273.5%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M20%206%209%2017l-5-5%27%2F%3E%3C%2Fsvg%3E") !important;
-}
-
-/* Indeterminate State - Solid Accent in Dark/AMOLED */
-input[type="checkbox"]:indeterminate {
-    background-color: var(--accent, #3b82f6) !important;
-    border-color: var(--accent, #3b82f6) !important;
-    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27white%27%20stroke-width%3D%273.5%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M5%2012h14%27%2F%3E%3C%2Fsvg%3E") !important;
-}
-
-/* Light Mode Explicit Indeterminate State - Solid Pitch Black with Horizontal Dash */
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:indeterminate,
-html[data-theme="light"] input[type="checkbox"]:indeterminate,
-body.light-mode input[type="checkbox"]:indeterminate {
-    background-color: #09090b !important;
-    border-color: #09090b !important;
-    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27white%27%20stroke-width%3D%273.5%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M5%2012h14%27%2F%3E%3C%2Fsvg%3E") !important;
-}
-
-/* Focus Visible - Sharp Nova Offset Ring */
+/* Focus Visible - Sharp Offset Ring */
 input[type="checkbox"]:focus-visible {
     outline: none !important;
     box-shadow: 0 0 0 2px var(--bg, #0f172a), 0 0 0 4px var(--accent, #3b82f6) !important;
@@ -6091,6 +6105,32 @@ html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="
 html[data-theme="light"] input[type="checkbox"]:focus-visible,
 body.light-mode input[type="checkbox"]:focus-visible {
     box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #09090b !important;
+}
+
+/* Light Theme Unchecked State - white box with clean zinc outline */
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:not(:checked):not(:indeterminate),
+html[data-theme="light"] input[type="checkbox"]:not(:checked):not(:indeterminate),
+body.light-mode input[type="checkbox"]:not(:checked):not(:indeterminate) {
+    background-color: #ffffff;
+}
+
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:not(:checked):not(:indeterminate)::after,
+html[data-theme="light"] input[type="checkbox"]:not(:checked):not(:indeterminate)::after,
+body.light-mode input[type="checkbox"]:not(:checked):not(:indeterminate)::after {
+    border-color: #71717a;
+}
+
+/* Light Theme Hover (Unchecked Only) */
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled),
+html[data-theme="light"] input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled),
+body.light-mode input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled) {
+    background-color: #f4f4f5;
+}
+
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]) input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled)::after,
+html[data-theme="light"] input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled)::after,
+body.light-mode input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled)::after {
+    border-color: #09090b;
 }
 
 /* Disabled State */

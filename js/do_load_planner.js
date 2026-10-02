@@ -722,7 +722,7 @@ function renderTable() {
 
     if (filteredGroupedDos.length === 0) {
         tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; padding: 40px; color: var(--fg-muted);">No DOs match current filters. Ensure data is uploaded.</td></tr>`;
-        if (selectAllCheckbox) selectAllCheckbox.checked = false;
+        if (selectAllCheckbox) { selectAllCheckbox.checked = false; selectAllCheckbox.indeterminate = false; }
         return;
     }
     
@@ -778,10 +778,22 @@ function renderTable() {
     });
     
     // Check if all filtered are selected
-    const allFilteredSelected = filteredGroupedDos.length > 0 && filteredGroupedDos.every(d => selectedDos.has(d.invRaw));
-    if (selectAllCheckbox) selectAllCheckbox.checked = allFilteredSelected;
+    syncSelectAllCheckbox(selectAllCheckbox);
     
     updateCalculateButton();
+}
+
+// Keep the master "select all" checkbox in sync with the current filtered selection,
+// including the indeterminate state for partial selection.
+function syncSelectAllCheckbox(selectAllCheckbox) {
+    selectAllCheckbox = selectAllCheckbox || document.getElementById('selectAllCheckbox');
+    if (!selectAllCheckbox) return;
+
+    const totalFiltered = filteredGroupedDos.length;
+    const selectedCount = filteredGroupedDos.filter(d => selectedDos.has(d.invRaw)).length;
+
+    selectAllCheckbox.checked = totalFiltered > 0 && selectedCount === totalFiltered;
+    selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < totalFiltered;
 }
 
 function handleRowCheckbox(e, doNumber) {
@@ -791,9 +803,7 @@ function handleRowCheckbox(e, doNumber) {
         selectedDos.delete(doNumber);
     }
     
-    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-    const allFilteredSelected = filteredGroupedDos.length > 0 && filteredGroupedDos.every(d => selectedDos.has(d.invRaw));
-    if (selectAllCheckbox) selectAllCheckbox.checked = allFilteredSelected;
+    syncSelectAllCheckbox();
     
     updateCalculateButton();
 }
