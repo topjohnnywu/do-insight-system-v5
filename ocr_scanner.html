@@ -3685,6 +3685,10 @@ const StickFigureFight = {
     moveTimer: 0,
     sparks: [],
     rings: [],
+    phaseTimer: 0,
+    phaseIndex: 0,
+    phaseHit: false,
+    lastFrameTime: 0,
     
     // Fighter 1 (Hero - Emerald Neon)
     p1: {
@@ -3828,123 +3832,77 @@ const StickFigureFight = {
         });
     },
 
-    // Combat choreography director
+    // Frame-driven choreography: each phase has preparation, contact and recovery.
     updateCombatAI() {
-        this.moveTimer++;
         const p1 = this.p1;
         const p2 = this.p2;
+        this.phaseTimer++;
 
-        // Keep fighters facing each other unless doing a backflip/bow
-        if (p1.state !== 'flip' && p1.state !== 'bow') {
-            p1.facing = p2.x > p1.x ? 1 : -1;
+        const phases = [
+            { duration: 78, a: 'approach', b: 'idle' },
+            { duration: 76, a: 'punch', b: 'block' },
+            { duration: 62, a: 'hit', b: 'kick' },
+            { duration: 70, a: 'duck', b: 'kick' },
+            { duration: 82, a: 'sweep', b: 'flip' },
+            { duration: 96, a: 'idle', b: 'approach' },
+            { duration: 78, a: 'block', b: 'punch' },
+            { duration: 96, a: 'jump_kick', b: 'hit' },
+            { duration: 110, a: 'flip', b: 'idle' },
+            { duration: 118, a: 'idle', b: 'idle' }
+        ];
+        const phase = phases[this.phaseIndex];
+
+        if (this.phaseTimer === 1) {
+            p1.state = phase.a; p2.state = phase.b;
+            p1.frame = 0; p2.frame = 0;
+            this.phaseHit = false;
+            if (phase.a === 'flip' || phase.a === 'jump_kick') p1.vy = -6.2;
+            if (phase.b === 'flip' || phase.b === 'jump_kick') p2.vy = -6.2;
         }
-        if (p2.state !== 'flip' && p2.state !== 'bow') {
-            p2.facing = p1.x > p2.x ? 1 : -1;
+
+        // Contact is synchronized to the middle of the attack, not a setTimeout.
+        const contact = Math.floor(phase.duration * 0.52);
+        if (!this.phaseHit && this.phaseTimer === contact &&
+            ['punch', 'kick', 'sweep', 'jump_kick'].includes(p1.state)) {
+            const x = (p1.x + p2.x) / 2;
+            this.spawnSparks(x, this.groundY - (p1.state === 'sweep' ? 12 : 38), p1.color, 9);
+            this.phaseHit = true;
+            if (p2.state !== 'block' && p2.state !== 'duck' && p2.state !== 'flip') {
+                p2.state = 'hit'; p2.frame = 0; p2.vx = 3.2 * p1.facing;
+            }
         }
-
-        // Cycle through choreographies every 42 frames
-        if (this.moveTimer > 42 && p1.state !== 'bow' && p2.state !== 'bow') {
-            this.moveTimer = 0;
-            this.currentMove = (this.currentMove + 1) % 9;
-
-            switch (this.currentMove) {
-                case 0: // Approach / Close-in
-                    p1.state = 'approach';
-                    p2.state = 'approach';
-                    break;
-                case 1: // P1 Jabs, P2 Blocks (sparks fly!)
-                    p1.state = 'punch';
-                    p1.frame = 0;
-                    p2.state = 'block';
-                    p2.frame = 0;
-                    setTimeout(() => {
-                        this.spawnSparks((p1.x + p2.x) / 2, this.groundY - 36, '#10b981', 10);
-                    }, 120);
-                    break;
-                case 2: // P2 Counter High Kick, P1 Ducks!
-                    p2.state = 'kick';
-                    p2.frame = 0;
-                    p1.state = 'duck';
-                    p1.frame = 0;
-                    break;
-                case 3: // P1 Low Sweep, P2 Aerial Backflip Dodge!
-                    p1.state = 'sweep';
-                    p1.frame = 0;
-                    p2.state = 'flip';
-                    p2.frame = 0;
-                    p2.vy = -7;
-                    break;
-                case 4: // P2 Flying Jump Kick connects, P1 knocked back!
-                    p2.state = 'jump_kick';
-                    p2.frame = 0;
-                    p2.vy = -6;
-                    p1.state = 'hit';
-                    p1.frame = 0;
-                    p1.vx = -4 * p2.facing;
-                    setTimeout(() => {
-                        this.spawnSparks(p1.x, this.groundY - 32, '#f59e0b', 14);
-                    }, 140);
-                    break;
-                case 5: // P1 recovery ninja flip back onto feet
-                    p1.state = 'flip';
-                    p1.frame = 0;
-                    p1.vy = -7;
-                    p2.state = 'idle';
-                    break;
-                case 6: // P1 High Flying Roundhouse Kick, P2 Blocks!
-                    p1.state = 'jump_kick';
-                    p1.frame = 0;
-                    p1.vy = -6;
-                    p2.state = 'block';
-                    p2.frame = 0;
-                    setTimeout(() => {
-                        this.spawnSparks((p1.x + p2.x) / 2, this.groundY - 40, '#a855f7', 12);
-                    }, 130);
-                    break;
-                case 7: // Rapid exchange flurry (punches clash in mid-air!)
-                    p1.state = 'punch';
-                    p2.state = 'punch';
-                    p1.frame = 0;
-                    p2.frame = 0;
-                    setTimeout(() => {
-                        this.spawnSparks((p1.x + p2.x) / 2, this.groundY - 34, '#38bdf8', 8);
-                    }, 100);
-                    break;
-                case 8: // Both jump back into ready martial arts stances
-                    p1.vx = -3;
-                    p2.vx = 3;
-                    p1.state = 'idle';
-                    p2.state = 'idle';
-                    break;
+        if (!this.phaseHit && this.phaseTimer === contact &&
+            ['punch', 'kick', 'jump_kick'].includes(p2.state)) {
+            this.spawnSparks((p1.x + p2.x) / 2, this.groundY - 36, p2.color, 9);
+            this.phaseHit = true;
+            if (p1.state !== 'block' && p1.state !== 'duck' && p1.state !== 'flip') {
+                p1.state = 'hit'; p1.frame = 0; p1.vx = -3.2 * p2.facing;
             }
         }
 
-        // Update positions with physics
-        [p1, p2].forEach(p => {
+        if (this.phaseTimer >= phase.duration) {
+            this.phaseTimer = 0;
+            this.phaseIndex = (this.phaseIndex + 1) % phases.length;
+        }
+
+        // Organic footwork and damped momentum keep the silhouettes alive between hits.
+        [p1, p2].forEach((p, index) => {
+            if (p.state !== 'flip' && p.state !== 'bow') {
+                p.facing = (index === 0 ? p2.x > p.x : p1.x > p.x) ? 1 : -1;
+            }
+            const other = index === 0 ? p2 : p1;
+            if (p.state === 'approach') {
+                const target = index === 0 ? other.x - 66 : other.x + 66;
+                p.vx += (target - p.x) * 0.012;
+            } else if (p.state === 'idle') {
+                p.vx += Math.sin((this.tick + index * 17) * 0.08) * 0.025;
+            }
             p.x += p.vx;
             p.y += p.vy;
-            p.vx *= 0.85;
-
-            // Gravity
-            if (p.y < this.groundY) {
-                p.vy += 0.45;
-            } else {
-                p.y = this.groundY;
-                p.vy = 0;
-            }
-
-            // Boundary constraints
-            const minX = 70;
-            const maxX = this.width - 70;
-            if (p.x < minX) { p.x = minX; p.vx = 0; }
-            if (p.x > maxX) { p.x = maxX; p.vx = 0; }
-
-            // Approach logic
-            if (p.state === 'approach') {
-                const targetX = p === p1 ? p2.x - 65 : p1.x + 65;
-                p.x += (targetX - p.x) * 0.08;
-            }
-
+            p.vx *= 0.86;
+            if (p.y < this.groundY) p.vy += 0.42;
+            else { p.y = this.groundY; p.vy = 0; }
+            p.x = Math.max(70, Math.min(this.width - 70, p.x));
             p.frame++;
         });
     },
@@ -3957,6 +3915,11 @@ const StickFigureFight = {
         const s = p.state;
         const fr = p.frame;
         const color = p.color;
+        const cycle = Math.min(1, fr / 18);
+        const strike = Math.sin(Math.min(1, cycle) * Math.PI);
+        const settle = Math.max(0, (fr - 18) / 22);
+        const breath = Math.sin(this.tick * 0.11 + (p === this.p2 ? 1.7 : 0));
+        const bodyLean = breath * 0.8;
 
         ctx.save();
         ctx.strokeStyle = color;
@@ -3971,10 +3934,10 @@ const StickFigureFight = {
         const headR = 6.5;
         let headX = x;
         let headY = y - 48;
-        let neckX = x;
-        let neckY = y - 41;
+        let neckX = x + bodyLean;
+        let neckY = y - 41 - Math.abs(breath) * 0.8;
         let hipX = x;
-        let hipY = y - 22;
+        let hipY = y - 22 + Math.abs(breath) * 0.7;
 
         let leftHandX = x - 8 * f, leftHandY = y - 30;
         let rightHandX = x + 8 * f, rightHandY = y - 30;
@@ -4005,19 +3968,22 @@ const StickFigureFight = {
             leftHandX = x + 12 * f; leftHandY = y - 36;
             rightHandX = x + 16 * f; rightHandY = y - 34;
         } else if (s === 'punch') {
-            const ext = Math.min(26, fr * 6);
-            neckX += 6 * f;
-            rightHandX = x + (18 + ext) * f; rightHandY = y - 38;
-            leftHandX = x - 4 * f; leftHandY = y - 38;
-            rightFootX = x + 14 * f;
-            leftFootX = x - 12 * f;
+            const ext = 28 * strike * (1 - Math.min(0.35, settle * 0.35));
+            neckX += (3 + 4 * strike) * f;
+            rightHandX = x + (13 + ext) * f; rightHandY = y - 38 - strike * 2;
+            rightElbowX = x + (8 + ext * 0.48) * f; rightElbowY = y - 35 - strike * 2;
+            leftHandX = x + 2 * f; leftHandY = y - 37;
+            rightFootX = x + 14 * f + strike * 4 * f;
+            leftFootX = x - 13 * f;
         } else if (s === 'kick') {
-            neckX -= 8 * f; headX -= 10 * f;
-            rightFootX = x + 30 * f; rightFootY = y - 36;
-            rightKneeX = x + 16 * f; rightKneeY = y - 26;
-            leftFootX = x - 6 * f;
-            leftHandX = x - 10 * f; leftHandY = y - 32;
-            rightHandX = x + 8 * f; rightHandY = y - 42;
+            const kick = strike * (1 - Math.min(0.28, settle * 0.28));
+            neckX -= 7 * f * kick; headX -= 9 * f * kick;
+            hipX -= 3 * f * kick;
+            rightFootX = x + (10 + 34 * kick) * f; rightFootY = y - 5 - 31 * kick;
+            rightKneeX = x + (13 + 15 * kick) * f; rightKneeY = y - 25 - 5 * kick;
+            leftFootX = x - 8 * f;
+            leftHandX = x - 11 * f; leftHandY = y - 32 - 3 * kick;
+            rightHandX = x + 9 * f; rightHandY = y - 42;
         } else if (s === 'jump_kick') {
             headY -= 12; neckY -= 12; hipY -= 12;
             rightFootX = x + 34 * f; rightFootY = y - 34;
