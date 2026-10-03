@@ -359,8 +359,14 @@
             <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
                 <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
                     <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px; border: 1px solid var(--border); margin-right: 16px;">
-                        <button id="looseTruck40Btn" onclick="loosePlanner.setContainerType('40HC')" title="40-Foot High Cube (~67.5 m³)" class="action-btn active" style="padding: 6px 12px; font-size: 12px; font-weight: 600;">🚛 40ft HQ</button>
-                        <button id="looseTruck20Btn" onclick="loosePlanner.setContainerType('20GP')" title="20-Foot Standard (~33.2 m³)" class="action-btn ghost" style="padding: 6px 12px; font-size: 12px; font-weight: 600;">🚚 20ft GP</button>
+                        <button id="looseTruck40Btn" onclick="loosePlanner.setContainerType('40HC')" title="40-Foot High Cube (~67.5 m³)" class="action-btn active" style="padding: 6px 12px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                            40ft HQ
+                        </button>
+                        <button id="looseTruck20Btn" onclick="loosePlanner.setContainerType('20GP')" title="20-Foot Standard (~33.2 m³)" class="action-btn ghost" style="padding: 6px 12px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                            20ft GP
+                        </button>
                     </div>
 
                     <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: var(--fg, #f4f4f5); margin-right: 16px;">Simulation Mode:</h3>
@@ -386,7 +392,10 @@
                     </button>
                 </div>
                 <div id="missingDimsWarning" style="display: none; margin-top: 12px; padding: 12px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; color: #f87171; font-size: 14px;">
-                    ⚠️ Option 3 requires precise dimensions (Length, Width, Height in cm). The uploaded data is missing these fields for some items. They will be SKIPPED (excluded from the 3D simulation).
+                    <span style="display: inline-flex; align-items: center; gap: 6px;">
+                        <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        Option 3 requires precise dimensions (Length, Width, Height in cm). The uploaded data is missing these fields for some items. They will be SKIPPED (excluded from the 3D simulation).
+                    </span>
                 </div>
             </div>
 
@@ -421,8 +430,8 @@
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent, #8b5cf6)" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
                     <h3 style="margin:0; font-size: 18px; color: var(--fg, #f4f4f5); font-weight: 600;">Loose Loading 3D Visualization (<span id="simModeDisplay">Volume Fill</span>)</h3>
                     <div style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.4); padding: 3px 4px; border-radius: 6px; border: 1px solid var(--border, #3f3f46); margin-left: 12px;">
-                        <button id="modalLooseTruck40Btn" onclick="loosePlanner.setContainerType('40HC')" title="40-Foot High Cube (~67.5 m³)" class="action-btn active" style="padding: 4px 10px; border-radius: 4px; font-size: 11px;">🚛 40ft HQ</button>
-                        <button id="modalLooseTruck20Btn" onclick="loosePlanner.setContainerType('20GP')" title="20-Foot Standard (~33.2 m³)" class="action-btn ghost" style="padding: 4px 10px; border-radius: 4px; font-size: 11px;">🚚 20ft GP</button>
+                        <button id="modalLooseTruck40Btn" onclick="loosePlanner.setContainerType('40HC')" title="40-Foot High Cube (~67.5 m³)" class="action-btn active" style="padding: 4px 10px; border-radius: 4px; font-size: 11px;"><svg class="inline-icon" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> 40ft HQ</button>
+                        <button id="modalLooseTruck20Btn" onclick="loosePlanner.setContainerType('20GP')" title="20-Foot Standard (~33.2 m³)" class="action-btn ghost" style="padding: 4px 10px; border-radius: 4px; font-size: 11px;"><svg class="inline-icon" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> 20ft GP</button>
                     </div>
                     <div style="display: flex; gap: 12px; margin-left: 12px; font-size: 12px;" id="legendContainer">
                         <!-- Legend generated dynamically -->
@@ -433,9 +442,9 @@
             <div id="truck3dContainer" style="flex: 1; position: relative; width: 100%; height: 100%; cursor: grab;">
                 <!-- 3D Control Panel Overlay -->
                 <div class="dark-overlay" style="position: absolute; top: 16px; left: 16px; z-index: 10; background: rgba(24, 24, 27, 0.9); border: 1px solid var(--border, #27272a); border-radius: 8px; padding: 8px; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(4px); flex-wrap: wrap;">
-                    <button id="looseViewDefaultBtn" onclick="loosePlanner.setView('default')" class="action-btn active" style="padding: 6px 12px; border-radius: 6px; font-size: 12px;">🏠 Default</button>
-                    <button id="looseViewDoorsBtn" onclick="loosePlanner.setView('doors')" class="action-btn ghost" style="padding: 6px 12px; border-radius: 6px; font-size: 12px;">🚪 Doors</button>
-                    <button id="looseViewTopBtn" onclick="loosePlanner.setView('top')" class="action-btn ghost" style="padding: 6px 12px; border-radius: 6px; font-size: 12px;">⬇️ Top</button>
+                    <button id="looseViewDefaultBtn" onclick="loosePlanner.setView('default')" class="action-btn active" style="padding: 6px 12px; border-radius: 6px; font-size: 12px;"><svg class="inline-icon" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Default</button>
+                    <button id="looseViewDoorsBtn" onclick="loosePlanner.setView('doors')" class="action-btn ghost" style="padding: 6px 12px; border-radius: 6px; font-size: 12px;"><svg class="inline-icon" viewBox="0 0 24 24"><path d="M18 20V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14"></path><path d="M2 20h20"></path><path d="M14 12v.01"></path></svg> Doors</button>
+                    <button id="looseViewTopBtn" onclick="loosePlanner.setView('top')" class="action-btn ghost" style="padding: 6px 12px; border-radius: 6px; font-size: 12px;"><svg class="inline-icon" viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="m19 12-7 7-7-7"></path></svg> Top</button>
 
                     <div style="width: 1px; height: 20px; background: #3f3f46; margin: 0 4px;"></div>
 
@@ -447,7 +456,7 @@
                         <option value="2">2×</option>
                         <option value="4">4×</option>
                     </select>
-                    <button id="looseSnapshotBtn" onclick="loosePlanner.snapshotPNG()" class="action-btn outline" data-tip="Save a PNG image of the 3D view" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto;">📸 Snapshot</button>
+                    <button id="looseSnapshotBtn" onclick="loosePlanner.snapshotPNG()" class="action-btn outline" data-tip="Save a PNG image of the 3D view" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto;"><svg class="inline-icon" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg> Snapshot</button>
                 </div>
 
                 <!-- Overflow / Trucks-Needed Banner -->

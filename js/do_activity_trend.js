@@ -939,8 +939,7 @@ class DOActivityTrend {
                              `Click [REPLACE] to completely REPLACE your entire history with this shared dataset.`,
                     confirmText: "MERGE",
                     cancelText: "REPLACE",
-                    isDanger: false,
-                    icon: "📥"
+                    isDanger: false
                 });
 
                 if (merge) {

@@ -492,8 +492,7 @@ class BatchAnalyticsManager {
                              `Click [REPLACE] to completely OVERWRITE your entire dashboard with this shared dataset.`,
                     confirmText: "MERGE",
                     cancelText: "REPLACE",
-                    isDanger: false,
-                    icon: "📥"
+                    isDanger: false
                 });
                 
                 if (merge) {
@@ -688,7 +687,7 @@ async function handleNewBatchUpload(event) {
             message += `\n\n${totalDuplicates} duplicate(s) skipped.`;
         }
         if (totalErrors.length > 0) {
-            message += `\n\n⚠️ ${totalErrors.length} error(s):\n` + totalErrors.slice(0, 5).join('\n');
+            message += `\n\n${totalErrors.length} error(s):\n` + totalErrors.slice(0, 5).join('\n');
             if (totalErrors.length > 5) {
                 message += `\n... and ${totalErrors.length - 5} more`;
             }
@@ -700,8 +699,7 @@ async function handleNewBatchUpload(event) {
             title: "Duplicate Batches Found",
             message: `[DUPLICATE] ${totalDuplicates} batch(es) already exist. Do you want to update them with this new data?`,
             confirmText: "Update Batches",
-            isDanger: false,
-            icon: "🔄"
+            isDanger: false
         });
         if (proceed) {
             let updateCount = 0;
@@ -767,7 +765,7 @@ async function handleUpdateBatchUpload(event) {
             message += `\n\n${totalNotFound} batch(es) not found in history.`;
         }
         if (totalErrors.length > 0) {
-            message += `\n\n⚠️ ${totalErrors.length} error(s):\n` + totalErrors.slice(0, 5).join('\n');
+            message += `\n\n${totalErrors.length} error(s):\n` + totalErrors.slice(0, 5).join('\n');
             if (totalErrors.length > 5) {
                 message += `\n... and ${totalErrors.length - 5} more`;
             }
@@ -988,7 +986,7 @@ async function resetBatchAnalytics() {
         return;
     }
     
-    const confirmMessage = `⚠️ WARNING: This will permanently delete ALL batch history data!\n\n` +
+    const confirmMessage = `WARNING: This will permanently delete ALL batch history data!\n\n` +
                           `• ${batchCount} batch(es) will be removed\n` +
                           `• All KPIs and charts will be reset\n` +
                           `• This action CANNOT be undone`;
@@ -997,8 +995,7 @@ async function resetBatchAnalytics() {
         title: "Reset Batch Analytics",
         message: confirmMessage,
         confirmText: "Delete All Data",
-        isDanger: true,
-        icon: "🗑️"
+        isDanger: true
     });
     
     if (!proceed) return;
@@ -1007,8 +1004,7 @@ async function resetBatchAnalytics() {
         title: "Final Confirmation",
         message: "Are you absolutely sure you want to permanently delete all batch data?",
         confirmText: "Yes, Delete Everything",
-        isDanger: true,
-        icon: "🚨"
+        isDanger: true
     });
     
     if (!doubleProceed) return;

@@ -1390,7 +1390,7 @@ class LooseLoadPlanner {
                     <td style="padding: 12px 16px; color: #3b82f6; font-weight: 600;">${(m.totalM3 || 0).toFixed(2)}</td>
                     <td style="padding: 12px 16px; color: var(--fg-muted, #a1a1aa); font-size: 13px;">${dimsStr}</td>
                     <td style="padding: 12px 16px; text-align: center;">
-                        <button onclick="loosePlanner.removeModel('${m.name}')" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 12px; transition: all 0.2s;" title="Remove this model">🗑️</button>
+                        <button onclick="loosePlanner.removeModel('${m.name}')" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 12px; transition: all 0.2s;" title="Remove this model"><svg class="inline-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
                     </td>
                 </tr>
             `;
@@ -2246,7 +2246,7 @@ class LooseLoadPlanner {
         const u = object.userData || {};
         if (tip) {
             const overflowHTML = u.overflow
-                ? '<br><span style="color: #ef4444; font-weight: 700; font-size: 11px;">⚠ OVERFLOW — does not fit this container</span>'
+                ? '<br><span style="color: #ef4444; font-weight: 700; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;"><svg class="inline-icon" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> OVERFLOW — does not fit this container</span>'
                 : '';
             const dimsHTML = u.dimsText
                 ? `<br><span style="color: var(--fg-muted, #a1a1aa); font-size: 11px;">${u.dimsText}</span>`
@@ -2283,7 +2283,7 @@ class LooseLoadPlanner {
             banner.style.background = 'rgba(59, 130, 246, 0.15)';
             banner.style.border = '1px solid rgba(59, 130, 246, 0.5)';
             banner.style.color = '#93c5fd';
-            banner.textContent = `👀 What-if view: ${this.hiddenModels.size} model(s) hidden — showing ${trucksNeeded} truck(s) needed for visible load (${totalCBM.toFixed(2)} m³)`;
+            banner.innerHTML = `<span style="display:inline-flex; align-items:center; gap:6px;"><svg class="inline-icon" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg> What-if view: ${this.hiddenModels.size} model(s) hidden — showing ${trucksNeeded} truck(s) needed for visible load (${totalCBM.toFixed(2)} m³)</span>`;
             return;
         }
 
@@ -2311,7 +2311,7 @@ class LooseLoadPlanner {
                 }
             }
 
-            banner.innerHTML = `⚠ <strong>${tetrisOverflow}/${total} cartons don't fit physically</strong> — left out of this truck · ~${trucksNeeded} truck(s) needed by volume${detailsHtml}`;
+            banner.innerHTML = `<span style="display:inline-flex; align-items:center; gap:6px;"><svg class="inline-icon" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> <strong>${tetrisOverflow}/${total} cartons don't fit physically</strong></span> — left out of this truck · ~${trucksNeeded} truck(s) needed by volume${detailsHtml}`;
         } else if (overM3 > 0) {
             banner.style.display = 'block';
             banner.style.background = 'rgba(239, 68, 68, 0.15)';
@@ -2319,7 +2319,7 @@ class LooseLoadPlanner {
             banner.style.color = '#fca5a5';
             banner.style.whiteSpace = 'nowrap';
             banner.style.maxWidth = 'none';
-            banner.innerHTML = `⚠ Over capacity by ${overM3.toFixed(2)} m³ — ${trucksNeeded} × ${LOOSE_CONTAINER_SPECS[this.truckType].name} trucks needed`;
+            banner.innerHTML = `<span style="display:inline-flex; align-items:center; gap:6px;"><svg class="inline-icon" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Over capacity by ${overM3.toFixed(2)} m³ — ${trucksNeeded} × ${LOOSE_CONTAINER_SPECS[this.truckType].name} trucks needed</span>`;
         } else {
             banner.style.display = 'none';
         }

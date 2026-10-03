@@ -1313,8 +1313,8 @@
                             <div class="ocr-dropzone-primary">Drop scanned PDF files here</div>
                             <div class="ocr-dropzone-secondary">or <span style="color: var(--accent, #8b5cf6); text-decoration: underline; font-weight: 600;">browse files</span> from your device</div>
                             <div class="ocr-dropzone-meta">
-                                <span>📄 PDF up to 100MB</span>
-                                <span>🔒 100% In-Browser</span>
+                                <span><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> PDF up to 100MB</span>
+                                <span><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> 100% In-Browser</span>
                             </div>
                         </div>
                     </div>
@@ -1393,7 +1393,7 @@
                             </div>
                             <div class="shadcn-card-content">
                                 <div id="rootsysCorsHint" style="display:none; font-size: 11px; padding: 7px 10px; border-radius: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); color: #f59e0b; margin-bottom: 10px; line-height: 1.5;">
-                                    ⚡ <strong>Tip:</strong> RootSys Cloud CORS security requires running via local server. <a href="http://localhost:3000/ocr_scanner.html" style="color: #f59e0b; font-weight: 700; text-decoration: underline;">Switch to http://localhost:3000</a>
+                                    <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color: #f59e0b;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> <strong>Tip:</strong> RootSys Cloud CORS security requires running via local server. <a href="http://localhost:3000/ocr_scanner.html" style="color: #f59e0b; font-weight: 700; text-decoration: underline;">Switch to http://localhost:3000</a>
                                 </div>
 
                                 <!-- Custom Endpoint (Shown for RootSys / OpenRouter / Custom / Ollama) -->
@@ -1404,9 +1404,14 @@
                                 <!-- API Key Input Row -->
                                 <div class="ai-input-row">
                                     <input id="aiApiKeyInput" class="ai-key-input" type="password" placeholder="Paste API Key" autocomplete="off">
-                                    <button type="button" id="btnToggleKeyVisibility" class="action-btn secondary" style="padding: 7px 10px; font-size: 12px;" title="Show/Hide Key">👁️</button>
+                                    <button type="button" id="btnToggleKeyVisibility" class="action-btn secondary" style="padding: 7px 10px; font-size: 12px;" title="Show/Hide Key">
+                                        <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    </button>
                                     <button type="button" id="btnSaveApiKey" class="action-btn primary" style="padding: 7px 12px; font-size: 12px; background: #8b5cf6; border-color: #8b5cf6;">Save</button>
-                                    <button type="button" id="btnClearApiKey" class="action-btn secondary" style="padding: 7px 10px; font-size: 12px; color: #ef4444; border-color: rgba(239, 68, 68, 0.35);" title="Clear saved API key from browser storage">🗑️ Clear</button>
+                                    <button type="button" id="btnClearApiKey" class="action-btn secondary" style="padding: 7px 10px; font-size: 12px; color: #ef4444; border-color: rgba(239, 68, 68, 0.35); display: inline-flex; align-items: center; gap: 4px;" title="Clear saved API key from browser storage">
+                                        <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                        Clear
+                                    </button>
                                 </div>
 
                                 <!-- Model & Docs Row -->
@@ -1416,7 +1421,10 @@
                                             Model:
                                             <select id="aiModelSelect" class="roi-select" style="padding: 2px 6px; font-size: 11px; max-width: 170px;"></select>
                                         </label>
-                                        <button type="button" id="btnFetchModels" class="action-btn secondary" style="padding: 2px 7px; font-size: 10px; line-height: 1.4;" title="Discover all available models from this endpoint">🔄 Fetch Models</button>
+                                        <button type="button" id="btnFetchModels" class="action-btn secondary" style="padding: 2px 7px; font-size: 10px; line-height: 1.4; display: inline-flex; align-items: center; gap: 4px;" title="Discover all available models from this endpoint">
+                                            <svg class="inline-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                                            Fetch Models
+                                        </button>
                                         <input id="aiCustomModelInput" class="ai-key-input" type="text" placeholder="Type model ID..." style="display: none; width: 130px; padding: 2px 6px; font-size: 11px; height: 24px;">
                                         <label style="font-size: 11px; color: var(--fg-muted); display: flex; align-items: center; gap: 4px;">
                                             Speed:
@@ -1438,11 +1446,14 @@
                                 <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(139, 92, 246, 0.25); display: flex; flex-direction: column; gap: 6px;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
                                         <label style="font-size: 11px; font-weight: 600; color: var(--fg-muted); display: flex; align-items: center; gap: 6px;">
-                                            <span>💬 Prompt Task:</span>
+                                            <span style="display: inline-flex; align-items: center; gap: 4px;">
+                                                <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                                Prompt Task:
+                                            </span>
                                             <select id="aiPromptPresetSelect" class="roi-select" style="padding: 2px 8px; font-size: 11px; font-weight: 600;">
-                                                <option value="do_only" selected>🎯 DO Numbers Only (Fast & Clean)</option>
-                                                <option value="full_ocr">📝 Full Text Transcription (Standard OCR)</option>
-                                                <option value="custom">✏️ Custom Prompt...</option>
+                                                <option value="do_only" selected>DO Numbers Only (Fast & Clean)</option>
+                                                <option value="full_ocr">Full Text Transcription (Standard OCR)</option>
+                                                <option value="custom">Custom Prompt...</option>
                                             </select>
                                         </label>
                                         <span id="aiPromptHelpHint" style="font-size: 10px; color: var(--fg-subtle);">Extracts 8-digit DOs (81/85)</span>
@@ -1595,10 +1606,10 @@
                                             Clarity Enhancement:
                                         </span>
                                         <button type="button" class="roi-preset-btn active" id="btnEnhanceNone" data-enhance="none">Original</button>
-                                        <button type="button" class="roi-preset-btn" id="btnEnhanceAuto" data-enhance="auto" title="Dynamic contrast stretch + character edge unsharp mask">⚡ Auto</button>
-                                        <button type="button" class="roi-preset-btn" id="btnEnhanceBinarize" data-enhance="binarize" title="Otsu adaptive thresholding: pure white paper & deep black text">🔲 Clean B&amp;W</button>
-                                        <button type="button" class="roi-preset-btn" id="btnEnhanceSharpen" data-enhance="sharpen" title="High-frequency 3x3 unsharp convolution kernel">🔍 Sharpen</button>
-                                        <button type="button" class="roi-preset-btn" id="btnEnhanceFaint" data-enhance="faint" title="Boosts faint blue, carbon-copy, or dot-matrix printer ink">🖋️ Faint Ink</button>
+                                        <button type="button" class="roi-preset-btn" id="btnEnhanceAuto" data-enhance="auto" title="Dynamic contrast stretch + character edge unsharp mask"><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Auto</button>
+                                        <button type="button" class="roi-preset-btn" id="btnEnhanceBinarize" data-enhance="binarize" title="Otsu adaptive thresholding: pure white paper & deep black text"><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg> Clean B&amp;W</button>
+                                        <button type="button" class="roi-preset-btn" id="btnEnhanceSharpen" data-enhance="sharpen" title="High-frequency 3x3 unsharp convolution kernel"><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Sharpen</button>
+                                        <button type="button" class="roi-preset-btn" id="btnEnhanceFaint" data-enhance="faint" title="Boosts faint blue, carbon-copy, or dot-matrix printer ink"><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/></svg> Faint Ink</button>
                                     </div>
                                 </div>
 
@@ -1688,8 +1699,8 @@
                         terminal — do-pipeline — zsh 80x24
                     </div>
                     <div class="terminal-controls">
-                        <button type="button" class="terminal-btn-pill" id="termBtnCopyLogs" title="Copy log stream to clipboard">📋 Copy</button>
-                        <button type="button" class="terminal-btn-pill" id="termBtnClearLogs" title="Clear terminal screen">🗑️ Clear</button>
+                        <button type="button" class="terminal-btn-pill" id="termBtnCopyLogs" title="Copy log stream to clipboard" style="display:inline-flex; align-items:center; gap:4px;"><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button>
+                        <button type="button" class="terminal-btn-pill" id="termBtnClearLogs" title="Clear terminal screen" style="display:inline-flex; align-items:center; gap:4px;"><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Clear</button>
                     </div>
                 </div>
 
@@ -1717,7 +1728,7 @@
                         <div id="ocrProgressFill" class="ocr-progress-fill"></div>
                     </div>
                     <div class="ocr-sarcastic-comment-box">
-                        <span class="ocr-sarcastic-icon">☕</span>
+                        <span class="ocr-sarcastic-icon"><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></span>
                         <div id="ocrSarcasticText" class="ocr-sarcastic-text">Ready for command execution...</div>
                     </div>
                 </div>
@@ -1776,19 +1787,19 @@ function showAppModal({ title = 'Notice', message = '', type = 'info', confirmTe
     // Type styling
     iconEl.className = `app-modal-icon ${type}`;
     if (type === 'warning') {
-        iconEl.textContent = '⚠️';
+        iconEl.innerHTML = '<svg class="inline-icon-lg" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
         btnEl.style.background = '#f59e0b';
         btnEl.style.borderColor = '#f59e0b';
     } else if (type === 'error') {
-        iconEl.textContent = '❌';
+        iconEl.innerHTML = '<svg class="inline-icon-lg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
         btnEl.style.background = '#ef4444';
         btnEl.style.borderColor = '#ef4444';
     } else if (type === 'success') {
-        iconEl.textContent = '✓';
+        iconEl.innerHTML = '<svg class="inline-icon-lg" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>';
         btnEl.style.background = '#10b981';
         btnEl.style.borderColor = '#10b981';
     } else {
-        iconEl.textContent = 'ℹ️';
+        iconEl.innerHTML = '<svg class="inline-icon-lg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
         btnEl.style.background = '#8b5cf6';
         btnEl.style.borderColor = '#8b5cf6';
     }
@@ -2383,15 +2394,15 @@ const AI_PROVIDERS = {
         linkLabel: 'RootSys Cloud ↗',
         defaultModel: 'gpt-4o-mini',
         models: [
-            { id: 'gpt-4o-mini', name: 'gpt-4o-mini ⚡ (Fast & Accurate / Recommended)' },
-            { id: 'gemini-2.0-flash', name: 'gemini-2.0-flash 🚀 (Ultra-Fast)' },
-            { id: 'gemini-1.5-flash', name: 'gemini-1.5-flash 🚀 (Very Fast)' },
-            { id: 'claude-3-5-haiku', name: 'claude-3-5-haiku ⚡ (Fast)' },
-            { id: 'qwen2.5-vl-72b-instruct', name: 'qwen2.5-vl-72b-instruct ⚡ (High Accuracy)' },
-            { id: 'gpt-4o', name: 'gpt-4o 🐢 (Slower / Heavy)' },
-            { id: 'claude-3-5-sonnet', name: 'claude-3-5-sonnet 🐢 (Slower / Heavy)' },
+            { id: 'gpt-4o-mini', name: 'gpt-4o-mini (Fast & Accurate / Recommended)' },
+            { id: 'gemini-2.0-flash', name: 'gemini-2.0-flash (Ultra-Fast)' },
+            { id: 'gemini-1.5-flash', name: 'gemini-1.5-flash (Very Fast)' },
+            { id: 'claude-3-5-haiku', name: 'claude-3-5-haiku (Fast)' },
+            { id: 'qwen2.5-vl-72b-instruct', name: 'qwen2.5-vl-72b-instruct (High Accuracy)' },
+            { id: 'gpt-4o', name: 'gpt-4o (Slower / Heavy)' },
+            { id: 'claude-3-5-sonnet', name: 'claude-3-5-sonnet (Slower / Heavy)' },
             { id: 'llama-3.2-11b-vision-preview', name: 'llama-3.2-11b-vision' },
-            { id: '__custom__', name: '✏️ Type Custom Model...' }
+            { id: '__custom__', name: 'Type Custom Model...' }
         ]
     },
     gemini: {
@@ -2416,8 +2427,8 @@ const AI_PROVIDERS = {
         linkLabel: 'Get OpenAI API Key ↗',
         defaultModel: 'gpt-4o-mini',
         models: [
-            { id: 'gpt-4o-mini', name: 'gpt-4o-mini ⚡ (Fast & Recommended)' },
-            { id: 'gpt-4o', name: 'gpt-4o 🐢 (High Accuracy / Slower)' }
+            { id: 'gpt-4o-mini', name: 'gpt-4o-mini (Fast & Recommended)' },
+            { id: 'gpt-4o', name: 'gpt-4o (High Accuracy / Slower)' }
         ]
     },
     anthropic: {
@@ -2429,8 +2440,8 @@ const AI_PROVIDERS = {
         linkLabel: 'Get Claude API Key ↗',
         defaultModel: 'claude-3-5-haiku-20241022',
         models: [
-            { id: 'claude-3-5-haiku-20241022', name: 'claude-3-5-haiku ⚡ (Fast)' },
-            { id: 'claude-3-5-sonnet-20241022', name: 'claude-3-5-sonnet 🐢 (High Intelligence / Slower)' }
+            { id: 'claude-3-5-haiku-20241022', name: 'claude-3-5-haiku (Fast)' },
+            { id: 'claude-3-5-sonnet-20241022', name: 'claude-3-5-sonnet (High Intelligence / Slower)' }
         ]
     },
     groq: {
@@ -2442,7 +2453,7 @@ const AI_PROVIDERS = {
         linkLabel: 'Get Free Groq API Key ↗',
         defaultModel: 'llama-3.2-11b-vision-preview',
         models: [
-            { id: 'llama-3.2-11b-vision-preview', name: 'llama-3.2-11b-vision 🚀 (Ultra-Fast)' },
+            { id: 'llama-3.2-11b-vision-preview', name: 'llama-3.2-11b-vision (Ultra-Fast)' },
             { id: 'llama-3.2-90b-vision-preview', name: 'llama-3.2-90b-vision' }
         ]
     },
@@ -2455,8 +2466,8 @@ const AI_PROVIDERS = {
         linkLabel: 'Get OpenRouter Key ↗',
         defaultModel: 'openai/gpt-4o-mini',
         models: [
-            { id: 'openai/gpt-4o-mini', name: 'GPT-4o-mini ⚡ (OpenRouter)' },
-            { id: 'google/gemini-flash-1.5', name: 'Gemini Flash 1.5 🚀' },
+            { id: 'openai/gpt-4o-mini', name: 'GPT-4o-mini (OpenRouter)' },
+            { id: 'google/gemini-flash-1.5', name: 'Gemini Flash 1.5 (OpenRouter)' },
             { id: 'meta-llama/llama-3.2-11b-vision-instruct', name: 'Llama 3.2 11B Vision' },
             { id: 'qwen/qwen-2-vl-72b-instruct', name: 'Qwen 2 VL 72B' }
         ]
@@ -2620,7 +2631,7 @@ function updateEngineUI() {
         if (!foundSaved && savedModel && savedModel !== '__custom__') {
             const customOpt = document.createElement('option');
             customOpt.value = savedModel;
-            customOpt.textContent = `★ ${savedModel}`;
+            customOpt.textContent = savedModel;
             modelSelect.insertBefore(customOpt, modelSelect.firstChild);
         }
 
@@ -2645,7 +2656,7 @@ function updateEngineUI() {
     if (badge) {
         if (currentKey && currentKey.trim().length > 5) {
             badge.className = 'ai-badge saved';
-            badge.textContent = `✓ ${prov.name} Key Saved`;
+            badge.textContent = `${prov.name} Key Saved`;
         } else if (selectedAiProvider === 'custom') {
             badge.className = 'ai-badge saved';
             badge.textContent = 'Endpoint Ready';
@@ -2692,11 +2703,11 @@ async function autoFetchModels(silent = false) {
     }
 
     const btn = $('btnFetchModels');
-    let originalText = '🔄 Fetch Models';
+    let originalHtml = '';
     if (btn) {
-        originalText = btn.textContent;
+        originalHtml = btn.innerHTML;
         btn.disabled = true;
-        btn.textContent = '⏳ Loading...';
+        btn.innerHTML = '<svg class="inline-icon spin" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Loading...';
     }
 
     try {
@@ -2751,7 +2762,7 @@ async function autoFetchModels(silent = false) {
 
         const customOpt = document.createElement('option');
         customOpt.value = '__custom__';
-        customOpt.textContent = '✏️ Type Custom Model...';
+        customOpt.textContent = 'Custom Model...';
         modelSelect.appendChild(customOpt);
 
         const activeModel = getActiveProviderModel();
@@ -2788,7 +2799,7 @@ async function autoFetchModels(silent = false) {
     } finally {
         if (btn) {
             btn.disabled = false;
-            btn.textContent = originalText;
+            btn.innerHTML = originalHtml || '<svg class="inline-icon" viewBox="0 0 24 24"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg> Fetch Models';
         }
     }
 }
@@ -2868,10 +2879,10 @@ $('btnToggleKeyVisibility').addEventListener('click', () => {
     const input = $('aiApiKeyInput');
     if (input.type === 'password') {
         input.type = 'text';
-        $('btnToggleKeyVisibility').textContent = '🔒';
+        $('btnToggleKeyVisibility').innerHTML = '<svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
     } else {
         input.type = 'password';
-        $('btnToggleKeyVisibility').textContent = '👁️';
+        $('btnToggleKeyVisibility').innerHTML = '<svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
     }
 });
 
@@ -3282,11 +3293,11 @@ async function exportFlattenedIsolatedPdf() {
             }
         }
 
-        setProgress(100, 'Security Burn-In Complete', '🔒 Flattened isolated PDF generated successfully. Zero hidden vector or text leaks.');
+        setProgress(100, 'Security Burn-In Complete', 'Flattened isolated PDF generated successfully. Zero hidden vector or text leaks.');
         setStatus(`Successfully exported flattened isolated PDF for ${files.length} file(s).`);
     } catch (err) {
         console.error('Export error:', err);
-        setProgress(100, 'Export Failed', '💥 Failed to generate isolated PDF.');
+        setProgress(100, 'Export Failed', 'Failed to generate isolated PDF.');
         setStatus('Error while exporting isolated PDF. Check console for details.');
     } finally {
         $('btnExportIsolatedPdf').disabled = false;
@@ -3549,8 +3560,8 @@ async function runIsolatedRoiOcr() {
         if ($('copyNumbers')) $('copyNumbers').disabled = !numbers.length;
 
         const sarcasticFinish = numbers.length
-            ? `🎯 Extracted ${numbers.length} unique DO number(s) (81/85 prefixes). Cleaned and deduplicated.`
-            : (pConfig.isDoOnly ? `ℹ️ 0 DO numbers found matching 81xxxxxx or 85xxxxxx. Check document quality or adjust ROI box.` : `📄 Completed text extraction.`);
+            ? `Extracted ${numbers.length} unique DO number(s) (81/85 prefixes). Cleaned and deduplicated.`
+            : (pConfig.isDoOnly ? `0 DO numbers found matching 81xxxxxx or 85xxxxxx. Check document quality or adjust ROI box.` : `Completed text extraction.`);
 
         setProgress(100, 'Scan Complete', sarcasticFinish);
         setStatus(pConfig.isDoOnly 
@@ -3568,7 +3579,7 @@ async function runIsolatedRoiOcr() {
     } catch (err) {
         console.error('Scan Isolated ROI Error:', err);
         const errText = err.message || 'Error during isolated ROI scan';
-        setProgress(100, 'Scan Error', `💥 ${errText}`);
+        setProgress(100, 'Scan Error', errText);
         setStatus(`Scan Failed: ${errText}`);
         showAppModal({
             title: 'Scan Error',
@@ -3663,8 +3674,8 @@ const TerminalConsole = {
                 const logs = this.lines.join('\n');
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(logs).then(() => {
-                        copyBtn.textContent = '✔ Copied!';
-                        setTimeout(() => { copyBtn.textContent = '📋 Copy'; }, 1500);
+                        copyBtn.innerHTML = '<svg class="inline-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!';
+                        setTimeout(() => { copyBtn.innerHTML = '<svg class="inline-icon" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg> Copy'; }, 1500);
                     });
                 }
             };
@@ -3759,7 +3770,7 @@ const TerminalConsole = {
             if (pVal >= 100) {
                 floatBtn.innerHTML = `
                     <span class="terminal-dot dot-green" style="width: 8px; height: 8px; background: #10b981;"></span>
-                    <span>✔ Terminal: Done (100%)</span>
+                    <span style="display:inline-flex; align-items:center; gap:4px;"><svg class="inline-icon-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg> Terminal: Done (100%)</span>
                 `;
             } else {
                 floatBtn.innerHTML = `
@@ -3807,11 +3818,11 @@ const TerminalConsole = {
         if (!this.body) return;
 
         const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-        let icon = '<span class="t-icon info">ℹ</span>';
-        if (type === 'success') icon = '<span class="t-icon success">✔</span>';
-        else if (type === 'warning') icon = '<span class="t-icon warning">⚠</span>';
-        else if (type === 'error') icon = '<span class="t-icon error">✖</span>';
-        else if (type === 'gear') icon = '<span class="t-icon gear">⚙</span>';
+        let icon = '<span class="t-icon info"><svg class="inline-icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span>';
+        if (type === 'success') icon = '<span class="t-icon success"><svg class="inline-icon-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>';
+        else if (type === 'warning') icon = '<span class="t-icon warning"><svg class="inline-icon-sm" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span>';
+        else if (type === 'error') icon = '<span class="t-icon error"><svg class="inline-icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg></span>';
+        else if (type === 'gear') icon = '<span class="t-icon gear"><svg class="inline-icon-sm spin" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>';
 
         const line = document.createElement('div');
         line.className = 'terminal-line';
@@ -3878,7 +3889,7 @@ function setProgress(percent, stageText, finalComment = null) {
         if (clamped >= 100) {
             floatBtn.innerHTML = `
                 <span class="terminal-dot dot-green" style="width: 8px; height: 8px; background: #10b981;"></span>
-                <span>✔ Terminal: Done (100%)</span>
+                <span style="display:inline-flex; align-items:center; gap:4px;"><svg class="inline-icon-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg> Terminal: Done (100%)</span>
             `;
         } else {
             const fp = $('termFloatingPercent');
@@ -4248,8 +4259,8 @@ async function runOcr() {
         if ($('copyNumbers')) $('copyNumbers').disabled = !numbers.length;
 
         const sarcasticFinish = numbers.length 
-            ? `🎉 Done. Extracted ${numbers.length} unique DO number(s) (81/85). Cleaned and deduplicated.`
-            : (pConfig.isDoOnly ? `😒 0 DO numbers found matching 81xxxxxx or 85xxxxxx. This entire document could have been an email.` : `📄 Completed text extraction.`);
+            ? `Done. Extracted ${numbers.length} unique DO number(s) (81/85). Cleaned and deduplicated.`
+            : (pConfig.isDoOnly ? `0 DO numbers found matching 81xxxxxx or 85xxxxxx. Check document quality or adjust scan settings.` : `Completed text extraction.`);
 
         setProgress(100, 'Shift Complete', sarcasticFinish);
         setStatus(pConfig.isDoOnly 
@@ -4264,7 +4275,7 @@ async function runOcr() {
         $('downloadNumbers').disabled = true;
         if ($('copyNumbers')) $('copyNumbers').disabled = true;
         const errMsg = error.message || 'Unable to process this PDF.';
-        setProgress(100, 'Scan Error', `💥 ${errMsg}`);
+        setProgress(100, 'Scan Error', errMsg);
         setStatus(`Scan Failed: ${errMsg}`);
         showAppModal({
             title: 'Scan Error',

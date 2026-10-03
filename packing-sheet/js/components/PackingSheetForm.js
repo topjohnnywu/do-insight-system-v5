@@ -1198,7 +1198,7 @@
                 h(
                   'span',
                   { className: 'text-[9px] font-bold text-[#007AFF] dark:text-[#0A84FF] bg-[#007AFF]/10 dark:bg-[#0A84FF]/20 px-1.5 py-0.5 rounded-full normal-case tracking-normal' },
-                  '⚡ Auto: Qty÷5'
+                  'Auto: Qty÷5'
                 )
               )
             : h(

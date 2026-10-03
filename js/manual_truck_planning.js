@@ -319,14 +319,15 @@ function renderDoBadgeWithBreakdown(doObj, theme = 'green') {
     }
 
     const parts = doObj.remark.split(',').map(s => s.trim()).filter(Boolean);
+    const scissorsSvg = '<svg class="inline-icon-sm" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>';
     const breakdownChips = parts.map(p => {
         const match = p.match(/^(.+?)\s*x\s*(\d+)$/i);
         if (match) {
             const model = match[1].trim();
             const pcs = parseInt(match[2].trim(), 10).toLocaleString();
-            return `<span style="background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.28); padding: 1px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; white-space: nowrap;">✂️ ${model}: ${pcs} pcs</span>`;
+            return `<span style="background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.28); padding: 1px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">${scissorsSvg} ${model}: ${pcs} pcs</span>`;
         }
-        return `<span style="background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.28); padding: 1px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; white-space: nowrap;">✂️ ${p}</span>`;
+        return `<span style="background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.28); padding: 1px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">${scissorsSvg} ${p}</span>`;
     }).join(' ');
 
     return `
@@ -371,7 +372,7 @@ function renderUnassignedDOs() {
     });
     
     if (unassignedDOs.length === 0) {
-        html = `<tr><td colspan="5" style="text-align:center; padding: 25px; color: var(--fg-muted); font-size: 0.9rem;">✨ All DOs have been assigned to trucks!</td></tr>`;
+        html = `<tr><td colspan="5" style="text-align:center; padding: 25px; color: var(--fg-muted); font-size: 0.9rem;"><span style="display: inline-flex; align-items: center; gap: 6px;"><svg class="inline-icon" style="color: #10b981;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg> All DOs have been assigned to trucks!</span></td></tr>`;
     }
     
     tbody.innerHTML = html;
@@ -532,7 +533,8 @@ window.toggleTruckRoute = function(tId, routeCode, dropSeq) {
 function renderRouteDropdown(tId, dropSeq, activeRoutes) {
     const menuId = `routeMenu_${tId}_${dropSeq}`;
     const selectedCount = (activeRoutes || []).length;
-    const label = selectedCount > 0 ? `🚩 Route: ${activeRoutes.join(', ')}` : '🚩 Select Route ▾';
+    const flagSvg = '<svg class="inline-icon-sm" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>';
+    const label = selectedCount > 0 ? `${flagSvg} Route: ${activeRoutes.join(', ')}` : `${flagSvg} Select Route ▾`;
 
     const checkboxesHtml = TOP_URGENT_ROUTE_CODES.map(code => {
         const isChecked = (activeRoutes || []).includes(code);
@@ -547,7 +549,7 @@ function renderRouteDropdown(tId, dropSeq, activeRoutes) {
     return `
         <div style="position: relative; display: inline-block;">
             <button type="button" onclick="event.stopPropagation(); window.toggleMtpDropdown('${menuId}')" class="action-btn" style="padding: 4px 9px; font-size: 0.78rem; font-weight: 700; border-radius: var(--radius-control); background: ${selectedCount > 0 ? 'rgba(239, 68, 68, 0.16)' : 'var(--surface-solid, #09090b)'}; color: ${selectedCount > 0 ? '#f87171' : 'var(--fg-muted)'}; border: 1px solid ${selectedCount > 0 ? 'rgba(239, 68, 68, 0.4)' : 'var(--border)'}; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Select Route codes for Top Urgent DOs">
-                <span>${label}</span>
+                <span style="display: inline-flex; align-items: center; gap: 4px;">${label}</span>
                 <span style="font-size: 0.65rem; opacity: 0.7;">▼</span>
             </button>
             <div id="${menuId}" class="mtp-dropdown-menu" style="display: none; position: absolute; top: calc(100% + 4px); left: 0; z-index: 1000; background: var(--surface-card, #15151b); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); padding: 8px; min-width: 170px;">
@@ -583,8 +585,10 @@ function renderTruckBoards() {
                 ? `<span class="badge" style="background: rgba(167, 139, 250, 0.18); color: #c084fc; font-size: 0.7rem; margin-left: 6px; padding: 2px 6px;">Cross Dock</span>`
                 : (doObj.tag === 'direct' ? `<span class="badge" style="background: rgba(56, 189, 248, 0.18); color: #38bdf8; font-size: 0.7rem; margin-left: 6px; padding: 2px 6px;">Direct</span>` : '');
 
+            const tagSvg = '<svg class="inline-icon-sm" viewBox="0 0 24 24"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>';
+            const editSvg = '<svg class="inline-icon-sm" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>';
             const hubBadge = (doObj.hub && doObj.hub !== "N/A" && doObj.hub.trim() !== "")
-                ? `<span onclick="window.editDoHub('${tId}', '${doObj.inv}')" class="badge" title="Click to edit Hub for DO ${doObj.inv}" style="background: rgba(245, 158, 11, 0.18); color: #fbbf24; font-size: 0.72rem; padding: 2px 7px; font-weight: 700; cursor: pointer; border: 1px solid rgba(245, 158, 11, 0.3); display: inline-flex; align-items: center; gap: 4px;">🏷️ ${doObj.hub.toUpperCase().startsWith('HUB') ? doObj.hub.toUpperCase() : 'HUB: ' + doObj.hub} <span style="font-size: 0.65rem; opacity: 0.7;">✎</span></span>`
+                ? `<span onclick="window.editDoHub('${tId}', '${doObj.inv}')" class="badge" title="Click to edit Hub for DO ${doObj.inv}" style="background: rgba(245, 158, 11, 0.18); color: #fbbf24; font-size: 0.72rem; padding: 2px 7px; font-weight: 700; cursor: pointer; border: 1px solid rgba(245, 158, 11, 0.3); display: inline-flex; align-items: center; gap: 4px;">${tagSvg} ${doObj.hub.toUpperCase().startsWith('HUB') ? doObj.hub.toUpperCase() : 'HUB: ' + doObj.hub} <span style="font-size: 0.65rem; opacity: 0.7; display: inline-flex;">${editSvg}</span></span>`
                 : `<span onclick="window.editDoHub('${tId}', '${doObj.inv}')" class="badge" title="Click to assign Hub for DO ${doObj.inv}" style="background: var(--surface); color: var(--fg-muted); font-size: 0.68rem; padding: 2px 6px; cursor: pointer; border: 1px dashed var(--border); display: inline-flex; align-items: center; gap: 3px;">+ Hub</span>`;
 
             const switchDropBtn = isTwoDrop ? `
@@ -761,7 +765,7 @@ function renderTruckBoards() {
                     <div class="truck-board-dropzone" ondragover="allowDrop(event)" ondrop="dropToTruck(event, '${tId}', 1)" ondragenter="dragEnterTruck(event)" ondragleave="dragLeaveTruck(event)" style="border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 8px; overflow: visible; background: rgba(59, 130, 246, 0.02);">
                         <div style="padding: 6px 12px; background: rgba(59, 130, 246, 0.1); border-bottom: 1px solid rgba(59, 130, 246, 0.2); display: flex; justify-content: space-between; align-items: center; border-radius: 7px 7px 0 0; flex-wrap: wrap; gap: 6px;">
                             <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                                <span style="font-size: 0.78rem; font-weight: 700; color: #60a5fa;">🔵 1st Drop — ${meta.dest || 'Stop 1'}</span>
+                                <span style="font-size: 0.78rem; font-weight: 700; color: #60a5fa; display: inline-flex; align-items: center; gap: 5px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #3b82f6;"></span> 1st Drop — ${meta.dest || 'Stop 1'}</span>
                                 <span class="badge" style="${getStatusBadgeStyle(currentStatus1)} font-size: 0.68rem; padding: 1px 6px;">${currentStatus1}</span>
                                 ${(currentStatus1 === 'Top Urgent') ? renderRouteDropdown(tId, 1, routes1) : ''}
                             </div>
@@ -794,7 +798,7 @@ function renderTruckBoards() {
                     <div class="truck-board-dropzone" ondragover="allowDrop(event)" ondrop="dropToTruck(event, '${tId}', 2)" ondragenter="dragEnterTruck(event)" ondragleave="dragLeaveTruck(event)" style="border: 1px solid rgba(167, 139, 250, 0.25); border-radius: 8px; overflow: visible; background: rgba(167, 139, 250, 0.02);">
                         <div style="padding: 6px 12px; background: rgba(167, 139, 250, 0.1); border-bottom: 1px solid rgba(167, 139, 250, 0.2); display: flex; justify-content: space-between; align-items: center; border-radius: 7px 7px 0 0; flex-wrap: wrap; gap: 6px;">
                             <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                                <span style="font-size: 0.78rem; font-weight: 700; color: #c084fc;">🟣 2nd Drop — ${meta.dest2 || 'Stop 2'}</span>
+                                <span style="font-size: 0.78rem; font-weight: 700; color: #c084fc; display: inline-flex; align-items: center; gap: 5px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #a855f7;"></span> 2nd Drop — ${meta.dest2 || 'Stop 2'}</span>
                                 <span class="badge" style="${getStatusBadgeStyle(currentStatus2)} font-size: 0.68rem; padding: 1px 6px;">${currentStatus2}</span>
                                 ${(currentStatus2 === 'Top Urgent') ? renderRouteDropdown(tId, 2, routes2) : ''}
                             </div>
@@ -845,7 +849,7 @@ function renderTruckBoards() {
                         <span class="badge" style="background: var(--surface); color: var(--fg-subtle); font-size: 0.75rem; border: 1px solid var(--border);">${assignedList.length} DOs</span>
                         <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 0.75rem; font-weight: 600;">${totalQty.toLocaleString()} pcs</span>
                         <button type="button" id="batchHubBtn-${tId}" onclick="window.openBatchHubModal('${tId}')" class="action-btn" style="padding: 3px 8px; font-size: 0.74rem; border-radius: var(--radius-control); background: rgba(245, 158, 11, 0.14); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;" title="Assign or change Hub for selected DOs in this truck">
-                            <span>🏷️</span>
+                            <svg class="inline-icon-sm" viewBox="0 0 24 24"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>
                             <span id="batchHubBtnText-${tId}">Assign Hub</span>
                         </button>
                         <button type="button" onclick="window.openManualDoModal('${tId}', 1)" class="action-btn" style="padding: 3px 8px; font-size: 0.74rem; border-radius: var(--radius-control); background: rgba(94, 106, 210, 0.12); color: var(--accent, #5E6AD2); border: 1px solid rgba(94, 106, 210, 0.25); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Manually add a DO to this truck">
@@ -947,7 +951,7 @@ window.openManualDoModal = function(truckId, dropSeq = 1) {
             <div style="padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--surface-hover, transparent);">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(94, 106, 210, 0.15); color: var(--accent, #5E6AD2); display: flex; align-items: center; justify-content: center; font-weight: 700;">
-                        ➕
+                        <svg class="inline-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     </div>
                     <div>
                         <h3 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--fg);">Add Manual DO</h3>
@@ -1109,8 +1113,8 @@ window.editDoHub = function(truckId, doInv) {
         <div style="width: 100%; max-width: 380px; background: var(--surface-card, var(--bg-elevated)); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); overflow: hidden; display: flex; flex-direction: column;">
             <div style="padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--surface-hover, transparent);">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;">
-                        🏷️
+                    <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                        <svg class="inline-icon" viewBox="0 0 24 24"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>
                     </div>
                     <div>
                         <h4 style="margin: 0; font-size: 0.9rem; font-weight: 700; color: var(--fg);">Assign Hub to DO</h4>
@@ -1272,8 +1276,8 @@ window.openBatchHubModal = function(truckId) {
         <div style="width: 100%; max-width: 440px; background: var(--surface-card, var(--bg-elevated)); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); overflow: hidden; display: flex; flex-direction: column;">
             <div style="padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--surface-hover, transparent);">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <div style="width: 30px; height: 30px; border-radius: 8px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem;">
-                        🏷️
+                    <div style="width: 30px; height: 30px; border-radius: 8px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                        <svg class="inline-icon" viewBox="0 0 24 24"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>
                     </div>
                     <div>
                         <h4 style="margin: 0; font-size: 0.92rem; font-weight: 700; color: var(--fg);">Batch Assign Hub</h4>
@@ -1551,7 +1555,7 @@ function dragStart(ev, doInv, sourceTruckId = null, fromDropSeq = null) {
         const ghost = document.createElement("div");
         ghost.id = "multiDragGhost";
         ghost.style.cssText = "position: absolute; top: -9999px; left: -9999px; background: #5E6AD2; color: #fff; padding: 6px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); pointer-events: none; z-index: 10000; border: 1px solid rgba(255,255,255,0.3); font-family: inherit;";
-        ghost.textContent = `📦 Moving ${invsToDrag.length} Delivery Orders`;
+        ghost.textContent = `Moving ${invsToDrag.length} Delivery Orders`;
         document.body.appendChild(ghost);
         ev.dataTransfer.setDragImage(ghost, 20, 20);
         setTimeout(() => { ghost.remove(); }, 0);
@@ -2527,7 +2531,7 @@ function addSplitRow() {
     const dropdownHtml = `<select class="split-model" style="${inputBase} flex: 1; min-width: 0; ${hasItems ? '' : 'display:none;'}">${opts.join('')}</select>`;
     const manualHtml = `<input type="text" class="split-model-text" placeholder="Model code (e.g., KD-65X85L)" style="${inputBase} flex: 1; min-width: 0; ${hasItems ? 'display:none;' : ''}">`;
     const toggleHtml = hasItems
-        ? `<button type="button" class="split-mode-toggle" title="Switch between dropdown and manual entry" style="${toggleBtnStyle}">✎ Manual</button>`
+        ? `<button type="button" class="split-mode-toggle" title="Switch between dropdown and manual entry" style="${toggleBtnStyle}; display: inline-flex; align-items: center; gap: 4px;"><svg class="inline-icon-sm" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg> Manual</button>`
         : '';
 
     row.innerHTML = `
@@ -2540,7 +2544,7 @@ function addSplitRow() {
             <button type="button" class="split-qty-plus" style="${stepBtn}" title="Increase">+</button>
         </div>
         <span class="split-avail" style="font-size: 11px; color: #fbbf24; font-weight: 600; white-space: nowrap; min-width: 54px; text-align: right;"></span>
-        <button type="button" class="split-row-del" title="Remove row" style="background: none; border: none; color: var(--fg-muted); cursor: pointer; padding: 4px; border-radius: 6px; flex-shrink: 0; line-height: 1; font-size: 15px;">🗑</button>
+        <button type="button" class="split-row-del" title="Remove row" style="background: none; border: none; color: var(--fg-muted); cursor: pointer; padding: 4px; border-radius: 6px; flex-shrink: 0; line-height: 1; display: inline-flex; align-items: center; justify-content: center;"><svg class="inline-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
     `;
 
     // Wire interactions
@@ -2556,7 +2560,7 @@ function addSplitRow() {
             row.dataset.mode = toManual ? 'manual' : 'dropdown';
             modelSel.style.display = toManual ? 'none' : '';
             modelTxt.style.display = toManual ? '' : 'none';
-            toggleBtn.textContent = toManual ? '▾ List' : '✎ Manual';
+            toggleBtn.innerHTML = toManual ? '<svg class="inline-icon-sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg> List' : '<svg class="inline-icon-sm" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg> Manual';
             if (toManual) { modelTxt.focus(); availEl.textContent = ''; }
             else { refreshAvail(); clampQty(); }
         });
@@ -2797,7 +2801,7 @@ window.renderTruckPlanCanvas = function() {
     if (truckKeys.length === 0) {
         container.innerHTML = `
             <div style="text-align: center; padding: 60px 20px; color: var(--fg-muted);">
-                <div style="font-size: 3rem; margin-bottom: 12px;">🚚</div>
+                <div style="margin-bottom: 16px; color: var(--fg-muted);"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></div>
                 <h3 style="font-size: 1.1rem; color: var(--fg); margin-bottom: 6px;">No Trucks in Plan Yet</h3>
                 <p style="font-size: 0.85rem; max-width: 400px; margin: 0 auto 16px;">Add trucks or load route data to start the interactive highway transit visualization.</p>
                 <button onclick="addTruck(); renderTruckPlanCanvas();" class="action-btn primary" style="padding: 8px 18px; font-weight: 600;">+ Add First Truck</button>
@@ -2898,7 +2902,7 @@ window.renderTruckPlanCanvas = function() {
                     <!-- Waypoint 0: Origin Departure Terminal (SALC) -->
                     <div class="route-waypoint-node" style="left: 4%;">
                         <div style="width: 28px; height: 28px; border-radius: 50%; background: #1e293b; border: 2px solid #64748b; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 11px; font-weight: 800; box-shadow: 0 0 10px rgba(0,0,0,0.5);">
-                            🛫
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path></svg>
                         </div>
                         <div style="font-size: 0.72rem; font-weight: 800; color: #cbd5e1; margin-top: 4px; white-space: nowrap; letter-spacing: 0.04em;">SALC</div>
                         <div style="font-size: 0.65rem; color: var(--fg-muted);">DEPARTURE</div>
@@ -2914,7 +2918,7 @@ window.renderTruckPlanCanvas = function() {
                             <div style="display: flex; align-items: center; background: #1e1b4b; border: 1.5px solid ${status1Color}; border-radius: 6px; padding: 4px 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.6), 0 0 10px ${status1Color}40; gap: 6px;">
                                 <!-- Container Box -->
                                 <div style="font-size: 0.7rem; font-weight: 800; color: #ffffff; white-space: nowrap; display: flex; align-items: center; gap: 4px;">
-                                    <span>🚛 T${index + 1}</span>
+                                    <span style="display:inline-flex; align-items:center; gap:3px;"><svg class="inline-icon-sm" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> T${index + 1}</span>
                                     <span style="font-size: 0.65rem; color: ${status1Color}; opacity: 0.9;">${meta.size || '40'}</span>
                                 </div>
                                 <!-- Headlight Beam -->
@@ -2931,7 +2935,7 @@ window.renderTruckPlanCanvas = function() {
                     <!-- Waypoint 1: 1st Drop Destination -->
                     <div class="route-waypoint-node" style="left: ${isTwoDrop ? '44%' : '84%'};">
                         <div style="width: 32px; height: 32px; border-radius: 50%; background: #0f172a; border: 2px solid #38bdf8; display: flex; align-items: center; justify-content: center; color: #38bdf8; font-size: 13px; font-weight: 800; box-shadow: 0 0 14px rgba(56,189,248,0.4);">
-                            📍
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                         </div>
                         <div style="font-size: 0.74rem; font-weight: 700; color: #38bdf8; margin-top: 4px; white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis;">
                             ${isTwoDrop ? '1st Drop: ' : ''}${dest1Label}
@@ -2945,7 +2949,7 @@ window.renderTruckPlanCanvas = function() {
                     ${isTwoDrop ? `
                         <div class="route-waypoint-node" style="left: 86%;">
                             <div style="width: 32px; height: 32px; border-radius: 50%; background: #0f172a; border: 2px solid #c084fc; display: flex; align-items: center; justify-content: center; color: #c084fc; font-size: 13px; font-weight: 800; box-shadow: 0 0 14px rgba(192,132,252,0.4);">
-                                🏁
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
                             </div>
                             <div style="font-size: 0.74rem; font-weight: 700; color: #c084fc; margin-top: 4px; white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis;">
                                 2nd Drop: ${dest2Label}
@@ -2956,7 +2960,7 @@ window.renderTruckPlanCanvas = function() {
                         </div>
                     ` : `
                         <div class="route-waypoint-node" style="left: 96%;">
-                            <div style="font-size: 16px;">🏁</div>
+                            <div style="display:flex; justify-content:center; color:var(--fg-muted);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg></div>
                             <div style="font-size: 0.65rem; color: var(--fg-muted);">COMPLETE</div>
                         </div>
                     `}

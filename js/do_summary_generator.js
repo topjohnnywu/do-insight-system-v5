@@ -204,8 +204,7 @@ class DOSummaryGenerator {
                 title: "Reset All Batches?",
                 message: "This will clear all imported batches, line items, and compiled summaries. This action cannot be undone.",
                 confirmText: "Reset All",
-                isDanger: true,
-                icon: "🗑️"
+                isDanger: true
             });
             if (!confirmed) return;
         }
@@ -234,8 +233,7 @@ class DOSummaryGenerator {
             title: `Delete ${activeBatch.batchName}?`,
             message: `Are you sure you want to delete ${activeBatch.batchName} containing ${activeBatch.records.length} DO records?`,
             confirmText: "Delete Batch",
-            isDanger: true,
-            icon: "🗑️"
+            isDanger: true
         });
         if (!confirmed) return;
         
@@ -258,8 +256,7 @@ class DOSummaryGenerator {
             title: "Clear Final Summary?",
             message: "Are you sure you want to clear the compiled Final Summary?",
             confirmText: "Clear Summary",
-            isDanger: true,
-            icon: "📑"
+            isDanger: true
         });
         if (!confirmed) return;
         
@@ -428,7 +425,7 @@ class DOSummaryGenerator {
             if (elMissing) {
                 if (missingRouteCount > 0 || missingVolumeCount > 0) {
                     elMissing.style.display = "block";
-                    elMissing.innerHTML = `⚠️ Missing Info: ` +
+                    elMissing.innerHTML = `<span style="display:inline-flex; align-items:center; gap:4px; font-weight:700;"><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Missing Info:</span> ` +
                         (missingRouteCount > 0 ? `${missingRouteCount} empty Route ` : '') +
                         (missingVolumeCount > 0 ? `${missingVolumeCount} 0/empty Volume` : '') +
                         ` (flagged in red).`;
@@ -633,8 +630,7 @@ class DOSummaryGenerator {
                 title: "File Naming Warning",
                 message: `Selected file "${fileName}" does not match standard convention ("SONY - DO Summary List").\n\nDo you want to process it anyway?`,
                 confirmText: "Process File",
-                isDanger: false,
-                icon: "📄"
+                isDanger: false
             });
             if (!proceed) return;
         }
@@ -1423,8 +1419,7 @@ class DOSummaryGenerator {
 Do you want to REPLACE your current session (Confirm) or keep current session (Cancel)?`,
                             confirmText: "Replace All",
                             cancelText: "Cancel",
-                            isDanger: true,
-                            icon: "📥"
+                            isDanger: true
                         });
                         if (!choice) {
                             this.showToast("Excel import cancelled.", "info");
@@ -1543,8 +1538,7 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
                         message: `Existing session contains ${this.batches.length} batch(es).\n\nDo you want to REPLACE your current session (Confirm) or keep current session (Cancel)?`,
                         confirmText: "Replace All",
                         cancelText: "Cancel",
-                        isDanger: true,
-                        icon: "📥"
+                        isDanger: true
                     });
 
                     if (!choice) {
@@ -1808,13 +1802,13 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
                 </div>
                 <div style="display: flex; align-items: center; gap: 6px;">
                     <select onchange="summaryGenerator.updatePresetColor(${index}, this.value)" title="Change accent color" style="font-size: 11px; padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border, #334155); background: var(--surface-solid, var(--bg-base, #0f172a)); color: var(--fg, #e2e8f0); cursor: pointer;">
-                        <option value="red" ${p.color === 'red' ? 'selected' : ''}>🔴 Red</option>
-                        <option value="yellow" ${p.color === 'yellow' ? 'selected' : ''}>🟡 Yellow</option>
-                        <option value="blue" ${p.color === 'blue' ? 'selected' : ''}>🔵 Blue</option>
-                        <option value="green" ${p.color === 'green' ? 'selected' : ''}>🟢 Green</option>
-                        <option value="purple" ${p.color === 'purple' ? 'selected' : ''}>🟣 Purple</option>
-                        <option value="gray" ${p.color === 'gray' ? 'selected' : ''}>⚪ Gray</option>
-                        <option value="dark" ${p.color === 'dark' ? 'selected' : ''}>⬛ Dark</option>
+                        <option value="red" ${p.color === 'red' ? 'selected' : ''}>Red</option>
+                        <option value="yellow" ${p.color === 'yellow' ? 'selected' : ''}>Yellow</option>
+                        <option value="blue" ${p.color === 'blue' ? 'selected' : ''}>Blue</option>
+                        <option value="green" ${p.color === 'green' ? 'selected' : ''}>Green</option>
+                        <option value="purple" ${p.color === 'purple' ? 'selected' : ''}>Purple</option>
+                        <option value="gray" ${p.color === 'gray' ? 'selected' : ''}>Gray</option>
+                        <option value="dark" ${p.color === 'dark' ? 'selected' : ''}>Dark</option>
                     </select>
                     <button type="button" onclick="summaryGenerator.deletePresetRemark(${index})" style="background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid #7f1d1d; border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer; font-weight: 700;" title="Delete preset">
                         Delete
@@ -1939,8 +1933,7 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
             title: "Reset Preset Remarks?",
             message: "Reset all preset remarks back to HTML defaults?",
             confirmText: "Reset Presets",
-            isDanger: true,
-            icon: "🏷️"
+            isDanger: true
         });
         if (!confirmed) return;
 
@@ -2240,8 +2233,7 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
             title: "Delete Selected DOs?",
             message: `Are you sure you want to delete ${selectedRecords.length} selected DO order(s) from ${activeBatch.batchName}?`,
             confirmText: "Delete Selected",
-            isDanger: true,
-            icon: "🗑️"
+            isDanger: true
         });
         if (!confirmed) return;
 

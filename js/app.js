@@ -2228,8 +2228,8 @@ function renderTable(dataSlice) {
         // Optional Batch metadata (Truck / Hub) displayed nicely in Batch View
         let batchInfo = "";
         if (isBatchView && (Match.truck || Match.hub)) {
-            const t = Match.truck ? `<span class="truck-badge" style="font-size:10px; padding:1px 5px; background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); border-radius:3px;">🚚 ${escapeHtml(Match.truck)}</span>` : "";
-            const h = Match.hub ? `<span class="hub-badge" style="font-size:10px; padding:1px 5px; background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3); border-radius:3px;">🏢 ${escapeHtml(Match.hub)}</span>` : "";
+            const t = Match.truck ? `<span class="truck-badge" style="font-size:10px; padding:1px 5px; background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); border-radius:3px; display:inline-flex; align-items:center; gap:3px;"><svg class="inline-icon-sm" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>${escapeHtml(Match.truck)}</span>` : "";
+            const h = Match.hub ? `<span class="hub-badge" style="font-size:10px; padding:1px 5px; background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3); border-radius:3px; display:inline-flex; align-items:center; gap:3px;"><svg class="inline-icon-sm" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path><path d="M10 6h4"></path><path d="M10 10h4"></path><path d="M10 14h4"></path><path d="M10 18h4"></path></svg>${escapeHtml(Match.hub)}</span>` : "";
             if (t || h) {
                 batchInfo = `<div style="display:flex; gap:4px; margin-top:3px; flex-wrap:wrap;">${t}${h}</div>`;
             }
@@ -2329,8 +2329,7 @@ async function resetDashboard() {
         title: "Reset Dashboard",
         message: "Are you sure you want to reset all loaded dashboard data?",
         confirmText: "Reset",
-        isDanger: true,
-        icon: "🗑️"
+        isDanger: true
     });
     if (!proceed) return;
 

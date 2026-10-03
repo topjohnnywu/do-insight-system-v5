@@ -730,7 +730,7 @@ function renderTable() {
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; padding: 4px; background: rgba(239, 68, 68, 0.1); border: 1px dashed #ef4444; border-radius: 4px;">
                         <span>${item.qty}x [${item.code}] ${item.desc}</span>
                         <select onchange="updateStandaloneType('${g.invRaw}', '${item.code}', this.value)" style="font-size: 10px; padding: 2px 4px; border: 1px solid #ef4444; background: var(--bg-card); color: var(--fg); border-radius: 4px; cursor: pointer; margin-left: 8px;">
-                            <option value="UNKNOWN" selected disabled>⚠️ Select Type</option>
+                            <option value="UNKNOWN" selected disabled>Select Type...</option>
                             <option value="TV DISPLAY">TV Display</option>
                             <option value="HIFI">Hi-Fi</option>
                             <option value="SMALL">Small Item</option>

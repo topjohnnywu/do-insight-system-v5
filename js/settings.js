@@ -115,7 +115,10 @@
             <div id="universalSettingsModal">
                 <div class="usm-content" style="width: 360px;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                        <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: var(--fg, #ffffff);">⚙️ Display & Font Settings</h3>
+                        <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: var(--fg, #ffffff); display: inline-flex; align-items: center; gap: 8px;">
+                            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                            Display & Font Settings
+                        </h3>
                         <button type="button" id="usmHeaderCloseBtn" style="background: none; border: none; color: var(--fg-muted, #a1a1aa); font-size: 16px; cursor: pointer; padding: 4px;">✕</button>
                     </div>
                     <div class="usm-group">
@@ -205,7 +208,7 @@
             });
 
             if (showToastFeedback && typeof window.showToast === 'function') {
-                window.showToast(nextState ? '⚡ Auto-Hide Sidebar enabled globally (hover to expand)' : '📌 Sidebar pinned in place globally', 'info', 2200);
+                window.showToast(nextState ? 'Auto-Hide Sidebar enabled globally (hover to expand)' : 'Sidebar pinned in place globally', 'info', 2200);
             }
 
             setTimeout(() => {
@@ -299,8 +302,8 @@
         } else {
             // Fallback floating button if no sidebar
             const floatBtn = document.createElement('button');
-            floatBtn.innerHTML = "⚙️ Settings";
-            floatBtn.style.cssText = "position:fixed; bottom:20px; right:20px; z-index:9998; padding:10px 16px; border-radius:30px; background:#8b5cf6; color:white; border:none; cursor:pointer; font-weight:600; box-shadow: 0 4px 12px rgba(0,0,0,0.3);";
+            floatBtn.innerHTML = '<svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin-right: 6px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings';
+            floatBtn.style.cssText = "position:fixed; bottom:20px; right:20px; z-index:9998; padding:10px 16px; border-radius:30px; background:#8b5cf6; color:white; border:none; cursor:pointer; font-weight:600; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display:inline-flex; align-items:center;";
             floatBtn.onclick = () => document.getElementById('universalSettingsModal').style.display='flex';
             document.body.appendChild(floatBtn);
         }

@@ -1981,10 +1981,15 @@ ${overflowDetailsHtml}
         
         let html = `
             <div class="table-card" style="padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.2);">
-                <!-- Container Size Selector -->
                 <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 16px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px; border: 1px solid var(--border);">
-                    <button id="dashTruckSize40Btn" onclick="plannerEngine.setTruckType('40HC')" title="40-Foot High Cube Container (76 m³)" style="background: ${this.selectedTruckType === '40HC' ? 'var(--accent, #8b5cf6)' : 'transparent'}; color: ${this.selectedTruckType === '40HC' ? '#fff' : 'var(--fg-muted, #a1a1aa)'}; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">🚛 40ft HC (76m³)</button>
-                    <button id="dashTruckSize20Btn" onclick="plannerEngine.setTruckType('20GP')" title="20-Foot Standard Container (33.2 m³)" style="background: ${this.selectedTruckType === '20GP' ? 'var(--accent, #8b5cf6)' : 'transparent'}; color: ${this.selectedTruckType === '20GP' ? '#fff' : 'var(--fg-muted, #a1a1aa)'}; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">🚚 20ft GP (33.2m³)</button>
+                    <button id="dashTruckSize40Btn" onclick="plannerEngine.setTruckType('40HC')" title="40-Foot High Cube Container (76 m³)" style="background: ${this.selectedTruckType === '40HC' ? 'var(--accent, #8b5cf6)' : 'transparent'}; color: ${this.selectedTruckType === '40HC' ? '#fff' : 'var(--fg-muted, #a1a1aa)'}; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;">
+                        <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                        40ft HC (76m³)
+                    </button>
+                    <button id="dashTruckSize20Btn" onclick="plannerEngine.setTruckType('20GP')" title="20-Foot Standard Container (33.2 m³)" style="background: ${this.selectedTruckType === '20GP' ? 'var(--accent, #8b5cf6)' : 'transparent'}; color: ${this.selectedTruckType === '20GP' ? '#fff' : 'var(--fg-muted, #a1a1aa)'}; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;">
+                        <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                        20ft GP (33.2m³)
+                    </button>
                 </div>
 
                 <div style="font-size: 14px; color: var(--fg-muted); margin-bottom: 8px; font-weight: 600; letter-spacing: 0.5px;">Total Pallets (${spec.name})</div>
@@ -4590,7 +4595,7 @@ ${mixedPalletsHtml}
             
             if (missingTieHighTracker.size > 0) {
                 const listHtml = Array.from(missingTieHighTracker).map(m => `<li>${m}</li>`).join('');
-                warningBox.innerHTML = `<button onclick="this.parentElement.style.display='none'" style="position: absolute; top: 4px; right: 6px; background: none; border: none; color: white; font-size: 16px; line-height: 1; cursor: pointer; opacity: 0.8; padding: 2px 4px;">&times;</button><strong>⚠️ Missing Tie/High Data</strong><br><span style="font-size:11px; opacity:0.9;">The following items lacked Master Data and are using Auto-Fallback sizing:</span><ul style="margin: 6px 0 0 0; padding-left: 16px; font-size: 11px;">${listHtml}</ul>`;
+                warningBox.innerHTML = `<button onclick="this.parentElement.style.display='none'" style="position: absolute; top: 4px; right: 6px; background: none; border: none; color: white; font-size: 16px; line-height: 1; cursor: pointer; opacity: 0.8; padding: 2px 4px;">&times;</button><strong style="display:inline-flex; align-items:center; gap:5px;"><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Missing Tie/High Data</strong><br><span style="font-size:11px; opacity:0.9;">The following items lacked Master Data and are using Auto-Fallback sizing:</span><ul style="margin: 6px 0 0 0; padding-left: 16px; font-size: 11px;">${listHtml}</ul>`;
                 warningBox.style.display = 'block';
             } else if (warningBox) {
                 warningBox.style.display = 'none';
@@ -4624,7 +4629,7 @@ ${mixedPalletsHtml}
                 warningDiv.style.border = '1px solid rgba(255,255,255,0.2)';
                 warningDiv.innerHTML = `
                     <button id="closeOverflowWarningBtn" title="Dismiss warning" style="position: absolute; top: 6px; right: 8px; background: none; border: none; color: white; font-size: 20px; line-height: 1; cursor: pointer; opacity: 0.8; padding: 2px 6px; border-radius: 4px; transition: opacity 0.2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.8'">&times;</button>
-                    ⚠️ Capacity Exceeded<br><span style="font-size: 13px; font-weight: normal;">Suggestion: Cut [ ${generated.shortText} ] to clear overflow.</span>
+                    <span style="display:inline-flex; align-items:center; gap:5px;"><svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Capacity Exceeded</span><br><span style="font-size: 13px; font-weight: normal;">Suggestion: Cut [ ${generated.shortText} ] to clear overflow.</span>
                 `;
                 
                 const closeBtn = warningDiv.querySelector('#closeOverflowWarningBtn');
@@ -4830,7 +4835,7 @@ ${mixedPalletsHtml}
                             ghostHTML = '<br><span style="color: #f59e0b; font-size: 11px;">▲ ' + object.userData.ghostedAccessoryCount + (object.userData.ghostedAccessoryCount === 1 ? ' accessory' : ' accessories') + ' stacked above</span>';
                         }
 
-                        tooltip.innerHTML = '<strong style="color: var(--accent, #8b5cf6);">' + (object.userData.isMixed ? 'Contents' : 'Model') + ':</strong> ' + (object.userData.description || object.userData.code) + '<br><strong>' + (object.userData.isMixed ? 'Total Qty' : 'Qty') + ':</strong> ' + object.userData.qty + ' pcs' + dimsHTML + mixHTML + ghostHTML + '<br><span style="color: #fbbf24; font-size: 10px; margin-top: 4px; display: block;">👉 Click to rotate 90°<br>👉 Drag to ' + (this.interactionMode === 'sandbox' ? 'move freely' : 'swap order') + '</span>';
+                        tooltip.innerHTML = '<strong style="color: var(--accent, #8b5cf6);">' + (object.userData.isMixed ? 'Contents' : 'Model') + ':</strong> ' + (object.userData.description || object.userData.code) + '<br><strong>' + (object.userData.isMixed ? 'Total Qty' : 'Qty') + ':</strong> ' + object.userData.qty + ' pcs' + dimsHTML + mixHTML + ghostHTML + '<br><span style="color: #fbbf24; font-size: 10px; margin-top: 4px; display: block;">• Click to rotate 90°<br>• Drag to ' + (this.interactionMode === 'sandbox' ? 'move freely' : 'swap order') + '</span>';
                         tooltip.style.display = 'block';
                     }
                     tooltip.style.left = (this.mouseX + 15) + 'px';
@@ -5115,11 +5120,11 @@ ${mixedPalletsHtml}
         if (running) {
             btn.classList.remove('success');
             btn.classList.add('danger');
-            btn.innerHTML = '⏹ Stop Loading';
+            btn.innerHTML = '<svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg> Stop Loading';
         } else {
             btn.classList.remove('danger');
             btn.classList.add('success');
-            btn.innerHTML = '📦 Simulate Loading';
+            btn.innerHTML = '<svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Simulate Loading';
         }
     }
 
@@ -5156,7 +5161,7 @@ ${mixedPalletsHtml}
             const hud = this.loadingSimHud;
             if (hud) {
                 hud.style.display = 'block';
-                hud.textContent = `✅ Loading complete — ${sim.totalWeight - rejected} loaded${rejected ? `, ${rejected} rejected` : ''}. Departing...`;
+                hud.textContent = `Loading complete — ${sim.totalWeight - rejected} loaded${rejected ? `, ${rejected} rejected` : ''}. Departing...`;
                 setTimeout(() => { hud.style.display = 'none'; }, 4000);
             }
             if (!this.isDriveMode) this.toggleDriveMode();
@@ -5400,7 +5405,7 @@ ${mixedPalletsHtml}
         const pct = Math.round((sim.placedCount / sim.totalWeight) * 100);
         const sagPct = Math.round(Math.abs(sim.sagTargetY) / 0.35 * 100);
         const rejected = sim.rejectedCount || 0;
-        const rejectedHTML = rejected > 0 ? ` · ⚠ ${rejected} rejected (overflow)` : '';
+        const rejectedHTML = rejected > 0 ? ` · (${rejected} rejected overflow)` : '';
         this.loadingSimHud.textContent = `Loading ${sim.placedCount}/${sim.totalWeight} pallets · Weight on suspension: ${sagPct}%${rejectedHTML}`;
     }
     
@@ -5412,11 +5417,11 @@ ${mixedPalletsHtml}
             if (this.isDriveMode) {
                 btn.classList.remove('warning');
                 btn.classList.add('danger');
-                btn.innerHTML = '🛑 Stop Engine';
+                btn.innerHTML = '<svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/></svg> Stop Engine';
             } else {
                 btn.classList.remove('danger');
                 btn.classList.add('warning');
-                btn.innerHTML = '🔑 Start Engine';
+                btn.innerHTML = '<svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg> Start Engine';
             }
         }
     }

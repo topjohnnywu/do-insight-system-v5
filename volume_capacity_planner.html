@@ -390,16 +390,37 @@
                 <div id="truck3dContainer" style="flex: 1; position: relative; width: 100%; height: 100%; min-width: 0; min-height: 0; cursor: grab;">
                     <!-- Control Panel Overlay -->
                     <div class="dark-overlay" style="position: absolute; top: 16px; left: 16px; z-index: 10; background: rgba(24, 24, 27, 0.9); border: 1px solid var(--border, #27272a); border-radius: 8px; padding: 8px; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
-                        <button id="modeSwapBtn" onclick="plannerEngine.setInteraction('swap')" class="action-btn active" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto;">🔀 Swap Mode</button>
-                        <button id="modeSandboxBtn" onclick="plannerEngine.setInteraction('sandbox')" class="action-btn ghost" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto;">🖐️ Sandbox</button>
-                        <button id="modeDriveBtn" onclick="plannerEngine.toggleDriveMode()" class="action-btn warning" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto;">🔑 Start Engine</button>
-                        <button id="modeLoadSimBtn" onclick="plannerEngine.toggleLoadingSim()" class="action-btn success" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto;">📦 Simulate Loading</button>
-                        <button id="modeListBtn" onclick="plannerEngine.setInteraction('list')" class="action-btn ghost" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto;">📋 List Mode</button>
+                        <button id="modeSwapBtn" onclick="plannerEngine.setInteraction('swap')" class="action-btn active" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto; display: inline-flex; align-items: center; gap: 6px;">
+                            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+                            Swap Mode
+                        </button>
+                        <button id="modeSandboxBtn" onclick="plannerEngine.setInteraction('sandbox')" class="action-btn ghost" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto; display: inline-flex; align-items: center; gap: 6px;">
+                            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+                            Sandbox
+                        </button>
+                        <button id="modeDriveBtn" onclick="plannerEngine.toggleDriveMode()" class="action-btn warning" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto; display: inline-flex; align-items: center; gap: 6px;">
+                            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
+                            Start Engine
+                        </button>
+                        <button id="modeLoadSimBtn" onclick="plannerEngine.toggleLoadingSim()" class="action-btn success" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto; display: inline-flex; align-items: center; gap: 6px;">
+                            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                            Simulate Loading
+                        </button>
+                        <button id="modeListBtn" onclick="plannerEngine.setInteraction('list')" class="action-btn ghost" style="padding: 6px 12px; border-radius: 6px; font-size: 12px; height: auto; display: inline-flex; align-items: center; gap: 6px;">
+                            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                            List Mode
+                        </button>
                         
                         <div style="width: 1px; height: 20px; background: #3f3f46; margin: 0 4px;"></div>
                         
-                        <button id="truckSize40Btn" onclick="plannerEngine.setTruckType('40HC')" title="40-Foot High Cube Container (76 m³)" class="action-btn active" style="padding: 6px 10px; border-radius: 6px; font-size: 12px; height: auto;">🚛 40ft HC</button>
-                        <button id="truckSize20Btn" onclick="plannerEngine.setTruckType('20GP')" title="20-Foot Standard Container (33.2 m³)" class="action-btn ghost" style="padding: 6px 10px; border-radius: 6px; font-size: 12px; height: auto;">🚚 20ft GP</button>
+                        <button id="truckSize40Btn" onclick="plannerEngine.setTruckType('40HC')" title="40-Foot High Cube Container (76 m³)" class="action-btn active" style="padding: 6px 10px; border-radius: 6px; font-size: 12px; height: auto; display: inline-flex; align-items: center; gap: 5px;">
+                            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                            40ft HC
+                        </button>
+                        <button id="truckSize20Btn" onclick="plannerEngine.setTruckType('20GP')" title="20-Foot Standard Container (33.2 m³)" class="action-btn ghost" style="padding: 6px 10px; border-radius: 6px; font-size: 12px; height: auto; display: inline-flex; align-items: center; gap: 5px;">
+                            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                            20ft GP
+                        </button>
                     </div>
                 </div>
 

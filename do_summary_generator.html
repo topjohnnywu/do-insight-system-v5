@@ -655,7 +655,7 @@
                 <div class="sticky-remarks-card collapsed" id="quickRemarksPanel">
                     <div class="panel-header" onclick="summaryGenerator.toggleRemarksPanel()">
                         <div style="display:flex; align-items:center; gap:8px;">
-                            <span style="font-size:14px;">✏️</span>
+                            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                             <span style="font-weight:700; font-size:13px;">Quick Remarks & Presets</span>
                         </div>
                         <button type="button" class="panel-toggle-btn" id="remarksToggleBtn">▼ Expand</button>
@@ -665,18 +665,22 @@
                         <!-- 1. Quick Remark Preset Chips -->
                         <div>
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                <span class="section-label" style="margin-bottom: 0;">⚡ 1-Click Apply to Checked Rows:</span>
-                                <button type="button" onclick="summaryGenerator.openPresetManagerModal()" style="font-size: 10px; font-weight: 700; color: #60a5fa; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 4px; padding: 2px 7px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;">
-                                    ⚙️ Manage Presets
+                                <span class="section-label" style="margin-bottom: 0; display: inline-flex; align-items: center; gap: 4px;">
+                                    <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color: #f59e0b;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                    1-Click Apply to Checked Rows:
+                                </span>
+                                <button type="button" onclick="summaryGenerator.openPresetManagerModal()" style="font-size: 10px; font-weight: 700; color: #60a5fa; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 4px; padding: 2px 7px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                    <svg class="inline-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                    Manage Presets
                                 </button>
                             </div>
                             <div style="margin-bottom: 10px; display: flex; gap: 8px; align-items: center;">
-                                <input type="text" id="quickPresetSearch" oninput="summaryGenerator.filterPresets(this.value, 'quickPresetChipsContainer')" placeholder="🔍 Search presets..." style="flex: 1; font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg); box-sizing: border-box;">
+                                <input type="text" id="quickPresetSearch" oninput="summaryGenerator.filterPresets(this.value, 'quickPresetChipsContainer')" placeholder="Search presets..." style="flex: 1; font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg); box-sizing: border-box;">
                                 <select id="quickPresetSortSelect" onchange="summaryGenerator.setPresetSortMode(this.value)" title="Sort preset remarks" style="font-size: 11px; font-weight: 600; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg); cursor: pointer;">
-                                    <option value="CUSTOM">📌 Custom Order</option>
-                                    <option value="AZ">🔤 Name (A → Z)</option>
-                                    <option value="ZA">🔤 Name (Z → A)</option>
-                                    <option value="COLOR">🎨 By Color Tag</option>
+                                    <option value="CUSTOM">Custom Order</option>
+                                    <option value="AZ">Name (A → Z)</option>
+                                    <option value="ZA">Name (Z → A)</option>
+                                    <option value="COLOR">By Color Tag</option>
                                 </select>
                             </div>
                             <div class="quick-preset-chips" id="quickPresetChipsContainer">
@@ -692,7 +696,10 @@
 
                         <!-- 2. Custom Bulk Remark Text -->
                         <div style="margin-top:12px;">
-                            <span class="section-label">✍️ Custom Bulk Remark:</span>
+                            <span class="section-label" style="display: inline-flex; align-items: center; gap: 4px;">
+                                <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                                Custom Bulk Remark:
+                            </span>
                             <div style="display:flex; gap:6px;">
                                 <input type="text" id="customBulkRemarkInput" placeholder="Type custom remark text..." style="flex:1; font-size:12px; padding:5px 8px; border-radius:6px; border:1px solid var(--border); background:var(--surface-solid); color:var(--fg);">
                                 <button type="button" class="action-btn" onclick="summaryGenerator.applyCustomBulkRemark()" style="font-size:11px; padding:4px 10px; border-radius:6px; font-weight:600;">Apply</button>
@@ -701,7 +708,10 @@
 
                         <!-- 3. Quick Action Row -->
                         <div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-size:11px; font-weight:600; color:var(--fg-subtle);">➕ Manual DO Entry:</span>
+                            <span style="font-size:11px; font-weight:600; color:var(--fg-subtle); display: inline-flex; align-items: center; gap: 4px;">
+                                <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                                Manual DO Entry:
+                            </span>
                             <button type="button" class="action-btn" onclick="summaryGenerator.addManualDO()" style="font-size:11px; padding:3px 10px; border-radius:6px; font-weight:600;">+ Add Row</button>
                         </div>
                     </div>
@@ -713,16 +723,25 @@
             <div class="summary-meta-bar" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px;">
                 <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 11px; font-weight: 700; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.5px;">📅 Summary Date:</span>
+                        <span style="font-size: 11px; font-weight: 700; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px;">
+                            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            Summary Date:
+                        </span>
                         <input type="date" id="headerDatePicker" data-date-picker data-placeholder="Pick a date" onchange="summaryGenerator.onHeaderDateChange(this.value)">
                         <span id="headerDateFormatted" style="font-size: 11px; font-weight: 700; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.2);">-</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 11px; font-weight: 700; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.5px;">🌊 Active Wave:</span>
+                        <span style="font-size: 11px; font-weight: 700; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px;">
+                            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>
+                            Active Wave:
+                        </span>
                         <input type="text" id="headerWaveInput" placeholder="01" onchange="summaryGenerator.onHeaderWaveChange(this.value)" style="font-size: 11px; padding: 4px 8px; width: 70px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid); color: var(--fg); font-weight: 700; text-align: center;">
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 11px; font-weight: 700; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.5px;">📁 Output Target:</span>
+                        <span style="font-size: 11px; font-weight: 700; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px;">
+                            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                            Output Target:
+                        </span>
                         <span id="headerTargetFileName" style="font-size: 11px; color: #60a5fa; font-weight: 600;">DO Summary List.xlsx</span>
                     </div>
                 </div>
@@ -820,8 +839,9 @@
                 <!-- Dynamic Filtered DOs Quick Remark Bar (Shown when search filter is active) -->
                 <div id="filteredRemarkBar" style="display: none; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px;">
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <span style="font-size: 12px; font-weight: 700; color: #60a5fa; display: inline-flex; align-items: center; gap: 4px;">
-                            🔍 Filter Active:
+                        <span style="font-size: 12px; font-weight: 700; color: #60a5fa; display: inline-flex; align-items: center; gap: 6px;">
+                            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            Filter Active:
                         </span>
                         <span id="filteredBarCountBadge" style="font-size: 11px; font-weight: 700; color: #3b82f6; background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); padding: 2px 8px; border-radius: 12px;">
                             0 DOs
@@ -830,7 +850,7 @@
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; justify-content: flex-end;">
-                        <input type="text" id="filteredPresetSearch" oninput="summaryGenerator.filterPresets(this.value, 'filteredPresetChipsContainer')" placeholder="🔍 Search presets..." style="font-size: 11px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg); width: 140px;">
+                        <input type="text" id="filteredPresetSearch" oninput="summaryGenerator.filterPresets(this.value, 'filteredPresetChipsContainer')" placeholder="Search presets..." style="font-size: 11px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg); width: 140px;">
                         <div style="display: flex; gap: 4px; flex-wrap: wrap; align-items: center;" id="filteredPresetChipsContainer">
                             <button type="button" class="preset-chip red" data-preset-label="OWN USE" data-preset-color="red" onclick="summaryGenerator.applyQuickRemarkToFiltered('OWN USE')" style="font-size: 10px; padding: 3px 8px;">OWN USE</button>
                             <button type="button" class="preset-chip yellow" data-preset-label="CABN" data-preset-color="yellow" onclick="summaryGenerator.applyQuickRemarkToFiltered('CABN')" style="font-size: 10px; padding: 3px 8px;">CABN</button>
@@ -1027,7 +1047,9 @@
         <div style="background: var(--surface-card, var(--bg-elevated, #ffffff)); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 520px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border); overflow: hidden; display: flex; flex-direction: column;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); background: var(--surface-hover, transparent);">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 32px; height: 32px; border-radius: 8px; background: var(--surface, rgba(255,255,255,0.06)); display: flex; align-items: center; justify-content: center; font-size: 16px;">⚙️</div>
+                    <div style="width: 32px; height: 32px; border-radius: 8px; background: var(--surface, rgba(255,255,255,0.06)); display: flex; align-items: center; justify-content: center; color: var(--fg);">
+                        <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </div>
                     <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: var(--fg);">Manage Preset Remarks</h3>
                 </div>
                 <button type="button" onclick="summaryGenerator.closePresetManagerModal()" style="background: none; border: none; color: var(--fg-muted); font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 6px;">✕</button>
@@ -1035,19 +1057,20 @@
 
             <div style="padding: 20px; display: flex; flex-direction: column; gap: 16px; max-height: 70vh; overflow-y: auto;">
                 <div>
-                    <span style="font-size: 12px; font-weight: 700; color: var(--fg-muted); display: block; margin-bottom: 8px;">
-                        ➕ Add New Preset Remark:
+                    <span style="font-size: 12px; font-weight: 700; color: var(--fg-muted); display: inline-flex; align-items: center; gap: 4px; margin-bottom: 8px;">
+                        <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                        Add New Preset Remark:
                     </span>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <input type="text" id="newPresetLabelInput" placeholder="Preset label (e.g. SPECIAL DELIVERY)..." style="flex: 1; min-width: 180px; font-size: 12px; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg);">
                         <select id="newPresetColorSelect" style="font-size: 12px; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg); cursor: pointer;">
-                            <option value="red">🔴 Red Tag</option>
-                            <option value="yellow">🟡 Yellow Tag</option>
-                            <option value="blue">🔵 Blue Tag</option>
-                            <option value="green">🟢 Green Tag</option>
-                            <option value="purple">🟣 Purple Tag</option>
-                            <option value="gray">⚪ Gray Tag</option>
-                            <option value="dark">⬛ Dark Tag</option>
+                            <option value="red">Red Tag</option>
+                            <option value="yellow">Yellow Tag</option>
+                            <option value="blue">Blue Tag</option>
+                            <option value="green">Green Tag</option>
+                            <option value="purple">Purple Tag</option>
+                            <option value="gray">Gray Tag</option>
+                            <option value="dark">Dark Tag</option>
                         </select>
                         <button type="button" onclick="summaryGenerator.addNewPresetRemark()" class="action-btn" style="font-size: 12px; font-weight: 700; padding: 7px 16px; border-radius: 6px; background: var(--accent, #2563eb); color: var(--accent-foreground, #ffffff); border: none; cursor: pointer;">Add</button>
                     </div>
@@ -1055,8 +1078,9 @@
 
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <span style="font-size: 12px; font-weight: 700; color: var(--fg-muted);">
-                            📋 Current Preset Remarks List:
+                        <span style="font-size: 12px; font-weight: 700; color: var(--fg-muted); display: inline-flex; align-items: center; gap: 4px;">
+                            <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                            Current Preset Remarks List:
                         </span>
                         <div style="display: flex; gap: 12px; align-items: center;">
                             <button type="button" onclick="summaryGenerator.exportPresetRemarks()" style="font-size: 11px; color: #10b981; background: none; border: none; cursor: pointer; font-weight: 600; text-decoration: underline;">
@@ -1076,13 +1100,13 @@
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <span style="font-size: 11px; font-weight: 700; color: var(--fg-muted);">Sort By:</span>
                             <select id="presetSortSelect" onchange="summaryGenerator.setPresetSortMode(this.value)" style="font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg); cursor: pointer;">
-                                <option value="CUSTOM">📌 Custom / Manual Order</option>
-                                <option value="AZ">🔤 Name (A → Z)</option>
-                                <option value="ZA">🔤 Name (Z → A)</option>
-                                <option value="COLOR">🎨 By Accent Color</option>
+                                <option value="CUSTOM">Custom / Manual Order</option>
+                                <option value="AZ">Name (A → Z)</option>
+                                <option value="ZA">Name (Z → A)</option>
+                                <option value="COLOR">By Accent Color</option>
                             </select>
                         </div>
-                        <span style="font-size: 10px; color: var(--fg-muted);">Use ⬆️ ⬇️ to reorder manually</span>
+                        <span style="font-size: 10px; color: var(--fg-muted);">Use Up/Down controls to reorder manually</span>
                     </div>
 
                     <div id="presetManagerList" style="display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: var(--surface, rgba(0,0,0,0.05));">
