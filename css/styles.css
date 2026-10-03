@@ -1298,8 +1298,8 @@ html[data-sidebar-autohide="true"] .sidebar:not(:hover):not(.is-hovered) .sideba
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
+    width: 15px;
+    height: 15px;
     border-radius: 50%;
     border: none;
     background: #ef4444;
@@ -1307,21 +1307,21 @@ html[data-sidebar-autohide="true"] .sidebar:not(:hover):not(.is-hovered) .sideba
     cursor: pointer;
     line-height: 1;
     padding: 0;
-    margin-left: 6px;
+    margin-left: 4px;
     flex-shrink: 0;
-    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.35);
+    box-shadow: 0 1px 3px rgba(239, 68, 68, 0.35);
     transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
 .chip-remove-btn:hover {
     background: #dc2626;
     color: #ffffff;
-    transform: scale(1.12);
+    transform: scale(1.15);
 }
 
 .chip-remove-btn svg {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     stroke-width: 2.5;
     stroke: #ffffff;
 }
@@ -1376,27 +1376,27 @@ html[data-sidebar-autohide="true"] .sidebar:not(:hover):not(.is-hovered) .sideba
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     border: none;
     background: #ef4444;
     color: #ffffff;
     cursor: pointer;
     margin-left: auto;
-    box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+    box-shadow: 0 1px 4px rgba(239, 68, 68, 0.35);
     transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
 .reset-file-btn:hover {
     background: #dc2626;
     color: #ffffff;
-    transform: scale(1.12);
+    transform: scale(1.15);
 }
 
 .reset-file-btn svg {
-    width: 11px;
-    height: 11px;
+    width: 8px;
+    height: 8px;
     stroke-width: 2.5;
     stroke: #ffffff;
 }
