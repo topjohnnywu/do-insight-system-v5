@@ -390,27 +390,11 @@
             color: #475569;
         }
 
-        /* Terminal Body Console & Stick Figure Fight Canvas */
+        /* Terminal Body Console */
         .terminal-body-wrap {
             position: relative;
             overflow: hidden;
             width: 100%;
-        }
-        .terminal-fight-canvas {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.35;
-            transition: opacity 0.25s ease;
-        }
-        [data-theme="light"] .terminal-fight-canvas {
-            opacity: 0.25;
-        }
-        .terminal-fight-canvas.disabled {
-            display: none !important;
         }
         .terminal-body {
             position: relative;
@@ -1704,15 +1688,13 @@
                         terminal — do-pipeline — zsh 80x24
                     </div>
                     <div class="terminal-controls">
-                        <button type="button" class="terminal-btn-pill" id="termBtnToggleFight" title="Toggle Stick Fight Background">🥋 Fight: ON</button>
                         <button type="button" class="terminal-btn-pill" id="termBtnCopyLogs" title="Copy log stream to clipboard">📋 Copy</button>
                         <button type="button" class="terminal-btn-pill" id="termBtnClearLogs" title="Clear terminal screen">🗑️ Clear</button>
                     </div>
                 </div>
 
-                <!-- Terminal Output Stream with Background Stick Figure Fight Canvas -->
+                <!-- Terminal Output Stream -->
                 <div class="terminal-body-wrap">
-                    <canvas id="termFightCanvas" class="terminal-fight-canvas"></canvas>
                     <div class="terminal-body" id="terminalLogBody">
                         <div class="terminal-cmd-line">
                             <span class="terminal-prompt">$</span>
@@ -3640,507 +3622,6 @@ function stopSarcasticComments() {
     }
 }
 
-// --- RETRO STICK FIGURE MARTIAL ARTS FIGHT ANIMATION ---
-const StickFigureFight = {
-    canvas: null,
-    ctx: null,
-    animId: null,
-    enabled: true,
-    running: false,
-    width: 0,
-    height: 0,
-    groundY: 0,
-    tick: 0,
-    currentMove: 0,
-    moveTimer: 0,
-    sparks: [],
-    rings: [],
-    phaseTimer: 0,
-    phaseIndex: 0,
-    phaseHit: false,
-    lastFrameTime: 0,
-    
-    // Fighter 1 (Hero - Emerald Neon)
-    p1: {
-        x: 180,
-        y: 0,
-        vx: 0,
-        vy: 0,
-        color: '#10b981',
-        facing: 1, // 1: right, -1: left
-        state: 'idle', // idle, approach, punch, kick, jump_kick, sweep, duck, block, hit, flip, bow
-        frame: 0
-    },
-    
-    // Fighter 2 (Rival - Cyber Purple)
-    p2: {
-        x: 420,
-        y: 0,
-        vx: 0,
-        vy: 0,
-        color: '#a855f7',
-        facing: -1,
-        state: 'idle',
-        frame: 0
-    },
-
-    init() {
-        if (this.canvas) return;
-        this.canvas = $('termFightCanvas');
-        if (!this.canvas) return;
-        this.ctx = this.canvas.getContext('2d');
-        
-        // Restore fight preference if saved
-        const saved = localStorage.getItem('do_term_fight');
-        if (saved !== null) {
-            this.enabled = saved === '1';
-        }
-        this.updateToggleBtn();
-
-        window.addEventListener('resize', () => {
-            if (this.running) this.resize();
-        });
-    },
-
-    updateToggleBtn() {
-        const btn = $('termBtnToggleFight');
-        if (btn) {
-            btn.textContent = this.enabled ? '🥋 Fight: ON' : '🥋 Fight: OFF';
-            btn.style.borderColor = this.enabled ? '#10b981' : '';
-        }
-        if (this.canvas) {
-            if (this.enabled) {
-                this.canvas.classList.remove('disabled');
-            } else {
-                this.canvas.classList.add('disabled');
-            }
-        }
-    },
-
-    toggle() {
-        this.enabled = !this.enabled;
-        localStorage.setItem('do_term_fight', this.enabled ? '1' : '0');
-        this.updateToggleBtn();
-        if (this.enabled) {
-            this.start();
-        } else {
-            this.stop();
-            if (this.ctx) this.ctx.clearRect(0, 0, this.width, this.height);
-        }
-    },
-
-    resize() {
-        if (!this.canvas) return;
-        const rect = this.canvas.parentElement.getBoundingClientRect();
-        this.width = rect.width || 800;
-        this.height = rect.height || 440;
-        this.canvas.width = this.width;
-        this.canvas.height = this.height;
-        this.groundY = this.height - 24;
-        
-        if (!this.running) {
-            this.p1.x = Math.max(80, this.width * 0.35);
-            this.p2.x = Math.min(this.width - 80, this.width * 0.65);
-            this.p1.y = this.groundY;
-            this.p2.y = this.groundY;
-        }
-    },
-
-    start() {
-        if (!this.enabled) return;
-        this.init();
-        if (!this.canvas) return;
-        this.resize();
-        if (this.running) return;
-        this.running = true;
-        this.tick = 0;
-        this.currentMove = 0;
-        this.moveTimer = 0;
-        this.sparks = [];
-        this.rings = [];
-        this.p1.y = this.groundY;
-        this.p2.y = this.groundY;
-        this.p1.state = 'idle';
-        this.p2.state = 'idle';
-        this.loop = this.loop.bind(this);
-        this.animId = requestAnimationFrame(this.loop);
-    },
-
-    stop() {
-        this.running = false;
-        if (this.animId) {
-            cancelAnimationFrame(this.animId);
-            this.animId = null;
-        }
-    },
-
-    setVictoryBow() {
-        if (!this.running) return;
-        this.p1.state = 'bow';
-        this.p2.state = 'bow';
-        this.p1.frame = 0;
-        this.p2.frame = 0;
-    },
-
-    spawnSparks(x, y, color, count = 8) {
-        for (let i = 0; i < count; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const speed = 1.5 + Math.random() * 4.5;
-            this.sparks.push({
-                x, y,
-                vx: Math.cos(angle) * speed,
-                vy: Math.sin(angle) * speed - 1.2,
-                color,
-                life: 1,
-                decay: 0.04 + Math.random() * 0.04,
-                size: 1.5 + Math.random() * 2
-            });
-        }
-        this.rings.push({
-            x, y, r: 2, maxR: 20 + Math.random() * 12,
-            color, alpha: 0.9
-        });
-    },
-
-    // Frame-driven choreography: each phase has preparation, contact and recovery.
-    updateCombatAI() {
-        const p1 = this.p1;
-        const p2 = this.p2;
-        this.phaseTimer++;
-
-        const phases = [
-            { duration: 78, a: 'approach', b: 'idle' },
-            { duration: 76, a: 'punch', b: 'block' },
-            { duration: 62, a: 'hit', b: 'kick' },
-            { duration: 70, a: 'duck', b: 'kick' },
-            { duration: 82, a: 'sweep', b: 'flip' },
-            { duration: 96, a: 'idle', b: 'approach' },
-            { duration: 78, a: 'block', b: 'punch' },
-            { duration: 96, a: 'jump_kick', b: 'hit' },
-            { duration: 110, a: 'flip', b: 'idle' },
-            { duration: 118, a: 'idle', b: 'idle' }
-        ];
-        const phase = phases[this.phaseIndex];
-
-        if (this.phaseTimer === 1) {
-            p1.state = phase.a; p2.state = phase.b;
-            p1.frame = 0; p2.frame = 0;
-            this.phaseHit = false;
-            if (phase.a === 'flip' || phase.a === 'jump_kick') p1.vy = -6.2;
-            if (phase.b === 'flip' || phase.b === 'jump_kick') p2.vy = -6.2;
-        }
-
-        // Contact is synchronized to the middle of the attack, not a setTimeout.
-        const contact = Math.floor(phase.duration * 0.52);
-        if (!this.phaseHit && this.phaseTimer === contact &&
-            ['punch', 'kick', 'sweep', 'jump_kick'].includes(p1.state)) {
-            const x = (p1.x + p2.x) / 2;
-            this.spawnSparks(x, this.groundY - (p1.state === 'sweep' ? 12 : 38), p1.color, 9);
-            this.phaseHit = true;
-            if (p2.state !== 'block' && p2.state !== 'duck' && p2.state !== 'flip') {
-                p2.state = 'hit'; p2.frame = 0; p2.vx = 3.2 * p1.facing;
-            }
-        }
-        if (!this.phaseHit && this.phaseTimer === contact &&
-            ['punch', 'kick', 'jump_kick'].includes(p2.state)) {
-            this.spawnSparks((p1.x + p2.x) / 2, this.groundY - 36, p2.color, 9);
-            this.phaseHit = true;
-            if (p1.state !== 'block' && p1.state !== 'duck' && p1.state !== 'flip') {
-                p1.state = 'hit'; p1.frame = 0; p1.vx = -3.2 * p2.facing;
-            }
-        }
-
-        if (this.phaseTimer >= phase.duration) {
-            this.phaseTimer = 0;
-            this.phaseIndex = (this.phaseIndex + 1) % phases.length;
-        }
-
-        // Organic footwork and damped momentum keep the silhouettes alive between hits.
-        [p1, p2].forEach((p, index) => {
-            if (p.state !== 'flip' && p.state !== 'bow') {
-                p.facing = (index === 0 ? p2.x > p.x : p1.x > p.x) ? 1 : -1;
-            }
-            const other = index === 0 ? p2 : p1;
-            if (p.state === 'approach') {
-                const target = index === 0 ? other.x - 66 : other.x + 66;
-                p.vx += (target - p.x) * 0.012;
-            } else if (p.state === 'idle') {
-                p.vx += Math.sin((this.tick + index * 17) * 0.08) * 0.025;
-            }
-            p.x += p.vx;
-            p.y += p.vy;
-            p.vx *= 0.86;
-            if (p.y < this.groundY) p.vy += 0.42;
-            else { p.y = this.groundY; p.vy = 0; }
-            p.x = Math.max(70, Math.min(this.width - 70, p.x));
-            p.frame++;
-        });
-    },
-
-    drawStickFigure(p) {
-        const ctx = this.ctx;
-        const x = p.x;
-        const y = p.y;
-        const f = p.facing;
-        const s = p.state;
-        const fr = p.frame;
-        const color = p.color;
-        const cycle = Math.min(1, fr / 18);
-        const strike = Math.sin(Math.min(1, cycle) * Math.PI);
-        const settle = Math.max(0, (fr - 18) / 22);
-        const breath = Math.sin(this.tick * 0.11 + (p === this.p2 ? 1.7 : 0));
-        const bodyLean = breath * 0.8;
-
-        ctx.save();
-        ctx.strokeStyle = color;
-        ctx.fillStyle = color;
-        ctx.lineWidth = 2.4;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.shadowBlur = 6;
-        ctx.shadowColor = color;
-
-        // Base stick figure dimensions
-        const headR = 6.5;
-        let headX = x;
-        let headY = y - 48;
-        let neckX = x + bodyLean;
-        let neckY = y - 41 - Math.abs(breath) * 0.8;
-        let hipX = x;
-        let hipY = y - 22 + Math.abs(breath) * 0.7;
-
-        let leftHandX = x - 8 * f, leftHandY = y - 30;
-        let rightHandX = x + 8 * f, rightHandY = y - 30;
-        let leftElbowX = x - 4 * f, leftElbowY = y - 35;
-        let rightElbowX = x + 4 * f, rightElbowY = y - 35;
-
-        let leftFootX = x - 8 * f, leftFootY = y;
-        let rightFootX = x + 8 * f, rightFootY = y;
-        let leftKneeX = x - 6 * f, leftKneeY = y - 11;
-        let rightKneeX = x + 6 * f, rightKneeY = y - 11;
-
-        // Animate poses based on state
-        if (s === 'idle') {
-            const bounce = Math.sin(this.tick * 0.15) * 2;
-            headY += bounce;
-            neckY += bounce;
-            hipY += bounce * 0.7;
-            leftHandX = x + 10 * f; leftHandY = y - 38 + bounce;
-            rightHandX = x + 16 * f; rightHandY = y - 35 + bounce;
-            rightFootX = x + 12 * f;
-            leftFootX = x - 10 * f;
-        } else if (s === 'approach') {
-            const step = Math.sin(this.tick * 0.3) * 6;
-            neckX += 4 * f;
-            headX += 5 * f;
-            leftFootX = x - step * f;
-            rightFootX = x + step * f;
-            leftHandX = x + 12 * f; leftHandY = y - 36;
-            rightHandX = x + 16 * f; rightHandY = y - 34;
-        } else if (s === 'punch') {
-            const ext = 28 * strike * (1 - Math.min(0.35, settle * 0.35));
-            neckX += (3 + 4 * strike) * f;
-            rightHandX = x + (13 + ext) * f; rightHandY = y - 38 - strike * 2;
-            rightElbowX = x + (8 + ext * 0.48) * f; rightElbowY = y - 35 - strike * 2;
-            leftHandX = x + 2 * f; leftHandY = y - 37;
-            rightFootX = x + 14 * f + strike * 4 * f;
-            leftFootX = x - 13 * f;
-        } else if (s === 'kick') {
-            const kick = strike * (1 - Math.min(0.28, settle * 0.28));
-            neckX -= 7 * f * kick; headX -= 9 * f * kick;
-            hipX -= 3 * f * kick;
-            rightFootX = x + (10 + 34 * kick) * f; rightFootY = y - 5 - 31 * kick;
-            rightKneeX = x + (13 + 15 * kick) * f; rightKneeY = y - 25 - 5 * kick;
-            leftFootX = x - 8 * f;
-            leftHandX = x - 11 * f; leftHandY = y - 32 - 3 * kick;
-            rightHandX = x + 9 * f; rightHandY = y - 42;
-        } else if (s === 'jump_kick') {
-            headY -= 12; neckY -= 12; hipY -= 12;
-            rightFootX = x + 34 * f; rightFootY = y - 34;
-            rightKneeX = x + 18 * f; rightKneeY = y - 24;
-            leftFootX = x - 6 * f; leftFootY = y - 18;
-            leftHandX = x - 12 * f; leftHandY = y - 40;
-            rightHandX = x + 10 * f; rightHandY = y - 46;
-        } else if (s === 'block') {
-            neckX -= 2 * f;
-            leftHandX = x + 14 * f; leftHandY = y - 42;
-            rightHandX = x + 16 * f; rightHandY = y - 36;
-            leftFootX = x - 10 * f;
-            rightFootX = x + 8 * f;
-        } else if (s === 'duck') {
-            headY += 14; neckY += 14; hipY += 12;
-            leftFootX = x - 16 * f; rightFootX = x + 16 * f;
-            leftKneeX = x - 18 * f; leftKneeY = y - 6;
-            rightKneeX = x + 18 * f; rightKneeY = y - 6;
-            leftHandX = x - 8 * f; leftHandY = y - 18;
-            rightHandX = x + 8 * f; rightHandY = y - 18;
-        } else if (s === 'sweep') {
-            headY += 16; neckY += 16; hipY += 14;
-            rightFootX = x + 32 * f; rightFootY = y - 2;
-            rightKneeX = x + 16 * f; rightKneeY = y - 6;
-            leftFootX = x - 14 * f;
-            leftHandX = x + 2 * f; leftHandY = y - 8;
-            rightHandX = x + 8 * f; rightHandY = y - 8;
-        } else if (s === 'hit') {
-            headX -= 12 * f; headY -= 4;
-            neckX -= 8 * f;
-            hipX -= 4 * f;
-            leftHandX = x - 18 * f; leftHandY = y - 42;
-            rightHandX = x - 12 * f; rightHandY = y - 46;
-            leftFootX = x - 14 * f;
-            rightFootX = x + 6 * f;
-        } else if (s === 'flip') {
-            const rot = fr * 0.45;
-            ctx.translate(x, y - 25);
-            ctx.rotate(rot * -f);
-            ctx.translate(-x, -(y - 25));
-            leftHandX = x - 12; leftHandY = y - 44;
-            rightHandX = x + 12; rightHandY = y - 44;
-            leftFootX = x - 14; leftFootY = y - 12;
-            rightFootX = x + 14; rightFootY = y - 12;
-        } else if (s === 'bow') {
-            // Respectful Kung-fu salute
-            neckX += 2 * f;
-            headX += 4 * f; headY += 4;
-            leftHandX = x + 10 * f; leftHandY = y - 36;
-            rightHandX = x + 10 * f; rightHandY = y - 36;
-            leftFootX = x - 6 * f;
-            rightFootX = x + 6 * f;
-        }
-
-        // Draw Head
-        ctx.beginPath();
-        ctx.arc(headX, headY, headR, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Ninja Headband / Ribbon tail blowing in wind
-        ctx.beginPath();
-        ctx.lineWidth = 1.6;
-        ctx.strokeStyle = p === this.p1 ? '#ef4444' : '#fbbf24';
-        const wave = Math.sin(this.tick * 0.25) * 3;
-        ctx.moveTo(headX - (headR - 1) * f, headY);
-        ctx.quadraticCurveTo(headX - (headR + 8) * f, headY + wave, headX - (headR + 15) * f, headY + wave * 1.5 + 2);
-        ctx.stroke();
-
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2.4;
-
-        // Draw Spine (Neck to Hip)
-        ctx.beginPath();
-        ctx.moveTo(neckX, neckY);
-        ctx.lineTo(hipX, hipY);
-        ctx.stroke();
-
-        // Draw Left Arm (Shoulder -> Elbow -> Hand)
-        ctx.beginPath();
-        ctx.moveTo(neckX, neckY + 2);
-        ctx.lineTo(leftElbowX, leftElbowY);
-        ctx.lineTo(leftHandX, leftHandY);
-        ctx.stroke();
-
-        // Draw Right Arm (Shoulder -> Elbow -> Hand)
-        ctx.beginPath();
-        ctx.moveTo(neckX, neckY + 2);
-        ctx.lineTo(rightElbowX, rightElbowY);
-        ctx.lineTo(rightHandX, rightHandY);
-        ctx.stroke();
-
-        // Draw Left Leg (Hip -> Knee -> Foot)
-        ctx.beginPath();
-        ctx.moveTo(hipX, hipY);
-        ctx.lineTo(leftKneeX, leftKneeY);
-        ctx.lineTo(leftFootX, leftFootY);
-        ctx.stroke();
-
-        // Draw Right Leg (Hip -> Knee -> Foot)
-        ctx.beginPath();
-        ctx.moveTo(hipX, hipY);
-        ctx.lineTo(rightKneeX, rightKneeY);
-        ctx.lineTo(rightFootX, rightFootY);
-        ctx.stroke();
-
-        ctx.restore();
-    },
-
-    drawFloor() {
-        const ctx = this.ctx;
-        ctx.save();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-        ctx.lineWidth = 1.2;
-        ctx.setLineDash([4, 6]);
-        ctx.beginPath();
-        ctx.moveTo(30, this.groundY + 1);
-        ctx.lineTo(this.width - 30, this.groundY + 1);
-        ctx.stroke();
-        ctx.restore();
-    },
-
-    drawEffects() {
-        const ctx = this.ctx;
-        ctx.save();
-
-        // Draw sparks
-        for (let i = this.sparks.length - 1; i >= 0; i--) {
-            const s = this.sparks[i];
-            s.x += s.vx;
-            s.y += s.vy;
-            s.vy += 0.15;
-            s.life -= s.decay;
-
-            if (s.life <= 0) {
-                this.sparks.splice(i, 1);
-                continue;
-            }
-
-            ctx.fillStyle = s.color;
-            ctx.shadowBlur = 6;
-            ctx.shadowColor = s.color;
-            ctx.globalAlpha = Math.max(0, s.life);
-            ctx.beginPath();
-            ctx.arc(s.x, s.y, s.size * s.life, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        // Draw shockwave rings
-        for (let i = this.rings.length - 1; i >= 0; i--) {
-            const r = this.rings[i];
-            r.r += (r.maxR - r.r) * 0.22;
-            r.alpha -= 0.08;
-
-            if (r.alpha <= 0) {
-                this.rings.splice(i, 1);
-                continue;
-            }
-
-            ctx.strokeStyle = r.color;
-            ctx.lineWidth = 1.8;
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = r.color;
-            ctx.globalAlpha = Math.max(0, r.alpha);
-            ctx.beginPath();
-            ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
-            ctx.stroke();
-        }
-
-        ctx.restore();
-    },
-
-    loop() {
-        if (!this.running) return;
-        this.tick++;
-
-        this.ctx.clearRect(0, 0, this.width, this.height);
-
-        this.drawFloor();
-        this.updateCombatAI();
-        this.drawStickFigure(this.p1);
-        this.drawStickFigure(this.p2);
-        this.drawEffects();
-
-        this.animId = requestAnimationFrame(this.loop);
-    }
-};
-
 // --- MACOS TERMINAL CONSOLE LOGGER (Magic UI Style Modal Popup) ---
 const TerminalConsole = {
     overlay: null,
@@ -4157,8 +3638,6 @@ const TerminalConsole = {
         this.overlay = $('terminalModalOverlay');
         this.card = $('ocrProgressCard');
         this.body = $('terminalLogBody');
-        StickFigureFight.init();
-        
         // Clicking backdrop closes/minimizes modal and shows floating badge if run is active
         if (this.overlay) {
             this.overlay.addEventListener('click', (e) => {
@@ -4175,13 +3654,7 @@ const TerminalConsole = {
             }
         });
 
-        const toggleFightBtn = $('termBtnToggleFight');
-        if (toggleFightBtn) {
-            toggleFightBtn.onclick = (e) => {
-                e.preventDefault();
-                StickFigureFight.toggle();
-            };
-        }
+        
 
         const copyBtn = $('termBtnCopyLogs');
         if (copyBtn) {
@@ -4235,8 +3708,7 @@ const TerminalConsole = {
                 e.stopPropagation();
                 if (this.card) {
                     this.card.classList.toggle('compact');
-                    setTimeout(() => StickFigureFight.resize(), 260);
-                }
+                    }
             };
         }
 
@@ -4272,15 +3744,12 @@ const TerminalConsole = {
         if (this.overlay) this.overlay.classList.add('active');
         const floatBtn = $('termFloatingReopenBtn');
         if (floatBtn) floatBtn.classList.remove('active');
-        StickFigureFight.start();
-    },
+        },
 
     minimize() {
         this.init();
         this.isUserMinimized = true;
         if (this.overlay) this.overlay.classList.remove('active');
-        StickFigureFight.stop();
-        
         // Show floating reopen badge if operation is in progress or completed
         const percentText = $('ocrPercent')?.textContent || '0%';
         const pVal = parseInt(percentText, 10) || 0;
@@ -4308,8 +3777,7 @@ const TerminalConsole = {
         if (this.overlay) this.overlay.classList.remove('active');
         const floatBtn = $('termFloatingReopenBtn');
         if (floatBtn) floatBtn.classList.remove('active');
-        StickFigureFight.stop();
-    },
+        },
 
     clear() {
         if (!this.body) this.body = $('terminalLogBody');
@@ -4430,7 +3898,6 @@ function setProgress(percent, stageText, finalComment = null) {
 
     if (clamped >= 100) {
         TerminalConsole.currentRunActive = false;
-        StickFigureFight.setVictoryBow();
         if (dismissBtn) dismissBtn.classList.add('active');
     } else {
         if (dismissBtn) dismissBtn.classList.remove('active');
