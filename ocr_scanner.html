@@ -13,15 +13,209 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script type="module" src="js/components/ui-select.js"></script>
     <style>
-        .ocr-grid { display:grid; grid-template-columns:minmax(280px, .8fr) minmax(320px, 1.2fr); gap:18px; max-width:1400px; }
-        .ocr-card { background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius-card); padding:20px; box-shadow:var(--shadow-card); }
-        .ocr-card h2 { margin:0 0 8px; font-size:18px; }
-        .ocr-help { color:var(--fg-muted); font-size:13px; line-height:1.5; }
-        .ocr-file { width:100%; padding:22px 12px; border:1px dashed var(--border-hover); border-radius:var(--radius-control); color:var(--fg); background:var(--surface); }
-        .ocr-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
-        .ocr-output { min-height:320px; width:100%; resize:vertical; box-sizing:border-box; background:var(--bg-deep); color:var(--fg); border:1px solid var(--border); border-radius:var(--radius-control); padding:12px; font:13px var(--font-mono); }
-        .ocr-status { margin:14px 0 0; color:var(--fg-muted); font-size:13px; min-height:20px; }
-        .ocr-number-list { max-height:320px; overflow:auto; margin:0; padding-left:25px; font:13px var(--font-mono); color:var(--accent-bright); }
+        .ocr-grid,
+        .ocr-workspace-grid {
+            display: grid;
+            grid-template-columns: 460px minmax(0, 1fr);
+            gap: 20px;
+            max-width: 1560px;
+            align-items: start;
+            margin-top: 14px;
+        }
+        @media (max-width: 1080px) {
+            .ocr-grid,
+            .ocr-workspace-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .ocr-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card, 12px);
+            padding: 18px 20px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+        }
+        .ocr-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .ocr-card h2 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--fg);
+        }
+        .ocr-help {
+            color: var(--fg-muted);
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 0 0 10px 0;
+        }
+        .ocr-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+        .ocr-output {
+            min-height: 180px;
+            width: 100%;
+            resize: vertical;
+            box-sizing: border-box;
+            background: var(--bg-deep);
+            color: var(--fg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-control);
+            padding: 12px;
+            font: 12.5px var(--font-mono);
+            line-height: 1.5;
+        }
+        .ocr-status {
+            margin: 12px 0 0;
+            color: var(--fg-muted);
+            font-size: 12px;
+            min-height: 18px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Modern Dropzone & File Queue */
+        .ocr-dropzone {
+            position: relative;
+            border: 2px dashed var(--border, rgba(255, 255, 255, 0.16));
+            border-radius: var(--radius-control, 10px);
+            background: var(--surface, rgba(125, 125, 125, 0.04));
+            padding: 22px 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+        .ocr-dropzone:hover, .ocr-dropzone.dragover {
+            border-color: var(--accent, #8b5cf6);
+            background: rgba(139, 92, 246, 0.06);
+            transform: translateY(-1px);
+        }
+        .ocr-dropzone-input {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 5;
+        }
+        .ocr-dropzone-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            pointer-events: none;
+        }
+        .ocr-dropzone-icon {
+            color: var(--accent, #8b5cf6);
+            opacity: 0.9;
+            margin-bottom: 2px;
+        }
+        .ocr-dropzone-primary {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--fg);
+        }
+        .ocr-dropzone-secondary {
+            font-size: 11.5px;
+            color: var(--fg-muted);
+        }
+        .ocr-dropzone-meta {
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 10.5px;
+            color: var(--fg-muted);
+            opacity: 0.8;
+        }
+        .ocr-selected-files {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.28);
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #60a5fa;
+            margin-top: 10px;
+        }
+
+        /* Results & DO Number Chips */
+        .ocr-number-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 8px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .ocr-do-chip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 7px 10px;
+            background: var(--surface, rgba(125, 125, 125, 0.06));
+            border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+            border-radius: 6px;
+            font-family: var(--font-mono, monospace);
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--fg);
+            transition: all 0.15s ease;
+        }
+        .ocr-do-chip:hover {
+            border-color: var(--accent, #8b5cf6);
+            background: rgba(139, 92, 246, 0.08);
+            transform: translateY(-1px);
+        }
+        .ocr-do-chip-copy {
+            background: transparent;
+            border: none;
+            color: var(--fg-muted);
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ocr-do-chip-copy:hover {
+            color: var(--accent, #8b5cf6);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .ocr-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+            border: 1px dashed var(--border, rgba(255, 255, 255, 0.1));
+            border-radius: 10px;
+            background: var(--surface, rgba(125, 125, 125, 0.02));
+            margin: auto 0;
+        }
         
         /* ==========================================================
            MacOS Terminal & CLI Progress Architecture (Modal Popup Window)
@@ -1113,160 +1307,419 @@
         <div style="padding:12px;border-top:1px solid var(--border);font-size:11px;color:var(--fg-subtle);text-align:center">DO Insight Dashboard</div>
     </div>
     <main class="main-content"><div class="header" style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;"><div><h1 style="font-size:20px;margin:0">OCR Document Scanner</h1><p style="font-size:12px;color:var(--fg-muted);margin-top:4px">Extract text and isolate numerical values from scanned PDF documents</p></div><button id="themeToggleBtn" onclick="toggleTheme()" class="action-btn outline sm">Mode: Dark</button></div>
-        <div class="ocr-grid"><section class="ocr-card"><h2>1. Select PDFs</h2><p class="ocr-help">Upload PDF documents only. Files are rendered and processed locally in this browser. Scanned pages can be recognized with local Tesseract.js or Google Gemini AI Vision.</p><input id="pdfFiles" class="ocr-file" type="file" accept="application/pdf,.pdf" multiple>
-        
-        <!-- Engine Selector: Shadcn Tabs & Cards -->
-        <div class="shadcn-tabs" style="margin-top: 14px;">
-            <div class="shadcn-tabs-list" role="tablist">
-                <button type="button" id="btnEngineLocal" class="shadcn-tabs-trigger active" data-engine="local" role="tab" aria-selected="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-                    Local OCR (Tesseract)
-                </button>
-                <button type="button" id="btnEnginePaddle" class="shadcn-tabs-trigger" data-engine="paddle" role="tab" aria-selected="false">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                    PaddleOCR (Deep Learning)
-                </button>
-                <button type="button" id="btnEngineAi" class="shadcn-tabs-trigger" data-engine="ai" role="tab" aria-selected="false">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-                    <span id="btnEngineAiLabel">AI Vision</span>
-                </button>
+        <!-- Modern 2-Column Responsive OCR Workspace -->
+        <div class="ocr-workspace-grid">
+            <!-- LEFT COLUMN: Input, Engine & Control Hub -->
+            <div class="ocr-left-col">
+                <!-- 1. Document Selection Card -->
+                <div class="ocr-card" style="margin-bottom: 16px;">
+                    <div class="ocr-card-header">
+                        <h2>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                            1. Select PDF Documents
+                        </h2>
+                        <span class="shadcn-tab-badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3);">Client-Side Only</span>
+                    </div>
+                    <p class="ocr-help">Upload scanned PDF documents. Files are processed locally inside your browser with zero data leaks.</p>
+                    
+                    <div class="ocr-dropzone" id="ocrDropzone">
+                        <input id="pdfFiles" class="ocr-dropzone-input" type="file" accept="application/pdf,.pdf" multiple>
+                        <div class="ocr-dropzone-content">
+                            <div class="ocr-dropzone-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                            </div>
+                            <div class="ocr-dropzone-primary">Drop scanned PDF files here</div>
+                            <div class="ocr-dropzone-secondary">or <span style="color: var(--accent, #8b5cf6); text-decoration: underline; font-weight: 600;">browse files</span> from your device</div>
+                            <div class="ocr-dropzone-meta">
+                                <span>📄 PDF up to 100MB</span>
+                                <span>🔒 100% In-Browser</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="pdfSelectedBadge" class="ocr-selected-files" style="display:none;"></div>
+                </div>
+
+                <!-- 2. OCR Engine Configuration Card -->
+                <div class="ocr-card" style="margin-bottom: 16px;">
+                    <div class="ocr-card-header">
+                        <h2>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                            2. OCR Engine & Vision Model
+                        </h2>
+                    </div>
+
+                    <!-- Engine Selector: Shadcn Tabs & Cards -->
+                    <div class="shadcn-tabs">
+                        <div class="shadcn-tabs-list" role="tablist">
+                            <button type="button" id="btnEngineLocal" class="shadcn-tabs-trigger active" data-engine="local" role="tab" aria-selected="true">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                                Local OCR (Tesseract)
+                            </button>
+                            <button type="button" id="btnEnginePaddle" class="shadcn-tabs-trigger" data-engine="paddle" role="tab" aria-selected="false">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                                PaddleOCR (Deep Learning)
+                            </button>
+                            <button type="button" id="btnEngineAi" class="shadcn-tabs-trigger" data-engine="ai" role="tab" aria-selected="false">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                                <span id="btnEngineAiLabel">AI Vision</span>
+                            </button>
+                        </div>
+
+                        <!-- Tab 1: Local OCR Card -->
+                        <div id="localConfigCard" class="shadcn-card" style="margin-top: 10px;">
+                            <div class="shadcn-card-header">
+                                <div class="shadcn-card-title">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                                    Local OCR Engine (Tesseract.js)
+                                    <span class="shadcn-tab-badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3);">100% Client-Side</span>
+                                </div>
+                                <div class="shadcn-card-description">
+                                    Processes documents directly inside browser Web Workers. Zero server uploads, privacy-first, and operates fully offline.
+                                </div>
+                            </div>
+                            <div class="shadcn-card-content">
+                                <div id="localLangWrap" style="display: flex; align-items: center; gap: 10px; font-size: 12px; flex-wrap: wrap;">
+                                    <label style="color: var(--fg-muted); font-weight: 600;">Recognition Language:</label>
+                                    <select id="ocrLanguage" class="roi-select" style="padding: 3px 8px; font-weight: 600;">
+                                        <option value="eng">English (Standard Latin)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 2: PaddleOCR Configuration Card -->
+                        <div id="paddleConfigCard" class="shadcn-card" style="display:none; margin-top: 10px; border-color: rgba(16, 185, 129, 0.3);">
+                            <div class="shadcn-card-header">
+                                <div class="shadcn-card-title" style="color: #10b981;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                                    PaddleOCR Deep Learning Engine (PP-OCRv4)
+                                    <span id="paddleStatusBadge" class="shadcn-tab-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);">⚡ In-Browser WASM</span>
+                                </div>
+                                <div class="shadcn-card-description">
+                                    Runs PP-OCRv4 deep learning networks directly in your browser using WebAssembly. High-precision character recognition that reliably separates digits (e.g. 5 vs 8) with zero data leaving your machine.
+                                </div>
+                            </div>
+                            <div class="shadcn-card-content">
+                                <div style="display: flex; align-items: center; gap: 10px; font-size: 11px; flex-wrap: wrap;">
+                                    <label style="display: flex; align-items: center; gap: 6px; color: var(--fg); cursor: pointer;">
+                                        <input type="checkbox" id="chkPaddleLocalServer" style="accent-color: #10b981;"> Use Local Python Server (Optional)
+                                    </label>
+                                    <input id="paddleServerUrlInput" class="ai-key-input" type="text" placeholder="http://localhost:8866/predict/ocr_system" style="display: none; flex: 1; min-width: 220px; padding: 3px 8px; font-size: 11px; height: 26px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 3: Universal Multi-Provider AI Vision Configuration Card -->
+                        <div id="aiConfigCard" class="shadcn-card" style="display:none; margin-top: 10px; border-color: rgba(139, 92, 246, 0.35);">
+                            <div class="shadcn-card-header">
+                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                    <div class="shadcn-card-title" style="color: #8b5cf6;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                        Multimodal Generative AI Vision
+                                        <span id="aiKeyStatusBadge" class="shadcn-tab-badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Key Required</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="font-size: 11px; color: var(--fg-muted); font-weight: 600;">Provider:</span>
+                                        <select id="aiProviderSelect" class="roi-select" style="padding: 3px 8px; font-weight: 600;">
+                                            <option value="rootsys">RootSys Cloud (rootsys.cloud)</option>
+                                            <option value="gemini" selected>Google Gemini</option>
+                                            <option value="openai">OpenAI (ChatGPT)</option>
+                                            <option value="anthropic">Anthropic (Claude)</option>
+                                            <option value="groq">Groq (Ultra-Fast)</option>
+                                            <option value="openrouter">OpenRouter</option>
+                                            <option value="custom">Universal / Ollama / Local AI</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="shadcn-card-description">
+                                    Cloud generative AI vision model for complex, skewed, low-resolution, or handwritten delivery orders.
+                                </div>
+                            </div>
+                            <div class="shadcn-card-content">
+                                <div id="rootsysCorsHint" style="display:none; font-size: 11px; padding: 7px 10px; border-radius: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); color: #f59e0b; margin-bottom: 10px; line-height: 1.5;">
+                                    ⚡ <strong>Tip:</strong> RootSys Cloud CORS security requires running via local server. <a href="http://localhost:3000/ocr_scanner.html" style="color: #f59e0b; font-weight: 700; text-decoration: underline;">Switch to http://localhost:3000</a>
+                                </div>
+
+                                <!-- Custom Endpoint (Shown for RootSys / OpenRouter / Custom / Ollama) -->
+                                <div id="aiCustomEndpointRow" class="ai-input-row" style="display: none; margin-bottom: 8px;">
+                                    <input id="aiCustomEndpointInput" class="ai-key-input" type="text" placeholder="Base URL (e.g. https://rootsys.cloud/v1 or https://openrouter.ai/api/v1)">
+                                </div>
+
+                                <!-- API Key Input Row -->
+                                <div class="ai-input-row">
+                                    <input id="aiApiKeyInput" class="ai-key-input" type="password" placeholder="Paste API Key" autocomplete="off">
+                                    <button type="button" id="btnToggleKeyVisibility" class="action-btn secondary" style="padding: 7px 10px; font-size: 12px;" title="Show/Hide Key">👁️</button>
+                                    <button type="button" id="btnSaveApiKey" class="action-btn primary" style="padding: 7px 12px; font-size: 12px; background: #8b5cf6; border-color: #8b5cf6;">Save</button>
+                                    <button type="button" id="btnClearApiKey" class="action-btn secondary" style="padding: 7px 10px; font-size: 12px; color: #ef4444; border-color: rgba(239, 68, 68, 0.35);" title="Clear saved API key from browser storage">🗑️ Clear</button>
+                                </div>
+
+                                <!-- Model & Docs Row -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 8px;">
+                                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                        <label style="font-size: 11px; color: var(--fg-muted); display: flex; align-items: center; gap: 6px;">
+                                            Model:
+                                            <select id="aiModelSelect" class="roi-select" style="padding: 2px 6px; font-size: 11px; max-width: 170px;"></select>
+                                        </label>
+                                        <button type="button" id="btnFetchModels" class="action-btn secondary" style="padding: 2px 7px; font-size: 10px; line-height: 1.4;" title="Discover all available models from this endpoint">🔄 Fetch Models</button>
+                                        <input id="aiCustomModelInput" class="ai-key-input" type="text" placeholder="Type model ID..." style="display: none; width: 130px; padding: 2px 6px; font-size: 11px; height: 24px;">
+                                        <label style="font-size: 11px; color: var(--fg-muted); display: flex; align-items: center; gap: 4px;">
+                                            Speed:
+                                            <select id="aiConcurrencySelect" class="roi-select" style="padding: 2px 6px; font-size: 11px;">
+                                                <option value="8">8x Hyperspeed (Fastest)</option>
+                                                <option value="6" selected>6x Turbo (Recommended)</option>
+                                                <option value="4">4x Fast</option>
+                                                <option value="2">2x Light</option>
+                                                <option value="1">1x Sequential</option>
+                                            </select>
+                                        </label>
+                                    </div>
+                                    <a id="aiDocsLink" href="https://rootsys.cloud" target="_blank" rel="noopener noreferrer" style="font-size: 11px; color: #8b5cf6; text-decoration: underline;">
+                                        Get API Key ↗
+                                    </a>
+                                </div>
+
+                                <!-- AI Prompt Mode & Custom Task Selector -->
+                                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(139, 92, 246, 0.25); display: flex; flex-direction: column; gap: 6px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                                        <label style="font-size: 11px; font-weight: 600; color: var(--fg-muted); display: flex; align-items: center; gap: 6px;">
+                                            <span>💬 Prompt Task:</span>
+                                            <select id="aiPromptPresetSelect" class="roi-select" style="padding: 2px 8px; font-size: 11px; font-weight: 600;">
+                                                <option value="do_only" selected>🎯 DO Numbers Only (Fast & Clean)</option>
+                                                <option value="full_ocr">📝 Full Text Transcription (Standard OCR)</option>
+                                                <option value="custom">✏️ Custom Prompt...</option>
+                                            </select>
+                                        </label>
+                                        <span id="aiPromptHelpHint" style="font-size: 10px; color: var(--fg-subtle);">Extracts 8-digit DOs (81/85)</span>
+                                    </div>
+                                    <div id="aiCustomPromptWrap" style="display: none; margin-top: 2px;">
+                                        <textarea id="aiCustomPromptInput" class="ai-key-input" rows="2" style="width: 100%; font-family: monospace; font-size: 11px; resize: vertical; padding: 6px 8px; line-height: 1.4;" placeholder="Type custom instruction for AI Vision (e.g. Extract PO number and invoice date)..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Actions & Status Card -->
+                <div class="ocr-card">
+                    <div class="ocr-card-header">
+                        <h2>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            3. Run Scanner
+                        </h2>
+                    </div>
+                    <div class="ocr-actions" style="margin-top: 0; display: flex; gap: 8px;">
+                        <button id="runOcr" class="action-btn primary" style="flex: 1; justify-content: center; height: 38px; font-weight: 700; font-size: 13.5px;">Run OCR</button>
+                        <button id="clearOcr" class="action-btn secondary" style="height: 38px; padding: 0 16px;">Clear</button>
+                    </div>
+                    <div id="ocrStatus" class="ocr-status" role="status">Choose one or more PDF files.</div>
+                </div>
             </div>
 
-            <!-- Tab 1: Local OCR Card -->
-            <div id="localConfigCard" class="shadcn-card" style="margin-top: 10px;">
-                <div class="shadcn-card-header">
-                    <div class="shadcn-card-title">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-                        Local OCR Engine (Tesseract.js)
-                        <span class="shadcn-tab-badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3);">100% Client-Side</span>
-                    </div>
-                    <div class="shadcn-card-description">
-                        Processes documents directly inside browser Web Workers. Zero server uploads, privacy-first, and operates fully offline.
-                    </div>
-                </div>
-                <div class="shadcn-card-content">
-                    <div id="localLangWrap" style="display: flex; align-items: center; gap: 10px; font-size: 12px; flex-wrap: wrap;">
-                        <label style="color: var(--fg-muted); font-weight: 600;">Recognition Language:</label>
-                        <select id="ocrLanguage" class="roi-select" style="padding: 3px 8px; font-weight: 600;">
-                            <option value="eng">English (Standard Latin)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab 2: PaddleOCR Configuration Card -->
-            <div id="paddleConfigCard" class="shadcn-card" style="display:none; margin-top: 10px; border-color: rgba(16, 185, 129, 0.3);">
-                <div class="shadcn-card-header">
-                    <div class="shadcn-card-title" style="color: #10b981;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                        PaddleOCR Deep Learning Engine (PP-OCRv4)
-                        <span id="paddleStatusBadge" class="shadcn-tab-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);">⚡ In-Browser WASM</span>
-                    </div>
-                    <div class="shadcn-card-description">
-                        Runs PP-OCRv4 deep learning networks directly in your browser using WebAssembly. High-precision character recognition that reliably separates digits (e.g. 5 vs 8) with zero data leaving your machine.
-                    </div>
-                </div>
-                <div class="shadcn-card-content">
-                    <div style="display: flex; align-items: center; gap: 10px; font-size: 11px; flex-wrap: wrap;">
-                        <label style="display: flex; align-items: center; gap: 6px; color: var(--fg); cursor: pointer;">
-                            <input type="checkbox" id="chkPaddleLocalServer" style="accent-color: #10b981;"> Use Local Python Server (Optional)
-                        </label>
-                        <input id="paddleServerUrlInput" class="ai-key-input" type="text" placeholder="http://localhost:8866/predict/ocr_system" style="display: none; flex: 1; min-width: 220px; padding: 3px 8px; font-size: 11px; height: 26px;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab 3: Universal Multi-Provider AI Vision Configuration Card -->
-            <div id="aiConfigCard" class="shadcn-card" style="display:none; margin-top: 10px; border-color: rgba(139, 92, 246, 0.35);">
-                <div class="shadcn-card-header">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                        <div class="shadcn-card-title" style="color: #8b5cf6;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                            Multimodal Generative AI Vision
-                            <span id="aiKeyStatusBadge" class="shadcn-tab-badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Key Required</span>
+            <!-- RIGHT COLUMN: Results & Document Workspace -->
+            <div class="ocr-right-col">
+                <div class="ocr-card" style="min-height: 640px; display: flex; flex-direction: column;">
+                    <!-- Right Panel Header with Shadcn Tabs -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                        <div class="shadcn-tabs-list" role="tablist">
+                            <button type="button" id="tabBtnResults" class="shadcn-tabs-trigger active" onclick="switchRightTab('results')" role="tab" aria-selected="true">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                                Extracted DOs
+                                <span id="extractedCountBadge" class="shadcn-tab-count">0 DOs</span>
+                            </button>
+                            <button type="button" id="tabBtnRoi" class="shadcn-tabs-trigger" onclick="switchRightTab('roi')" role="tab" aria-selected="false">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                                Document Preview &amp; ROI
+                                <span id="roiStatusBadgeTab" class="shadcn-tab-badge" style="display: none; background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);">ROI ACTIVE</span>
+                            </button>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <span style="font-size: 11px; color: var(--fg-muted); font-weight: 600;">Provider:</span>
-                            <select id="aiProviderSelect" class="roi-select" style="padding: 3px 8px; font-weight: 600;">
-                                <option value="rootsys">RootSys Cloud (rootsys.cloud)</option>
-                                <option value="gemini" selected>Google Gemini</option>
-                                <option value="openai">OpenAI (ChatGPT)</option>
-                                <option value="anthropic">Anthropic (Claude)</option>
-                                <option value="groq">Groq (Ultra-Fast)</option>
-                                <option value="openrouter">OpenRouter</option>
-                                <option value="custom">Universal / Ollama / Local AI</option>
-                            </select>
+
+                        <!-- Action Toolbar for Results -->
+                        <div id="resultsActionsToolbar" style="display: flex; align-items: center; gap: 8px;">
+                            <button id="copyNumbers" class="action-btn secondary sm" disabled title="Copy all extracted DOs to clipboard">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                Copy All DOs
+                            </button>
+                            <button id="downloadNumbers" class="action-btn secondary sm" disabled title="Download DO numbers as CSV">CSV</button>
+                            <button id="downloadText" class="action-btn secondary sm" disabled title="Download text as TXT">TXT</button>
                         </div>
                     </div>
-                    <div class="shadcn-card-description">
-                        Cloud generative AI vision model for complex, skewed, low-resolution, or handwritten delivery orders.
-                    </div>
-                </div>
-                <div class="shadcn-card-content">
-                    <div id="rootsysCorsHint" style="display:none; font-size: 11px; padding: 7px 10px; border-radius: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); color: #f59e0b; margin-bottom: 10px; line-height: 1.5;">
-                        ⚡ <strong>Tip:</strong> RootSys Cloud CORS security requires running via local server. <a href="http://localhost:3000/ocr_scanner.html" style="color: #f59e0b; font-weight: 700; text-decoration: underline;">Switch to http://localhost:3000</a>
-                    </div>
 
-                    <!-- Custom Endpoint (Shown for RootSys / OpenRouter / Custom / Ollama) -->
-                    <div id="aiCustomEndpointRow" class="ai-input-row" style="display: none; margin-bottom: 8px;">
-                        <input id="aiCustomEndpointInput" class="ai-key-input" type="text" placeholder="Base URL (e.g. https://rootsys.cloud/v1 or https://openrouter.ai/api/v1)">
-                    </div>
-
-                    <!-- API Key Input Row -->
-                    <div class="ai-input-row">
-                        <input id="aiApiKeyInput" class="ai-key-input" type="password" placeholder="Paste API Key" autocomplete="off">
-                        <button type="button" id="btnToggleKeyVisibility" class="action-btn secondary" style="padding: 7px 10px; font-size: 12px;" title="Show/Hide Key">👁️</button>
-                        <button type="button" id="btnSaveApiKey" class="action-btn primary" style="padding: 7px 12px; font-size: 12px; background: #8b5cf6; border-color: #8b5cf6;">Save</button>
-                        <button type="button" id="btnClearApiKey" class="action-btn secondary" style="padding: 7px 10px; font-size: 12px; color: #ef4444; border-color: rgba(239, 68, 68, 0.35);" title="Clear saved API key from browser storage">🗑️ Clear</button>
-                    </div>
-
-                    <!-- Model & Docs Row -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 8px;">
-                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <label style="font-size: 11px; color: var(--fg-muted); display: flex; align-items: center; gap: 6px;">
-                                Model:
-                                <select id="aiModelSelect" class="roi-select" style="padding: 2px 6px; font-size: 11px; max-width: 170px;"></select>
-                            </label>
-                            <button type="button" id="btnFetchModels" class="action-btn secondary" style="padding: 2px 7px; font-size: 10px; line-height: 1.4;" title="Discover all available models from this endpoint">🔄 Fetch Models</button>
-                            <input id="aiCustomModelInput" class="ai-key-input" type="text" placeholder="Type model ID..." style="display: none; width: 130px; padding: 2px 6px; font-size: 11px; height: 24px;">
-                            <label style="font-size: 11px; color: var(--fg-muted); display: flex; align-items: center; gap: 4px;">
-                                Speed:
-                                <select id="aiConcurrencySelect" class="roi-select" style="padding: 2px 6px; font-size: 11px;">
-                                    <option value="8">8x Hyperspeed (Fastest)</option>
-                                    <option value="6" selected>6x Turbo (Recommended)</option>
-                                    <option value="4">4x Fast</option>
-                                    <option value="2">2x Light</option>
-                                    <option value="1">1x Sequential</option>
-                                </select>
-                            </label>
+                    <!-- PANE 1: Extracted Results -->
+                    <div id="tabPaneResults" style="display: flex; flex-direction: column; flex: 1;">
+                        <!-- Empty State -->
+                        <div id="ocrEmptyState" class="ocr-empty-state">
+                            <div class="ocr-empty-icon" style="color: var(--fg-muted); opacity: 0.6;">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                </svg>
+                            </div>
+                            <h3 style="margin: 12px 0 6px; font-size: 15px; font-weight: 600; color: var(--fg);">No Documents Scanned Yet</h3>
+                            <p style="margin: 0; font-size: 12px; color: var(--fg-muted); max-width: 360px; line-height: 1.5;">
+                                Upload scanned delivery order PDFs on the left and click <strong>Run OCR</strong> to automatically extract sanitized 8-digit DO numbers.
+                            </p>
                         </div>
-                        <a id="aiDocsLink" href="https://rootsys.cloud" target="_blank" rel="noopener noreferrer" style="font-size: 11px; color: #8b5cf6; text-decoration: underline;">
-                            Get API Key ↗
-                        </a>
+
+                        <!-- Results Container (shown once scan yields results or raw text) -->
+                        <div id="ocrResultsContent" style="display: none; flex-direction: column; flex: 1; gap: 14px;">
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <span style="font-size: 11px; font-weight: 700; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Validated DO Numbers (81xxxxxx / 85xxxxxx)
+                                    </span>
+                                    <span style="font-size: 11px; color: var(--fg-muted);">Click chip to copy</span>
+                                </div>
+                                <ol id="numberList" class="ocr-number-list"></ol>
+                            </div>
+
+                            <div style="margin-top: auto; padding-top: 10px; border-top: 1px dashed var(--border);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span style="font-size: 11px; font-weight: 700; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Raw OCR Output Log
+                                    </span>
+                                </div>
+                                <textarea id="fullText" class="ocr-output" readonly placeholder="Extracted text will appear here..." style="min-height: 150px; height: 150px;"></textarea>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- AI Prompt Mode & Custom Task Selector -->
-                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(139, 92, 246, 0.25); display: flex; flex-direction: column; gap: 6px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
-                            <label style="font-size: 11px; font-weight: 600; color: var(--fg-muted); display: flex; align-items: center; gap: 6px;">
-                                <span>💬 Prompt Task:</span>
-                                <select id="aiPromptPresetSelect" class="roi-select" style="padding: 2px 8px; font-size: 11px; font-weight: 600;">
-                                    <option value="do_only" selected>🎯 DO Numbers Only (Fast & Clean)</option>
-                                    <option value="full_ocr">📝 Full Text Transcription (Standard OCR)</option>
-                                    <option value="custom">✏️ Custom Prompt...</option>
-                                </select>
-                            </label>
-                            <span id="aiPromptHelpHint" style="font-size: 10px; color: var(--fg-subtle);">Extracts 8-digit DOs (81/85)</span>
-                        </div>
-                        <div id="aiCustomPromptWrap" style="display: none; margin-top: 2px;">
-                            <textarea id="aiCustomPromptInput" class="ai-key-input" rows="2" style="width: 100%; font-family: monospace; font-size: 11px; resize: vertical; padding: 6px 8px; line-height: 1.4;" placeholder="Type custom instruction for AI Vision (e.g. Extract PO number and invoice date)..."></textarea>
-                        </div>
+                    <!-- PANE 2: Visual Document Preview & ROI Isolation -->
+                    <div id="tabPaneRoi" style="display: none; flex-direction: column; flex: 1;">
+                        <section id="roiIsolationCard" class="roi-card" style="border:none; padding:0; background:transparent; box-shadow:none; margin:0;">
+                            <div class="roi-header" style="margin-bottom: 12px; padding-bottom: 10px;">
+                                <div class="roi-title-wrap">
+                                    <h2 style="font-size: 16px;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #8b5cf6;">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                            <path d="M3 9h18"/>
+                                            <path d="M9 21V9"/>
+                                        </svg>
+                                        Inverted Redaction / ROI Isolation
+                                    </h2>
+                                    <span id="roiStatusBadge" class="roi-badge-pill" style="display: none;">ROI ACTIVE</span>
+                                </div>
+                                <button id="btnToggleRoi" class="roi-toggle-btn" type="button">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                                    Isolate ROI / Blank Out Background: <strong id="roiToggleStateText">OFF</strong>
+                                </button>
+                            </div>
+
+                            <div id="roiContentArea" style="display: none;">
+                                <div class="roi-toolbar">
+                                    <div class="roi-toolbar-group">
+                                        <span class="roi-toolbar-label">Presets:</span>
+                                        <button type="button" class="roi-preset-btn active" data-preset="do_header">Top Header (0–35%)</button>
+                                        <button type="button" class="roi-preset-btn" data-preset="upper_half">Upper Half (0–50%)</button>
+                                        <button type="button" class="roi-preset-btn" data-preset="center">Center Area</button>
+                                        <button type="button" class="roi-preset-btn" data-preset="full">Full Page</button>
+                                    </div>
+                                    <div class="roi-toolbar-group">
+                                        <label class="roi-toolbar-label" for="roiScopeSelect">Scope:</label>
+                                        <select id="roiScopeSelect" class="roi-select">
+                                            <option value="all" selected>All Pages</option>
+                                            <option value="current">Current Page Only</option>
+                                        </select>
+                                        <label class="roi-toolbar-label" for="roiFillColorSelect" style="margin-left: 8px;">Fill Color:</label>
+                                        <select id="roiFillColorSelect" class="roi-select">
+                                            <option value="#ffffff" selected>Solid White (#FFFFFF)</option>
+                                            <option value="#000000">Solid Blackout (#000000)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Document Image Enhancement Toolbar -->
+                                <div class="roi-toolbar" style="margin-top:-6px; background:var(--surface); border-top:1px dashed var(--border);">
+                                    <div class="roi-toolbar-group">
+                                        <span class="roi-toolbar-label" style="display:flex; align-items:center; gap:5px; color:#3b82f6;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                                            Clarity Enhancement:
+                                        </span>
+                                        <button type="button" class="roi-preset-btn active" id="btnEnhanceNone" data-enhance="none">Original</button>
+                                        <button type="button" class="roi-preset-btn" id="btnEnhanceAuto" data-enhance="auto" title="Dynamic contrast stretch + character edge unsharp mask">⚡ Auto</button>
+                                        <button type="button" class="roi-preset-btn" id="btnEnhanceBinarize" data-enhance="binarize" title="Otsu adaptive thresholding: pure white paper & deep black text">🔲 Clean B&amp;W</button>
+                                        <button type="button" class="roi-preset-btn" id="btnEnhanceSharpen" data-enhance="sharpen" title="High-frequency 3x3 unsharp convolution kernel">🔍 Sharpen</button>
+                                        <button type="button" class="roi-preset-btn" id="btnEnhanceFaint" data-enhance="faint" title="Boosts faint blue, carbon-copy, or dot-matrix printer ink">🖋️ Faint Ink</button>
+                                    </div>
+                                </div>
+
+                                <div class="roi-workspace">
+                                    <div class="roi-preview-wrapper">
+                                        <div class="roi-page-nav">
+                                            <button id="btnRoiPrevPage" class="roi-page-btn" type="button" disabled>
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                                                Prev Page
+                                            </button>
+                                            <span id="roiPageIndicator" style="font-size: 12px; font-weight: 600; color: var(--fg);">No PDF Loaded</span>
+                                            <button id="btnRoiNextPage" class="roi-page-btn" type="button" disabled>
+                                                Next Page
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                            </button>
+                                        </div>
+
+                                        <!-- Interactive ROI Preview Container with 4 boundary outer masks -->
+                                        <div id="roiContainer" class="roi-container" title="Click and drag cursor to draw custom DO ROI box">
+                                            <canvas id="roiPreviewCanvas"></canvas>
+                                            
+                                            <!-- 4 boundary overlays outside the box -->
+                                            <div id="roiMaskTop" class="roi-mask-overlay"></div>
+                                            <div id="roiMaskBottom" class="roi-mask-overlay"></div>
+                                            <div id="roiMaskLeft" class="roi-mask-overlay"></div>
+                                            <div id="roiMaskRight" class="roi-mask-overlay"></div>
+                                            
+                                            <!-- Preserved ROI Box dashed highlight -->
+                                            <div id="roiPreservedBox" class="roi-preserved-box">
+                                                <div class="roi-badge-tag">
+                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                                                    PRESERVED ROI (DO AREA)
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="roi-side-panel">
+                                        <div style="font-size: 12.5px; font-weight: 700; color: var(--fg); display: flex; align-items: center; gap: 6px;">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                                            Normalized ROI Box
+                                        </div>
+                                        <div class="roi-coord-display">
+                                            <div class="row"><span class="label">X (Left):</span><span class="val" id="roiValX">5.0%</span></div>
+                                            <div class="row"><span class="label">Y (Top):</span><span class="val" id="roiValY">5.0%</span></div>
+                                            <div class="row"><span class="label">Width:</span><span class="val" id="roiValW">90.0%</span></div>
+                                            <div class="row"><span class="label">Height:</span><span class="val" id="roiValH">35.0%</span></div>
+                                            <div class="row" style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border);"><span class="label">Relative:</span><span class="val" id="roiValRel" style="font-size: 10px; color: var(--accent-bright);">{x:0.05, y:0.05, w:0.90, h:0.35}</span></div>
+                                        </div>
+
+                                        <div class="roi-hint-box" style="font-size: 11px;">
+                                            <strong>True Pixel Flattening:</strong> When exported, everything outside the highlighted box is overwritten with solid fill and burned into a clean, unredactable PDF.
+                                        </div>
+
+                                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
+                                            <button id="btnExportIsolatedPdf" class="action-btn outline" data-tip="Export the isolated region as a flattened PDF" type="button" style="width: 100%; justify-content: center; font-weight: 700;">
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                                Export Isolated PDF
+                                            </button>
+                                            <button id="btnScanIsolatedRoi" class="action-btn secondary" type="button" style="width: 100%; justify-content: center; font-weight: 600;">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                                Scan Isolated ROI Only
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="ocr-actions"><button id="runOcr" class="action-btn primary">Run OCR</button><button id="clearOcr" class="action-btn secondary">Clear</button></div>
-        
+
         <!-- Modal Popup Backdrop for MacOS Terminal Console -->
         <div id="terminalModalOverlay" class="terminal-modal-backdrop">
             <!-- Animated MacOS Terminal Console (Magic UI Style) -->
@@ -1325,148 +1778,7 @@
         <button type="button" id="termFloatingReopenBtn" class="term-floating-reopen-btn" title="Click to view live Terminal">
             <span class="terminal-dot dot-green" style="width: 8px; height: 8px;"></span>
             <span>Live Terminal (<span id="termFloatingPercent">0%</span>)</span>
-        </button>
-        
-        <div id="ocrStatus" class="ocr-status" role="status">Choose one or more PDF files.</div></section>
-        
-        <!-- Inverted Redaction / ROI Isolation Section -->
-        <section id="roiIsolationCard" class="roi-card">
-            <div class="roi-header">
-                <div class="roi-title-wrap">
-                    <h2>
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #8b5cf6;">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                            <path d="M3 9h18"/>
-                            <path d="M9 21V9"/>
-                        </svg>
-                        Inverted Redaction / ROI Isolation
-                    </h2>
-                    <span id="roiStatusBadge" class="roi-badge-pill" style="display: none;">ROI ACTIVE</span>
-                </div>
-                <button id="btnToggleRoi" class="roi-toggle-btn" type="button">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
-                    Isolate ROI / Blank Out Background: <strong id="roiToggleStateText">OFF</strong>
-                </button>
-            </div>
-
-            <div id="roiContentArea" style="display: none;">
-                <div class="roi-toolbar">
-                    <div class="roi-toolbar-group">
-                        <span class="roi-toolbar-label">Presets:</span>
-                        <button type="button" class="roi-preset-btn active" data-preset="do_header">Top Header / DO Area (0–35%)</button>
-                        <button type="button" class="roi-preset-btn" data-preset="upper_half">Upper Half (0–50%)</button>
-                        <button type="button" class="roi-preset-btn" data-preset="center">Center Area</button>
-                        <button type="button" class="roi-preset-btn" data-preset="full">Full Page</button>
-                    </div>
-                    <div class="roi-toolbar-group">
-                        <label class="roi-toolbar-label" for="roiScopeSelect">Scope:</label>
-                        <select id="roiScopeSelect" class="roi-select">
-                            <option value="all" selected>All Pages</option>
-                            <option value="current">Current Page Only</option>
-                        </select>
-                        <label class="roi-toolbar-label" for="roiFillColorSelect" style="margin-left: 8px;">Fill Color:</label>
-                        <select id="roiFillColorSelect" class="roi-select">
-                            <option value="#ffffff" selected>Solid White (#FFFFFF)</option>
-                            <option value="#000000">Solid Blackout (#000000)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Document Image Enhancement Toolbar -->
-                <div class="roi-toolbar" style="margin-top:-6px; background:var(--surface); border-top:1px dashed var(--border);">
-                    <div class="roi-toolbar-group">
-                        <span class="roi-toolbar-label" style="display:flex; align-items:center; gap:5px; color:#3b82f6;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-                            Image Clarity Enhancement:
-                        </span>
-                        <button type="button" class="roi-preset-btn active" id="btnEnhanceNone" data-enhance="none">Original</button>
-                        <button type="button" class="roi-preset-btn" id="btnEnhanceAuto" data-enhance="auto" title="Dynamic contrast stretch + character edge unsharp mask">⚡ Auto Enhance</button>
-                        <button type="button" class="roi-preset-btn" id="btnEnhanceBinarize" data-enhance="binarize" title="Otsu adaptive thresholding: pure white paper & deep black text">🔲 Clean B&amp;W (Binarize)</button>
-                        <button type="button" class="roi-preset-btn" id="btnEnhanceSharpen" data-enhance="sharpen" title="High-frequency 3x3 unsharp convolution kernel">🔍 Sharpen Blurry Text</button>
-                        <button type="button" class="roi-preset-btn" id="btnEnhanceFaint" data-enhance="faint" title="Boosts faint blue, carbon-copy, or dot-matrix printer ink">🖋️ Faint Ink Boost</button>
-                    </div>
-                </div>
-
-                <div class="roi-workspace">
-                    <div class="roi-preview-wrapper">
-                        <div class="roi-page-nav">
-                            <button id="btnRoiPrevPage" class="roi-page-btn" type="button" disabled>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-                                Prev Page
-                            </button>
-                            <span id="roiPageIndicator" style="font-size: 12px; font-weight: 600; color: var(--fg);">No PDF Loaded</span>
-                            <button id="btnRoiNextPage" class="roi-page-btn" type="button" disabled>
-                                Next Page
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                            </button>
-                        </div>
-
-                        <!-- Interactive ROI Preview Container with 4 boundary outer masks -->
-                        <div id="roiContainer" class="roi-container" title="Click and drag cursor to draw custom DO ROI box">
-                            <canvas id="roiPreviewCanvas"></canvas>
-                            
-                            <!-- 4 boundary overlays outside the box -->
-                            <div id="roiMaskTop" class="roi-mask-overlay"></div>
-                            <div id="roiMaskBottom" class="roi-mask-overlay"></div>
-                            <div id="roiMaskLeft" class="roi-mask-overlay"></div>
-                            <div id="roiMaskRight" class="roi-mask-overlay"></div>
-                            
-                            <!-- Preserved ROI Box dashed highlight -->
-                            <div id="roiPreservedBox" class="roi-preserved-box">
-                                <div class="roi-badge-tag">
-                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                                    PRESERVED ROI (DO AREA)
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="roi-side-panel">
-                        <div style="font-size: 13px; font-weight: 700; color: var(--fg); display: flex; align-items: center; gap: 6px;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-                            Normalized ROI Box
-                        </div>
-                        <div class="roi-coord-display">
-                            <div class="row"><span class="label">X (Left):</span><span class="val" id="roiValX">5.0%</span></div>
-                            <div class="row"><span class="label">Y (Top):</span><span class="val" id="roiValY">5.0%</span></div>
-                            <div class="row"><span class="label">Width:</span><span class="val" id="roiValW">90.0%</span></div>
-                            <div class="row"><span class="label">Height:</span><span class="val" id="roiValH">35.0%</span></div>
-                            <div class="row" style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border);"><span class="label">Relative:</span><span class="val" id="roiValRel" style="font-size: 10px; color: var(--accent-bright);">{x:0.05, y:0.05, w:0.90, h:0.35}</span></div>
-                        </div>
-
-                        <div class="roi-hint-box">
-                            <strong>True Pixel Flattening:</strong> When exported, everything outside the highlighted box is permanently overwritten on canvas with solid fill and burned into a clean, unredactable PDF (zero hidden vector or metadata leaks).
-                        </div>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
-                            <button id="btnExportIsolatedPdf" class="action-btn outline" data-tip="Export the isolated region as a flattened PDF" type="button" style="width: 100%; justify-content: center; font-weight: 700;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                Export Flattened Isolated PDF
-                            </button>
-                            <button id="btnScanIsolatedRoi" class="action-btn secondary" type="button" style="width: 100%; justify-content: center; font-weight: 600;">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                                Scan Isolated ROI Only
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section class="ocr-card">
-            <h2>2. Extracted DO Numbers</h2>
-            <p class="ocr-help" style="margin-bottom:8px">Clean list of unique 8-digit DO numbers starting with <code>81</code> or <code>85</code> (one per line). Table pipes, page markers, and extra spacing are stripped.</p>
-            <textarea id="fullText" class="ocr-output" readonly placeholder="Extracted 8-digit DO numbers will appear here (one per line)..."></textarea>
-            <div class="ocr-actions">
-                <button id="downloadText" class="action-btn secondary" disabled>Download TXT</button>
-                <button id="downloadNumbers" class="action-btn secondary" disabled>Download CSV</button>
-                <button id="copyNumbers" class="action-btn secondary" disabled style="margin-left: auto;">Copy All DOs</button>
-            </div>
-        </section>
-        <section class="ocr-card">
-            <h2>DO Numbers List</h2>
-            <p class="ocr-help">DO numbers must be exactly 8 digits and start with <code>81</code> or <code>85</code> (e.g. <code>81525414</code>, <code>85012345</code>). Table delimiters (<code>|</code>) and OCR errors are automatically sanitized.</p>
-            <ol id="numberList" class="ocr-number-list"><li>No DO numbers extracted yet.</li></ol>
-        </section></div>
+        </button></div>
     </main>
 </div>
 
@@ -1824,13 +2136,20 @@ function toggleRoiMode() {
     const stateText = $('roiToggleStateText');
     const content = $('roiContentArea');
     const badge = $('roiStatusBadge');
+    const badgeTab = $('roiStatusBadgeTab');
 
     if (isRoiActive) {
-        btn.classList.add('active');
-        stateText.textContent = 'ON';
-        content.style.display = 'block';
-        badge.style.display = 'inline-block';
+        if (btn) btn.classList.add('active');
+        if (stateText) stateText.textContent = 'ON';
+        if (content) content.style.display = 'block';
+        if (badge) badge.style.display = 'inline-block';
+        if (badgeTab) badgeTab.style.display = 'inline-flex';
         
+        // Auto-switch right panel to ROI tab
+        if (typeof window.switchRightTab === 'function') {
+            window.switchRightTab('roi');
+        }
+
         // If files are already loaded, render preview immediately
         const files = [...$('pdfFiles').files];
         if (files.length && (!roiCurrentDoc || roiCurrentFile !== files[0])) {
@@ -1841,10 +2160,11 @@ function toggleRoiMode() {
         updateRoiOverlayUI();
         updateRoiFillColor();
     } else {
-        btn.classList.remove('active');
-        stateText.textContent = 'OFF';
-        content.style.display = 'none';
-        badge.style.display = 'none';
+        if (btn) btn.classList.remove('active');
+        if (stateText) stateText.textContent = 'OFF';
+        if (content) content.style.display = 'none';
+        if (badge) badge.style.display = 'none';
+        if (badgeTab) badgeTab.style.display = 'none';
     }
 }
 
@@ -2023,13 +2343,71 @@ document.querySelectorAll('.roi-preset-btn[data-enhance]').forEach(btn => {
     btn.addEventListener('click', () => applyEnhancePreset(btn.dataset.enhance));
 });
 
+function updateSelectedFilesBadge() {
+    const input = $('pdfFiles');
+    const badge = $('pdfSelectedBadge');
+    if (!input || !badge) return;
+    const files = [...input.files];
+    if (!files.length) {
+        badge.style.display = 'none';
+        badge.innerHTML = '';
+        return;
+    }
+    const totalSizeMb = (files.reduce((acc, f) => acc + f.size, 0) / (1024 * 1024)).toFixed(1);
+    badge.style.display = 'flex';
+    badge.innerHTML = `
+        <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span><strong>${files.length} PDF file${files.length > 1 ? 's' : ''} selected</strong> (${totalSizeMb} MB)</span>
+        </span>
+        <button type="button" id="btnClearSelectedFiles" style="background:none; border:none; color:inherit; cursor:pointer; font-size:14px; padding:0 4px; line-height:1;" title="Remove selected files">✕</button>
+    `;
+    const clearBtn = $('btnClearSelectedFiles');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            input.value = '';
+            updateSelectedFilesBadge();
+            setStatus('Choose one or more PDF files.');
+        });
+    }
+}
+
 // Auto-load preview when user selects files
 $('pdfFiles').addEventListener('change', e => {
     const files = [...e.target.files];
+    updateSelectedFilesBadge();
     if (files.length) {
         loadPdfPreviewForRoi(files[0]);
     }
 });
+
+// Dropzone drag-and-drop visual feedback
+const dropzone = $('ocrDropzone');
+if (dropzone) {
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, e => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.add('dragover');
+        });
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, e => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.remove('dragover');
+        });
+    });
+    dropzone.addEventListener('drop', e => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files.length) {
+            $('pdfFiles').files = dt.files;
+            $('pdfFiles').dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    });
+}
 
 // --- UNIVERSAL MULTI-PROVIDER AI VISION CONFIGURATION & ENGINE ---
 let selectedEngine = localStorage.getItem('ocr_engine_preference') || 'local';
@@ -4586,7 +4964,83 @@ function extractNumbers(text) {
     return found;
 }
 
-function renderNumbers() { $('numberList').innerHTML = numbers.length ? numbers.map(value => `<li>${value.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</li>`).join('') : '<li>No numerical values found.</li>'; }
+window.switchRightTab = function(tab) {
+    const isResults = tab === 'results';
+    const tabResults = $('tabBtnResults');
+    const tabRoi = $('tabBtnRoi');
+    const paneResults = $('tabPaneResults');
+    const paneRoi = $('tabPaneRoi');
+    const toolbar = $('resultsActionsToolbar');
+
+    if (tabResults) {
+        tabResults.classList.toggle('active', isResults);
+        tabResults.setAttribute('aria-selected', isResults ? 'true' : 'false');
+    }
+    if (tabRoi) {
+        tabRoi.classList.toggle('active', !isResults);
+        tabRoi.setAttribute('aria-selected', !isResults ? 'true' : 'false');
+    }
+    if (paneResults) paneResults.style.display = isResults ? 'flex' : 'none';
+    if (paneRoi) paneRoi.style.display = !isResults ? 'flex' : 'none';
+    if (toolbar) toolbar.style.display = isResults ? 'flex' : 'none';
+
+    if (!isResults && roiCurrentDoc && roiCurrentPageNum) {
+        renderRoiPage(roiCurrentPageNum);
+    }
+};
+
+window.copySingleDo = function(val, btn) {
+    if (!val) return;
+    navigator.clipboard.writeText(val).then(() => {
+        const origSvg = btn.innerHTML;
+        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        setTimeout(() => {
+            btn.innerHTML = origSvg;
+        }, 1400);
+    });
+};
+
+function renderNumbers() {
+    const listEl = $('numberList');
+    const badgeEl = $('extractedCountBadge');
+    const emptyState = $('ocrEmptyState');
+    const resultsContent = $('ocrResultsContent');
+    const copyBtn = $('copyNumbers');
+    const dlCsvBtn = $('downloadNumbers');
+    const dlTxtBtn = $('downloadText');
+
+    if (badgeEl) badgeEl.textContent = `${numbers.length} DO${numbers.length === 1 ? '' : 's'}`;
+
+    if (!numbers.length) {
+        if (listEl) listEl.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'flex';
+        if (resultsContent) resultsContent.style.display = 'none';
+        if (copyBtn) copyBtn.disabled = true;
+        if (dlCsvBtn) dlCsvBtn.disabled = true;
+        if (dlTxtBtn) dlTxtBtn.disabled = true;
+        return;
+    }
+
+    if (emptyState) emptyState.style.display = 'none';
+    if (resultsContent) resultsContent.style.display = 'flex';
+    if (copyBtn) copyBtn.disabled = false;
+    if (dlCsvBtn) dlCsvBtn.disabled = false;
+    if (dlTxtBtn) dlTxtBtn.disabled = false;
+
+    if (listEl) {
+        listEl.innerHTML = numbers.map((val, idx) => `
+            <li class="ocr-do-chip">
+                <span style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:10px; color:var(--fg-muted); font-weight:500;">#${idx + 1}</span>
+                    <span>${val.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span>
+                </span>
+                <button type="button" class="ocr-do-chip-copy" onclick="copySingleDo('${val}', this)" title="Copy ${val}">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                </button>
+            </li>
+        `).join('');
+    }
+}
 function download(name, content, type) { const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([content], {type})); link.download = name; link.click(); URL.revokeObjectURL(link.href); }
 
 async function runOcr() {
@@ -4840,6 +5294,7 @@ async function runOcr() {
 $('runOcr').addEventListener('click', runOcr);
 $('clearOcr').addEventListener('click', () => {
     $('pdfFiles').value = '';
+    updateSelectedFilesBadge();
     $('fullText').value = '';
     numbers = [];
     renderNumbers();
