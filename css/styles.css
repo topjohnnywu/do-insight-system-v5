@@ -385,15 +385,10 @@
     --btn-compile-hover: var(--accent-bright);
     --btn-email: var(--accent);
     --btn-email-hover: var(--accent-bright);
-    --destructive: #dc2626;
-    --destructive-hover: #b91c1c;
-    --destructive-foreground: #fafafa;
-    --destructive-border: rgba(239, 68, 68, 0.2);
-    --destructive-ring: #ef4444;
-    --btn-danger-bg: var(--destructive);
-    --btn-danger-fg: var(--destructive-foreground);
-    --btn-danger-hover-bg: var(--destructive-hover);
-    --btn-danger-hover-fg: var(--destructive-foreground);
+    --btn-danger-bg: rgba(239, 68, 68, 0.16);
+    --btn-danger-fg: #fca5a5;
+    --btn-danger-hover-bg: rgba(239, 68, 68, 0.32);
+    --btn-danger-hover-fg: #ffffff;
 
     --ambient: 0;
 }
@@ -494,15 +489,10 @@
     --btn-compile-hover: var(--accent-bright);
     --btn-email: var(--accent);
     --btn-email-hover: var(--accent-bright);
-    --destructive: #dc2626;
-    --destructive-hover: #b91c1c;
-    --destructive-foreground: #ffffff;
-    --destructive-border: transparent;
-    --destructive-ring: #dc2626;
-    --btn-danger-bg: var(--destructive);
-    --btn-danger-fg: var(--destructive-foreground);
-    --btn-danger-hover-bg: var(--destructive-hover);
-    --btn-danger-hover-fg: var(--destructive-foreground);
+    --btn-danger-bg: rgba(239, 68, 68, 0.15);
+    --btn-danger-fg: #dc2626;
+    --btn-danger-hover-bg: #dc2626;
+    --btn-danger-hover-fg: #ffffff;
 
     --ambient: 0;
 }
@@ -2479,39 +2469,8 @@ body.light-mode .slicer-btn.active {
     transform: translateY(0) scale(0.98);
 }
 
-/* shadcn/ui Button variant="destructive" */
-.action-btn.destructive,
-.action-btn.danger,
-.btn-destructive {
-    background-color: var(--destructive);
-    color: var(--destructive-foreground) !important;
-    border: 1px solid var(--destructive-border);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    font-weight: 500;
-    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
-}
-
-.action-btn.destructive:hover,
-.action-btn.danger:hover,
-.btn-destructive:hover {
-    background-color: var(--destructive-hover);
-    color: var(--destructive-foreground) !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    transform: translateY(-1px);
-}
-
-.action-btn.destructive:active,
-.action-btn.danger:active,
-.btn-destructive:active {
-    transform: scale(0.98);
-}
-
-.action-btn.destructive:focus-visible,
-.action-btn.danger:focus-visible,
-.btn-destructive:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--destructive-ring) !important;
-}
+.action-btn.danger { background-color: var(--btn-danger-bg); color: var(--btn-danger-fg); border: 1px solid transparent; }
+.action-btn.danger:hover { background-color: var(--btn-danger-hover-bg); color: var(--btn-danger-hover-fg); transform: translateY(-2px); box-shadow: 0 4px 12px var(--btn-danger-bg); }
 .action-btn.success { background-color: var(--sem-green-bg); color: var(--sem-green); border: 1px solid var(--sem-green-border); }
 .action-btn.success:hover { background-color: var(--sem-green); color: #ffffff; transform: translateY(-2px); box-shadow: 0 4px 12px var(--sem-green-bg); }
 .action-btn.warning { background-color: var(--sem-orange-bg); color: var(--sem-orange); border: 1px solid var(--sem-orange-border); }
@@ -6557,13 +6516,12 @@ input[type="checkbox"]:disabled {
 }
 
 .alert-dialog-action.action-destructive {
-    background-color: var(--destructive);
-    color: var(--destructive-foreground) !important;
+    background-color: #ef4444;
+    color: #ffffff;
 }
 
 .alert-dialog-action.action-destructive:hover {
-    background-color: var(--destructive-hover);
-    color: var(--destructive-foreground) !important;
+    background-color: #dc2626;
 }
 
 /* Light Theme Dynamic Adaptation */
