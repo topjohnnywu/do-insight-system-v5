@@ -672,4 +672,415 @@
             };
         });
     };
+
+    // =========================================================================
+    // Universal User Profile & Shadcn Avatar System
+    // =========================================================================
+    const DEFAULT_USER_PROFILE = {
+        name: "Administrator",
+        role: "Administrator",
+        avatarUrl: "",
+        status: "online"
+    };
+
+    function getUserProfile() {
+        try {
+            const raw = localStorage.getItem("app_user_profile");
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                return { ...DEFAULT_USER_PROFILE, ...parsed };
+            }
+        } catch (e) {}
+        return { ...DEFAULT_USER_PROFILE };
+    }
+
+    function setUserProfile(updates) {
+        const current = getUserProfile();
+        const next = { ...current, ...updates };
+        try {
+            localStorage.setItem("app_user_profile", JSON.stringify(next));
+        } catch (e) {
+            console.warn("Failed to save profile to localStorage", e);
+        }
+        window.dispatchEvent(new CustomEvent("user-profile-changed", { detail: next }));
+        renderAllUserAvatars();
+        return next;
+    }
+
+    window.getUserProfile = getUserProfile;
+    window.setUserProfile = setUserProfile;
+
+    function computeInitials(name) {
+        if (!name || !name.trim()) return "AD";
+        const parts = name.trim().split(/\s+/);
+        if (parts.length === 1) {
+            return parts[0].substring(0, 2).toUpperCase();
+        }
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    function createAvatarHtml(profile, size) {
+        const safeName = (profile.name || 'User').replace(/"/g, '&quot;');
+        const initials = computeInitials(profile.name);
+        const hasUrl = !!(profile.avatarUrl && profile.avatarUrl.trim());
+        const statusClass = profile.status === "online" ? "status-online" :
+                            profile.status === "busy" ? "status-busy" :
+                            profile.status === "away" ? "status-away" : "status-offline";
+
+        return `
+            <div class="shadcn-avatar ${size}">
+                <div class="shadcn-avatar-inner">
+                    <img class="shadcn-avatar-image" 
+                         src="${hasUrl ? profile.avatarUrl : ''}" 
+                         alt="${safeName}" 
+                         style="${hasUrl ? 'display:block;' : 'display:none;'}"
+                         onerror="this.style.display='none'; if (this.nextElementSibling) this.nextElementSibling.style.display='flex';"
+                         onload="this.style.display='block'; if (this.nextElementSibling) this.nextElementSibling.style.display='none';">
+                    <div class="shadcn-avatar-fallback" style="${hasUrl ? 'display:none;' : 'display:flex;'}">
+                        ${initials}
+                    </div>
+                </div>
+                <span class="shadcn-avatar-badge ${statusClass}"></span>
+            </div>
+        `;
+    }
+
+    function ensureUserDropdownMenu() {
+        let menu = document.getElementById("appUserDropdownMenu");
+        if (menu) return menu;
+
+        menu = document.createElement("div");
+        menu.id = "appUserDropdownMenu";
+        menu.setAttribute("role", "dialog");
+        menu.setAttribute("aria-label", "User Profile Menu");
+
+        menu.innerHTML = `
+            <div class="uprofile-hero">
+                <div id="uprofileHeroAvatar"></div>
+                <div class="uprofile-hero-info">
+                    <div class="uprofile-hero-name" id="uprofileHeroName">Administrator</div>
+                    <div class="uprofile-hero-badges">
+                        <span class="uprofile-role-pill" id="uprofileHeroRole">Administrator</span>
+                        <span class="uprofile-status-indicator">
+                            <span class="uprofile-status-dot"></span> Online
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="uprofile-body">
+                <div class="uprofile-form-group">
+                    <label class="uprofile-form-label" for="uprofileNameInput">Display Name</label>
+                    <input type="text" id="uprofileNameInput" class="uprofile-input" placeholder="e.g. Administrator" spellcheck="false" autocomplete="off">
+                </div>
+
+                <div class="uprofile-form-group">
+                    <label class="uprofile-form-label" for="uprofileRoleSelect">Role / Position</label>
+                    <select id="uprofileRoleSelect" class="uprofile-select">
+                        <option value="Administrator">Administrator</option>
+                        <option value="Logistics Planner">Logistics Planner</option>
+                        <option value="Senior Dispatcher">Senior Dispatcher</option>
+                        <option value="Warehouse Lead">Warehouse Lead</option>
+                        <option value="Operations Manager">Operations Manager</option>
+                        <option value="__custom__">Custom Role...</option>
+                    </select>
+                    <input type="text" id="uprofileCustomRoleInput" class="uprofile-input" style="display:none; margin-top:4px;" placeholder="Type custom role title..." spellcheck="false">
+                </div>
+
+                <div class="uprofile-form-group">
+                    <label class="uprofile-form-label">Profile Photo</label>
+                    <div class="uprofile-photo-actions">
+                        <input type="file" id="uprofileFileInput" accept="image/*" style="display:none">
+                        <button type="button" class="uprofile-btn-sm" id="uprofileUploadBtn" title="Select image from local computer">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Upload Photo
+                        </button>
+                        <button type="button" class="uprofile-btn-sm" id="uprofileInitialsBtn" title="Remove photo and use initials">
+                            Use Initials
+                        </button>
+                    </div>
+                    <input type="text" id="uprofileUrlInput" class="uprofile-input" style="margin-top:6px;" placeholder="Or local path / URL (e.g. ./icons/avatar.png)">
+                </div>
+            </div>
+
+            <div class="uprofile-footer">
+                <button type="button" class="uprofile-footer-btn" id="uprofileSettingsLink">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Settings & Themes
+                </button>
+                <button type="button" class="uprofile-footer-btn" id="uprofileCloseBtn" style="font-weight:600; color:var(--accent, #3b82f6);">
+                    Done
+                </button>
+            </div>
+        `;
+
+        document.body.appendChild(menu);
+
+        // Bind form inputs
+        const nameInput = menu.querySelector("#uprofileNameInput");
+        const roleSelect = menu.querySelector("#uprofileRoleSelect");
+        const customRoleInput = menu.querySelector("#uprofileCustomRoleInput");
+        const fileInput = menu.querySelector("#uprofileFileInput");
+        const uploadBtn = menu.querySelector("#uprofileUploadBtn");
+        const initialsBtn = menu.querySelector("#uprofileInitialsBtn");
+        const urlInput = menu.querySelector("#uprofileUrlInput");
+        const settingsLink = menu.querySelector("#uprofileSettingsLink");
+        const closeBtn = menu.querySelector("#uprofileCloseBtn");
+
+        nameInput.addEventListener("input", (e) => {
+            const nextName = e.target.value.trim() || "Administrator";
+            setUserProfile({ name: nextName });
+        });
+
+        roleSelect.addEventListener("change", (e) => {
+            if (e.target.value === "__custom__") {
+                customRoleInput.style.display = "block";
+                customRoleInput.focus();
+                if (customRoleInput.value.trim()) {
+                    setUserProfile({ role: customRoleInput.value.trim() });
+                }
+            } else {
+                customRoleInput.style.display = "none";
+                setUserProfile({ role: e.target.value });
+            }
+        });
+
+        customRoleInput.addEventListener("input", (e) => {
+            if (roleSelect.value === "__custom__") {
+                setUserProfile({ role: e.target.value.trim() || "Custom Role" });
+            }
+        });
+
+        uploadBtn.addEventListener("click", () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener("change", (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const dataUrl = evt.target.result;
+                    setUserProfile({ avatarUrl: dataUrl });
+                    if (urlInput) urlInput.value = "";
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        initialsBtn.addEventListener("click", () => {
+            setUserProfile({ avatarUrl: "" });
+            if (urlInput) urlInput.value = "";
+            if (fileInput) fileInput.value = "";
+        });
+
+        urlInput.addEventListener("change", (e) => {
+            setUserProfile({ avatarUrl: e.target.value.trim() });
+        });
+
+        settingsLink.addEventListener("click", () => {
+            closeUserDropdown();
+            if (typeof window.openUniversalSettingsModal === "function") {
+                window.openUniversalSettingsModal();
+            } else {
+                const modal = document.getElementById("universalSettingsModal");
+                if (modal) modal.style.display = "flex";
+            }
+        });
+
+        closeBtn.addEventListener("click", () => {
+            closeUserDropdown();
+        });
+
+        return menu;
+    }
+
+    function positionUserDropdown(triggerBtn, menu) {
+        const rect = triggerBtn.getBoundingClientRect();
+        const menuWidth = 310;
+        let left = rect.right - menuWidth;
+        if (left < 10) left = 10;
+        if (left + menuWidth > window.innerWidth - 10) {
+            left = window.innerWidth - menuWidth - 10;
+        }
+        let top = rect.bottom + 6;
+        if (top + 390 > window.innerHeight) {
+            top = Math.max(10, rect.top - 400);
+        }
+
+        menu.style.top = `${top}px`;
+        menu.style.left = `${left}px`;
+    }
+
+    let activeDocClickListener = null;
+
+    function openUserDropdown(triggerBtn) {
+        const menu = ensureUserDropdownMenu();
+        const profile = getUserProfile();
+
+        // Populate values
+        const nameInput = menu.querySelector("#uprofileNameInput");
+        const roleSelect = menu.querySelector("#uprofileRoleSelect");
+        const customRoleInput = menu.querySelector("#uprofileCustomRoleInput");
+        const urlInput = menu.querySelector("#uprofileUrlInput");
+
+        if (nameInput) nameInput.value = profile.name || "";
+        if (urlInput) urlInput.value = profile.avatarUrl && !profile.avatarUrl.startsWith("data:") ? profile.avatarUrl : "";
+
+        const standardRoles = ["Administrator", "Logistics Planner", "Senior Dispatcher", "Warehouse Lead", "Operations Manager"];
+        if (standardRoles.includes(profile.role)) {
+            if (roleSelect) roleSelect.value = profile.role;
+            if (customRoleInput) customRoleInput.style.display = "none";
+        } else {
+            if (roleSelect) roleSelect.value = "__custom__";
+            if (customRoleInput) {
+                customRoleInput.style.display = "block";
+                customRoleInput.value = profile.role || "";
+            }
+        }
+
+        positionUserDropdown(triggerBtn, menu);
+        menu.style.display = "block";
+        triggerBtn.setAttribute("aria-expanded", "true");
+
+        // Close on outside click
+        setTimeout(() => {
+            if (activeDocClickListener) {
+                document.removeEventListener("click", activeDocClickListener);
+            }
+            activeDocClickListener = (e) => {
+                if (!menu.contains(e.target) && !triggerBtn.contains(e.target)) {
+                    closeUserDropdown();
+                    if (activeDocClickListener) {
+                        document.removeEventListener("click", activeDocClickListener);
+                        activeDocClickListener = null;
+                    }
+                }
+            };
+            document.addEventListener("click", activeDocClickListener);
+        }, 10);
+    }
+
+    function closeUserDropdown() {
+        const menu = document.getElementById("appUserDropdownMenu");
+        if (menu) menu.style.display = "none";
+        const triggerBtn = document.getElementById("appUserAvatarBtn");
+        if (triggerBtn) triggerBtn.setAttribute("aria-expanded", "false");
+        if (activeDocClickListener) {
+            document.removeEventListener("click", activeDocClickListener);
+            activeDocClickListener = null;
+        }
+    }
+
+    function renderAllUserAvatars() {
+        const profile = getUserProfile();
+
+        // 1. Update trigger button
+        const avatarContainer = document.getElementById("appUserAvatarSlot");
+        if (avatarContainer) {
+            avatarContainer.innerHTML = createAvatarHtml(profile, "sm");
+        }
+        const nameEl = document.getElementById("appUserNameLabel");
+        if (nameEl) nameEl.textContent = profile.name;
+        const roleEl = document.getElementById("appUserRoleLabel");
+        if (roleEl) roleEl.textContent = profile.role;
+        const triggerBtn = document.getElementById("appUserAvatarBtn");
+        if (triggerBtn) triggerBtn.setAttribute("title", `User Profile (${profile.name} - ${profile.role})`);
+
+        // 2. Update dropdown hero
+        const heroAvatar = document.getElementById("uprofileHeroAvatar");
+        if (heroAvatar) {
+            heroAvatar.innerHTML = createAvatarHtml(profile, "lg");
+        }
+        const heroName = document.getElementById("uprofileHeroName");
+        if (heroName) heroName.textContent = profile.name;
+        const heroRole = document.getElementById("uprofileHeroRole");
+        if (heroRole) heroRole.textContent = profile.role;
+    }
+
+    function initUserAvatarWidget() {
+        if (document.getElementById("appUserProfileWrapper")) {
+            renderAllUserAvatars();
+            return;
+        }
+
+        // Look for candidate container
+        const themeBtn = document.getElementById("themeToggleBtn");
+        let parentContainer = null;
+        if (themeBtn && themeBtn.parentElement) {
+            parentContainer = themeBtn.parentElement;
+        }
+
+        if (!parentContainer) return;
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "app-user-profile-wrapper";
+        wrapper.id = "appUserProfileWrapper";
+
+        wrapper.innerHTML = `
+            <div class="topbar-profile-divider"></div>
+            <button type="button" class="app-user-avatar-btn" id="appUserAvatarBtn" aria-haspopup="true" aria-expanded="false" title="User Profile (${getUserProfile().role})">
+                <div id="appUserAvatarSlot"></div>
+                <div class="app-user-meta">
+                    <span class="app-user-name" id="appUserNameLabel"></span>
+                    <span class="app-user-role" id="appUserRoleLabel"></span>
+                </div>
+                <svg class="app-user-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+        `;
+
+        if (typeof themeBtn.after === "function") {
+            themeBtn.after(wrapper);
+        } else {
+            parentContainer.appendChild(wrapper);
+        }
+
+        const btn = wrapper.querySelector("#appUserAvatarBtn");
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const menu = ensureUserDropdownMenu();
+            if (menu.style.display === "block") {
+                closeUserDropdown();
+            } else {
+                openUserDropdown(btn);
+            }
+        });
+
+        renderAllUserAvatars();
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initUserAvatarWidget);
+    } else {
+        initUserAvatarWidget();
+    }
+
+    // Sync across storage events
+    window.addEventListener("storage", (e) => {
+        if (e.key === "app_user_profile") {
+            renderAllUserAvatars();
+        }
+    });
+
+    window.addEventListener("user-profile-changed", () => {
+        renderAllUserAvatars();
+    });
+
+    // Close on Escape
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            closeUserDropdown();
+        }
+    });
+
+    // Re-position or close on window resize
+    window.addEventListener("resize", () => {
+        const menu = document.getElementById("appUserDropdownMenu");
+        const btn = document.getElementById("appUserAvatarBtn");
+        if (menu && menu.style.display === "block" && btn) {
+            positionUserDropdown(btn, menu);
+        }
+    });
 })();

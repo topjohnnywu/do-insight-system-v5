@@ -7557,3 +7557,478 @@ body.light-mode .empty-description { color: #475569; }
 }
 .dsg-btn-primary:hover { background: var(--accent-bright, #60a5fa); border-color: var(--accent-bright, #60a5fa); }
 
+/* ==========================================================================
+   Shadcn-Inspired Avatar Component & Global User Profile System
+   ========================================================================== */
+
+/* 1. Base Avatar Element */
+.shadcn-avatar {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    overflow: visible;
+    user-select: none;
+    border-radius: 9999px;
+    background: var(--surface-hover, #27272a);
+    border: 1px solid var(--border, rgba(255,255,255,0.15));
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.shadcn-avatar-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 9999px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: inherit;
+}
+
+.shadcn-avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 9999px;
+    display: block;
+}
+
+.shadcn-avatar-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--fg, #f4f4f5);
+    background: var(--surface-hover, #27272a);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Sizes */
+.shadcn-avatar.sm {
+    width: 28px;
+    height: 28px;
+}
+.shadcn-avatar.sm .shadcn-avatar-fallback {
+    font-size: 10px;
+}
+
+.shadcn-avatar.md {
+    width: 36px;
+    height: 36px;
+}
+.shadcn-avatar.md .shadcn-avatar-fallback {
+    font-size: 13px;
+}
+
+.shadcn-avatar.lg {
+    width: 52px;
+    height: 52px;
+}
+.shadcn-avatar.lg .shadcn-avatar-fallback {
+    font-size: 18px;
+}
+
+/* 2. Avatar Status Badge (Online / Busy / Away) */
+.shadcn-avatar-badge {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    border-radius: 9999px;
+    border: 2px solid var(--surface-solid, var(--card-bg, #18181b));
+    z-index: 3;
+    flex-shrink: 0;
+    box-sizing: content-box;
+}
+
+.shadcn-avatar.sm .shadcn-avatar-badge {
+    width: 8px;
+    height: 8px;
+    border-width: 1.5px;
+}
+
+.shadcn-avatar.md .shadcn-avatar-badge {
+    width: 10px;
+    height: 10px;
+    border-width: 2px;
+}
+
+.shadcn-avatar.lg .shadcn-avatar-badge {
+    width: 13px;
+    height: 13px;
+    border-width: 2.5px;
+}
+
+.shadcn-avatar-badge.status-online {
+    background-color: #22c55e;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.65);
+}
+
+.shadcn-avatar-badge.status-busy {
+    background-color: #ef4444;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.65);
+}
+
+.shadcn-avatar-badge.status-away {
+    background-color: #eab308;
+}
+
+.shadcn-avatar-badge.status-offline {
+    background-color: #71717a;
+}
+
+/* 3. Avatar Group (Stacked Cluster) */
+.shadcn-avatar-group {
+    display: inline-flex;
+    align-items: center;
+}
+
+.shadcn-avatar-group .shadcn-avatar {
+    margin-left: -8px;
+    border: 2px solid var(--surface-solid, var(--card-bg, #18181b));
+}
+
+.shadcn-avatar-group .shadcn-avatar:first-child {
+    margin-left: 0;
+}
+
+.shadcn-avatar-group-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: -8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    background: var(--surface-hover, #27272a);
+    border: 2px solid var(--surface-solid, var(--card-bg, #18181b));
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--fg-muted, #a1a1aa);
+    user-select: none;
+    z-index: 1;
+}
+
+/* 4. Top Navigation Bar Profile Trigger Button */
+.app-user-profile-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.topbar-profile-divider {
+    width: 1px;
+    height: 18px;
+    background: var(--border, rgba(255,255,255,0.12));
+    margin: 0 4px;
+}
+
+.app-user-avatar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding: 2px 10px 2px 3px;
+    border-radius: var(--radius-pill, 9999px);
+    border: 1px solid var(--border, rgba(255,255,255,0.12));
+    background: var(--surface, rgba(255,255,255,0.03));
+    color: var(--fg, #e4e4e7);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+    user-select: none;
+}
+
+.app-user-avatar-btn:hover {
+    background: var(--surface-hover, rgba(255,255,255,0.08));
+    border-color: var(--border-hover, rgba(255,255,255,0.22));
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.app-user-avatar-btn:focus-visible {
+    outline: 2px solid var(--accent, #3b82f6);
+    outline-offset: 2px;
+}
+
+.app-user-avatar-btn .app-user-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    line-height: 1.15;
+}
+
+.app-user-avatar-btn .app-user-name {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--fg, #f4f4f5);
+    white-space: nowrap;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.app-user-avatar-btn .app-user-role {
+    font-size: 9.5px;
+    font-weight: 500;
+    color: var(--fg-muted, #a1a1aa);
+    white-space: nowrap;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.app-user-avatar-btn .app-user-chevron {
+    color: var(--fg-muted, #a1a1aa);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    flex-shrink: 0;
+}
+
+.app-user-avatar-btn[aria-expanded="true"] .app-user-chevron {
+    transform: rotate(180deg);
+}
+
+@media (max-width: 720px) {
+    .app-user-avatar-btn .app-user-meta,
+    .app-user-avatar-btn .app-user-chevron {
+        display: none;
+    }
+    .app-user-avatar-btn {
+        padding: 2px;
+        width: 32px;
+        justify-content: center;
+    }
+}
+
+/* 5. User Profile Floating Popover / Dropdown Menu */
+@keyframes uprofileFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+#appUserDropdownMenu {
+    position: fixed;
+    z-index: 10005;
+    width: 310px;
+    background: var(--surface-solid, var(--card-bg, #18181b));
+    border: 1px solid var(--border, rgba(255,255,255,0.14));
+    border-radius: 12px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    color: var(--fg, #f4f4f5);
+    font-family: inherit;
+    animation: uprofileFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+    display: none;
+    overflow: hidden;
+}
+
+body.light-mode #appUserDropdownMenu {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.12);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Popover Header Hero */
+.uprofile-hero {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    background: var(--surface-hover, rgba(255,255,255,0.03));
+    border-bottom: 1px solid var(--border, rgba(255,255,255,0.08));
+}
+
+.uprofile-hero-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.uprofile-hero-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--fg, #f4f4f5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.uprofile-hero-badges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.uprofile-role-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 9999px;
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    white-space: nowrap;
+}
+
+body.light-mode .uprofile-role-pill {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+}
+
+.uprofile-status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    color: var(--fg-muted, #a1a1aa);
+}
+
+.uprofile-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #22c55e;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+}
+
+/* Popover Body Form */
+.uprofile-body {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.uprofile-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.uprofile-form-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--fg-muted, #a1a1aa);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.uprofile-input, .uprofile-select {
+    width: 100%;
+    height: 32px;
+    padding: 0 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border, rgba(255,255,255,0.14));
+    background: var(--surface, rgba(255,255,255,0.04));
+    color: var(--fg, #f4f4f5);
+    font-family: inherit;
+    font-size: 12px;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+body.light-mode .uprofile-input,
+body.light-mode .uprofile-select {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+.uprofile-input:focus, .uprofile-select:focus {
+    border-color: var(--accent, #3b82f6);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+.uprofile-photo-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.uprofile-btn-sm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: 1px solid var(--border, rgba(255,255,255,0.14));
+    background: var(--surface-hover, rgba(255,255,255,0.06));
+    color: var(--fg, #e4e4e7);
+    transition: all 0.13s ease;
+    user-select: none;
+}
+
+.uprofile-btn-sm:hover {
+    background: var(--surface-hover, rgba(255,255,255,0.12));
+    border-color: var(--border-hover, rgba(255,255,255,0.25));
+    color: var(--fg, #ffffff);
+}
+
+body.light-mode .uprofile-btn-sm {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+
+body.light-mode .uprofile-btn-sm:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+/* Popover Footer */
+.uprofile-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: var(--surface-hover, rgba(255,255,255,0.02));
+    border-top: 1px solid var(--border, rgba(255,255,255,0.08));
+}
+
+.uprofile-footer-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--fg-muted, #a1a1aa);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: color 0.12s ease;
+}
+
+.uprofile-footer-btn:hover {
+    color: var(--fg, #ffffff);
+}
+
+

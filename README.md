@@ -295,8 +295,20 @@ do-insight-system-v5/
 - **Direct Body Attachment**: Relocated the filter popup DOM node out of animated container cards (`.compact-wrapper`, `.table-card`) whose CSS `transform` animations created a shifted coordinate system. Attached directly to `document.body` with fixed viewport positioning, dynamic boundary clamping, and auto-dismissal on window scroll or escape key.
 
 ### 5. Progressive Web App (PWA) Cache Upgrade
-- **Cache Increment**: Incremented Service Worker cache key to `planner-cache-v44` in `sw.js`.
+- **Cache Increment**: Incremented Service Worker cache key to `planner-cache-v45` in `sw.js`.
 - **Clean Invalidation**: Guarantees that clients instantly fetch the latest HTML structure, styles, and dialog scripts without manual hard-refreshing.
+
+### 6. Shadcn Avatar & Dynamic User Profile System
+- **Universal Top Bar Avatar**: Integrated an active user profile widget next to the theme switcher in the global header across all 14 pages.
+- **Dynamic Profile & Role Switching**:
+  - Configurable display name with real-time update and persistence via `localStorage`.
+  - Role switcher with presets (*Administrator*, *Logistics Planner*, *Senior Dispatcher*, *Warehouse Lead*, *Operations Manager*) plus custom role input.
+  - Active online status badge with pulsing green glow (`.status-online`).
+- **Flexible Photo & Fallback Engine**:
+  - Supports uploading local image files directly from the computer (auto-converted to base64 Data URLs).
+  - Supports relative/local URL folder paths (e.g. `./icons/avatar.png`).
+  - Graceful fallback initials (`AvatarFallback`) when no image is loaded (e.g., `AD` for Administrator).
+- **Shadcn Design Tokens**: Full CSS support for `.shadcn-avatar` (sizes `.sm`, `.md`, `.lg`), `.shadcn-avatar-badge`, `.shadcn-avatar-group`, and `.shadcn-avatar-group-count`.
 
 ---
 
