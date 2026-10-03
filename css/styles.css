@@ -8108,4 +8108,182 @@ body.light-mode .uprofile-preset-btn {
     color: var(--fg, #ffffff);
 }
 
+/* ==========================================================================
+   Shadcn-Inspired Tabs & Card Component System
+   ========================================================================== */
+
+/* 1. Tabs Track & Controller */
+.shadcn-tabs {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.shadcn-tabs-list {
+    display: inline-flex;
+    align-items: center;
+    background: var(--surface, rgba(125, 125, 125, 0.08));
+    padding: 3px;
+    border-radius: var(--radius-control, 8px);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    gap: 3px;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    box-sizing: border-box;
+}
+
+.shadcn-tabs-list::-webkit-scrollbar {
+    display: none;
+}
+
+body.light-mode .shadcn-tabs-list {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+}
+
+/* 2. Tabs Trigger Buttons */
+.shadcn-tabs-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--fg-muted, #a1a1aa);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    user-select: none;
+    text-decoration: none;
+}
+
+.shadcn-tabs-trigger:hover {
+    color: var(--fg, #f4f4f5);
+}
+
+.shadcn-tabs-trigger.active,
+.shadcn-tabs-trigger[aria-selected="true"] {
+    background: var(--surface-card, var(--card-bg, #18181b));
+    color: var(--fg, #ffffff);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+    border-color: var(--border, rgba(255, 255, 255, 0.12));
+}
+
+body.light-mode .shadcn-tabs-trigger {
+    color: #64748b;
+}
+
+body.light-mode .shadcn-tabs-trigger:hover {
+    color: #0f172a;
+}
+
+body.light-mode .shadcn-tabs-trigger.active,
+body.light-mode .shadcn-tabs-trigger[aria-selected="true"] {
+    background: #ffffff;
+    color: #0f172a;
+    border-color: #cbd5e1;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Tab Badges & Counts */
+.shadcn-tab-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 6px;
+    border-radius: 9999px;
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    letter-spacing: 0.3px;
+}
+
+body.light-mode .shadcn-tab-badge {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+}
+
+.shadcn-tab-count {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--fg-muted, #a1a1aa);
+}
+
+body.light-mode .shadcn-tab-count {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+/* 3. Shadcn Card Container */
+.shadcn-card {
+    border-radius: var(--radius-card, 10px);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    background: var(--surface-card, var(--card-bg, #18181b));
+    color: var(--fg, #ffffff);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22);
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.light-mode .shadcn-card {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.shadcn-card-header {
+    padding: 14px 18px 8px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.06));
+}
+
+body.light-mode .shadcn-card-header {
+    border-bottom-color: #f1f5f9;
+}
+
+.shadcn-card-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--fg, #f4f4f5);
+    line-height: 1.3;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+body.light-mode .shadcn-card-title {
+    color: #0f172a;
+}
+
+.shadcn-card-description {
+    font-size: 11.5px;
+    color: var(--fg-muted, #a1a1aa);
+    line-height: 1.45;
+}
+
+body.light-mode .shadcn-card-description {
+    color: #64748b;
+}
+
+.shadcn-card-content {
+    padding: 12px 18px 16px 18px;
+}
+
+
 

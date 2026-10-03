@@ -1115,124 +1115,155 @@
     <main class="main-content"><div class="header" style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;"><div><h1 style="font-size:20px;margin:0">OCR Document Scanner</h1><p style="font-size:12px;color:var(--fg-muted);margin-top:4px">Extract text and isolate numerical values from scanned PDF documents</p></div><button id="themeToggleBtn" onclick="toggleTheme()" class="action-btn outline sm">Mode: Dark</button></div>
         <div class="ocr-grid"><section class="ocr-card"><h2>1. Select PDFs</h2><p class="ocr-help">Upload PDF documents only. Files are rendered and processed locally in this browser. Scanned pages can be recognized with local Tesseract.js or Google Gemini AI Vision.</p><input id="pdfFiles" class="ocr-file" type="file" accept="application/pdf,.pdf" multiple>
         
-        <!-- Engine Selector: Local OCR vs PaddleOCR vs Gemini AI Vision -->
-        <div class="engine-selector-wrap">
-            <button type="button" id="btnEngineLocal" class="engine-tab-btn active" data-engine="local">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-                Local OCR (Tesseract)
-            </button>
-            <button type="button" id="btnEnginePaddle" class="engine-tab-btn paddle" data-engine="paddle">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                PaddleOCR (Deep Learning)
-            </button>
-            <button type="button" id="btnEngineAi" class="engine-tab-btn ai" data-engine="ai">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-                <span id="btnEngineAiLabel">AI Vision</span>
-            </button>
-        </div>
-
-        <!-- PaddleOCR Configuration Card -->
-        <div id="paddleConfigCard" class="ai-config-card" style="display:none; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.05); padding: 12px 14px; border-radius: 8px; margin-top: 12px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                <label style="font-size: 12px; font-weight: 700; color: #10b981; display: flex; align-items: center; gap: 6px;">
+        <!-- Engine Selector: Shadcn Tabs & Cards -->
+        <div class="shadcn-tabs" style="margin-top: 14px;">
+            <div class="shadcn-tabs-list" role="tablist">
+                <button type="button" id="btnEngineLocal" class="shadcn-tabs-trigger active" data-engine="local" role="tab" aria-selected="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                    Local OCR (Tesseract)
+                </button>
+                <button type="button" id="btnEnginePaddle" class="shadcn-tabs-trigger" data-engine="paddle" role="tab" aria-selected="false">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                    PaddleOCR Deep Learning Engine (PP-OCRv4)
-                </label>
-                <span id="paddleStatusBadge" class="ai-badge saved" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">⚡ In-Browser WASM</span>
-            </div>
-            <div style="font-size: 11px; color: var(--fg-muted); margin-top: 6px; line-height: 1.5;">
-                Runs PP-OCRv4 deep learning networks directly in your browser using WebAssembly. High-precision character recognition that reliably separates digits (e.g. 5 vs 8) with zero data leaving your machine.
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 11px; flex-wrap: wrap;">
-                <label style="display: flex; align-items: center; gap: 6px; color: var(--fg); cursor: pointer;">
-                    <input type="checkbox" id="chkPaddleLocalServer" style="accent-color: #10b981;"> Use Local Python Server (Optional)
-                </label>
-                <input id="paddleServerUrlInput" class="ai-key-input" type="text" placeholder="http://localhost:8866/predict/ocr_system" style="display: none; flex: 1; min-width: 220px; padding: 3px 8px; font-size: 11px; height: 26px;">
-            </div>
-        </div>
-
-        <!-- Universal Multi-Provider AI Vision Configuration Card -->
-        <div id="aiConfigCard" class="ai-config-card">
-            <div id="rootsysCorsHint" style="display:none; font-size: 11px; padding: 7px 10px; border-radius: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); color: #f59e0b; margin-bottom: 10px; line-height: 1.5;">
-                ⚡ <strong>Tip:</strong> RootSys Cloud CORS security requires running via local server. <a href="http://localhost:3000/ocr_scanner.html" style="color: #f59e0b; font-weight: 700; text-decoration: underline;">Switch to http://localhost:3000</a>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
-                <label style="font-size: 12px; font-weight: 700; color: #8b5cf6; display: flex; align-items: center; gap: 6px;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                    AI Provider:
-                    <select id="aiProviderSelect" class="roi-select" style="padding: 3px 8px; font-weight: 600;">
-                        <option value="rootsys">RootSys Cloud (rootsys.cloud)</option>
-                        <option value="gemini" selected>Google Gemini</option>
-                        <option value="openai">OpenAI (ChatGPT)</option>
-                        <option value="anthropic">Anthropic (Claude)</option>
-                        <option value="groq">Groq (Ultra-Fast)</option>
-                        <option value="openrouter">OpenRouter</option>
-                        <option value="custom">Universal / Ollama / Local AI</option>
-                    </select>
-                </label>
-                <span id="aiKeyStatusBadge" class="ai-badge missing">Key Required</span>
+                    PaddleOCR (Deep Learning)
+                </button>
+                <button type="button" id="btnEngineAi" class="shadcn-tabs-trigger" data-engine="ai" role="tab" aria-selected="false">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                    <span id="btnEngineAiLabel">AI Vision</span>
+                </button>
             </div>
 
-            <!-- Custom Endpoint (Shown for RootSys / OpenRouter / Custom / Ollama) -->
-            <div id="aiCustomEndpointRow" class="ai-input-row" style="display: none; margin-bottom: 8px;">
-                <input id="aiCustomEndpointInput" class="ai-key-input" type="text" placeholder="Base URL (e.g. https://rootsys.cloud/v1 or https://openrouter.ai/api/v1)">
-            </div>
-
-            <!-- API Key Input Row -->
-            <div class="ai-input-row">
-                <input id="aiApiKeyInput" class="ai-key-input" type="password" placeholder="Paste API Key" autocomplete="off">
-                <button type="button" id="btnToggleKeyVisibility" class="action-btn secondary" style="padding: 7px 10px; font-size: 12px;" title="Show/Hide Key">👁️</button>
-                <button type="button" id="btnSaveApiKey" class="action-btn primary" style="padding: 7px 12px; font-size: 12px; background: #8b5cf6; border-color: #8b5cf6;">Save</button>
-                <button type="button" id="btnClearApiKey" class="action-btn secondary" style="padding: 7px 10px; font-size: 12px; color: #ef4444; border-color: rgba(239, 68, 68, 0.35);" title="Clear saved API key from browser storage">🗑️ Clear</button>
-            </div>
-
-            <!-- Model & Docs Row -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 8px;">
-                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                    <label style="font-size: 11px; color: var(--fg-muted); display: flex; align-items: center; gap: 6px;">
-                        Model:
-                        <select id="aiModelSelect" class="roi-select" style="padding: 2px 6px; font-size: 11px; max-width: 170px;">
-                        </select>
-                    </label>
-                    <button type="button" id="btnFetchModels" class="action-btn secondary" style="padding: 2px 7px; font-size: 10px; line-height: 1.4;" title="Discover all available models from this endpoint">🔄 Fetch Models</button>
-                    <input id="aiCustomModelInput" class="ai-key-input" type="text" placeholder="Type model ID..." style="display: none; width: 130px; padding: 2px 6px; font-size: 11px; height: 24px;">
-                    <label style="font-size: 11px; color: var(--fg-muted); display: flex; align-items: center; gap: 4px;">
-                        Speed:
-                        <select id="aiConcurrencySelect" class="roi-select" style="padding: 2px 6px; font-size: 11px;">
-                            <option value="8">8x Hyperspeed (Fastest)</option>
-                            <option value="6" selected>6x Turbo (Recommended)</option>
-                            <option value="4">4x Fast</option>
-                            <option value="2">2x Light</option>
-                            <option value="1">1x Sequential</option>
-                        </select>
-                    </label>
+            <!-- Tab 1: Local OCR Card -->
+            <div id="localConfigCard" class="shadcn-card" style="margin-top: 10px;">
+                <div class="shadcn-card-header">
+                    <div class="shadcn-card-title">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                        Local OCR Engine (Tesseract.js)
+                        <span class="shadcn-tab-badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3);">100% Client-Side</span>
+                    </div>
+                    <div class="shadcn-card-description">
+                        Processes documents directly inside browser Web Workers. Zero server uploads, privacy-first, and operates fully offline.
+                    </div>
                 </div>
-                <a id="aiDocsLink" href="https://rootsys.cloud" target="_blank" rel="noopener noreferrer" style="font-size: 11px; color: #8b5cf6; text-decoration: underline;">
-                    Get API Key ↗
-                </a>
-            </div>
-
-            <!-- AI Prompt Mode & Custom Task Selector -->
-            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(139, 92, 246, 0.25); display: flex; flex-direction: column; gap: 6px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
-                    <label style="font-size: 11px; font-weight: 600; color: var(--fg-muted); display: flex; align-items: center; gap: 6px;">
-                        <span>💬 Prompt Task:</span>
-                        <select id="aiPromptPresetSelect" class="roi-select" style="padding: 2px 8px; font-size: 11px; font-weight: 600;">
-                            <option value="do_only" selected>🎯 DO Numbers Only (Fast & Clean)</option>
-                            <option value="full_ocr">📝 Full Text Transcription (Standard OCR)</option>
-                            <option value="custom">✏️ Custom Prompt...</option>
+                <div class="shadcn-card-content">
+                    <div id="localLangWrap" style="display: flex; align-items: center; gap: 10px; font-size: 12px; flex-wrap: wrap;">
+                        <label style="color: var(--fg-muted); font-weight: 600;">Recognition Language:</label>
+                        <select id="ocrLanguage" class="roi-select" style="padding: 3px 8px; font-weight: 600;">
+                            <option value="eng">English (Standard Latin)</option>
                         </select>
-                    </label>
-                    <span id="aiPromptHelpHint" style="font-size: 10px; color: var(--fg-subtle);">Extracts 8-digit DOs (81/85)</span>
-                </div>
-                <div id="aiCustomPromptWrap" style="display: none; margin-top: 2px;">
-                    <textarea id="aiCustomPromptInput" class="ai-key-input" rows="2" style="width: 100%; font-family: monospace; font-size: 11px; resize: vertical; padding: 6px 8px; line-height: 1.4;" placeholder="Type custom instruction for AI Vision (e.g. Extract PO number and invoice date)..."></textarea>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div id="localLangWrap">
-            <label class="ocr-help" style="display:block;margin-top:14px">OCR language <select id="ocrLanguage" class="search-box"><option value="eng">English</option></select></label>
+            <!-- Tab 2: PaddleOCR Configuration Card -->
+            <div id="paddleConfigCard" class="shadcn-card" style="display:none; margin-top: 10px; border-color: rgba(16, 185, 129, 0.3);">
+                <div class="shadcn-card-header">
+                    <div class="shadcn-card-title" style="color: #10b981;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                        PaddleOCR Deep Learning Engine (PP-OCRv4)
+                        <span id="paddleStatusBadge" class="shadcn-tab-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);">⚡ In-Browser WASM</span>
+                    </div>
+                    <div class="shadcn-card-description">
+                        Runs PP-OCRv4 deep learning networks directly in your browser using WebAssembly. High-precision character recognition that reliably separates digits (e.g. 5 vs 8) with zero data leaving your machine.
+                    </div>
+                </div>
+                <div class="shadcn-card-content">
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 11px; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 6px; color: var(--fg); cursor: pointer;">
+                            <input type="checkbox" id="chkPaddleLocalServer" style="accent-color: #10b981;"> Use Local Python Server (Optional)
+                        </label>
+                        <input id="paddleServerUrlInput" class="ai-key-input" type="text" placeholder="http://localhost:8866/predict/ocr_system" style="display: none; flex: 1; min-width: 220px; padding: 3px 8px; font-size: 11px; height: 26px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Universal Multi-Provider AI Vision Configuration Card -->
+            <div id="aiConfigCard" class="shadcn-card" style="display:none; margin-top: 10px; border-color: rgba(139, 92, 246, 0.35);">
+                <div class="shadcn-card-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <div class="shadcn-card-title" style="color: #8b5cf6;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            Multimodal Generative AI Vision
+                            <span id="aiKeyStatusBadge" class="shadcn-tab-badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Key Required</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 11px; color: var(--fg-muted); font-weight: 600;">Provider:</span>
+                            <select id="aiProviderSelect" class="roi-select" style="padding: 3px 8px; font-weight: 600;">
+                                <option value="rootsys">RootSys Cloud (rootsys.cloud)</option>
+                                <option value="gemini" selected>Google Gemini</option>
+                                <option value="openai">OpenAI (ChatGPT)</option>
+                                <option value="anthropic">Anthropic (Claude)</option>
+                                <option value="groq">Groq (Ultra-Fast)</option>
+                                <option value="openrouter">OpenRouter</option>
+                                <option value="custom">Universal / Ollama / Local AI</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="shadcn-card-description">
+                        Cloud generative AI vision model for complex, skewed, low-resolution, or handwritten delivery orders.
+                    </div>
+                </div>
+                <div class="shadcn-card-content">
+                    <div id="rootsysCorsHint" style="display:none; font-size: 11px; padding: 7px 10px; border-radius: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); color: #f59e0b; margin-bottom: 10px; line-height: 1.5;">
+                        ⚡ <strong>Tip:</strong> RootSys Cloud CORS security requires running via local server. <a href="http://localhost:3000/ocr_scanner.html" style="color: #f59e0b; font-weight: 700; text-decoration: underline;">Switch to http://localhost:3000</a>
+                    </div>
+
+                    <!-- Custom Endpoint (Shown for RootSys / OpenRouter / Custom / Ollama) -->
+                    <div id="aiCustomEndpointRow" class="ai-input-row" style="display: none; margin-bottom: 8px;">
+                        <input id="aiCustomEndpointInput" class="ai-key-input" type="text" placeholder="Base URL (e.g. https://rootsys.cloud/v1 or https://openrouter.ai/api/v1)">
+                    </div>
+
+                    <!-- API Key Input Row -->
+                    <div class="ai-input-row">
+                        <input id="aiApiKeyInput" class="ai-key-input" type="password" placeholder="Paste API Key" autocomplete="off">
+                        <button type="button" id="btnToggleKeyVisibility" class="action-btn secondary" style="padding: 7px 10px; font-size: 12px;" title="Show/Hide Key">👁️</button>
+                        <button type="button" id="btnSaveApiKey" class="action-btn primary" style="padding: 7px 12px; font-size: 12px; background: #8b5cf6; border-color: #8b5cf6;">Save</button>
+                        <button type="button" id="btnClearApiKey" class="action-btn secondary" style="padding: 7px 10px; font-size: 12px; color: #ef4444; border-color: rgba(239, 68, 68, 0.35);" title="Clear saved API key from browser storage">🗑️ Clear</button>
+                    </div>
+
+                    <!-- Model & Docs Row -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <label style="font-size: 11px; color: var(--fg-muted); display: flex; align-items: center; gap: 6px;">
+                                Model:
+                                <select id="aiModelSelect" class="roi-select" style="padding: 2px 6px; font-size: 11px; max-width: 170px;"></select>
+                            </label>
+                            <button type="button" id="btnFetchModels" class="action-btn secondary" style="padding: 2px 7px; font-size: 10px; line-height: 1.4;" title="Discover all available models from this endpoint">🔄 Fetch Models</button>
+                            <input id="aiCustomModelInput" class="ai-key-input" type="text" placeholder="Type model ID..." style="display: none; width: 130px; padding: 2px 6px; font-size: 11px; height: 24px;">
+                            <label style="font-size: 11px; color: var(--fg-muted); display: flex; align-items: center; gap: 4px;">
+                                Speed:
+                                <select id="aiConcurrencySelect" class="roi-select" style="padding: 2px 6px; font-size: 11px;">
+                                    <option value="8">8x Hyperspeed (Fastest)</option>
+                                    <option value="6" selected>6x Turbo (Recommended)</option>
+                                    <option value="4">4x Fast</option>
+                                    <option value="2">2x Light</option>
+                                    <option value="1">1x Sequential</option>
+                                </select>
+                            </label>
+                        </div>
+                        <a id="aiDocsLink" href="https://rootsys.cloud" target="_blank" rel="noopener noreferrer" style="font-size: 11px; color: #8b5cf6; text-decoration: underline;">
+                            Get API Key ↗
+                        </a>
+                    </div>
+
+                    <!-- AI Prompt Mode & Custom Task Selector -->
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(139, 92, 246, 0.25); display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                            <label style="font-size: 11px; font-weight: 600; color: var(--fg-muted); display: flex; align-items: center; gap: 6px;">
+                                <span>💬 Prompt Task:</span>
+                                <select id="aiPromptPresetSelect" class="roi-select" style="padding: 2px 8px; font-size: 11px; font-weight: 600;">
+                                    <option value="do_only" selected>🎯 DO Numbers Only (Fast & Clean)</option>
+                                    <option value="full_ocr">📝 Full Text Transcription (Standard OCR)</option>
+                                    <option value="custom">✏️ Custom Prompt...</option>
+                                </select>
+                            </label>
+                            <span id="aiPromptHelpHint" style="font-size: 10px; color: var(--fg-subtle);">Extracts 8-digit DOs (81/85)</span>
+                        </div>
+                        <div id="aiCustomPromptWrap" style="display: none; margin-top: 2px;">
+                            <textarea id="aiCustomPromptInput" class="ai-key-input" rows="2" style="width: 100%; font-family: monospace; font-size: 11px; resize: vertical; padding: 6px 8px; line-height: 1.4;" placeholder="Type custom instruction for AI Vision (e.g. Extract PO number and invoice date)..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="ocr-actions"><button id="runOcr" class="action-btn primary">Run OCR</button><button id="clearOcr" class="action-btn secondary">Clear</button></div>
         
@@ -2171,12 +2202,25 @@ function updateEngineUI() {
     const isPaddle = selectedEngine === 'paddle';
     const isLocal = selectedEngine === 'local';
 
-    $('btnEngineLocal').classList.toggle('active', isLocal);
-    if ($('btnEnginePaddle')) $('btnEnginePaddle').classList.toggle('active', isPaddle);
-    $('btnEngineAi').classList.toggle('active', isAi);
+    if ($('btnEngineLocal')) {
+        $('btnEngineLocal').classList.toggle('active', isLocal);
+        $('btnEngineLocal').setAttribute('aria-selected', isLocal ? 'true' : 'false');
+    }
+    if ($('btnEnginePaddle')) {
+        $('btnEnginePaddle').classList.toggle('active', isPaddle);
+        $('btnEnginePaddle').setAttribute('aria-selected', isPaddle ? 'true' : 'false');
+    }
+    if ($('btnEngineAi')) {
+        $('btnEngineAi').classList.toggle('active', isAi);
+        $('btnEngineAi').setAttribute('aria-selected', isAi ? 'true' : 'false');
+    }
 
-    $('aiConfigCard').classList.toggle('active', isAi);
+    if ($('localConfigCard')) $('localConfigCard').style.display = isLocal ? 'block' : 'none';
     if ($('paddleConfigCard')) $('paddleConfigCard').style.display = isPaddle ? 'block' : 'none';
+    if ($('aiConfigCard')) {
+        $('aiConfigCard').style.display = isAi ? 'block' : 'none';
+        $('aiConfigCard').classList.toggle('active', isAi);
+    }
     const langWrap = $('localLangWrap');
     if (langWrap) langWrap.style.display = isLocal ? 'block' : 'none';
     

@@ -2125,8 +2125,12 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
         let html = "";
         this.batches.forEach((b, idx) => {
             const isActive = idx === this.currentBatchIndex;
-            const activeClass = isActive ? "active-tab" : "";
-            html += `<button class="batch-tab-btn ${activeClass}" onclick="summaryGenerator.selectBatch(${idx})">${b.batchName} [Wave ${b.waveNumber || '-'}] (${b.records.length} DO)</button>`;
+            const activeClass = isActive ? "active" : "";
+            html += `<button type="button" class="shadcn-tabs-trigger batch-tab-btn ${activeClass}" onclick="summaryGenerator.selectBatch(${idx})" role="tab" aria-selected="${isActive}">
+                <span>${b.batchName}</span>
+                <span class="shadcn-tab-badge">Wave ${b.waveNumber || '-'}</span>
+                <span class="shadcn-tab-count">${b.records.length} DO</span>
+            </button>`;
         });
 
         container.innerHTML = html;
