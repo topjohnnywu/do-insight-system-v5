@@ -687,7 +687,7 @@ class DOActivityTrend {
         const elSearchCount = document.getElementById("datSearchCount");
 
         if (this.history.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:24px; color:#71717a;">No activity data loaded. Please import daily reports.</td></tr>';
+            tbody.innerHTML = `<tr><td colspan="9" style="padding:0; border:none;">${buildEmptyHTML({ icon: 'cloud', title: 'No Activity Data', description: 'Import daily reports to build your DO Activity Trend history.', ctaLabel: 'Import Daily Reports', ctaOnclick: "document.getElementById('activityUpdateFilePicker').click()", ctaTip: 'Upload daily report files' })}</td></tr>`;
             if (elSearchCount) elSearchCount.style.display = "none";
             this.renderPagination(0);
             return;

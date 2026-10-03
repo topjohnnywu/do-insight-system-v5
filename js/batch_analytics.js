@@ -848,7 +848,7 @@ function renderBatchTable() {
     const tbody = document.getElementById('batchTableBody');
     
     if (allFiltered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:32px; color:#64748b; font-size: 13px;">No batches found. Upload a batch file to get started.</td></tr>';
+        tbody.innerHTML = `<tr><td colspan="8" style="padding:0; border:none;">${buildEmptyHTML({ icon: 'box', title: 'No Batches Found', description: 'Upload a batch file to get started with batch analytics.', ctaLabel: 'Upload New Batch', ctaOnclick: "document.getElementById('newBatchPicker').click()", ctaTip: 'Upload a new batch file for analysis' })}</td></tr>`;
         renderPagination(0);
         return;
     }

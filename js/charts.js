@@ -10,15 +10,15 @@ function updateThemeToggleButton(themeName) {
     const isLight = themeName === "light";
     // Sun icon in dark mode (click to go light), moon icon in light mode (click to go dark)
     const icon = isLight ? moonIconSvg : sunIconSvg;
-    const label = isLight ? "Light" : "shadcn/ui";
-    const nextLabel = isLight ? "shadcn/ui Dark" : "Light";
+    const label = isLight ? "Light" : "Dark";
+    const nextLabel = isLight ? "Dark" : "Light";
     ToggleBtn.innerHTML = `${icon} <span>${label}</span>`;
     ToggleBtn.setAttribute("title", `Switch to ${nextLabel} theme`);
 }
 
 function getCurrentTheme() {
     const t = document.documentElement.getAttribute("data-theme");
-    return (t === "light" || t === "shadcn") ? t : "shadcn";
+    return (t === "light" || t === "dark") ? t : "dark";
 }
 
 function isLightTheme() {
@@ -37,14 +37,14 @@ function updateThemeMenu(themeName) {
 }
 
 // Live theme picker: per-theme palette dots (click commits)
-let activeTheme = "shadcn";
+let activeTheme = "dark";
 
 const THEME_PALETTES = {
-    shadcn:   ["#fafafa", "#a1a1aa", "#0a0a0a", "#262626"],
+    dark:     ["#fafafa", "#a1a1aa", "#0a0a0a", "#262626"],
     light:    ["#3b82f6", "#2563eb", "#ffffff", "#e2e8f0"]
 };
 
-// NOTE: With only two themes (shadcn + light), the old theme-settings sidebar
+// NOTE: With only two themes (dark + light), the old theme-settings sidebar
 // was removed — the header button now toggles directly (see toggleTheme).
 
 function applyChartTheme(themeName) {
@@ -52,7 +52,7 @@ function applyChartTheme(themeName) {
     if (themeName === "light") {
         Chart.defaults.color = '#334155';
         Chart.defaults.borderColor = '#cbd5e1';
-    } else if (themeName === "shadcn") {
+    } else if (themeName === "dark") {
         Chart.defaults.color = '#a1a1aa';   /* zinc-400 */
         Chart.defaults.borderColor = '#262626'; /* zinc-800 hairline */
     } else {
@@ -64,10 +64,10 @@ function applyChartTheme(themeName) {
 // Track active view transition to prevent overlapping animations
 let isThemeTransitioning = false;
 
-// Apply a theme to the whole app. Valid themes: shadcn (default dark), light.
+// Apply a theme to the whole app. Valid themes: dark (default), light.
 function setTheme(themeName, persist, clickEvent) {
-    const valid = ["shadcn", "light"];
-    if (!valid.includes(themeName)) themeName = "shadcn";
+    const valid = ["dark", "light"];
+    if (!valid.includes(themeName)) themeName = "dark";
     if (persist === undefined) persist = true;
 
     const changed = themeName !== getCurrentTheme();
@@ -175,23 +175,23 @@ function setTheme(themeName, persist, clickEvent) {
 // Initialize theme state on page boot
 function initTheme() {
     const saved = localStorage.getItem("AppThemeMode");
-    // shadcn is the default dark theme. Light stays. Any legacy/removed theme
-    // (linear, amoled, dark, etc.) migrates to shadcn.
-    let theme = "shadcn";
+    // dark is the default theme. Light stays. Any legacy/removed theme
+    // (shadcn, linear, amoled, etc.) migrates to dark.
+    let theme = "dark";
     if (saved === "light") theme = "light";
-    else if (saved === "shadcn") theme = "shadcn";
+    else if (saved === "dark") theme = "dark";
     
     setTheme(theme, false);
     activeTheme = theme;
     initSpotlights();
 }
 
-// With only two themes (shadcn dark + light), the button toggles directly
+// With only two themes (dark + light), the button toggles directly
 // instead of opening the theme sidebar. Uses the click event (or window.event
 // from inline onclick handlers) as the view-transition animation origin.
 function toggleTheme(clickEvent) {
     const evt = clickEvent || (typeof window !== "undefined" ? window.event : null);
-    const next = getCurrentTheme() === "light" ? "shadcn" : "light";
+    const next = getCurrentTheme() === "light" ? "dark" : "light";
     setTheme(next, true, evt);
 }
 
@@ -367,3 +367,44 @@ function renderCharts() {
     });
 }
 
+
+/* ==========================================================
+   Shared Empty-state builder (shadcn "Empty" design)
+   Returns the inner HTML for an .empty card. Wrap it in your table cell:
+     tbody.innerHTML = `<tr><td colspan="N" style="padding:0;border:none;">${buildEmptyHTML({...})}</td></tr>`;
+   opts: { icon, title, description, ctaLabel, ctaOnclick, ctaTip }
+   - icon: "inbox" | "cloud" | "box" | "file" (defaults to inbox)
+   - ctaLabel/ctaOnclick optional; omit for a static (no-button) empty state
+   ========================================================== */
+function buildEmptyHTML(opts) {
+    opts = opts || {};
+    const icons = {
+        inbox: `<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>`,
+        cloud: `<path d="M17.5 19a4.5 4.5 0 0 0 .42-8.98 6 6 0 0 0-11.7 1.62A4 4 0 0 0 7 19h10.5z"/>`,
+        box: `<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>`,
+        file: `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>`
+    };
+    const iconPath = icons[opts.icon] || icons.inbox;
+    const title = opts.title || "Nothing here yet";
+    const description = opts.description || "";
+    let cta = "";
+    if (opts.ctaLabel && opts.ctaOnclick) {
+        const tip = opts.ctaTip ? ` data-tip="${opts.ctaTip}"` : "";
+        cta = `<div class="empty-content">
+            <button type="button" class="action-btn outline" onclick="${opts.ctaOnclick}"${tip}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                ${opts.ctaLabel}
+            </button>
+        </div>`;
+    }
+    return `<div class="empty">
+        <div class="empty-header">
+            <div class="empty-media">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${iconPath}</svg>
+            </div>
+            <p class="empty-title">${title}</p>
+            <p class="empty-description">${description}</p>
+        </div>
+        ${cta}
+    </div>`;
+}

@@ -335,20 +335,15 @@
 
                         <!-- Secondary Utilities (Theme & Global Reset) -->
                         <style>
+                            /* Header utility buttons now inherit the shared .action-btn.outline
+                               base (transparent bg, subtle border). These rules only size them
+                               down and add the per-action color-reveal hovers. */
                             .dsg-util-btn {
-                                background: transparent !important;
-                                color: var(--fg-subtle, #94a3b8) !important;
-                                border: 1px solid var(--border, #334155) !important;
                                 font-size: 11px !important;
                                 padding: 4px 10px !important;
-                                border-radius: 6px !important;
-                                cursor: pointer;
-                                display: inline-flex !important;
-                                align-items: center;
-                                gap: 4px;
-                                font-weight: 500;
-                                box-shadow: none !important;
-                                transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                                height: auto !important;
+                                gap: 4px !important;
+                                font-weight: 500 !important;
                                 user-select: none;
                             }
                             .dsg-util-btn:hover {
@@ -386,20 +381,20 @@
                             }
                         </style>
                         <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-                            <button class="action-btn dsg-util-btn dsg-btn-delete" onclick="summaryGenerator.resetCurrentBatch()" title="Delete the currently selected batch">
+                            <button class="action-btn outline dsg-util-btn dsg-btn-delete" onclick="summaryGenerator.resetCurrentBatch()" title="Delete the currently selected batch">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="3 6 5 6 21 6"/>
                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                                 </svg>
                                 Delete Batch
                             </button>
-                            <button class="action-btn dsg-util-btn dsg-btn-clear" onclick="summaryGenerator.resetFinalSummary()" title="Clear compiled final summary cache">
+                            <button class="action-btn outline dsg-util-btn dsg-btn-clear" onclick="summaryGenerator.resetFinalSummary()" title="Clear compiled final summary cache">
                                 Clear Summary
                             </button>
-                            <button class="action-btn dsg-util-btn dsg-btn-reset-all" onclick="summaryGenerator.reset()" title="Reset all batches and state">
+                            <button class="action-btn outline dsg-util-btn dsg-btn-reset-all" onclick="summaryGenerator.reset()" title="Reset all batches and state">
                                 Reset All
                             </button>
-                            <button id="themeToggleBtn" class="action-btn dsg-util-btn dsg-btn-mode" onclick="toggleTheme()">
+                            <button id="themeToggleBtn" class="action-btn outline dsg-util-btn dsg-btn-mode" onclick="toggleTheme()">
                                 Mode: Dark
                             </button>
                         </div>
@@ -439,53 +434,10 @@
                             transform: scale(0.97) !important;
                         }
 
-                        /* 1. Import Summary CSV (Primary Solid) */
-                        .dsg-btn-import-csv {
-                            background: var(--accent, #3b82f6) !important;
-                            color: var(--accent-foreground, #ffffff) !important;
-                        }
-                        .dsg-btn-import-csv:hover {
-                            filter: brightness(1.1) !important;
-                            box-shadow: 0 0 0 1px var(--accent, #3b82f6), 0 4px 14px rgba(0, 0, 0, 0.25) !important;
-                        }
+                        /* Import CSV / Update Info / Export JSON / Import Session now use the
+                           shared .action-btn.outline variant (see css/styles.css). */
 
-                        /* 2. Update Missing Info (Secondary Neutral) */
-                        .dsg-btn-update-info {
-                            background: var(--surface-card, var(--surface, #1e293b)) !important;
-                            color: var(--fg, #f8fafc) !important;
-                            border: 1px solid var(--border, #334155) !important;
-                        }
-                        .dsg-btn-update-info:hover {
-                            background: var(--surface-hover, #334155) !important;
-                            border-color: var(--border-hover, #64748b) !important;
-                        }
-                        .dsg-btn-update-info:hover svg {
-                            transform: rotate(45deg) scale(1.1) !important;
-                        }
-
-                        /* 3. Export JSON (Secondary Neutral) */
-                        .dsg-btn-export-json {
-                            background: var(--surface-card, var(--surface, #1e293b)) !important;
-                            color: var(--fg, #f8fafc) !important;
-                            border: 1px solid var(--border, #334155) !important;
-                        }
-                        .dsg-btn-export-json:hover {
-                            background: var(--surface-hover, #334155) !important;
-                            border-color: var(--border-hover, #64748b) !important;
-                        }
-
-                        /* 4. Import Session (Secondary Neutral) */
-                        .dsg-btn-import-session {
-                            background: var(--surface-card, var(--surface, #1e293b)) !important;
-                            color: var(--fg, #f8fafc) !important;
-                            border: 1px solid var(--border, #334155) !important;
-                        }
-                        .dsg-btn-import-session:hover {
-                            background: var(--surface-hover, #334155) !important;
-                            border-color: var(--border-hover, #64748b) !important;
-                        }
-
-                        /* 5. Simplify Mode (Neutral Outline when OFF, Primary when ON) */
+                        /* Simplify Mode (Neutral Outline when OFF, Primary when ON) */
                         .dsg-btn-simplify {
                             background: var(--surface-card, var(--surface, #1e293b)) !important;
                             color: var(--fg-muted, #94a3b8) !important;
@@ -507,7 +459,7 @@
                     <div style="background: var(--surface, #1e293b); border: 1px solid var(--border, #334155); border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                         <!-- Primary Workflow Group (Left) -->
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <label for="sourceFilePicker" class="action-btn dsg-solid-action-btn dsg-btn-import-csv" style="margin: 0;" title="Import raw Sony DO summary files">
+                            <label for="sourceFilePicker" class="action-btn outline" style="margin: 0; height: 32px; padding: 0 12px; font-size: 11px;" title="Import raw Sony DO summary files">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                                     <polyline points="17 8 12 3 7 8"/>
@@ -517,7 +469,7 @@
                                 <input type="file" id="sourceFilePicker" accept=".csv, .xlsx, .xls" multiple onchange="summaryGenerator.handleFileUpload(event)" style="display: none;">
                             </label>
 
-                            <label for="updateFilePicker" class="action-btn dsg-solid-action-btn dsg-btn-update-info" style="margin: 0;" title="Update missing DO info from master records">
+                            <label for="updateFilePicker" class="action-btn outline" style="margin: 0; height: 32px; padding: 0 12px; font-size: 11px;" title="Update missing DO info from master records">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="1 4 1 10 7 10"/>
                                     <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
@@ -528,7 +480,7 @@
 
                             <div style="height: 20px; width: 1px; background: var(--border, #334155); margin: 0 2px;"></div>
 
-                            <button class="action-btn dsg-compile-btn" onclick="summaryGenerator.compileFinalSummary()" style="padding: 6px 12px; font-size: 11px;">
+                            <button class="action-btn outline" onclick="summaryGenerator.compileFinalSummary()" data-tip="Merge all batches into one final summary" style="height: 32px; padding: 0 12px; font-size: 11px;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                     <polyline points="14 2 14 8 20 8"/>
@@ -538,7 +490,7 @@
                                 Compile Summary
                             </button>
 
-                            <button class="action-btn dsg-export-btn" onclick="summaryGenerator.exportToExcel()" style="padding: 6px 12px; font-size: 11px;">
+                            <button class="action-btn outline" onclick="summaryGenerator.exportToExcel()" data-tip="Compile and download the summary as an Excel workbook" style="height: 32px; padding: 0 12px; font-size: 11px;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                                     <polyline points="7 10 12 15 17 10"/>
@@ -550,7 +502,7 @@
 
                         <!-- Session Management Tools (Right) -->
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <button class="action-btn dsg-solid-action-btn dsg-btn-export-json" onclick="summaryGenerator.exportToJSON()" title="Export entire session data to JSON">
+                            <button class="action-btn outline" onclick="summaryGenerator.exportToJSON()" style="height: 32px; padding: 0 12px; font-size: 11px;" title="Export entire session data to JSON">
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                                     <polyline points="7 10 12 15 17 10"/>
@@ -558,7 +510,7 @@
                                 </svg>
                                 Export JSON
                             </button>
-                            <label for="jsonImportPicker" class="action-btn dsg-solid-action-btn dsg-btn-import-session" title="Import session from JSON or Excel" style="margin: 0;">
+                            <label for="jsonImportPicker" class="action-btn outline" title="Import session from JSON or Excel" style="margin: 0; height: 32px; padding: 0 12px; font-size: 11px;">
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                                     <polyline points="17 8 12 3 7 8"/>
@@ -762,7 +714,7 @@
                 <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <span style="font-size: 11px; font-weight: 700; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.5px;">📅 Summary Date:</span>
-                        <input type="date" id="headerDatePicker" onchange="summaryGenerator.onHeaderDateChange(this.value)" style="font-size: 11px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid); color: var(--fg); font-weight: 600; cursor: pointer;">
+                        <input type="date" id="headerDatePicker" data-date-picker data-placeholder="Pick a date" onchange="summaryGenerator.onHeaderDateChange(this.value)">
                         <span id="headerDateFormatted" style="font-size: 11px; font-weight: 700; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.2);">-</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
@@ -803,13 +755,12 @@
 
                         <span id="batchSearchCount" style="font-size: 11px; color: var(--accent-text, var(--accent)); font-weight: 600; background: var(--accent-glow); border: 1px solid var(--border-accent); padding: 2px 8px; border-radius: 12px; display: none;">0 DOs</span>
                         
-                        <button id="btnSimplifyMode" class="action-btn dsg-solid-action-btn dsg-btn-simplify" onclick="summaryGenerator.toggleSimplifyMode()" style="padding: 4px 10px; font-size: 11px;">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                <line x1="9" y1="3" x2="9" y2="21"/>
-                            </svg>
-                            Simplify Mode
-                        </button>
+                        <div class="ui-switch-field" data-tip="Condense the table to essential columns">
+                            <button id="btnSimplifyMode" type="button" class="ui-switch" role="switch" aria-checked="true" aria-label="Simplify Mode" onclick="summaryGenerator.toggleSimplifyMode()">
+                                <span class="ui-switch-thumb"></span>
+                            </button>
+                            <label class="ui-switch-label" for="btnSimplifyMode" id="simplifyModeLabel">Simplify Mode</label>
+                        </div>
                     </div>
 
                     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
@@ -823,14 +774,14 @@
                         <select id="emailTargetSelect" onchange="summaryGenerator.onEmailTargetChange(this.value)" style="font-size: 11px; padding: 4px 8px; outline: none; cursor: pointer;">
                             <option value="">No batch</option>
                         </select>
-                        <button id="btnGenerateEmail" class="action-btn dsg-email-btn" onclick="summaryGenerator.generateEmail()">
+                        <button id="btnGenerateEmail" class="action-btn outline" onclick="summaryGenerator.generateEmail()" style="height: 32px; padding: 0 12px; font-size: 11px;">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                                 <polyline points="22,6 12,13 2,6"/>
                             </svg>
                             Generate Email
                         </button>
-                        <button class="action-btn" onclick="summaryGenerator.addManualDO()" style="font-size: 11px; font-weight: 600; cursor: pointer; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;">
+                        <button class="action-btn outline" onclick="summaryGenerator.addManualDO()" style="height: 32px; padding: 0 12px; font-size: 11px;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="12" y1="5" x2="12" y2="19"/>
                                 <line x1="5" y1="12" x2="19" y2="12"/>
@@ -1002,8 +953,22 @@
                         </thead>
                         <tbody id="generatorTableBody">
                             <tr>
-                                <td colspan="13" style="text-align:center; padding:30px; color:#71717a;">
-                                    No batch data loaded. Click "Import SONY CSV / Excel" above to generate a DO Summary List.
+                                <td colspan="13" style="padding: 0; border: none;">
+                                    <div class="empty">
+                                        <div class="empty-header">
+                                            <div class="empty-media">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                                            </div>
+                                            <p class="empty-title">No Batches Yet</p>
+                                            <p class="empty-description">Import a SONY CSV or Excel file to generate your first DO Summary batch.</p>
+                                        </div>
+                                        <div class="empty-content">
+                                            <button type="button" class="action-btn outline" onclick="document.getElementById('sourceFilePicker').click()">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                                Import Summary CSV
+                                            </button>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -1130,118 +1095,86 @@
         </div>
     </div>
 
-    <!-- Batch Import & Setup Modal (Theme Adaptive) -->
-    <div id="importBatchModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); z-index: 10000; align-items: center; justify-content: center; padding: 20px;" >
-        <div style="background: var(--surface-card, var(--bg-elevated, #ffffff)); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 580px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border); overflow: hidden; display: flex; flex-direction: column;">
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid var(--border); background: var(--surface-hover, transparent);">
-                <div style="display: flex; align-items: center; gap: 14px;">
-                    <div style="width: 64px; height: 64px; border-radius: 16px; background: rgba(16, 185, 129, 0.14); display: flex; align-items: center; justify-content: center; font-size: 34px; border: 1px solid rgba(16, 185, 129, 0.3); flex-shrink: 0;">📦</div>
-                    <div>
-                        <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--fg); line-height: 1.3;">Import SONY DO Summary Batch</h3>
-                        <p style="margin: 2px 0 0 0; font-size: 11px; color: var(--fg-muted);">Setup import parameters & wave details</p>
-                    </div>
+    <!-- Batch Import & Setup Dialog (minimal, shadcn-style) -->
+    <div id="importBatchModal" class="dsg-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="importModalTitle" style="display: none;">
+        <div class="dsg-dialog">
+            <!-- DialogHeader -->
+            <div class="dsg-dialog-header">
+                <div class="dsg-dialog-header-text">
+                    <h3 class="dsg-dialog-title" id="importModalTitle">Import DO Summary Batch</h3>
+                    <p class="dsg-dialog-description">Set up import parameters and wave details.</p>
                 </div>
-                <button type="button" onclick="summaryGenerator.cancelImportModal()" style="background: none; border: none; color: var(--fg-muted); font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 6px;">✕</button>
+                <button type="button" class="dsg-dialog-close" onclick="summaryGenerator.cancelImportModal()" aria-label="Close">✕</button>
             </div>
-            
-            <div style="padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; max-height: 75vh; overflow-y: auto;">
-                <!-- File Details Card -->
-                <div style="display: flex; gap: 14px; align-items: center; background: var(--surface, rgba(0,0,0,0.03)); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px;">
-                    <div style="width: 48px; height: 48px; min-width: 48px; border-radius: 12px; background: rgba(59, 130, 246, 0.12); display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid rgba(59, 130, 246, 0.25); flex-shrink: 0;">📄</div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; flex-wrap: wrap; gap: 8px;">
-                            <span id="importModalFileName" style="font-size: 13px; font-weight: 700; color: var(--accent, #3b82f6); word-break: break-all;">filename.csv</span>
-                            <span id="importModalRecordCount" style="font-size: 11px; font-weight: 700; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 8px; border-radius: 12px;">0 DOs</span>
-                        </div>
-                        <div id="importModalMissingNotice" style="font-size: 11px; color: #d97706; margin-top: 4px; display: none;"></div>
+
+            <!-- DialogBody / FieldGroup -->
+            <div class="dsg-dialog-body">
+                <!-- Source file summary -->
+                <div class="dsg-field">
+                    <div class="dsg-file-summary">
+                        <span id="importModalFileName" class="dsg-file-name">filename.csv</span>
+                        <span id="importModalRecordCount" class="dsg-file-count">0 DOs</span>
                     </div>
+                    <div id="importModalMissingNotice" class="dsg-field-note is-warning" style="display: none;"></div>
                 </div>
 
-                <!-- Date Selection Card -->
-                <div style="display: flex; gap: 14px; align-items: flex-start; background: var(--surface, rgba(0,0,0,0.02)); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;">
-                    <div style="width: 52px; height: 52px; min-width: 52px; border-radius: 14px; background: rgba(16, 185, 129, 0.12); display: flex; align-items: center; justify-content: center; font-size: 28px; border: 1px solid rgba(16, 185, 129, 0.25); flex-shrink: 0; margin-top: 2px;">📅</div>
-                    <div style="flex: 1; min-width: 0;">
-                        <label style="font-size: 12px; font-weight: 700; color: var(--fg); display: block; margin-bottom: 6px;">
-                            DO Summary Date
+                <!-- DO Summary Date -->
+                <div class="dsg-field">
+                    <span class="dsg-label">DO Summary Date</span>
+                    <div class="dsg-field-row">
+                        <input type="date" id="importModalDatePicker" data-date-picker data-placeholder="Pick a date" oninput="summaryGenerator.syncModalDateFromPicker()">
+                        <input type="text" id="importModalDateCode" class="dsg-input dsg-input-code" placeholder="DDMMYYYY" oninput="summaryGenerator.syncModalDateFromCode()">
+                    </div>
+                    <p class="dsg-field-note">Excel target: <span id="importModalTargetFileName" class="dsg-note-strong">DO Summary List.xlsx</span></p>
+                </div>
+
+                <!-- Batch Wave Number -->
+                <div class="dsg-field">
+                    <label class="dsg-label" for="importModalWaveInput">Batch Wave Number</label>
+                    <div class="dsg-field-row">
+                        <input type="text" id="importModalWaveInput" class="dsg-input dsg-input-wave" placeholder="01">
+                        <input type="text" id="importModalBatchNameInput" class="dsg-input" placeholder="Batch 01">
+                    </div>
+                    <p class="dsg-field-note">Name your .csv file as the wave number (e.g. “Wave 01”) and it will auto-fill here.</p>
+                </div>
+
+                <!-- Destination Option (if batches exist) -->
+                <div class="dsg-field" id="importModalDestinationGroup" style="display: none;">
+                    <span class="dsg-label">Destination</span>
+                    <div class="dsg-choice-group">
+                        <label class="dsg-choice">
+                            <input type="radio" name="importDestChoice" id="importDestNew" value="NEW" checked onchange="summaryGenerator.onImportDestChange()">
+                            <span id="importDestNewLabel">Create New Batch (Batch 02)</span>
                         </label>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <input type="date" id="importModalDatePicker" oninput="summaryGenerator.syncModalDateFromPicker()" style="flex: 1; font-size: 12px; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg);">
-                            <input type="text" id="importModalDateCode" placeholder="DDMMYYYY" oninput="summaryGenerator.syncModalDateFromCode()" style="width: 130px; font-size: 12px; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg); font-weight: 700; text-align: center;">
-                        </div>
-                        <div style="font-size: 10px; color: var(--fg-muted); margin-top: 4px;">
-                            Excel Target: <span id="importModalTargetFileName" style="color: var(--fg); font-weight: 600;">DO Summary List 17082026.xlsx</span>
-                        </div>
+                        <label class="dsg-choice">
+                            <input type="radio" name="importDestChoice" id="importDestAppend" value="APPEND" onchange="summaryGenerator.onImportDestChange()">
+                            <span>Append into existing batch</span>
+                            <select id="importModalAppendSelect" class="dsg-input dsg-select-inline"></select>
+                        </label>
                     </div>
                 </div>
 
-                <!-- Wave Number Card -->
-                <div style="display: flex; gap: 14px; align-items: flex-start; background: var(--surface, rgba(0,0,0,0.02)); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;">
-                    <div style="width: 52px; height: 52px; min-width: 52px; border-radius: 12px; background: var(--surface-hover); display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid var(--border); flex-shrink: 0; margin-top: 2px;">🌊</div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <label style="font-size: 12px; font-weight: 700; color: var(--fg);">
-                                Batch Wave Number
-                            </label>
-                            <span style="font-size: 10px; color: var(--fg-muted);">e.g. 01, 02, 03</span>
-                        </div>
-                        <div style="display: flex; gap: 8px;">
-                            <input type="text" id="importModalWaveInput" placeholder="01" style="width: 80px; font-size: 13px; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg); font-weight: 700; text-align: center;">
-                            <input type="text" id="importModalBatchNameInput" placeholder="Batch 01" style="flex: 1; font-size: 12px; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg); font-weight: 600;">
-                        </div>
-                        <div style="margin-top: 8px; font-size: 11px; color: var(--fg-muted); display: flex; align-items: flex-start; gap: 6px;">
-                            <span style="font-size: 12px;">💡</span> 
-                            <span><strong>Tip:</strong> Name your .csv file as the wave number (e.g. "Wave 01"), and it will auto-fill here!</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Destination Option (If batches exist) -->
-                <div id="importModalDestinationGroup" style="display: none; background: var(--surface, rgba(0,0,0,0.02)); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;">
-                    <div style="display: flex; gap: 14px; align-items: flex-start;">
-                        <div style="width: 52px; height: 52px; min-width: 52px; border-radius: 12px; background: var(--surface-hover); display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid var(--border); flex-shrink: 0; margin-top: 2px;">🗂️</div>
-                        <div style="flex: 1; min-width: 0;">
-                            <label style="font-size: 12px; font-weight: 700; color: var(--fg); display: block; margin-bottom: 8px;">
-                                Destination Option
-                            </label>
-                            <div style="display: flex; flex-direction: column; gap: 8px;">
-                                <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--fg); cursor: pointer;">
-                                    <input type="radio" name="importDestChoice" id="importDestNew" value="NEW" checked onchange="summaryGenerator.onImportDestChange()">
-                                    <span id="importDestNewLabel">Create New Batch (Batch 02)</span>
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--fg); cursor: pointer; flex-wrap: wrap;">
-                                    <input type="radio" name="importDestChoice" id="importDestAppend" value="APPEND" onchange="summaryGenerator.onImportDestChange()">
-                                    <span>Append into existing Batch:</span>
-                                    <select id="importModalAppendSelect" style="font-size: 11px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-solid, var(--bg-base)); color: var(--fg);"></select>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Duplicate DO Resolver (If duplicates detected) -->
-                <div id="importModalDuplicateGroup" style="display: none; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 12px;">
-                    <div style="font-size: 12px; font-weight: 700; color: #d97706; display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
-                        <span>⚠️</span> <span id="importModalDupeSummary">Duplicate DOs Detected</span>
-                    </div>
-                    <div id="importModalDupeSamples" style="font-size: 10px; font-family: monospace; color: var(--fg-muted); background: var(--surface-solid, rgba(0,0,0,0.1)); padding: 6px; border-radius: 4px; max-height: 70px; overflow-y: auto; margin-bottom: 8px;"></div>
-                    <div style="display: flex; flex-direction: column; gap: 6px;">
-                        <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--fg); cursor: pointer;">
+                <!-- Duplicate DO Resolver (if duplicates detected) -->
+                <div class="dsg-field dsg-field-alert" id="importModalDuplicateGroup" style="display: none;">
+                    <span class="dsg-label dsg-label-warning" id="importModalDupeSummary">Duplicate DOs detected</span>
+                    <div id="importModalDupeSamples" class="dsg-dupe-samples"></div>
+                    <div class="dsg-choice-group">
+                        <label class="dsg-choice">
                             <input type="radio" name="importDupeAction" value="NEW_ONLY" checked>
-                            <span>Import <strong>ONLY New DOs</strong> (<span id="importDupeNewCount">0</span> records) - Recommended</span>
+                            <span>Import only new DOs (<span id="importDupeNewCount">0</span>) — recommended</span>
                         </label>
-                        <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--fg); cursor: pointer;">
+                        <label class="dsg-choice">
                             <input type="radio" name="importDupeAction" value="ALL">
-                            <span>Import <strong>All DOs</strong> (<span id="importDupeTotalCount">0</span> records, keep duplicates)</span>
+                            <span>Import all DOs (<span id="importDupeTotalCount">0</span>, keep duplicates)</span>
                         </label>
                     </div>
                 </div>
             </div>
 
-            <div style="padding: 14px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; background: var(--surface-hover, transparent);">
-                <button type="button" onclick="summaryGenerator.cancelImportModal()" class="action-btn" style="font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 6px; background: var(--surface); color: var(--fg); border: 1px solid var(--border); cursor: pointer;">Cancel</button>
-                <button type="button" onclick="summaryGenerator.confirmImportBatch()" class="action-btn" style="font-size: 12px; font-weight: 600; padding: 7px 18px; border-radius: 6px; background: var(--accent, #3b82f6); color: var(--accent-foreground, #ffffff); border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                    <span>✓ Confirm & Import Batch</span>
-                </button>
+            <!-- DialogFooter -->
+            <div class="dsg-dialog-footer">
+                <button type="button" class="dsg-btn dsg-btn-outline" onclick="summaryGenerator.cancelImportModal()">Cancel</button>
+                <button type="button" class="dsg-btn dsg-btn-outline" onclick="summaryGenerator.confirmImportBatch()">Confirm &amp; Import Batch</button>
             </div>
         </div>
     </div>
@@ -1272,6 +1205,11 @@
     <!-- Base UI-style select enhancement (module scripts are deferred, so this
          runs after the document.write scripts above). -->
     <script type="module" src="js/components/ui-select.js"></script>
+    <!-- shadcn/Base UI-style date picker (Popover + Calendar), dependency-free.
+         Classic script: registers before summaryGenerator reads .value on init. -->
+    <script src="js/components/ui-date-picker.js"></script>
+    <!-- shadcn/Base UI-style tooltip (data-tip), dependency-free -->
+    <script src="js/components/ui-tooltip.js"></script>
 
     <script>
         if ('serviceWorker' in navigator) {

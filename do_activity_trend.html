@@ -15,6 +15,7 @@
     <!-- Shared Stylesheet -->
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/settings.js"></script>
+    <script src="js/components/ui-tooltip.js"></script>
 
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#1e40af">
@@ -261,7 +262,7 @@
                     </div>
 
                     <!-- JSON Backup & Sharing Controls -->
-                    <button class="action-btn dat-json-btn dat-json-export-btn" onclick="activityTrend.exportToJSON()">
+                    <button class="action-btn outline" onclick="activityTrend.exportToJSON()" data-tip="Download activity history as JSON">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="7 10 12 15 17 10"/>
@@ -270,7 +271,7 @@
                         Export JSON (.json)
                     </button>
 
-                    <button class="action-btn dat-json-btn dat-json-import-btn" onclick="document.getElementById('activityJsonPicker').click()">
+                    <button class="action-btn outline" onclick="document.getElementById('activityJsonPicker').click()" data-tip="Import activity history from a JSON file">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="17 8 12 3 7 8"/>
@@ -280,7 +281,7 @@
                     </button>
                     <input type="file" id="activityJsonPicker" accept=".json" style="display: none;" onchange="activityTrend.importFromJSON(event)">
 
-                    <button class="action-btn dat-export-btn" onclick="activityTrend.exportToExcel()">
+                    <button class="action-btn outline" onclick="activityTrend.exportToExcel()" data-tip="Download the activity trend as an Excel workbook">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="7 10 12 15 17 10"/>
@@ -476,8 +477,22 @@
                         </thead>
                         <tbody id="datTableBody">
                             <tr>
-                                <td colspan="9" style="text-align:center; padding:30px; color:#71717a;">
-                                    No activity data loaded. Click "Import Daily Reports" above to build your DO Activity Trend history.
+                                <td colspan="9" style="padding: 0; border: none;">
+                                    <div class="empty">
+                                        <div class="empty-header">
+                                            <div class="empty-media">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 0 0 .42-8.98 6 6 0 0 0-11.7 1.62A4 4 0 0 0 7 19h10.5z"/></svg>
+                                            </div>
+                                            <p class="empty-title">No Activity Data</p>
+                                            <p class="empty-description">Import daily reports to build your DO Activity Trend history.</p>
+                                        </div>
+                                        <div class="empty-content">
+                                            <button type="button" class="action-btn outline" onclick="document.getElementById('activityUpdateFilePicker').click()" data-tip="Upload daily report files">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                                Import Daily Reports
+                                            </button>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>

@@ -14,6 +14,7 @@
     <!-- Shared Stylesheet -->
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/settings.js"></script>
+    <script src="js/components/ui-tooltip.js"></script>
 
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#1e40af">
@@ -244,8 +245,8 @@
                 <!-- Dashboard Action Buttons -->
                 <div style="display: flex; align-items: center; gap: 6px;">
                     <button id="themeToggleBtn" onclick="toggleTheme()" style="cursor:pointer; padding: 6px 12px; font-size: 11px;">Mode: Dark</button>
-                    <button id="resetBtn" onclick="resetDashboard()" style="cursor:pointer; padding: 6px 12px; font-size: 11px;">Reset Dashboard</button>
-                    <button id="shippingInsightBtn" onclick="openShippingInsightTab()" style="cursor:pointer; padding: 6px 12px; font-size: 11px;">DO Scanning Status</button>
+                    <button id="resetBtn" onclick="resetDashboard()" data-tip="Reset the dashboard and clear loaded data" style="cursor:pointer; padding: 6px 12px; font-size: 11px;">Reset Dashboard</button>
+                    <button id="shippingInsightBtn" onclick="openShippingInsightTab()" data-tip="Open the Shipping Insight / DO scanning status page" style="cursor:pointer; padding: 6px 12px; font-size: 11px;">DO Scanning Status</button>
                 </div>
             </div>
 
@@ -264,7 +265,7 @@
                     </span>
                 </div>
                 <div class="explorer-sync-actions">
-                    <button type="button" class="btn-sync" onclick="syncWithGeneratorSession(true)" title="Auto-load active batches from DO Summary Generator session">
+                    <button type="button" class="btn-sync" onclick="syncWithGeneratorSession(true)" data-tip="Auto-load active batches from DO Summary Generator session">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                         <span>Sync Generator Batches</span>
                     </button>

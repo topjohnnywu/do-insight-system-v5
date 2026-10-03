@@ -2249,20 +2249,16 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
     applySimplifyModeUI() {
         const btn = document.getElementById('btnSimplifyMode');
         const table = document.querySelector('.compact-table');
-        
-        if (btn && table) {
-            const svgIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>`;
-            if (this.isSimplifyMode) {
-                btn.innerHTML = `${svgIcon} Simplify Mode: ON`;
-                btn.classList.add('active-on');
-                table.classList.add('do-simplify-mode');
-                table.classList.add('simplify-mode');
-            } else {
-                btn.innerHTML = `${svgIcon} Simplify Mode`;
-                btn.classList.remove('active-on');
-                table.classList.remove('do-simplify-mode');
-                table.classList.remove('simplify-mode');
-            }
+
+        if (btn) {
+            // Switch control: reflect state via aria-checked (keeps the thumb intact)
+            btn.setAttribute('aria-checked', this.isSimplifyMode ? 'true' : 'false');
+            const label = document.getElementById('simplifyModeLabel');
+            if (label) label.textContent = this.isSimplifyMode ? 'Simplify Mode: ON' : 'Simplify Mode';
+        }
+        if (table) {
+            table.classList.toggle('do-simplify-mode', this.isSimplifyMode);
+            table.classList.toggle('simplify-mode', this.isSimplifyMode);
         }
     }
 
@@ -2421,7 +2417,23 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
         const elSearchCount = document.getElementById("batchSearchCount");
 
         if (this.batches.length === 0 || !this.batches[this.currentBatchIndex]) {
-            tbody.innerHTML = '<tr><td colspan="13" style="text-align:center; padding:24px; color:#71717a;">No batch data loaded. Please upload a source file.</td></tr>';
+            tbody.innerHTML = `<tr><td colspan="13" style="padding: 0; border: none;">
+                <div class="empty">
+                    <div class="empty-header">
+                        <div class="empty-media">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                        </div>
+                        <p class="empty-title">No Batches Yet</p>
+                        <p class="empty-description">Import a SONY CSV or Excel file to generate your first DO Summary batch.</p>
+                    </div>
+                    <div class="empty-content">
+                        <button type="button" class="action-btn outline" onclick="document.getElementById('sourceFilePicker').click()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Import Summary CSV
+                        </button>
+                    </div>
+                </div>
+            </td></tr>`;
             if (mainCheckbox) mainCheckbox.checked = false;
             if (elSearchCount) elSearchCount.style.display = "none";
             this.updateExcelFilterButtonStates();

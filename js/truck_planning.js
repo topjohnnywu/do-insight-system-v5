@@ -680,17 +680,11 @@ function exportTruckPlanningToExcel() {
 function toggleSimplifyMode() {
     isSimplifyMode = !isSimplifyMode;
     const btn = document.getElementById('btnSimplifyMode');
-    if (isSimplifyMode) {
-        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> Simplify View: ON`;
-        btn.style.backgroundColor = 'var(--accent, #8b5cf6)';
-        btn.style.color = 'var(--accent-foreground, #ffffff)';
-        btn.style.borderColor = 'var(--accent, #8b5cf6)';
-    } else {
-        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> Simplify View: OFF`;
-        btn.style.backgroundColor = 'transparent';
-        btn.style.color = 'var(--fg, #f4f4f5)';
-        btn.style.borderColor = 'var(--border, #3f3f46)';
+    if (btn) {
+        btn.setAttribute('aria-checked', isSimplifyMode ? 'true' : 'false');
     }
+    const label = document.getElementById('simplifyModeLabel');
+    if (label) label.textContent = isSimplifyMode ? 'Simplify View: ON' : 'Simplify View';
     renderTruckPlanningDashboard();
 }
 

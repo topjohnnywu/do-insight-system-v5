@@ -15,6 +15,7 @@
     <!-- Shared Stylesheet -->
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/settings.js"></script>
+    <script src="js/components/ui-tooltip.js"></script>
 
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#1e40af">
@@ -250,7 +251,7 @@
                         <input type="file" id="challengerFilePicker" accept=".csv, .xlsx, .xls" multiple onchange="challengerGenerator.handleFileUpload(event)">
                     </div>
 
-                    <button class="action-btn ch-export-btn" onclick="challengerGenerator.exportToExcel()">
+                    <button class="action-btn outline" onclick="challengerGenerator.exportToExcel()" data-tip="Download the Challenger list as an Excel workbook">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="7 10 12 15 17 10"/>
@@ -378,8 +379,22 @@
                         </thead>
                         <tbody id="challengerTableBody">
                             <tr>
-                                <td colspan="5" style="text-align:center; padding:30px; color:#71717a;">
-                                    No data loaded. Click "Import SONY - ROUTE OUTBOUND" above to extract Challenger DOs.
+                                <td colspan="5" style="padding: 0; border: none;">
+                                    <div class="empty">
+                                        <div class="empty-header">
+                                            <div class="empty-media">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                                            </div>
+                                            <p class="empty-title">No Data Loaded</p>
+                                            <p class="empty-description">Import SONY - ROUTE OUTBOUND source files to extract Challenger DOs.</p>
+                                        </div>
+                                        <div class="empty-content">
+                                            <button type="button" class="action-btn outline" onclick="document.getElementById('challengerFilePicker').click()" data-tip="Upload SONY - ROUTE OUTBOUND files">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                                Import Source Files
+                                            </button>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>

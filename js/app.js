@@ -82,17 +82,36 @@ function updateMemoryBadge() {
         displayRouteName = "All Batch Files Combined";
     }
 
+    const chipSpinnerSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
     let html = "";
     if (displayDoName) {
-        html += `<span class="file-chip green" title="DO Summary File: ${displayDoName}">📄 ${displayDoName} <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('do')" title="Remove DO Summary File">✕</button></span>`;
+        html += `<span class="file-chip green" data-filetype="do" title="DO Summary File: ${displayDoName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${displayDoName}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('do')" title="Remove DO Summary File">✕</button></span>`;
     }
     if (displayRouteName) {
-        html += `<span class="file-chip blue" title="Batch Picking File: ${displayRouteName}">📦 ${displayRouteName} <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('batch')" title="Remove Batch Picking File">✕</button></span>`;
+        html += `<span class="file-chip blue" data-filetype="batch" title="Batch Picking File: ${displayRouteName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${displayRouteName}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('batch')" title="Remove Batch Picking File">✕</button></span>`;
     }
     if (SavedInsightName) {
-        html += `<span class="file-chip purple" title="Shipping Insight File: ${SavedInsightName}">🚚 ${SavedInsightName} <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('shipping')" title="Remove Shipping Insight File">✕</button></span>`;
+        html += `<span class="file-chip purple" data-filetype="shipping" title="Shipping Insight File: ${SavedInsightName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${SavedInsightName}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('shipping')" title="Remove Shipping Insight File">✕</button></span>`;
     }
     BadgeElement.innerHTML = html;
+    // Re-apply any in-flight loading state after re-render
+    Object.keys(fileChipLoadingState).forEach(t => {
+        if (fileChipLoadingState[t]) setFileChipLoading(t, true);
+    });
+}
+
+// Track which file-type chips are currently loading (being parsed/used as data)
+const fileChipLoadingState = { do: false, batch: false, shipping: false };
+window.fileChipLoadingState = fileChipLoadingState;
+
+// Toggle the loading spinner on a status chip.
+// type: 'do' | 'batch' | 'shipping'; isLoading: boolean
+function setFileChipLoading(type, isLoading) {
+    fileChipLoadingState[type] = !!isLoading;
+    const badge = document.getElementById("memoryStatusBadge");
+    if (!badge) return;
+    const chip = badge.querySelector(`.file-chip[data-filetype="${type}"]`);
+    if (chip) chip.classList.toggle("loading", !!isLoading);
 }
 
 // Update Data Source Badge in Dual-Mode Ingestion Bar

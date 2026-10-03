@@ -6,6 +6,7 @@
     <title>OCR Document Scanner - DO Insight Dashboard</title>
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/settings.js"></script>
+    <script src="js/components/ui-tooltip.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/ort.min.js"></script>
@@ -1111,7 +1112,7 @@
         </div>
         <div style="padding:12px;border-top:1px solid var(--border);font-size:11px;color:var(--fg-subtle);text-align:center">DO Insight Dashboard</div>
     </div>
-    <main class="main-content"><div class="header"><div><h1 style="font-size:20px;margin:0">OCR Document Scanner</h1><p style="font-size:12px;color:var(--fg-muted);margin-top:4px">Extract text and isolate numerical values from scanned PDF documents</p></div></div>
+    <main class="main-content"><div class="header" style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;"><div><h1 style="font-size:20px;margin:0">OCR Document Scanner</h1><p style="font-size:12px;color:var(--fg-muted);margin-top:4px">Extract text and isolate numerical values from scanned PDF documents</p></div><button id="themeToggleBtn" onclick="toggleTheme()" style="background: var(--bg-card, #18181b); color: var(--fg, #e4e4e7); border: 1px solid var(--border, #27272a); padding: 8px 12px; border-radius: var(--radius-control); font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">Mode: Dark</button></div>
         <div class="ocr-grid"><section class="ocr-card"><h2>1. Select PDFs</h2><p class="ocr-help">Upload PDF documents only. Files are rendered and processed locally in this browser. Scanned pages can be recognized with local Tesseract.js or Google Gemini AI Vision.</p><input id="pdfFiles" class="ocr-file" type="file" accept="application/pdf,.pdf" multiple>
         
         <!-- Engine Selector: Local OCR vs PaddleOCR vs Gemini AI Vision -->
@@ -1407,7 +1408,7 @@
                         </div>
 
                         <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
-                            <button id="btnExportIsolatedPdf" class="action-btn primary" type="button" style="background: #059669; border-color: #059669; width: 100%; justify-content: center; font-weight: 700;">
+                            <button id="btnExportIsolatedPdf" class="action-btn outline" data-tip="Export the isolated region as a flattened PDF" type="button" style="width: 100%; justify-content: center; font-weight: 700;">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                 Export Flattened Isolated PDF
                             </button>
@@ -4825,4 +4826,5 @@ if ($('copyNumbers')) {
     });
 }
 </script>
+<script src="js/charts.js"></script>
 </body></html>

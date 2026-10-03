@@ -179,7 +179,7 @@ class ChallengerGenerator {
         const elSearchCount = document.getElementById("challengerSearchCount");
 
         if (this.records.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:24px; color:#71717a;">No data loaded. Please upload SONY - ROUTE OUTBOUND source files.</td></tr>';
+            tbody.innerHTML = `<tr><td colspan="5" style="padding:0; border:none;">${buildEmptyHTML({ icon: 'file', title: 'No Data Loaded', description: 'Import SONY - ROUTE OUTBOUND source files to extract Challenger DOs.', ctaLabel: 'Import Source Files', ctaOnclick: "document.getElementById('challengerFilePicker').click()", ctaTip: 'Upload SONY - ROUTE OUTBOUND files' })}</td></tr>`;
             if (elSearchCount) elSearchCount.style.display = "none";
             return;
         }

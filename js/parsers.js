@@ -108,17 +108,24 @@ function updateMemoryBadge() {
         displayRouteName = "All Batch Files Combined";
     }
 
+    const chipSpinnerSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
     let html = "";
     if (displayDoName) {
-        html += `<span class="file-chip green" title="DO Summary File: ${displayDoName}">📄 ${displayDoName} <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('do')" title="Remove DO Summary File">✕</button></span>`;
+        html += `<span class="file-chip green" data-filetype="do" title="DO Summary File: ${displayDoName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${displayDoName}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('do')" title="Remove DO Summary File">✕</button></span>`;
     }
     if (displayRouteName) {
-        html += `<span class="file-chip blue" title="Batch Picking File: ${displayRouteName}">📦 ${displayRouteName} <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('batch')" title="Remove Batch Picking File">✕</button></span>`;
+        html += `<span class="file-chip blue" data-filetype="batch" title="Batch Picking File: ${displayRouteName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${displayRouteName}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('batch')" title="Remove Batch Picking File">✕</button></span>`;
     }
     if (SavedInsightName) {
-        html += `<span class="file-chip purple" title="Shipping Insight File: ${SavedInsightName}">🚚 ${SavedInsightName} <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('shipping')" title="Remove Shipping Insight File">✕</button></span>`;
+        html += `<span class="file-chip purple" data-filetype="shipping" title="Shipping Insight File: ${SavedInsightName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${SavedInsightName}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('shipping')" title="Remove Shipping Insight File">✕</button></span>`;
     }
     BadgeElement.innerHTML = html;
+    // Re-apply any in-flight loading state after re-render
+    if (window.fileChipLoadingState) {
+        Object.keys(window.fileChipLoadingState).forEach(t => {
+            if (window.fileChipLoadingState[t] && typeof setFileChipLoading === 'function') setFileChipLoading(t, true);
+        });
+    }
 }
 
 // Reset specific individual file data by file type ('do', 'batch', 'shipping')
@@ -174,6 +181,13 @@ function resetSpecificFile(fileType) {
 async function handleFileUpload(event) {
     const FileListObjects = Array.from(event.target.files);
     if (FileListObjects.length === 0) return;
+
+    // Show the DO chip's loading spinner while its file is being parsed/used as data
+    if (typeof setFileChipLoading === 'function') {
+        // ensure the chip exists before spinning it (re-render from current state)
+        if (typeof updateMemoryBadge === 'function') updateMemoryBadge();
+        setFileChipLoading('do', true);
+    }
 
     MasterFileStoreArray = [];
     const doSummaryChips = document.getElementById("doSummaryChips");
@@ -280,12 +294,19 @@ async function handleFileUpload(event) {
 
     DataHoarderArray = [...MasterFileStoreArray];
     refreshDashboard();
+    if (typeof setFileChipLoading === 'function') setFileChipLoading('do', false);
 }
 
 // Process Planning / Source Files (.xlsm / .xlsx / .csv) targeting 'Insert Batch' sheet tab
 async function handleProductMasterUpload(event) {
     const SourceFiles = Array.from(event.target.files);
     if (SourceFiles.length === 0) return;
+
+    // Show the Batch chip's loading spinner while its file is being parsed
+    if (typeof setFileChipLoading === 'function') {
+        if (typeof updateMemoryBadge === 'function') updateMemoryBadge();
+        setFileChipLoading('batch', true);
+    }
 
     // Overwrite existing data (reset) instead of merging
     ProductMasterLookupMap = {};
@@ -518,6 +539,7 @@ async function handleProductMasterUpload(event) {
 
     if (typeof updateMemoryBadge === 'function') updateMemoryBadge();
     refreshDashboard();
+    if (typeof setFileChipLoading === 'function') setFileChipLoading('batch', false);
 }
 
 // Save Master Catalog rules to localStorage

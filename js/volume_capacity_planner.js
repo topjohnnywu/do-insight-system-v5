@@ -825,7 +825,7 @@ class PalletCalculationEngine {
         if (!tbody) return;
         
         if (this.orders.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:#71717a;">No orders calculated yet.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="padding:0; border:none;">${buildEmptyHTML({ icon: 'box', title: 'No Orders Calculated', description: 'Add a model and quantity, or import orders from Excel to see pallet calculations.', ctaLabel: 'Import Orders (Excel)', ctaOnclick: "plannerEngine.triggerOrderImport()", ctaTip: 'Import orders from an Excel file' })}</td></tr>`;
             return;
         }
         

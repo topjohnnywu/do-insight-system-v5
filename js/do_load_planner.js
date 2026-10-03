@@ -4,20 +4,13 @@ let isSimplifyMode = true;
 function applySimplifyModeUI() {
     const btn = document.getElementById('btnSimplifyMode');
     const table = document.querySelector('.compact-table');
-    if (btn && table) {
-        if (isSimplifyMode) {
-            btn.innerHTML = `Simplify View: ON`;
-            btn.style.background = 'rgba(16, 185, 129, 0.15)';
-            btn.style.color = '#34d399';
-            btn.style.borderColor = 'rgba(16, 185, 129, 0.3)';
-            table.classList.add('do-simplify-mode');
-        } else {
-            btn.innerHTML = `Simplify View: OFF`;
-            btn.style.background = 'transparent';
-            btn.style.color = 'var(--fg, #f4f4f5)';
-            btn.style.borderColor = 'var(--border, #3f3f46)';
-            table.classList.remove('do-simplify-mode');
-        }
+    if (btn) {
+        btn.setAttribute('aria-checked', isSimplifyMode ? 'true' : 'false');
+        const label = document.getElementById('simplifyModeLabel');
+        if (label) label.textContent = isSimplifyMode ? 'Simplify View: ON' : 'Simplify View';
+    }
+    if (table) {
+        table.classList.toggle('do-simplify-mode', isSimplifyMode);
     }
 }
 

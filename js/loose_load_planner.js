@@ -1356,7 +1356,7 @@ class LooseLoadPlanner {
         if (!tbody) return;
         
         if (this.models.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="padding: 24px; text-align: center; color: var(--fg-muted, #a1a1aa);">No data uploaded yet. Select a model above or upload a Batch Picking / Route file.</td></tr>';
+            tbody.innerHTML = `<tr><td colspan="7" style="padding:0; border:none;">${buildEmptyHTML({ icon: 'box', title: 'No Data Uploaded', description: 'Select a model above or upload a Batch Picking / Route file to begin planning the load.', ctaLabel: 'Upload Batch Picking', ctaOnclick: "document.getElementById('batchInput') && document.getElementById('batchInput').click()", ctaTip: 'Upload the batch picking file' })}</td></tr>`;
             return;
         }
         

@@ -161,13 +161,13 @@
       else root.classList.remove('dark');
 
       try {
-        const currentGlobalTheme = localStorage.getItem('AppThemeMode') || 'linear';
+        const currentGlobalTheme = localStorage.getItem('AppThemeMode') || 'dark';
         const isGlobalLight = currentGlobalTheme === 'light';
         
         if (theme === 'light' && !isGlobalLight) {
           localStorage.setItem('AppThemeMode', 'light');
         } else if (theme === 'dark' && isGlobalLight) {
-          localStorage.setItem('AppThemeMode', 'linear');
+          localStorage.setItem('AppThemeMode', 'dark');
         }
       } catch (e) {
         console.error('Failed to save theme to local storage', e);

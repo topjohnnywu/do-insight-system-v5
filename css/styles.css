@@ -260,10 +260,10 @@
 
 /* ==========================================================
    DO Insight System — Design Token System
-   Themes: shadcn (default dark) / light
-   :root below holds the shared fallback values; [data-theme="shadcn"] and
+   Themes: dark (default) / light
+   :root below holds the shared fallback values; [data-theme="dark"] and
    [data-theme="light"] override them. (The former Linear & AMOLED themes
-   were removed; shadcn is the default and is always set by the theme JS.)
+   were removed; dark is the default and is always set by the theme JS.)
    ========================================================== */
 :root {
     --font-sans: "Netflix Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -318,7 +318,7 @@
     --dur: 200ms;
 }
 
-/* NOTE: The AMOLED and Linear themes were removed. shadcn is the default dark
+/* NOTE: The AMOLED and Linear themes were removed. Dark is the default
    theme and Light is the only alternative; both are defined below / in :root. */
 
 /* ==========================================================
@@ -332,7 +332,7 @@
    - Flat cards: hairline #262626 borders, essentially no glow
    - Radius follows shadcn's --radius scale (0.5rem base)
    ========================================================== */
-[data-theme="shadcn"] {
+[data-theme="dark"] {
     /* Surfaces: pure zinc, flat */
     --bg-deep: #09090b;          /* zinc-950 */
     --bg-base: #0a0a0a;          /* shadcn background */
@@ -394,32 +394,31 @@
 /* Elements whose BACKGROUND is the (white) accent must render their text/icons
    in the dark accent-foreground, otherwise they appear white-on-white.
    This covers class-based and inline-styled primary buttons/toggles. */
-[data-theme="shadcn"] .btn-primary,
-[data-theme="shadcn"] .action-btn.primary,
-[data-theme="shadcn"] button[style*="var(--accent)"],
-[data-theme="shadcn"] [style*="background: var(--accent)"],
-[data-theme="shadcn"] [style*="background-color: var(--accent)"] {
+[data-theme="dark"] .btn-primary,
+[data-theme="dark"] .action-btn.primary,
+[data-theme="dark"] button[style*="var(--accent)"],
+[data-theme="dark"] [style*="background: var(--accent)"],
+[data-theme="dark"] [style*="background-color: var(--accent)"] {
     color: var(--accent-foreground, #0a0a0a);
 }
 
 /* Text/icons that other themes color with the (blue) --accent become the WHITE
    accent in this theme and can vanish on light surfaces. Force them to the
    legible --accent-text neutral so emphasis text stays readable. */
-[data-theme="shadcn"] .sidebar-nav-item.active svg,
-[data-theme="shadcn"] .remark-note-text,
-[data-theme="shadcn"] .manifest-label,
-[data-theme="shadcn"] .dat-json-export-btn,
-[data-theme="shadcn"] .sticky-remarks-card .panel-toggle-btn,
-[data-theme="shadcn"] .spreadsheet-table th.sortable-th:hover,
-[data-theme="shadcn"] .spreadsheet-table th.sorted .sort-icon,
-[data-theme="shadcn"] .do-picker-action-btn,
-[data-theme="shadcn"] .quick-filter-direct-btn svg,
-[data-theme="shadcn"] .quick-filter-direct-btn.active,
-[data-theme="shadcn"] .quick-filter-direct-btn.active svg,
-[data-theme="shadcn"] .chart-action-btn,
-[data-theme="shadcn"] .dashboard-header-brand-icon,
-[data-theme="shadcn"] .btn-do-link,
-[data-theme="shadcn"] .btn-do-link:hover {
+[data-theme="dark"] .sidebar-nav-item.active svg,
+[data-theme="dark"] .remark-note-text,
+[data-theme="dark"] .manifest-label,
+[data-theme="dark"] .sticky-remarks-card .panel-toggle-btn,
+[data-theme="dark"] .spreadsheet-table th.sortable-th:hover,
+[data-theme="dark"] .spreadsheet-table th.sorted .sort-icon,
+[data-theme="dark"] .do-picker-action-btn,
+[data-theme="dark"] .quick-filter-direct-btn svg,
+[data-theme="dark"] .quick-filter-direct-btn.active,
+[data-theme="dark"] .quick-filter-direct-btn.active svg,
+[data-theme="dark"] .chart-action-btn,
+[data-theme="dark"] .dashboard-header-brand-icon,
+[data-theme="dark"] .btn-do-link,
+[data-theme="dark"] .btn-do-link:hover {
     color: var(--accent-text, #e4e4e7);
 }
 
@@ -428,41 +427,28 @@
    white-on-white. Force their foreground to the dark accent-foreground.
    These selectors mirror every rule that pairs an accent background with a
    hard-coded light text color. */
-[data-theme="shadcn"] .pagination-btn.active,
-[data-theme="shadcn"] .slicer-btn.active,
-[data-theme="shadcn"] .action-btn.primary,
-[data-theme="shadcn"] .batch-tab-btn.active-tab,
-[data-theme="shadcn"] .file-chips-wrapper .file-chip.active,
-[data-theme="shadcn"] .btn-sync,
-[data-theme="shadcn"] .filter-preset-chip.active,
-[data-theme="shadcn"] .excel-filter-btn.active,
-[data-theme="shadcn"] .excel-btn-ok,
-[data-theme="shadcn"] .do-picker-badge,
-[data-theme="shadcn"] .btn-tick-action.active,
-[data-theme="shadcn"] .alert-dialog-action.action-primary,
-[data-theme="shadcn"] .view-toggle-btn.active,
-[data-theme="shadcn"] #shippingInsightBtn,
-[data-theme="shadcn"] #shippingInsightBtn:hover,
-[data-theme="shadcn"] .chart-action-btn.active,
-[data-theme="shadcn"] .filter-count-badge,
+[data-theme="dark"] .pagination-btn.active,
+[data-theme="dark"] .slicer-btn.active,
+[data-theme="dark"] .action-btn.primary,
+[data-theme="dark"] .batch-tab-btn.active-tab,
+[data-theme="dark"] .file-chips-wrapper .file-chip.active,
+[data-theme="dark"] .filter-preset-chip.active,
+[data-theme="dark"] .excel-filter-btn.active,
+[data-theme="dark"] .excel-btn-ok,
+[data-theme="dark"] .do-picker-badge,
+[data-theme="dark"] .btn-tick-action.active,
+[data-theme="dark"] .alert-dialog-action.action-primary,
+[data-theme="dark"] .view-toggle-btn.active,
+[data-theme="dark"] .chart-action-btn.active,
+[data-theme="dark"] .filter-count-badge,
 /* Class-based accent-fill components found in per-page audits (DSG, manifest,
    truck-planning speed toggle) that hard-code white text on var(--accent). */
-[data-theme="shadcn"] .dsg-btn-import-csv,
-[data-theme="shadcn"] .dsg-btn-import-csv:hover,
-[data-theme="shadcn"] .dsg-btn-simplify.active-on,
-[data-theme="shadcn"] .dsg-btn-simplify.active-on:hover,
-[data-theme="shadcn"] .btn-copy-manifest:hover:not(:disabled),
-[data-theme="shadcn"] .sim-speed-btn.active,
-[data-theme="shadcn"] .dsg-compile-btn,
-[data-theme="shadcn"] .dsg-compile-btn:hover,
-[data-theme="shadcn"] .dsg-export-btn,
-[data-theme="shadcn"] .dsg-export-btn:hover,
-[data-theme="shadcn"] .dsg-email-btn,
-[data-theme="shadcn"] .dsg-email-btn:hover,
-[data-theme="shadcn"] .dat-export-btn,
-[data-theme="shadcn"] .dat-export-btn:hover,
-[data-theme="shadcn"] .ch-export-btn,
-[data-theme="shadcn"] .ch-export-btn:hover {
+[data-theme="dark"] .dsg-btn-import-csv,
+[data-theme="dark"] .dsg-btn-import-csv:hover,
+[data-theme="dark"] .dsg-btn-simplify.active-on,
+[data-theme="dark"] .dsg-btn-simplify.active-on:hover,
+[data-theme="dark"] .btn-copy-manifest:hover:not(:disabled),
+[data-theme="dark"] .sim-speed-btn.active {
     color: var(--accent-foreground, #0a0a0a) !important;
 }
 
@@ -1333,6 +1319,52 @@ html[data-sidebar-autohide="true"] .sidebar:not(:hover):not(.is-hovered) .sideba
     transform: scale(1.15);
 }
 
+/* ------------------------------------------------------------------
+   Status file-chip -> shadcn "Generating" Badge look + loading spinner.
+   Neutral, single-tone dark pill (no per-type accent colours, no emoji). When
+   the chip's file is being parsed/used as data, a spinner appears inline-start.
+   ------------------------------------------------------------------ */
+#memoryStatusBadge .file-chip,
+#memoryStatusBadge .file-chip.green,
+#memoryStatusBadge .file-chip.blue,
+#memoryStatusBadge .file-chip.purple {
+    border-radius: 999px;                 /* pill like shadcn Badge */
+    padding: 4px 11px;
+    gap: 6px;
+    line-height: 1;
+    font-weight: 500;
+    /* neutral dark badge (matches the "Generating" reference) */
+    background: var(--surface-hover, rgba(255,255,255,0.06));
+    border: 1px solid var(--border, rgba(255,255,255,0.1));
+    color: var(--fg, #f4f4f5);
+    box-shadow: none;
+}
+#memoryStatusBadge .file-chip .chip-icon { display: none; }   /* emoji removed */
+
+/* Spinner — always visible on a loaded status chip (persistent "live" indicator
+   while that file is the active data source). SVG arc, rotates reliably. */
+.file-chip-spinner {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    color: var(--fg-muted, #a1a1aa);
+    animation: fileChipSpin 0.8s linear infinite;
+}
+.file-chip-spinner svg { display: block; width: 100%; height: 100%; }
+@keyframes fileChipSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* Optional parsing state: brighten the spinner while actively parsing */
+#memoryStatusBadge .file-chip.loading .file-chip-spinner { color: var(--fg, #f4f4f5); }
+#memoryStatusBadge .file-chip.loading { cursor: progress; }
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .file-chip-spinner { animation-duration: 1.6s; }
+}
+
 .reset-file-btn {
     display: inline-flex;
     align-items: center;
@@ -1538,19 +1570,23 @@ select {
 }
 
 /* Batch summary generator controls (theme-aware, token-driven) */
+/* #batchSearchInput lives inside the Base UI .input-group component, which
+   already draws the outer border/background. Keep the inner control flush so
+   the leading search icon and the input don't render as two overlapping boxes. */
 #batchSearchInput {
-    background-color: var(--surface-solid);
+    background: transparent;
     color: var(--fg);
-    border: 1px solid var(--border-hover);
-    border-radius: var(--radius-control);
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
 }
 #batchSearchInput::placeholder {
     color: var(--fg-subtle);
 }
 #batchSearchInput:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow);
+    /* Focus ring is drawn by .input-group:focus-within on the wrapper */
     outline: none;
+    box-shadow: none;
 }
 #emailTargetSelect {
     background-color: var(--surface-solid);
@@ -2120,17 +2156,17 @@ input[type="file"]::file-selector-button:focus-visible {
 }
 
 #shippingInsightBtn {
-    background-color: var(--accent) !important;
-    color: var(--accent-foreground, #ffffff) !important;
-    border: 1px solid transparent !important;
-    box-shadow: var(--shadow-cta);
+    background-color: transparent !important;
+    color: var(--fg) !important;
+    border: 1px solid var(--border-hover) !important;
+    box-shadow: none;
 }
 
 #shippingInsightBtn:hover {
-    background-color: var(--accent-bright) !important;
-    color: var(--accent-foreground, #ffffff) !important;
-    border-color: transparent !important;
-    box-shadow: 0 0 0 1px var(--accent-glow-strong), 0 6px 20px var(--accent-glow);
+    background-color: var(--surface-hover) !important;
+    color: var(--fg) !important;
+    border-color: var(--border-hover) !important;
+    box-shadow: none;
     transform: translateY(-1px);
 }
 
@@ -2183,17 +2219,17 @@ body.light-mode #resetBtn:hover {
 }
 
 body.light-mode #shippingInsightBtn {
-    background-color: #f5f3ff !important;
-    color: #7c3aed !important;
-    border: 1px solid #c4b5fd !important;
-    box-shadow: 0 1px 3px rgba(124, 58, 237, 0.1) !important;
+    background-color: transparent !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
 }
 
 body.light-mode #shippingInsightBtn:hover {
-    background-color: #8b5cf6 !important;
-    color: #ffffff !important;
-    border-color: #7c3aed !important;
-    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25) !important;
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+    border-color: #94a3b8 !important;
+    box-shadow: none !important;
 }
 
 /* Light Mode Overrides for Sidebar */
@@ -2426,9 +2462,127 @@ body.light-mode .slicer-btn.active {
 .action-btn.ghost:hover { color: var(--fg); background-color: var(--surface-hover); }
 .action-btn.active { background-color: var(--accent); color: var(--accent-foreground, #ffffff); border: 1px solid var(--accent-bright); box-shadow: var(--shadow-cta); }
 
+/* Semantic action variants for data operations — all token-driven so they
+   follow the dark/light theme. Use these instead of hardcoded hex colors.
+   - .export  : file/data export (Excel, PDF, JSON, CSV download)
+   - .import  : alias of .primary for upload/import actions
+   - .upload-neutral : neutral/secondary upload (non-primary step) */
+.action-btn.export {
+    background-color: var(--btn-export);
+    color: var(--accent-foreground, #ffffff);
+    border: 1px solid var(--btn-export);
+    box-shadow: var(--shadow-cta);
+}
+.action-btn.export:hover {
+    background-color: var(--btn-export-hover);
+    border-color: var(--btn-export-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px var(--accent-glow);
+}
+.action-btn.export:active { transform: translateY(0) scale(0.98); }
+
+.action-btn.import {
+    background-color: var(--accent);
+    color: var(--accent-foreground, #ffffff);
+    border: 1px solid var(--accent);
+    box-shadow: var(--shadow-cta);
+}
+.action-btn.import:hover {
+    background-color: var(--accent-bright);
+    border-color: var(--accent-bright);
+    transform: translateY(-2px);
+}
+.action-btn.upload-neutral {
+    background-color: var(--surface-hover);
+    color: var(--fg);
+    border: 1px solid var(--border-hover);
+    box-shadow: var(--highlight-top);
+}
+.action-btn.upload-neutral:hover {
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+}
+
 .action-btn:active {
     transform: scale(0.98);
 }
+
+/* ------------------------------------------------------------------
+   .action-btn.outline — shadcn/Base UI "outline" button.
+   Neutral, transparent background with a subtle border (like the reference
+   Button/ArrowUp outline demo). Used for upload/import/export actions so they
+   stay quiet and theme-adaptive instead of filled accent/green.
+   ------------------------------------------------------------------ */
+.action-btn.outline {
+    background-color: transparent;
+    color: var(--fg);
+    border: 1px solid var(--border-hover);
+    box-shadow: none;
+}
+.action-btn.outline:hover {
+    background-color: var(--surface-hover);
+    border-color: var(--border-hover);
+    color: var(--fg);
+    transform: translateY(-1px);
+}
+.action-btn.outline:active { transform: translateY(0) scale(0.98); }
+.action-btn.outline:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+/* Icon inside an outline button stays muted until hover */
+.action-btn.outline > svg { color: var(--fg-muted); transition: color 0.15s ease; }
+.action-btn.outline:hover > svg { color: var(--fg); }
+/* Icon-only square variant (like the ArrowUp icon button in the reference) */
+.action-btn.outline.action-btn-icon {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    flex: 0 0 auto;
+}
+.action-btn.outline.action-btn-icon > svg { margin: 0; }
+
+/* ------------------------------------------------------------------
+   .btn-primary — canonical base for primary buttons.
+   Previously this class had NO base rule (only a dark-theme color override),
+   so any button using it rendered as an unstyled browser default. Now it is a
+   real, self-contained primary style that follows the theme tokens.
+   ------------------------------------------------------------------ */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    line-height: 1;
+    cursor: pointer;
+    background-color: var(--accent);
+    color: var(--accent-foreground, #ffffff);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-control);
+    box-shadow: var(--shadow-cta);
+    transition: background-color 0.15s var(--ease), transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+.btn-primary:hover {
+    background-color: var(--accent-bright);
+    border-color: var(--accent-bright);
+    transform: translateY(-1px);
+}
+.btn-primary:active { transform: translateY(0) scale(0.98); }
+.btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-glow); }
+/* Secondary/neutral companion for .btn-primary contexts */
+.btn-primary.btn-neutral {
+    background-color: var(--surface-hover);
+    color: var(--fg);
+    border-color: var(--border-hover);
+    box-shadow: var(--highlight-top);
+}
+.btn-primary.btn-neutral:hover { border-color: var(--border-accent); }
 
 /* Light mode adjustments for action buttons */
 body.light-mode .action-btn.secondary {
@@ -2440,6 +2594,19 @@ body.light-mode .action-btn.secondary:hover {
     background-color: #cbd5e1;
     box-shadow: 0 4px 12px rgba(100, 116, 139, 0.2);
 }
+
+body.light-mode .action-btn.outline {
+    background-color: transparent;
+    color: #334155;
+    border-color: #cbd5e1;
+}
+body.light-mode .action-btn.outline:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+    border-color: #94a3b8;
+}
+body.light-mode .action-btn.outline > svg { color: #64748b; }
+body.light-mode .action-btn.outline:hover > svg { color: #0f172a; }
 
 /* Truck Planning: Manifest Header (shown only when Truck + Hub filters are active) */
 .manifest-header {
@@ -2696,10 +2863,13 @@ body.light-mode .batch-tab-btn.active-tab {
     box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
 }
 
+/* Light mode: keep the inner control flush inside its .input-group wrapper
+   (the wrapper draws the border/background). Only set the text color here. */
 body.light-mode #batchSearchInput {
-    background-color: #ffffff !important;
+    background-color: transparent !important;
     color: #0f172a !important;
-    border-color: #cbd5e1 !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
 }
 
 body.light-mode #batchSearchInput::placeholder {
@@ -2835,14 +3005,8 @@ body.light-mode #challengerSearchCount {
     border-color: #a7f3d0 !important;
 }
 
-/* Challenger Action Buttons */
-.ch-export-btn,
+/* Reset Action Buttons (soft-danger) */
 .ch-reset-btn,
-.dsg-compile-btn,
-.dsg-export-btn,
-.dsg-reset-btn,
-.dsg-email-btn,
-.dat-export-btn,
 .dat-reset-btn {
     display: inline-flex;
     align-items: center;
@@ -2864,60 +3028,25 @@ body.light-mode #challengerSearchCount {
     transition: background-color 0.2s var(--ease), transform 0.2s var(--ease), box-shadow 0.2s var(--ease), filter 0.2s var(--ease);
 }
 
-.ch-export-btn:focus-visible,
 .ch-reset-btn:focus-visible,
-.dsg-compile-btn:focus-visible,
-.dsg-export-btn:focus-visible,
-.dsg-reset-btn:focus-visible,
-.dsg-email-btn:focus-visible,
-.dat-export-btn:focus-visible,
 .dat-reset-btn:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px var(--accent-glow) !important;
 }
 
-.ch-export-btn svg,
 .ch-reset-btn svg,
-.dsg-compile-btn svg,
-.dsg-export-btn svg,
-.dsg-reset-btn svg,
-.dsg-email-btn svg,
-.dat-export-btn svg,
 .dat-reset-btn svg {
     flex-shrink: 0;
     transition: transform 0.2s var(--ease);
 }
 
-.ch-export-btn:hover,
-.dsg-export-btn:hover,
-.dsg-compile-btn:hover,
-.dat-export-btn:hover,
-.dsg-email-btn:hover {
-    background-color: var(--btn-export-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 0 0 1px var(--accent-glow-strong), 0 6px 20px var(--accent-glow);
-}
-
-.ch-export-btn:hover svg,
-.dsg-export-btn:hover svg,
-.dat-export-btn:hover svg {
-    transform: translateY(-2px) scale(1.1);
-}
-
-.ch-export-btn:active,
 .ch-reset-btn:active,
-.dsg-compile-btn:active,
-.dsg-export-btn:active,
-.dsg-reset-btn:active,
-.dsg-email-btn:active,
-.dat-export-btn:active,
 .dat-reset-btn:active {
     transform: scale(0.97);
 }
 
 /* Reset buttons - soft danger */
 .ch-reset-btn,
-.dsg-reset-btn,
 .dat-reset-btn {
     background: var(--btn-danger-bg);
     color: var(--btn-danger-fg);
@@ -2926,7 +3055,6 @@ body.light-mode #challengerSearchCount {
 }
 
 .ch-reset-btn:hover,
-.dsg-reset-btn:hover,
 .dat-reset-btn:hover {
     background: var(--btn-danger-hover-bg);
     color: var(--btn-danger-hover-fg);
@@ -2935,123 +3063,18 @@ body.light-mode #challengerSearchCount {
 }
 
 .ch-reset-btn:hover svg,
-.dsg-reset-btn:hover svg,
 .dat-reset-btn:hover svg {
     transform: rotate(-8deg) scale(1.08);
 }
 
-/* DO Activity Trend JSON Buttons */
-.dat-json-btn {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    transition: all 0.2s var(--ease);
-}
-.dat-json-export-btn {
-    background: var(--accent-glow);
-    color: var(--accent-bright);
-    border: 1px solid var(--border-accent);
-}
-.dat-json-export-btn:hover {
-    background: var(--accent-glow-strong);
-    transform: translateY(-1px);
-}
-.dat-json-import-btn {
-    background: var(--surface);
-    color: var(--fg);
-    border: 1px solid var(--border);
-}
-.dat-json-import-btn:hover {
-    background: var(--surface-hover);
-    border-color: var(--border-hover);
-    transform: translateY(-1px);
-}
-
-/* DO Activity Trend Export */
-.dat-export-btn {
-    background: var(--btn-export);
-    color: var(--accent-foreground, #ffffff);
-}
-
-.dat-export-btn:hover {
-    background-color: var(--btn-export-hover);
-    transform: translateY(-2px);
-}
-
-.dat-export-btn:active {
-    transform: scale(0.97);
-}
-
-/* Compile Final Summary */
-.dsg-compile-btn {
-    background: var(--btn-compile);
-    /* Text sits on the accent background; use accent-foreground so it stays
-       readable in every theme (dark text on the white shadcn accent). */
-    color: var(--accent-foreground, #ffffff);
-}
-
-.dsg-compile-btn:hover {
-    background-color: var(--btn-compile-hover);
-    transform: translateY(-2px);
-}
-
-.dsg-compile-btn:hover svg {
-    transform: rotate(-8deg) scale(1.1);
-}
-
-/* Export Workbook */
-.dsg-export-btn {
-    background: var(--btn-export);
-    color: var(--accent-foreground, #ffffff);
-}
-
-.dsg-export-btn:hover {
-    background-color: var(--btn-export-hover);
-    transform: translateY(-2px);
-}
-
-/* Generate Email */
-.dsg-email-btn {
-    background: var(--btn-email);
-    color: var(--accent-foreground, #ffffff);
-}
-
-.dsg-email-btn:hover {
-    background-color: var(--btn-email-hover);
-    transform: translateY(-2px);
-}
-
-.dsg-email-btn:hover svg {
-    transform: rotate(-8deg) scale(1.1);
-}
-
-.dsg-email-btn:active {
-    transform: scale(0.97);
-}
-
 /* Light Mode Adjustments */
-body.light-mode .ch-export-btn,
-body.light-mode .dsg-export-btn,
-body.light-mode .dsg-compile-btn,
-body.light-mode .dat-export-btn,
-body.light-mode .dsg-email-btn {
-    color: #ffffff;
-}
-
 body.light-mode .ch-reset-btn,
-body.light-mode .dsg-reset-btn,
 body.light-mode .dat-reset-btn {
     color: var(--btn-danger-fg);
     background: var(--btn-danger-bg);
 }
 
 body.light-mode .ch-reset-btn:hover,
-body.light-mode .dsg-reset-btn:hover,
 body.light-mode .dat-reset-btn:hover {
     color: var(--btn-danger-hover-fg);
     background: var(--btn-danger-hover-bg);
@@ -3077,11 +3100,6 @@ body.light-mode #datSearchCount {
     background: #ecfdf5 !important;
     color: #059669 !important;
     border-color: #a7f3d0 !important;
-}
-
-body.light-mode .dsg-email-btn {
-    color: #ffffff;
-    background: var(--btn-email);
 }
 
 body.light-mode #emailTargetSelect {
@@ -3235,6 +3253,15 @@ body.light-mode select {
     background-color: #ffffff !important;
     color: #0f172a !important;
     border-color: #cbd5e1 !important;
+}
+
+/* Inputs that live inside the Base UI .input-group must stay flush — the group
+   wrapper draws the border/background, so don't repaint the inner control. */
+body.light-mode .input-group .input-group-control,
+body.light-mode .input-group input.input-group-control {
+    background-color: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
 }
 
 body.light-mode input::placeholder {
@@ -4551,21 +4578,24 @@ body.light-mode .glass-card {
     align-items: center;
     gap: 6px;
     padding: 7px 14px;
-    background: var(--accent);
-    color: #ffffff;
-    border: 1px solid var(--accent-bright);
+    background: transparent;
+    color: var(--fg);
+    border: 1px solid var(--border-hover);
     border-radius: var(--radius-control, 8px);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     transition: all var(--dur) var(--ease);
-    box-shadow: var(--shadow-cta);
+    box-shadow: none;
 }
 
 .btn-sync:hover {
-    background: var(--accent-bright);
+    background: var(--surface-hover);
+    border-color: var(--border-hover);
     transform: translateY(-1px);
 }
+.btn-sync > svg { color: var(--fg-muted); transition: color 0.15s ease; }
+.btn-sync:hover > svg { color: var(--fg); }
 
 .btn-standalone-upload {
     position: relative;
@@ -4884,13 +4914,14 @@ body.light-mode .glass-card {
 }
 
 .spreadsheet-btn.btn-export-excel {
-    background: #10b981;
-    color: #ffffff;
-    border-color: #059669;
+    background: transparent;
+    color: var(--fg);
+    border-color: var(--border-hover);
 }
 
 .spreadsheet-btn.btn-export-excel:hover {
-    background: #059669;
+    background: var(--surface-hover);
+    border-color: var(--border-hover);
 }
 
 .view-mode-toggle {
@@ -6207,33 +6238,33 @@ input[type="checkbox"]:focus-visible {
     box-shadow: 0 0 0 2px var(--bg, #0f172a), 0 0 0 4px var(--accent, #3b82f6) !important;
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) input[type="checkbox"]:focus-visible,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="dark"]) input[type="checkbox"]:focus-visible,
 html[data-theme="light"] input[type="checkbox"]:focus-visible,
 body.light-mode input[type="checkbox"]:focus-visible {
     box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #09090b !important;
 }
 
 /* Light Theme Unchecked State - white box with clean zinc outline */
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) input[type="checkbox"]:not(:checked):not(:indeterminate),
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="dark"]) input[type="checkbox"]:not(:checked):not(:indeterminate),
 html[data-theme="light"] input[type="checkbox"]:not(:checked):not(:indeterminate),
 body.light-mode input[type="checkbox"]:not(:checked):not(:indeterminate) {
     background-color: #ffffff;
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) input[type="checkbox"]:not(:checked):not(:indeterminate)::after,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="dark"]) input[type="checkbox"]:not(:checked):not(:indeterminate)::after,
 html[data-theme="light"] input[type="checkbox"]:not(:checked):not(:indeterminate)::after,
 body.light-mode input[type="checkbox"]:not(:checked):not(:indeterminate)::after {
     border-color: #71717a;
 }
 
 /* Light Theme Hover (Unchecked Only) */
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled),
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="dark"]) input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled),
 html[data-theme="light"] input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled),
 body.light-mode input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled) {
     background-color: #f4f4f5;
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled)::after,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="dark"]) input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled)::after,
 html[data-theme="light"] input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled)::after,
 body.light-mode input[type="checkbox"]:hover:not(:checked):not(:indeterminate):not(:disabled)::after {
     border-color: #09090b;
@@ -6386,13 +6417,13 @@ input[type="checkbox"]:disabled {
 }
 
 /* Light Theme Dynamic Adaptation */
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) .alert-dialog-overlay,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="dark"]) .alert-dialog-overlay,
 html[data-theme="light"] .alert-dialog-overlay,
 body.light-mode .alert-dialog-overlay {
     background-color: rgba(0, 0, 0, 0.45);
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) .alert-dialog-content,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="dark"]) .alert-dialog-content,
 html[data-theme="light"] .alert-dialog-content,
 body.light-mode .alert-dialog-content {
     background-color: #ffffff;
@@ -6400,19 +6431,19 @@ body.light-mode .alert-dialog-content {
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) .alert-dialog-title,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="dark"]) .alert-dialog-title,
 html[data-theme="light"] .alert-dialog-title,
 body.light-mode .alert-dialog-title {
     color: #09090b;
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) .alert-dialog-description,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="dark"]) .alert-dialog-description,
 html[data-theme="light"] .alert-dialog-description,
 body.light-mode .alert-dialog-description {
     color: #71717a;
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) .alert-dialog-cancel,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="dark"]) .alert-dialog-cancel,
 html[data-theme="light"] .alert-dialog-cancel,
 body.light-mode .alert-dialog-cancel {
     background-color: #ffffff;
@@ -6420,21 +6451,21 @@ body.light-mode .alert-dialog-cancel {
     border: 1px solid #e4e4e7;
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) .alert-dialog-cancel:hover,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="dark"]) .alert-dialog-cancel:hover,
 html[data-theme="light"] .alert-dialog-cancel:hover,
 body.light-mode .alert-dialog-cancel:hover {
     background-color: #f4f4f5;
     border-color: #d4d4d8;
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) .alert-dialog-action.action-primary,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="dark"]) .alert-dialog-action.action-primary,
 html[data-theme="light"] .alert-dialog-action.action-primary,
 body.light-mode .alert-dialog-action.action-primary {
     background-color: #09090b;
     color: #f8fafc;
 }
 
-html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="shadcn"]) .alert-dialog-action.action-primary:hover,
+html:not(.dark):not([data-theme="dark"]):not([data-theme="amoled"]):not([data-theme="dark"]) .alert-dialog-action.action-primary:hover,
 html[data-theme="light"] .alert-dialog-action.action-primary:hover,
 body.light-mode .alert-dialog-action.action-primary:hover {
     background-color: #27272a;
@@ -6842,4 +6873,614 @@ body.light-mode .alert-dialog-action.action-primary:hover {
 }
 .ui-toast-close:hover { color: var(--fg, #f4f4f5); background: var(--surface-hover, rgba(255,255,255,0.06)); }
 .ui-toast-close svg { width: 14px; height: 14px; display: block; }
+
+/* ==========================================================
+   Tooltip — shadcn / Base UI design (dependency-free)
+   Dark rounded card, small text, subtle border + shadow, fade+zoom in.
+   Driven by [data-tip]; positioned by js/components/ui-tooltip.js.
+   Adapts to dark/light via [data-theme] tokens.
+   ========================================================== */
+.ui-tooltip {
+    position: fixed;
+    z-index: 100000;
+    pointer-events: none;
+    max-width: 260px;
+    /* entrance state */
+    opacity: 0;
+    transform: scale(0.96) translateY(2px);
+    transition: opacity 0.12s ease, transform 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ui-tooltip.ui-tooltip-open {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+.ui-tooltip-content {
+    background: var(--surface-card, #18181b);
+    color: var(--fg, #f4f4f5);
+    border: 1px solid var(--border, rgba(255,255,255,0.1));
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.35;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,0,0,0.2);
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+/* Arrow (rotated square) */
+.ui-tooltip-arrow {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: var(--surface-card, #18181b);
+    border: 1px solid var(--border, rgba(255,255,255,0.1));
+    transform: translateX(-50%) rotate(45deg);
+}
+.ui-tooltip[data-side="top"] .ui-tooltip-arrow {
+    bottom: 0; top: auto !important;
+    border-top: none; border-left: none;
+    margin-bottom: -4px;
+}
+.ui-tooltip[data-side="bottom"] .ui-tooltip-arrow {
+    top: 0; bottom: auto !important;
+    border-bottom: none; border-right: none;
+    margin-top: -4px;
+}
+.ui-tooltip[data-side="left"] .ui-tooltip-arrow {
+    right: 0; left: auto !important;
+    transform: translateY(-50%) rotate(45deg);
+    border-left: none; border-bottom: none;
+    margin-right: -4px;
+}
+.ui-tooltip[data-side="right"] .ui-tooltip-arrow {
+    left: 0; right: auto !important;
+    transform: translateY(-50%) rotate(45deg);
+    border-right: none; border-top: none;
+    margin-left: -4px;
+}
+
+/* Light mode */
+body.light-mode .ui-tooltip-content,
+html[data-theme="light"] .ui-tooltip-content {
+    background: #ffffff;
+    color: #0f172a;
+    border-color: #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+body.light-mode .ui-tooltip-arrow,
+html[data-theme="light"] .ui-tooltip-arrow {
+    background: #ffffff;
+    border-color: #e2e8f0;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .ui-tooltip { transition: opacity 0.01s linear; transform: none; }
+    .ui-tooltip.ui-tooltip-open { transform: none; }
+}
+
+/* ==========================================================
+   Switch — shadcn / Base UI design (dependency-free)
+   A labelled toggle: track + sliding thumb, accent when ON.
+   Use: <button class="ui-switch" role="switch" aria-checked="false">
+           <span class="ui-switch-thumb"></span>
+        </button>
+        <label class="ui-switch-label">Label</label>
+   The .ui-switch-field wrapper lays the switch + label out inline.
+   State is driven by aria-checked="true|false" (set via JS).
+   ========================================================== */
+.ui-switch-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.ui-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 20px;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid var(--border-hover, rgba(255,255,255,0.16));
+    background: var(--surface-hover, rgba(255,255,255,0.1));
+    cursor: pointer;
+    transition: background-color 0.2s var(--ease, ease), border-color 0.2s var(--ease, ease);
+    -webkit-appearance: none;
+    appearance: none;
+    vertical-align: middle;
+}
+.ui-switch:hover { border-color: var(--border-accent, rgba(255,255,255,0.28)); }
+.ui-switch:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-glow, rgba(59,130,246,0.35)); }
+.ui-switch:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.ui-switch-thumb {
+    position: absolute;
+    top: 50%;
+    left: 2px;
+    transform: translate(0, -50%);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--fg, #f4f4f5);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
+    pointer-events: none;
+}
+
+/* ON state */
+.ui-switch[aria-checked="true"] {
+    background: var(--accent, #3b82f6);
+    border-color: var(--accent, #3b82f6);
+}
+.ui-switch[aria-checked="true"] .ui-switch-thumb {
+    transform: translate(16px, -50%);
+    background: var(--accent-foreground, #ffffff);
+}
+
+.ui-switch-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--fg, #f4f4f5);
+    cursor: pointer;
+    user-select: none;
+    line-height: 1;
+}
+
+/* Light mode */
+body.light-mode .ui-switch,
+html[data-theme="light"] .ui-switch {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+}
+body.light-mode .ui-switch:hover { border-color: #94a3b8; }
+body.light-mode .ui-switch-thumb { background: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+body.light-mode .ui-switch[aria-checked="true"] { background: var(--accent, #2563eb); border-color: var(--accent, #2563eb); }
+body.light-mode .ui-switch[aria-checked="true"] .ui-switch-thumb { background: #ffffff; }
+body.light-mode .ui-switch-label { color: #0f172a; }
+
+@media (prefers-reduced-motion: reduce) {
+    .ui-switch, .ui-switch-thumb { transition: none; }
+}
+
+/* ==========================================================
+   Empty — shadcn / Base UI design (dependency-free)
+   Dashed-border placeholder card: icon media, title, description, and a
+   call-to-action. Used for "no data" states across pages.
+   Adapts to dark/light via [data-theme] tokens.
+   ========================================================== */
+.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 0;
+    padding: 40px 24px;
+    border: 1px dashed var(--border-hover, rgba(255,255,255,0.2));
+    border-radius: 12px;
+    background: var(--surface, rgba(255,255,255,0.02));
+    margin: 12px;
+}
+.empty-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    max-width: 420px;
+}
+.empty-media {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--surface-hover, rgba(255,255,255,0.05));
+    border: 1px solid var(--border, rgba(255,255,255,0.08));
+    color: var(--fg-muted, #a1a1aa);
+    margin-bottom: 4px;
+}
+.empty-media svg { width: 22px; height: 22px; }
+.empty-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--fg, #f4f4f5);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+.empty-description {
+    font-size: 12.5px;
+    color: var(--fg-muted, #a1a1aa);
+    line-height: 1.5;
+    margin: 0;
+}
+.empty-content {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Light mode */
+body.light-mode .empty,
+html[data-theme="light"] .empty {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+body.light-mode .empty-media { background: #ffffff; border-color: #e2e8f0; color: #64748b; }
+body.light-mode .empty-title { color: #0f172a; }
+body.light-mode .empty-description { color: #475569; }
+
+/* ==========================================================
+   Date Picker — shadcn / Base UI (Popover + Calendar) design
+   Single-month grid, trigger button + popover panel.
+   Uses the shared [data-theme] tokens so it adapts dark/light.
+   ========================================================== */
+.ui-date-picker {
+    position: relative;
+    display: inline-block;
+}
+.ui-date-picker-hidden-input { display: none !important; }
+
+/* Trigger — outline button, "Pick a date" placeholder state */
+.ui-date-picker-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 10px;
+    min-height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--border, rgba(255,255,255,0.14));
+    background: var(--surface-solid, #15151b);
+    color: var(--fg, #f4f4f5);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+    font-family: inherit;
+}
+.ui-date-picker-trigger:hover {
+    border-color: var(--border-hover, rgba(255,255,255,0.24));
+    background: var(--surface-hover, rgba(255,255,255,0.06));
+}
+.ui-date-picker-trigger:focus-visible {
+    outline: 2px solid var(--accent, #3b82f6);
+    outline-offset: 2px;
+}
+.ui-date-picker-trigger svg { color: var(--fg-muted, #a1a1aa); flex-shrink: 0; }
+.ui-date-picker-trigger .ui-date-picker-label.is-placeholder {
+    color: var(--fg-muted, #a1a1aa);
+    font-weight: 500;
+}
+
+/* Popover panel */
+.ui-date-picker-popover {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: var(--dp-shift, 0px);
+    z-index: 9999;
+    width: auto;
+    padding: 12px;
+    background: var(--surface-card, #15151b);
+    border: 1px solid var(--border, rgba(255,255,255,0.12));
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04);
+    animation: ui-dp-pop 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ui-date-picker-popover[data-align="end"] { left: auto; right: var(--dp-shift, 0px); }
+.ui-date-picker-popover[data-align="center"] { left: 50%; transform: translateX(-50%) translateX(var(--dp-shift, 0px)); }
+@keyframes ui-dp-pop {
+    from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Header: nav + month/year caption */
+.ui-dp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.ui-dp-caption {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--fg, #f4f4f5);
+    letter-spacing: 0.01em;
+}
+.ui-dp-nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--fg-muted, #a1a1aa);
+    cursor: pointer;
+    transition: background-color 0.13s ease, color 0.13s ease, border-color 0.13s ease;
+}
+.ui-dp-nav:hover {
+    background: var(--surface-hover, rgba(255,255,255,0.07));
+    color: var(--fg, #f4f4f5);
+    border-color: var(--border, rgba(255,255,255,0.1));
+}
+.ui-dp-nav:focus-visible { outline: 2px solid var(--accent, #3b82f6); outline-offset: 1px; }
+
+/* Weekday row */
+.ui-dp-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    margin-bottom: 4px;
+}
+.ui-dp-weekdays span {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--fg-muted, #8a8f98);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 0;
+}
+
+/* Day grid */
+.ui-dp-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+.ui-dp-day {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 7px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--fg, #f4f4f5);
+    cursor: pointer;
+    transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+    font-family: inherit;
+}
+.ui-dp-day:hover { background: var(--surface-hover, rgba(255,255,255,0.08)); }
+.ui-dp-day:focus-visible { outline: 2px solid var(--accent, #3b82f6); outline-offset: 1px; }
+.ui-dp-day.is-outside {
+    color: var(--fg-subtle, rgba(255,255,255,0.35));
+    cursor: default;
+}
+.ui-dp-day.is-outside:hover { background: transparent; }
+.ui-dp-day.is-today {
+    border-color: var(--accent, #3b82f6);
+    color: var(--accent-bright, #60a5fa);
+    font-weight: 700;
+}
+.ui-dp-day.is-selected {
+    background: var(--accent, #3b82f6);
+    color: var(--accent-foreground, #ffffff);
+    font-weight: 700;
+    border-color: var(--accent, #3b82f6);
+}
+.ui-dp-day.is-selected:hover { background: var(--accent-bright, #60a5fa); }
+.ui-dp-day.is-selected.is-today { color: var(--accent-foreground, #ffffff); }
+
+/* ==========================================================
+   Dialog — shadcn / Base UI (Dialog + Field + Input + Label)
+   Minimal, neutral, emoji-free. Used by the DO Summary
+   Generator import modal. Adapts via [data-theme] tokens.
+   ========================================================== */
+.dsg-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.dsg-dialog {
+    width: 100%;
+    max-width: 480px;
+    background: var(--surface-card, #15151b);
+    border: 1px solid var(--border, rgba(255,255,255,0.1));
+    border-radius: 14px;
+    box-shadow: 0 20px 50px -12px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: dsg-dialog-in 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes dsg-dialog-in {
+    from { opacity: 0; transform: translateY(6px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Header */
+.dsg-dialog-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 20px 14px;
+}
+.dsg-dialog-header-text { min-width: 0; }
+.dsg-dialog-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--fg, #f4f4f5);
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+}
+.dsg-dialog-description {
+    margin: 3px 0 0;
+    font-size: 12px;
+    color: var(--fg-muted, #a1a1aa);
+    line-height: 1.4;
+}
+.dsg-dialog-close {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: var(--fg-muted, #a1a1aa);
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.13s ease, color 0.13s ease;
+}
+.dsg-dialog-close:hover { background: var(--surface-hover, rgba(255,255,255,0.07)); color: var(--fg, #f4f4f5); }
+.dsg-dialog-close:focus-visible { outline: 2px solid var(--accent, #3b82f6); outline-offset: 1px; }
+
+/* Body / FieldGroup */
+.dsg-dialog-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 4px 20px 18px;
+    max-height: 68vh;
+    overflow-y: auto;
+}
+
+/* Field */
+.dsg-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.dsg-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--fg, #f4f4f5);
+    display: block;
+}
+.dsg-field-row { display: flex; gap: 8px; align-items: center; }
+.dsg-field-note { font-size: 11px; color: var(--fg-muted, #a1a1aa); margin: 0; line-height: 1.4; }
+.dsg-field-note.is-warning { color: #d97706; }
+.dsg-note-strong { color: var(--fg, #f4f4f5); font-weight: 600; }
+
+/* File summary line */
+.dsg-file-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: var(--surface, rgba(255,255,255,0.04));
+    border: 1px solid var(--border, rgba(255,255,255,0.09));
+    border-radius: 8px;
+    padding: 9px 12px;
+}
+.dsg-file-name { font-size: 12px; font-weight: 600; color: var(--fg, #f4f4f5); word-break: break-all; }
+.dsg-file-count {
+    font-size: 11px;
+    font-weight: 600;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    padding: 1px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+/* Inputs */
+.dsg-input {
+    flex: 1;
+    min-width: 0;
+    font-size: 12px;
+    font-family: inherit;
+    color: var(--fg, #f4f4f5);
+    background: var(--surface-solid, var(--bg-base, #0a0a0a));
+    border: 1px solid var(--border, rgba(255,255,255,0.12));
+    border-radius: 6px;
+    padding: 8px 10px;
+    transition: border-color 0.13s ease;
+}
+.dsg-input::placeholder { color: var(--fg-subtle, rgba(255,255,255,0.4)); }
+.dsg-input:focus { outline: none; border-color: var(--accent, #3b82f6); }
+.dsg-input-code { flex: 0 0 110px; font-weight: 600; text-align: center; }
+.dsg-input-wave { flex: 0 0 70px; font-weight: 600; text-align: center; }
+.dsg-select-inline { flex: 0 1 auto; padding: 6px 8px; font-size: 11px; }
+
+/* Choice (radio) group */
+.dsg-choice-group { display: flex; flex-direction: column; gap: 8px; }
+.dsg-choice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--fg, #f4f4f5);
+    cursor: pointer;
+    flex-wrap: wrap;
+}
+.dsg-choice input[type="radio"] { accent-color: var(--accent, #3b82f6); margin: 0; cursor: pointer; }
+
+/* Alert / duplicate group */
+.dsg-field-alert {
+    background: rgba(245, 158, 11, 0.07);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+.dsg-label-warning { color: #d97706; }
+.dsg-dupe-samples {
+    font-size: 11px;
+    font-family: var(--font-mono, monospace);
+    color: var(--fg-muted, #a1a1aa);
+    background: var(--surface-solid, rgba(0,0,0,0.15));
+    border: 1px solid var(--border, rgba(255,255,255,0.08));
+    padding: 6px 8px;
+    border-radius: 5px;
+    max-height: 72px;
+    overflow-y: auto;
+}
+
+/* Footer */
+.dsg-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--border, rgba(255,255,255,0.08));
+}
+
+/* Buttons */
+.dsg-btn {
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background-color 0.13s ease, border-color 0.13s ease, color 0.13s ease;
+}
+.dsg-btn:focus-visible { outline: 2px solid var(--accent, #3b82f6); outline-offset: 2px; }
+.dsg-btn-outline {
+    background: transparent;
+    color: var(--fg, #f4f4f5);
+    border-color: var(--border, rgba(255,255,255,0.14));
+}
+.dsg-btn-outline:hover { background: var(--surface-hover, rgba(255,255,255,0.06)); border-color: var(--border-hover, rgba(255,255,255,0.2)); }
+.dsg-btn-primary {
+    background: var(--accent, #3b82f6);
+    color: var(--accent-foreground, #ffffff);
+    border-color: var(--accent, #3b82f6);
+}
+.dsg-btn-primary:hover { background: var(--accent-bright, #60a5fa); border-color: var(--accent-bright, #60a5fa); }
 
