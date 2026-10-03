@@ -245,8 +245,8 @@
                 <!-- Dashboard Action Buttons -->
                 <div style="display: flex; align-items: center; gap: 6px;">
                     <button id="themeToggleBtn" onclick="toggleTheme()" class="action-btn outline sm">Mode: Dark</button>
-                    <button id="resetBtn" onclick="resetDashboard()" data-tip="Reset the dashboard and clear loaded data" class="action-btn outline sm">Reset Dashboard</button>
-                    <button id="shippingInsightBtn" onclick="openShippingInsightTab()" data-tip="Open the Shipping Insight / DO scanning status page" class="action-btn outline sm">DO Scanning Status</button>
+                    <button id="resetBtn" onclick="resetDashboard()" class="action-btn outline sm">Reset Dashboard</button>
+                    <button id="shippingInsightBtn" onclick="openShippingInsightTab()" class="action-btn outline sm">DO Scanning Status</button>
                 </div>
             </div>
 
@@ -282,7 +282,7 @@
                 <!-- 1. DO Summary File Upload -->
                 <div class="file-upload-box" style="flex-direction: column; align-items: flex-start; position: relative; gap: 8px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <button type="button" class="btn-primary sm" onclick="document.getElementById('filePicker').click()" data-tip="Upload DO Summary Excel files (.xlsx, .xls, .xlsm)">
+                        <button type="button" class="btn-primary sm" onclick="document.getElementById('filePicker').click()">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                             Choose DO Summary File(s)
                         </button>
@@ -297,7 +297,7 @@
                 <!-- 2. Batch Picking / Source File Upload -->
                 <div class="file-upload-box" style="flex-direction: column; align-items: flex-start; position: relative; gap: 8px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <button type="button" class="btn-primary sm" onclick="document.getElementById('productMasterPicker').click()" data-tip="Upload Batch Picking File (.xlsm, .csv)">
+                        <button type="button" class="btn-primary sm" onclick="document.getElementById('productMasterPicker').click()">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                             Choose Batch Picking File(s)
                         </button>

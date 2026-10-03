@@ -1,26 +1,13 @@
 /*
-   Tooltip — shadcn / Base UI style, dependency-free (no React, no npm, no Popper)
-
-   Enhances any element carrying [data-tip] with a styled tooltip:
-     <button data-tip="Export current view to Excel">Export</button>
-
-   Optional placement hint (top is default, auto-flips near viewport edges):
-     data-tip-pos="top|bottom|left|right"
-
-   Behaviour (mirrors the shadcn Tooltip):
-   - Appears on hover and keyboard focus, small delay before showing
-   - Dark rounded card, small text, subtle border + shadow, fade+zoom animation
-   - Auto-flips to the opposite side if it would overflow the viewport
-   - Closes on mouse-leave, blur, Escape, or scroll
-   - Accessible: content exposed via aria-describedby; respects reduced-motion
-   - If the element has a native title= it is migrated to data-tip (no double tip)
-   */
+   Minimalist Tooltip — shadcn / Radix style, dependency-free
+   Focused only on explicit [data-tip] elements with hover intent.
+*/
 (function () {
     "use strict";
 
-    const SHOW_DELAY = 200;   // ms before tooltip appears (shadcn-ish)
-    const HIDE_DELAY = 60;
-    const OFFSET = 8;         // gap between trigger and tooltip
+    const SHOW_DELAY = 450;   // ms deliberate hover intent (prevents accidental popups when skimming)
+    const HIDE_DELAY = 80;    // ms grace period before hiding
+    const OFFSET = 6;         // gap between trigger and tooltip
     const VIEWPORT_PAD = 8;   // min distance from viewport edge
 
     let tipEl = null;         // singleton tooltip node
@@ -40,20 +27,20 @@
         return tipEl;
     }
 
-    // Migrate native title -> data-tip so we don't get the browser tooltip too.
-    function migrate(el) {
-        if (el.hasAttribute("data-tip")) return;
-        const t = el.getAttribute("title");
-        if (t) {
-            el.setAttribute("data-tip", t);
-            el.removeAttribute("title");
-            // keep native title out of a11y tree duplication; store for restore
-            el.setAttribute("data-tip-migrated", "");
-        }
-    }
-
+    // Only get text from explicit [data-tip] or [data-tooltip].
+    // Suppress if empty or if it merely duplicates visible button text.
     function getText(el) {
-        return el.getAttribute("data-tip") || "";
+        if (!el || !el.getAttribute) return "";
+        const raw = el.getAttribute("data-tip") || el.getAttribute("data-tooltip") || "";
+        const trimmed = raw.trim();
+        if (!trimmed) return "";
+
+        // Filter out redundant tooltips where the button/link text already explains itself
+        const visibleText = (el.innerText || el.textContent || "").trim();
+        if (visibleText && visibleText.toLowerCase() === trimmed.toLowerCase()) {
+            return "";
+        }
+        return trimmed;
     }
 
     function preferredPos(el) {
@@ -64,7 +51,6 @@
     function position(trigger, pos) {
         const tip = ensureTipEl();
         const content = tip.querySelector(".ui-tooltip-content");
-        // measure
         tip.style.visibility = "hidden";
         tip.hidden = false;
         const tr = trigger.getBoundingClientRect();
@@ -80,7 +66,6 @@
             coords = compute(tr, tw, th, p);
             if (fits(coords, tw, th, vw, vh)) { chosen = p; break; }
         }
-        // clamp horizontally/vertically inside the viewport
         let { x, y } = coords;
         x = Math.max(VIEWPORT_PAD, Math.min(x, vw - tw - VIEWPORT_PAD));
         y = Math.max(VIEWPORT_PAD, Math.min(y, vh - th - VIEWPORT_PAD));
@@ -90,16 +75,15 @@
         tip.dataset.side = chosen;
         tip.style.visibility = "";
 
-        // arrow position: point back to the trigger centre
         const arrow = tip.querySelector(".ui-tooltip-arrow");
         const cx = tr.left + tr.width / 2;
         const cy = tr.top + tr.height / 2;
         if (chosen === "top" || chosen === "bottom") {
-            arrow.style.left = Math.max(10, Math.min(cx - x, tw - 10)) + "px";
+            arrow.style.left = Math.max(8, Math.min(cx - x, tw - 8)) + "px";
             arrow.style.top = chosen === "top" ? "100%" : "auto";
             arrow.style.bottom = chosen === "bottom" ? "100%" : "auto";
         } else {
-            arrow.style.top = Math.max(10, Math.min(cy - y, th - 10)) + "px";
+            arrow.style.top = Math.max(8, Math.min(cy - y, th - 8)) + "px";
             arrow.style.left = chosen === "left" ? "100%" : "auto";
             arrow.style.right = chosen === "right" ? "100%" : "auto";
         }
@@ -135,9 +119,7 @@
         if (!tip.id) tip.id = "ui-tooltip-" + (++idCounter);
         trigger.setAttribute("aria-describedby", tip.id);
         position(trigger, preferredPos(trigger));
-        // animate in
         tip.classList.remove("ui-tooltip-open");
-        // force reflow so the transition replays
         void tip.offsetWidth;
         tip.classList.add("ui-tooltip-open");
         tip.hidden = false;
@@ -150,7 +132,6 @@
         tip.classList.remove("ui-tooltip-open");
         if (activeTrigger) activeTrigger.removeAttribute("aria-describedby");
         activeTrigger = null;
-        // hide after the close transition
         hideTimer = setTimeout(() => { if (tipEl) tipEl.hidden = true; }, 120);
     }
 
@@ -165,30 +146,28 @@
         hideTimer = setTimeout(hide, HIDE_DELAY);
     }
 
-    // Delegated events so it works for dynamically-added elements too.
     function onOver(e) {
-        const t = e.target.closest && e.target.closest("[data-tip]");
-        if (t) { migrate(t); if (t !== activeTrigger) scheduleShow(t); }
+        const t = e.target.closest && e.target.closest("[data-tip], [data-tooltip]");
+        if (t && t !== activeTrigger) {
+            scheduleShow(t);
+        }
     }
     function onOut(e) {
-        const t = e.target.closest && e.target.closest("[data-tip]");
+        const t = e.target.closest && e.target.closest("[data-tip], [data-tooltip]");
         if (t && t === activeTrigger) scheduleHide();
     }
     function onFocus(e) {
-        const t = e.target.closest && e.target.closest("[data-tip]");
-        if (t) { migrate(t); show(t); }
+        const t = e.target.closest && e.target.closest("[data-tip], [data-tooltip]");
+        if (t) show(t);
     }
     function onBlur(e) {
-        const t = e.target.closest && e.target.closest("[data-tip]");
+        const t = e.target.closest && e.target.closest("[data-tip], [data-tooltip]");
         if (t && t === activeTrigger) hide();
     }
     function onKey(e) { if (e.key === "Escape") hide(); }
     function onScroll() { if (activeTrigger) hide(); }
 
-    function init(root = document) {
-        // Migrate any existing title attributes up-front
-        root.querySelectorAll("[data-tip], [title]").forEach(migrate);
-
+    function init() {
         if (init.__bound) return;
         init.__bound = true;
         document.addEventListener("mouseover", onOver, true);
