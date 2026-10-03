@@ -2160,7 +2160,9 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
             const isFinal = b.batchName === "FINAL SUMMARY" || (b.batchName && b.batchName.toUpperCase().includes("FINAL"));
             const activeClass = isActive ? "active" : "";
             const finalClass = isFinal ? "batch-tab-final" : "";
-            const waveLabel = isFinal ? "ALL WAVES" : `Wave ${b.waveNumber || '-'}`;
+            // Badge shows just the wave number; a tooltip clarifies it's the wave.
+            const waveLabel = isFinal ? "ALL" : `${b.waveNumber || '-'}`;
+            const waveTip = isFinal ? "All waves combined" : `Wave ${b.waveNumber || '-'}`;
             // Same remove icon as index.html file-chips; clicking it deletes the batch
             // (or clears the final summary) — same behaviour as the header buttons.
             const removeAction = isFinal
@@ -2169,7 +2171,7 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
             const removeTip = isFinal ? "Clear Final Summary" : `Delete ${b.batchName}`;
             html += `<button type="button" class="shadcn-tabs-trigger batch-tab-btn ${activeClass} ${finalClass}" onclick="summaryGenerator.selectBatch(${idx})" role="tab" aria-selected="${isActive}">
                 <span>${b.batchName}</span>
-                <span class="shadcn-tab-badge">${waveLabel}</span>
+                <span class="shadcn-tab-badge" data-tip="${waveTip}" aria-label="${waveTip}">${waveLabel}</span>
                 <span class="shadcn-tab-count">${b.records.length} DO</span>
                 <span class="chip-remove-btn batch-tab-remove" role="button" tabindex="-1" data-tip="${removeTip}" aria-label="${removeTip}" onclick="event.stopPropagation(); ${removeAction}">${removeSvg}</span>
             </button>`;
