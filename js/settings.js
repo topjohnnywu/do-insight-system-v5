@@ -1007,8 +1007,7 @@
             { id: "oliver", label: "Oliver", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Oliver" },
             { id: "zoe", label: "Zoe", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Zoe" },
             { id: "leo", label: "Leo", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Leo" },
-            { id: "milo", label: "Milo", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Milo" },
-            { id: "icon", label: "DO Truck Icon", url: "./icons/icon.svg" }
+            { id: "milo", label: "Milo", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Milo" }
         ];
     }
 
