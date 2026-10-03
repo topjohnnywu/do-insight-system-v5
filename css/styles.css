@@ -7852,6 +7852,22 @@ body.light-mode #appUserDropdownMenu {
     border-bottom: 1px solid var(--border, rgba(255,255,255,0.08));
 }
 
+#uprofileHeroAvatar {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+#uprofileHeroAvatar:hover {
+    transform: scale(1.04);
+}
+
 .uprofile-hero-info {
     flex: 1;
     min-width: 0;

@@ -828,8 +828,14 @@
         const closeBtn = menu.querySelector("#uprofileCloseBtn");
 
         nameInput.addEventListener("input", (e) => {
-            const nextName = e.target.value.trim() || "Administrator";
-            setUserProfile({ name: nextName });
+            setUserProfile({ name: e.target.value });
+        });
+
+        nameInput.addEventListener("blur", (e) => {
+            if (!e.target.value.trim()) {
+                e.target.value = "Administrator";
+                setUserProfile({ name: "Administrator" });
+            }
         });
 
         roleSelect.addEventListener("change", (e) => {
@@ -850,6 +856,14 @@
                 setUserProfile({ role: e.target.value.trim() || "Custom Role" });
             }
         });
+
+        const heroAvatar = menu.querySelector("#uprofileHeroAvatar");
+        if (heroAvatar) {
+            heroAvatar.title = "Click to upload/change photo";
+            heroAvatar.addEventListener("click", () => {
+                fileInput.click();
+            });
+        }
 
         uploadBtn.addEventListener("click", () => {
             fileInput.click();
@@ -892,6 +906,7 @@
             closeUserDropdown();
         });
 
+        renderAllUserAvatars();
         return menu;
     }
 
@@ -918,7 +933,10 @@
         const menu = ensureUserDropdownMenu();
         const profile = getUserProfile();
 
-        // Populate values
+        // 1. Ensure all elements in dropdown hero & labels reflect current profile
+        renderAllUserAvatars();
+
+        // 2. Populate form values
         const nameInput = menu.querySelector("#uprofileNameInput");
         const roleSelect = menu.querySelector("#uprofileRoleSelect");
         const customRoleInput = menu.querySelector("#uprofileCustomRoleInput");
@@ -999,6 +1017,9 @@
     }
 
     function initUserAvatarWidget() {
+        // Pre-create dropdown menu in DOM so hero elements exist immediately
+        ensureUserDropdownMenu();
+
         if (document.getElementById("appUserProfileWrapper")) {
             renderAllUserAvatars();
             return;
