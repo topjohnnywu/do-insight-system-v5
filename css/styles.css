@@ -342,6 +342,7 @@
     --surface-hover: #1f1f1f;    /* zinc-800-ish hover */
     --surface-solid: #0a0a0a;
     --surface-card: #111113;     /* card */
+    --bg-card: var(--surface-card, #111113);
 
     /* Text: shadcn foreground + muted-foreground */
     --fg: #fafafa;               /* zinc-50 */
@@ -363,6 +364,7 @@
 
     /* Borders: solid hairline zinc-800, no translucency games */
     --border: #262626;           /* zinc-800 */
+    --border-color: var(--border, #262626);
     --border-hover: #3f3f46;     /* zinc-700 */
     --border-accent: #52525b;    /* zinc-600 (neutral, not blue) */
 
@@ -461,6 +463,7 @@
     --surface-hover: #f1f5f9;
     --surface-solid: #ffffff;
     --surface-card: #ffffff;
+    --bg-card: #ffffff;
     --fg: #0f172a;
     --fg-muted: #475569;
     --fg-subtle: #64748b;
@@ -470,6 +473,7 @@
     --accent-glow: rgba(37, 99, 235, 0.25);
     --accent-glow-strong: rgba(37, 99, 235, 0.45);
     --border: #e2e8f0;
+    --border-color: #cbd5e1;
     --border-hover: #cbd5e1;
     --border-accent: rgba(37, 99, 235, 0.35);
     --radius-card: 12px;
