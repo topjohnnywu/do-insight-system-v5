@@ -788,7 +788,12 @@
                 </div>
 
                 <div class="uprofile-form-group">
-                    <label class="uprofile-form-label">Profile Photo</label>
+                    <label class="uprofile-form-label">Preset Avatars</label>
+                    <div class="uprofile-presets-grid" id="uprofilePresetsGrid"></div>
+                </div>
+
+                <div class="uprofile-form-group">
+                    <label class="uprofile-form-label">Custom Photo</label>
                     <div class="uprofile-photo-actions">
                         <input type="file" id="uprofileFileInput" accept="image/*" style="display:none">
                         <button type="button" class="uprofile-btn-sm" id="uprofileUploadBtn" title="Select image from local computer">
@@ -990,6 +995,47 @@
         }
     }
 
+    const AVATAR_PRESETS = [
+        { id: "initials", label: "Initials Fallback", url: "" },
+        { id: "shadcn", label: "Shadcn", url: "https://github.com/shadcn.png" },
+        { id: "evilrabbit", label: "Evil Rabbit", url: "https://github.com/evilrabbit.png" },
+        { id: "maxleiter", label: "Max Leiter", url: "https://github.com/maxleiter.png" },
+        { id: "rauchg", label: "Guillermo", url: "https://github.com/rauchg.png" },
+        { id: "avatar1", label: "Operations Lead", url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" },
+        { id: "avatar2", label: "Logistics Specialist", url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" },
+        { id: "icon", label: "DO Truck Icon", url: "./icons/icon.svg" }
+    ];
+
+    function renderPresetAvatars(grid, currentUrl, currentName) {
+        if (!grid) return;
+        grid.innerHTML = "";
+        const initials = computeInitials(currentName);
+
+        AVATAR_PRESETS.forEach(preset => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "uprofile-preset-btn";
+            btn.title = preset.label;
+
+            const isMatch = (preset.id === "initials" && !currentUrl) || (preset.url && currentUrl === preset.url);
+            if (isMatch) btn.classList.add("active");
+
+            if (preset.id === "initials" || !preset.url) {
+                btn.innerHTML = `<span class="preset-initials-badge">${initials}</span>`;
+            } else {
+                btn.innerHTML = `<img src="${preset.url}" alt="${preset.label}" onerror="this.parentElement.innerHTML='<span class=\\'preset-initials-badge\\'>${preset.label.substring(0,2)}</span>'">`;
+            }
+
+            btn.addEventListener("click", () => {
+                setUserProfile({ avatarUrl: preset.url });
+                const urlInput = document.getElementById("uprofileUrlInput");
+                if (urlInput) urlInput.value = preset.url;
+            });
+
+            grid.appendChild(btn);
+        });
+    }
+
     function renderAllUserAvatars() {
         const profile = getUserProfile();
 
@@ -1014,6 +1060,12 @@
         if (heroName) heroName.textContent = profile.name;
         const heroRole = document.getElementById("uprofileHeroRole");
         if (heroRole) heroRole.textContent = profile.role;
+
+        // 3. Update preset avatars active state
+        const presetsGrid = document.getElementById("uprofilePresetsGrid");
+        if (presetsGrid) {
+            renderPresetAvatars(presetsGrid, profile.avatarUrl, profile.name);
+        }
     }
 
     function initUserAvatarWidget() {

@@ -8023,6 +8023,62 @@ body.light-mode .uprofile-btn-sm:hover {
     color: #0f172a;
 }
 
+/* Preset Avatar Picker Grid */
+.uprofile-presets-grid {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.uprofile-preset-btn {
+    width: 31px;
+    height: 31px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    padding: 0;
+    cursor: pointer;
+    background: var(--surface-hover, #27272a);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.uprofile-preset-btn:hover {
+    transform: scale(1.12);
+    border-color: var(--border-hover, rgba(255, 255, 255, 0.4));
+}
+
+.uprofile-preset-btn.active {
+    border-color: var(--accent, #3b82f6);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.45);
+    transform: scale(1.06);
+}
+
+.uprofile-preset-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.uprofile-preset-btn .preset-initials-badge {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--fg, #f4f4f5);
+    text-transform: uppercase;
+}
+
+body.light-mode .uprofile-preset-btn {
+    background: #f1f5f9;
+}
+
 /* Popover Footer */
 .uprofile-footer {
     display: flex;
