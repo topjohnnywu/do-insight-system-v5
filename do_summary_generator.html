@@ -975,48 +975,48 @@
                     </table>
                     <!-- Dynamic Autocomplete Datalist for Remark Recommendations -->
                     <datalist id="dsgRemarkPresetList"></datalist>
-
-                    <!-- DSG Excel AutoFilter Dropdown Menu Modal / Context Menu -->
-                    <div id="dsgExcelFilterMenu" class="excel-filter-menu" style="display: none;">
-                        <button type="button" class="excel-menu-item" id="dsgExcelMenuSortAsc" onclick="summaryGenerator.handleExcelSort('asc')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12M9 18h6"/></svg>
-                            <span id="dsgExcelMenuSortAscLabel">Sort A to Z</span>
-                        </button>
-                        <button type="button" class="excel-menu-item" id="dsgExcelMenuSortDesc" onclick="summaryGenerator.handleExcelSort('desc')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6h6M6 12h12M3 18h18"/></svg>
-                            <span id="dsgExcelMenuSortDescLabel">Sort Z to A</span>
-                        </button>
-                        
-                        <div class="excel-menu-divider"></div>
-                        
-                        <button type="button" class="excel-menu-item" id="dsgExcelMenuClearFilter" onclick="summaryGenerator.handleExcelClearColFilter()">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                            <span id="dsgExcelMenuClearFilterLabel">Clear Filter From Column</span>
-                        </button>
-
-                        <div class="excel-menu-divider"></div>
-
-                        <!-- Search input -->
-                        <div class="excel-search-box-wrap">
-                            <div class="excel-search-box-inner">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                <input type="text" id="dsgExcelSearchInput" class="excel-search-input" placeholder="Search..." oninput="summaryGenerator.handleExcelSearchInput(this.value)" onkeydown="summaryGenerator.handleExcelSearchKeydown(event)">
-                            </div>
-                        </div>
-
-                        <!-- Checkbox Tree List -->
-                        <div class="excel-checkbox-list" id="dsgExcelCheckboxList">
-                            <!-- Dynamically populated -->
-                        </div>
-
-                        <!-- Footer Action Buttons -->
-                        <div class="excel-menu-actions">
-                            <button type="button" class="excel-btn-ok" onclick="summaryGenerator.applyExcelFilterMenu()">OK</button>
-                            <button type="button" class="excel-btn-cancel" onclick="summaryGenerator.closeExcelFilterMenu()">Cancel</button>
-                        </div>
-                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- DSG Excel AutoFilter Dropdown Menu Modal / Context Menu -->
+    <div id="dsgExcelFilterMenu" class="excel-filter-menu" style="display: none;">
+        <button type="button" class="excel-menu-item" id="dsgExcelMenuSortAsc" onclick="summaryGenerator.handleExcelSort('asc')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12M9 18h6"/></svg>
+            <span id="dsgExcelMenuSortAscLabel">Sort A to Z</span>
+        </button>
+        <button type="button" class="excel-menu-item" id="dsgExcelMenuSortDesc" onclick="summaryGenerator.handleExcelSort('desc')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6h6M6 12h12M3 18h18"/></svg>
+            <span id="dsgExcelMenuSortDescLabel">Sort Z to A</span>
+        </button>
+        
+        <div class="excel-menu-divider"></div>
+        
+        <button type="button" class="excel-menu-item" id="dsgExcelMenuClearFilter" onclick="summaryGenerator.handleExcelClearColFilter()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <span id="dsgExcelMenuClearFilterLabel">Clear Filter From Column</span>
+        </button>
+
+        <div class="excel-menu-divider"></div>
+
+        <!-- Search input -->
+        <div class="excel-search-box-wrap">
+            <div class="excel-search-box-inner">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="dsgExcelSearchInput" class="excel-search-input" placeholder="Search..." oninput="summaryGenerator.handleExcelSearchInput(this.value)" onkeydown="summaryGenerator.handleExcelSearchKeydown(event)">
+            </div>
+        </div>
+
+        <!-- Checkbox Tree List -->
+        <div class="excel-checkbox-list" id="dsgExcelCheckboxList">
+            <!-- Dynamically populated -->
+        </div>
+
+        <!-- Footer Action Buttons -->
+        <div class="excel-menu-actions">
+            <button type="button" class="excel-btn-ok" onclick="summaryGenerator.applyExcelFilterMenu()">OK</button>
+            <button type="button" class="excel-btn-cancel" onclick="summaryGenerator.closeExcelFilterMenu()">Cancel</button>
         </div>
     </div>
 

@@ -249,17 +249,15 @@
 
                 <!-- Control Action Buttons -->
                 <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                    <div class="file-upload-box" style="border-color: var(--border-accent) !important; background: var(--surface);">
-                        <label for="activityUpdateFilePicker" style="color: var(--accent-bright); display: inline-flex; align-items: center; gap: 6px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="17 8 12 3 7 8"/>
-                                <line x1="12" y1="3" x2="12" y2="15"/>
-                            </svg>
-                            Import / Update Reports:
-                        </label>
-                        <input type="file" id="activityUpdateFilePicker" accept=".csv, .xlsx, .xls" multiple onchange="activityTrend.handleUpdateFileUpload(event)">
-                    </div>
+                    <button type="button" class="btn-primary sm" onclick="document.getElementById('activityUpdateFilePicker').click()" data-tip="Upload Daily Operations Reports (.csv, .xlsx)">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        Import Daily Reports
+                    </button>
+                    <input type="file" id="activityUpdateFilePicker" accept=".csv, .xlsx, .xls" multiple style="display: none;" onchange="activityTrend.handleUpdateFileUpload(event)">
 
                     <!-- JSON Backup & Sharing Controls -->
                     <button class="action-btn outline sm" onclick="activityTrend.exportToJSON()" data-tip="Download activity history as JSON">

@@ -31,7 +31,7 @@ class ChallengerGenerator {
 
     async reset() {
         if (this.records.length > 0) {
-            const proceed = await window.showConfirmDialog({ title: "Reset Challenger List", message: "Are you sure you want to reset the Challenger List?", confirmText: "Reset", isDanger: true, icon: "🗑️" });
+            const proceed = await window.showConfirmDialog({ title: "Reset Challenger List", message: "Are you sure you want to reset the Challenger List?", confirmText: "Reset", isDanger: true });
             if (!proceed) return;
         }
         this.records = [];
@@ -61,8 +61,7 @@ class ChallengerGenerator {
                 title: "File Naming Warning",
                 message: `[WARNING] Selected file "${fileName}" does not match expected naming convention ("SONY - ROUTE OUTBOUND").\n\nDo you want to process it anyway?`,
                 confirmText: "Process File",
-                isDanger: false,
-                icon: "📄"
+                isDanger: false
             });
             if (!proceed) return;
         }

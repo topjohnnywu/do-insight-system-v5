@@ -155,8 +155,7 @@
                 message: base + "\n\nOK = REPLACE all existing data with the new file(s).\nCancel = choose Append instead.",
                 confirmText: "Replace",
                 cancelText: "Append…",
-                isDanger: true,
-                icon: "📂"
+                isDanger: true
             });
             if (replace) return "replace";
             const append = await window.showConfirmDialog({
@@ -164,8 +163,7 @@
                 message: base + "\n\nOK = APPEND the new file(s) to the current data (existing entries kept; matching line quantities summed).\nCancel = abort.",
                 confirmText: "Append",
                 cancelText: "Cancel",
-                isDanger: false,
-                icon: "🔗"
+                isDanger: false
             });
             return append ? "append" : null;
         }
@@ -205,7 +203,7 @@
                 const ok = await window.showConfirmDialog({
                     title: "Load source file?",
                     message: statsText + "\n\nThis updates Manual Truck Planning only — other pages are unaffected.\n\nOK to load it?",
-                    confirmText: "Load", cancelText: "Cancel", isDanger: false, icon: "📂"
+                    confirmText: "Load", cancelText: "Cancel", isDanger: false
                 });
                 if (!ok) { input.value = ""; return; }
             }
@@ -241,8 +239,7 @@
                 message: "This clears all route/product data currently loaded for Manual Truck Planning and returns the page to an empty state. Your truck assignments are also cleared.\n\nThis cannot be undone.",
                 confirmText: "Reset",
                 cancelText: "Cancel",
-                isDanger: true,
-                icon: "🗑️"
+                isDanger: true
             });
         } else {
             proceed = window.confirm("Reset loaded data? This cannot be undone.");

@@ -500,29 +500,20 @@
         return { dismiss };
     };
 
-    window.showConfirmDialog = function({ title = "Confirm Action", message = "Are you sure?", confirmText = "Confirm", cancelText = "Cancel", isDanger = true, icon = "⚠️" } = {}) {
+    window.showConfirmDialog = function({ title = "Confirm Action", message = "Are you sure?", confirmText = "Confirm", cancelText = "Cancel", isDanger = true } = {}) {
         return new Promise((resolve) => {
             let modal = document.getElementById("hubConfirmModal");
             if (!modal) {
                 const modalHtml = `
-                    <div id="hubConfirmModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); z-index: 100000; align-items: center; justify-content: center; padding: 20px;">
-                        <div style="background: var(--surface-card, var(--bg-elevated, #18181b)); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border, rgba(255,255,255,0.1)); overflow: hidden; display: flex; flex-direction: column; font-family: var(--app-font-family, inherit);">
-                            <div style="padding: 18px 22px; border-bottom: 1px solid var(--border, rgba(255,255,255,0.1)); display: flex; align-items: center; gap: 12px; background: var(--surface-hover, transparent);">
-                                <div id="hubConfirmIconBadge" style="width: 38px; height: 38px; border-radius: 10px; background: rgba(239, 68, 68, 0.12); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 1px solid rgba(239, 68, 68, 0.25);">
-                                    <span id="hubConfirmIcon">⚠️</span>
-                                </div>
-                                <div style="flex: 1;">
-                                    <h3 id="hubConfirmTitle" style="margin: 0; font-size: 15px; font-weight: 700; color: var(--fg, #ffffff);">Confirm Action</h3>
-                                    <div style="font-size: 11px; color: var(--fg-muted, #94a3b8); margin-top: 2px;">Review details before proceeding</div>
-                                </div>
-                                <button type="button" id="hubConfirmCloseX" style="background: none; border: none; color: var(--fg-muted, #94a3b8); font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 6px;">✕</button>
+                    <div id="hubConfirmModal" class="alert-dialog-overlay" style="display: none; z-index: 100000;">
+                        <div class="alert-dialog-content" role="alertdialog" aria-modal="true" aria-labelledby="hubConfirmTitle" aria-describedby="hubConfirmMessage">
+                            <div class="alert-dialog-header">
+                                <h3 id="hubConfirmTitle" class="alert-dialog-title">Confirm Action</h3>
+                                <div id="hubConfirmMessage" class="alert-dialog-description">Are you sure you want to proceed?</div>
                             </div>
-                            <div style="padding: 20px 22px; font-size: 13px; color: var(--fg-subtle, var(--fg, #ffffff)); line-height: 1.6;" id="hubConfirmMessage">
-                                Are you sure you want to proceed?
-                            </div>
-                            <div style="padding: 14px 22px; border-top: 1px solid var(--border, rgba(255,255,255,0.1)); display: flex; justify-content: flex-end; gap: 10px; background: var(--surface-hover, transparent);">
-                                <button type="button" id="hubConfirmCancelBtn" style="font-size: 12px; font-weight: 600; padding: 8px 18px; border-radius: 8px; background: var(--surface, transparent); color: var(--fg, #ffffff); border: 1px solid var(--border, rgba(255,255,255,0.1)); cursor: pointer;">Cancel</button>
-                                <button type="button" id="hubConfirmOkBtn" style="font-size: 12px; font-weight: 700; padding: 8px 20px; border-radius: 8px; background: #ef4444; color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">Confirm</button>
+                            <div class="alert-dialog-footer">
+                                <button type="button" id="hubConfirmCancelBtn" class="alert-dialog-cancel">Cancel</button>
+                                <button type="button" id="hubConfirmOkBtn" class="alert-dialog-action action-destructive">Confirm</button>
                             </div>
                         </div>
                     </div>
@@ -533,57 +524,50 @@
 
             const elTitle = document.getElementById("hubConfirmTitle");
             const elMsg = document.getElementById("hubConfirmMessage");
-            const elIcon = document.getElementById("hubConfirmIcon");
-            const iconBadge = document.getElementById("hubConfirmIconBadge");
             const btnOk = document.getElementById("hubConfirmOkBtn");
             const btnCancel = document.getElementById("hubConfirmCancelBtn");
-            const btnX = document.getElementById("hubConfirmCloseX");
 
             if (elTitle) elTitle.innerText = title;
             if (elMsg) elMsg.innerHTML = message.replace(/\n/g, "<br>");
-            if (elIcon) elIcon.innerText = icon;
             if (btnCancel) btnCancel.innerText = cancelText;
 
-            if (iconBadge) {
-                if (isDanger) {
-                    iconBadge.style.background = "rgba(239, 68, 68, 0.12)";
-                    iconBadge.style.borderColor = "rgba(239, 68, 68, 0.25)";
-                } else {
-                    iconBadge.style.background = "rgba(59, 130, 246, 0.12)";
-                    iconBadge.style.borderColor = "rgba(59, 130, 246, 0.25)";
-                }
-            }
-            
             if (btnOk) {
                 btnOk.innerText = confirmText;
-                btnOk.style.background = isDanger ? "#ef4444" : "var(--accent, #2563eb)";
-                // Dark text on the (white) shadcn accent; white on danger red / blue accents.
-                btnOk.style.color = isDanger ? "#ffffff" : "var(--accent-foreground, #ffffff)";
-                btnOk.style.boxShadow = isDanger ? "0 4px 12px rgba(239, 68, 68, 0.3)" : "0 4px 12px rgba(37, 99, 235, 0.3)";
+                btnOk.className = "alert-dialog-action " + (isDanger ? "action-destructive" : "action-primary");
             }
 
             modal.style.display = "flex";
 
+            const onKeyDown = (e) => {
+                if (e.key === "Escape") {
+                    e.preventDefault();
+                    cleanup();
+                    resolve(false);
+                } else if (e.key === "Enter") {
+                    e.preventDefault();
+                    cleanup();
+                    resolve(true);
+                }
+            };
+            window.addEventListener("keydown", onKeyDown);
+
             const cleanup = () => {
                 modal.style.display = "none";
-                btnOk.onclick = null;
-                btnCancel.onclick = null;
-                if (btnX) btnX.onclick = null;
+                window.removeEventListener("keydown", onKeyDown);
+                if (btnOk) btnOk.onclick = null;
+                if (btnCancel) btnCancel.onclick = null;
                 modal.onclick = null;
             };
 
-            btnOk.onclick = () => {
-                cleanup();
-                resolve(true);
-            };
+            if (btnOk) {
+                btnOk.onclick = () => {
+                    cleanup();
+                    resolve(true);
+                };
+            }
 
-            btnCancel.onclick = () => {
-                cleanup();
-                resolve(false);
-            };
-
-            if (btnX) {
-                btnX.onclick = () => {
+            if (btnCancel) {
+                btnCancel.onclick = () => {
                     cleanup();
                     resolve(false);
                 };
@@ -597,112 +581,93 @@
             };
         });
     };
-    window.showPromptDialog = function({ title = "Input Required", message = "Please enter a value:", placeholder = "", defaultValue = "", confirmText = "Submit", cancelText = "Cancel", icon = "✏️" } = {}) {
+
+    window.showPromptDialog = function({ title = "Input Required", message = "Please enter a value:", placeholder = "", defaultValue = "", confirmText = "Submit", cancelText = "Cancel" } = {}) {
         return new Promise((resolve) => {
             let modal = document.getElementById("hubPromptModal");
             if (!modal) {
                 const modalHtml = `
-                    <div id="hubPromptModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); z-index: 100000; align-items: center; justify-content: center; padding: 20px;">
-                        <div style="background: var(--surface-card, var(--bg-elevated, #18181b)); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border, rgba(255,255,255,0.1)); overflow: hidden; display: flex; flex-direction: column; font-family: var(--app-font-family, inherit);">
-                            <div style="padding: 18px 22px; border-bottom: 1px solid var(--border, rgba(255,255,255,0.1)); display: flex; align-items: center; gap: 12px; background: var(--surface-hover, transparent);">
-                                <div id="hubPromptIconBadge" style="width: 38px; height: 38px; border-radius: 10px; background: rgba(59, 130, 246, 0.12); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 1px solid rgba(59, 130, 246, 0.25);">
-                                    <span id="hubPromptIcon">✏️</span>
-                                </div>
-                                <div style="flex: 1;">
-                                    <h3 id="hubPromptTitle" style="margin: 0; font-size: 15px; font-weight: 700; color: var(--fg, #ffffff);">Input Required</h3>
-                                </div>
-                                <button type="button" id="hubPromptCloseX" style="background: none; border: none; color: var(--fg-muted, #94a3b8); font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 6px;">✕</button>
+                    <div id="hubPromptModal" class="alert-dialog-overlay" style="display: none; z-index: 100000;">
+                        <div class="alert-dialog-content" role="dialog" aria-modal="true" aria-labelledby="hubPromptTitle" aria-describedby="hubPromptMessage">
+                            <div class="alert-dialog-header">
+                                <h3 id="hubPromptTitle" class="alert-dialog-title">Input Required</h3>
+                                <div id="hubPromptMessage" class="alert-dialog-description">Please enter a value:</div>
                             </div>
-                            <div style="padding: 20px 22px; font-size: 13px; color: var(--fg-subtle, var(--fg, #ffffff)); line-height: 1.6;">
-                                <div id="hubPromptMessage" style="margin-bottom: 12px;">Please enter a value:</div>
-                                <input type="text" id="hubPromptInput" style="width: 100%; padding: 10px 14px; background: var(--bg, #09090b); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 8px; color: var(--fg, #ffffff); font-size: 13px; box-sizing: border-box; outline: none; transition: border-color 0.2s;" />
+                            <div style="margin: 4px 0 8px;">
+                                <input type="text" id="hubPromptInput" class="dsg-input" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 12px;" />
                             </div>
-                            <div style="padding: 14px 22px; border-top: 1px solid var(--border, rgba(255,255,255,0.1)); display: flex; justify-content: flex-end; gap: 10px; background: var(--surface-hover, transparent);">
-                                <button type="button" id="hubPromptCancelBtn" style="padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; background: transparent; border: 1px solid var(--border, rgba(255,255,255,0.1)); color: var(--fg, #ffffff); transition: background 0.2s;">Cancel</button>
-                                <button type="button" id="hubPromptOkBtn" style="padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: #3b82f6; color: #ffffff; transition: opacity 0.2s;">Submit</button>
+                            <div class="alert-dialog-footer">
+                                <button type="button" id="hubPromptCancelBtn" class="alert-dialog-cancel">Cancel</button>
+                                <button type="button" id="hubPromptOkBtn" class="alert-dialog-action action-primary">Submit</button>
                             </div>
                         </div>
                     </div>
                 `;
-                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                document.body.insertAdjacentHTML("beforeend", modalHtml);
                 modal = document.getElementById("hubPromptModal");
-                
-                const style = document.createElement("style");
-                style.innerHTML = `
-                    #hubPromptCancelBtn:hover { background: var(--surface-active, rgba(255,255,255,0.05)) !important; }
-                    #hubPromptOkBtn:hover { opacity: 0.9; }
-                    #hubPromptInput:focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important; }
-                `;
-                document.head.appendChild(style);
             }
 
-            document.getElementById("hubPromptTitle").innerText = title;
-            document.getElementById("hubPromptMessage").innerHTML = message.replace(/\n/g, '<br>');
-            document.getElementById("hubPromptIcon").innerText = icon;
-            document.getElementById("hubPromptCancelBtn").innerText = cancelText;
-            document.getElementById("hubPromptOkBtn").innerText = confirmText;
-            
+            const elTitle = document.getElementById("hubPromptTitle");
+            const elMsg = document.getElementById("hubPromptMessage");
+            const elCancel = document.getElementById("hubPromptCancelBtn");
+            const elOk = document.getElementById("hubPromptOkBtn");
             const inputField = document.getElementById("hubPromptInput");
-            inputField.placeholder = placeholder;
-            inputField.value = defaultValue;
+
+            if (elTitle) elTitle.innerText = title;
+            if (elMsg) elMsg.innerHTML = message.replace(/\n/g, "<br>");
+            if (elCancel) elCancel.innerText = cancelText;
+            if (elOk) elOk.innerText = confirmText;
+            
+            if (inputField) {
+                inputField.placeholder = placeholder;
+                inputField.value = defaultValue;
+            }
 
             modal.style.display = "flex";
-            modal.style.opacity = "0";
-            modal.style.transform = "scale(0.98)";
-            modal.style.transition = "opacity 0.2s ease, transform 0.2s ease";
             
             requestAnimationFrame(() => {
-                modal.style.opacity = "1";
-                modal.style.transform = "scale(1)";
-                inputField.focus();
+                if (inputField) {
+                    inputField.focus();
+                    inputField.select();
+                }
             });
 
-            const btnOk = document.getElementById("hubPromptOkBtn");
-            const btnCancel = document.getElementById("hubPromptCancelBtn");
-            const btnX = document.getElementById("hubPromptCloseX");
-
             const cleanup = () => {
-                modal.style.opacity = "0";
-                modal.style.transform = "scale(0.98)";
-                setTimeout(() => {
-                    modal.style.display = "none";
-                }, 200);
+                modal.style.display = "none";
+                window.removeEventListener("keydown", onKeyDown);
+                if (elOk) elOk.onclick = null;
+                if (elCancel) elCancel.onclick = null;
+                modal.onclick = null;
             };
 
             const submitValue = () => {
+                const val = inputField ? inputField.value : "";
                 cleanup();
-                resolve(inputField.value);
+                resolve(val);
             };
 
-            btnOk.onclick = submitValue;
-            
-            inputField.onkeydown = (e) => {
+            const cancelDialog = () => {
+                cleanup();
+                resolve(null);
+            };
+
+            if (elOk) elOk.onclick = submitValue;
+            if (elCancel) elCancel.onclick = cancelDialog;
+
+            const onKeyDown = (e) => {
                 if (e.key === "Enter") {
                     e.preventDefault();
                     submitValue();
                 } else if (e.key === "Escape") {
                     e.preventDefault();
-                    cleanup();
-                    resolve(null);
+                    cancelDialog();
                 }
             };
-
-            btnCancel.onclick = () => {
-                cleanup();
-                resolve(null);
-            };
-
-            if (btnX) {
-                btnX.onclick = () => {
-                    cleanup();
-                    resolve(null);
-                };
-            }
+            window.addEventListener("keydown", onKeyDown);
 
             modal.onclick = (e) => {
                 if (e.target === modal) {
-                    cleanup();
-                    resolve(null);
+                    cancelDialog();
                 }
             };
         });

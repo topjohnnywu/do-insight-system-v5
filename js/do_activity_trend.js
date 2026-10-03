@@ -47,7 +47,7 @@ class DOActivityTrend {
 
     async reset() {
         if (this.history.length > 0) {
-            const proceed = await window.showConfirmDialog({ title: "Reset Activity History", message: "Are you sure you want to reset all activity history?", confirmText: "Reset", isDanger: true, icon: "🗑️" });
+            const proceed = await window.showConfirmDialog({ title: "Reset Activity History", message: "Are you sure you want to reset all activity history?", confirmText: "Reset", isDanger: true });
             if (!proceed) return;
         }
         this.history = [];
@@ -66,7 +66,7 @@ class DOActivityTrend {
 
         // Clean Slate: wipe old data before import (matching BulkImportDailyReports.bas)
         if (this.history.length > 0) {
-            const wipe = await window.showConfirmDialog({ title: "Clean Slate Import", message: "Clean Slate enabled: existing history will be wiped before importing the new files.\n\nContinue?", confirmText: "Wipe and Import", isDanger: true, icon: "🧹" });
+            const wipe = await window.showConfirmDialog({ title: "Clean Slate Import", message: "Clean Slate enabled: existing history will be wiped before importing the new files.\n\nContinue?", confirmText: "Wipe and Import", isDanger: true });
             if (!wipe) {
                 event.target.value = "";
                 return;
@@ -130,8 +130,7 @@ class DOActivityTrend {
                     title: "Missing Date",
                     message: `No valid 8-digit date (ddmmyyyy) found in "${fileName}".\n\nEnter date manually (e.g. 03082026):`,
                     placeholder: "ddmmyyyy",
-                    confirmText: "Continue",
-                    icon: "📅"
+                    confirmText: "Continue"
                 });
                 if (!manual) return { ok: false, reason: "Date Error" };
                 const parsed = this.parseDateString(manual.trim());

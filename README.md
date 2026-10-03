@@ -1,272 +1,210 @@
-# 📦 DO Insight System
+# 📦 DO Insight System (v5)
 
-A high-performance, multi-page web analytics platform and logistics planning tool designed for **Delivery Order (DO) management, truck load planning, batch analytics, volume calculation, packing lists, and shipping insights**.
+A high-performance, enterprise-grade logistics analytics and operational planning platform designed for **Delivery Order (DO) management, truck load planning, 3D cargo simulation, batch analytics, volume calculation, packing lists, and shipping insights**.
 
-Built with pure **HTML5, modern CSS3, and vanilla JavaScript (ES6+)** — zero framework overhead, no build steps required, and runs 100% client-side with an optional Node.js Express server.
+Built with pure **HTML5, modern CSS3, and vanilla JavaScript (ES6 Modules)** — zero build steps, zero framework overhead, 100% client-side privacy-first processing, with an optional Node.js Express server and Progressive Web App (PWA) offline capabilities.
 
 ---
 
 ## 🌟 Key Highlights & Capabilities
 
-- **🚀 100% Client-Side Processing**: Parse `.xlsx`, `.xlsm`, and `.csv` files entirely in your browser using **SheetJS** without uploading sensitive company data to external servers.
-- **🚛 Interactive 3D Load Planners**: Real-time 3D truck and container cargo visualization powered by **Three.js (WebGL)** with orbit controls, dimension bounding, collision detection, and layer inspection.
-- **🎨 13 Switchable UI Themes**: Live theme engine (Linear, Terminal, Cyberpunk, AMOLED, Bitcoin, Bauhaus, Retro, Dopamine, Premium, and more) with automatic Chart.js reskinning and persistent preferences (`localStorage`).
-- **🔍 Real-Time KPI Recalculation**: Instant metric updates (Total DOs, Quantity, Volume m³, Gross Weight, Pallet Count) matching active search/filter queries.
-- **⚡ Quick Actions & Remarks System**: Single-click bulk status assignment (`SELF COLLECT`, `HOLD`, `LOCAL DELIVERY`, `DIRECT DELIVERY`, `URGENT`, `CANCELLED`) and custom inline annotations.
-- **📑 Multi-Format Exporting**: Export styled spreadsheets with formatted headers, auto-fit columns, summary rows, or download high-resolution chart snapshots.
-- **📄 OCR Document Scanning**: Extract data from scanned delivery order PDFs directly in the browser.
+- **🚀 100% Client-Side Processing**: Parse `.xlsx`, `.xlsm`, and `.csv` files directly in your browser using **SheetJS** and custom streaming parsers. Sensitive supply chain data never leaves your local workstation.
+- **🚛 Interactive 3D Cargo Load Planners**: Real-time 3D truck cargo bay and mixed-carton visualization powered by **Three.js (WebGL)** with orbit controls, collision detection, layer slicing, dimension bounds, and loading sequence guidance.
+- **🎨 13 Switchable UI Themes**: Live theme engine (Linear, Terminal, Cyberpunk, AMOLED, Premium, Bitcoin, Bauhaus, Retro, Dopamine, Light, and more) with automatic **Chart.js** palette reskinning and persistent `localStorage` settings.
+- **🔍 Real-Time KPI Recalculation**: Live metric aggregation (Total DOs, Quantity, Volume m³, Gross Weight kg, Pallet Equivalents) reacting instantaneously to multi-column filters, search queries, and status toggles.
+- **⚡ Quick Actions & Remarks Engine**: 1-click batch status tagging (`SELF COLLECT`, `HOLD`, `LOCAL DELIVERY`, `DIRECT DELIVERY`, `URGENT`, `CANCELLED`) with instant visual feedback and audit log preservation.
+- **📑 Formatted Multi-Sheet Excel Exports**: Generates styled spreadsheets with customized headers, cell alignments, auto-fit column widths, freeze panes, and aggregate summary rows via `xlsx-js-style` and ExcelJS.
+- **📱 PWA & Offline Support**: Built-in Service Worker caching (`sw.js`) and Web App Manifest (`manifest.json`) enabling installability on desktop or mobile and offline operation.
+- **🧩 Shadcn-Inspired Design Tokens**: Clean, minimalist UI design system with unified buttons (`.btn-primary`, `.action-btn`, size variants `.sm`, `.xs`, `.lg`), standardized alert dialogs, and consistent typography.
 
 ---
 
 ## 📂 Modules & Feature Breakdown
 
-### 1. 📊 Summary Analytics (`index.html`)
-The main central command center for overall delivery performance and tracking.
-- **Features**:
-  - Drag-and-drop Excel/CSV file upload.
-  - High-level KPIs: Total Orders, Delivered, Pending, In-Transit, and Exception counts.
-  - Remarks breakdown charts, top consignee volume analysis, and route distributions.
-- **How to Use**:
-  1. Open the page or navigate to **Summary Analytics**.
-  2. Drag and drop your daily DO tracking Excel file into the upload zone.
-  3. Inspect the KPI cards and chart breakdowns. Use the filter controls to isolate specific statuses or routes.
+The platform consists of **14 dedicated modules**, each engineered for specific logistics workflows:
 
----
+### 1. 📊 Summary Analytics (`index.html`)
+Central command center for delivery performance, carrier distribution, and daily dispatch tracking.
+- **Features**:
+  - Drag-and-drop or styled button upload for daily DO tracking spreadsheets (`.xlsx`, `.csv`).
+  - High-level KPI indicators: Total Orders, Delivered, Pending, In-Transit, and Exception rates.
+  - Direct Delivery distribution charts, carrier breakdowns, top consignee volume rankings, and regional routes.
+  - Quick-filter bar for instant slice-and-dice of active delivery records.
 
 ### 2. 📝 DO Summary Generator (`do_summary_generator.html`)
-Comprehensive tool for compiling, cleaning, annotating, and generating clean DO manifests.
+Heavy-duty data cleaning, annotation, and formatted manifest generation engine.
 - **Features**:
-  - Dynamic KPI cards that adapt live to active search queries and column filters.
-  - **Quick Remarks Side Panel**: 1-click batch assignment of status tags.
-  - **Missing Info Updater**: Import secondary Excel/CSV files to patch missing addresses or routes without overwriting existing data.
-  - Inline table editing, custom row insertions, and styled Excel exports.
-- **How to Use**:
-  1. Upload your primary DO summary file.
-  2. Use the search bar to filter orders by customer, route, or DO number.
-  3. Select rows using checkboxes and click any quick remark button in the right panel to tag them in bulk.
-  4. Click **Export Formatted Excel** to download the clean report.
-
----
+  - Spreadsheet-style table view with custom AutoFilter popup menus per column header (text search, multi-checkbox filtering, value sorting).
+  - **Quick Remarks Side Panel**: 1-click bulk assignment of status tags across selected orders.
+  - **Missing Info Updater**: Non-destructive secondary file merge to backfill missing consignee addresses, contact numbers, or vehicle types.
+  - In-place cell editing, custom row additions, and export to styled Excel workbooks with formula summaries.
 
 ### 3. 🚚 Truck Planning & Daily Manifest (`truck_planning.html`)
-Plan vehicle allocations, driver schedules, and trip manifests for the day.
+Vehicle allocation and daily trip manifest builder for warehouse dispatch coordinators.
 - **Features**:
-  - Vehicle capacity threshold indicators (weight kg and volume m³ tracking per truck).
-  - Multi-tab management for planning different waves, shifts, or batches.
-  - In-table manifest editor with live sum calculations and overload warnings.
-- **How to Use**:
-  1. Select or input truck specifications (e.g., 1-Ton, 3-Ton, 40ft Container).
-  2. Assign DO records or pallets to specific trucks.
-  3. Monitor the capacity meter to prevent exceeding maximum payload limits.
-  4. Export the finalized truck manifest for drivers and warehouse dispatchers.
-
----
+  - Configurable truck profiles (1-Ton, 3-Ton, 5-Ton, 40ft Container) with maximum payload weight (kg) and volume (m³) thresholds.
+  - Dynamic capacity gauges warning of overload or sub-optimal utilization before dispatch.
+  - Multi-trip / multi-wave planning tabs with live load balancing.
+  - Formatted driver trip sheet generation and print-ready manifests.
 
 ### 4. 🚛 Manual Truck Planning (`manual_truck_planning.html`)
-Hands-on truck planning workspace for manually composing loads from source uploads.
+Hands-on load allocation workspace for picking-list-driven vehicle composition.
 - **Features**:
-  - Source file upload with picking-list style import.
-  - Manual drag-and-assign workflow for full control over each trip.
-  - Live totals for quantity, weight, and volume per planned truck.
-- **How to Use**:
-  1. Upload the source DO/picking file.
-  2. Create trucks and assign orders manually.
-  3. Export the finalized plan when the loads balance out.
+  - Dual-pane drag-and-drop or click-to-assign DO items into designated trucks.
+  - Real-time aggregate tallies for item count, gross weight, and volume per planned truck.
+  - Source item unassigned queue with quick search and customer grouping.
 
----
-
-### 5. 📦 Volume & Capacity Planner (`volume_capacity_planner.html`)
-Optimize bulk cargo space utilization with mathematical packing and 3D simulation.
+### 5. 📦 Bulk Volume & Capacity Planner (`volume_capacity_planner.html`)
+Mathematical packing calculations and interactive 3D container simulation.
 - **Features**:
-  - Interactive 3D truck cargo bay rendering with 360° orbit and zoom controls.
-  - Multi-layer pallet stacking calculations and automatic dimension verification.
-  - Overhang and space utilization efficiency percentages.
-- **How to Use**:
-  1. Configure truck body dimensions (Length, Width, Height) or select a preset.
-  2. Input pallet/cargo quantities and dimensions.
-  3. Click **Calculate & Simulate** to render the 3D packing layout.
-  4. Rotate the camera to inspect gaps, layer distribution, and weight balance.
-
----
+  - Full 3D cargo bay rendering with 360° orbit, zoom, and pan controls via Three.js.
+  - Pallet stack calculations with layer verification and max-height constraints.
+  - Space utilization efficiency metrics, volumetric weight calculations, and visual center-of-gravity indicators.
 
 ### 6. 🎯 DO Load Planner (`do_load_planner.html`)
-Order-centric load planning tool mapping individual delivery orders into specific pallet spaces.
+Order-centric load planning mapping specific delivery orders into pallet slots and truck zones.
 - **Features**:
-  - Direct import of DO item lists with automatic volume (m³) calculation.
-  - Split load handling for large DOs exceeding single truck capacity.
-  - Interactive pallet grid showing exact order positions within the truck.
-- **How to Use**:
-  1. Upload the DO item list.
-  2. Assign DOs into available pallet slots or auto-generate the optimal load sequence.
-  3. Review the load summary report and export the loading sequence sheet for dock workers.
-
----
+  - Line-item order ingestion with automatic cubic meter (m³) computation from raw box dimensions.
+  - Split-shipment management for oversized DOs spanning multiple trucks.
+  - Interactive pallet bay grid showing exact placement sequence for loading dock crews.
 
 ### 7. 📦 Loose Load Planner (`loose_load_planner.html`)
-Designed for non-palletized, loose carton packing and complex mixed-dimension boxes.
+Non-palletized carton packing simulation for complex, mixed-dimension consignments.
 - **Features**:
-  - Mixed-item 3D box packing algorithms.
-  - Color-coded carton groups by SKU or destination.
-  - Step-by-step loading guide showing which items to place first (back-to-front, bottom-to-top).
-- **How to Use**:
-  1. Upload carton dimensions and quantities.
-  2. Set vehicle dimensions and orientation constraints (e.g., "This Side Up").
-  3. Generate the 3D loose packing preview and inspect placement order.
-
----
+  - 3D container packing simulator for loose boxes of irregular dimensions.
+  - Color-coded carton groups by SKU, customer, or destination drop.
+  - Step-by-step loading guide illustrating back-to-front and bottom-to-top packing sequence.
+  - Orientation rules enforcement (e.g., "This Side Up" vertical constraints).
 
 ### 8. 🔎 DO Details Inspector (`do_details.html`)
-Deep-dive inquiry into individual DO lifecycles and line-item details.
+Deep-dive inquiry tool for inspecting single delivery orders and line-item lifecycles.
 - **Features**:
-  - Instant search by DO number, Customer Name, or Invoice ID.
-  - Line-item breakdown table displaying SKUs, descriptions, quantities, weights, and unit volumes.
-  - Printable single-order summary view.
-- **How to Use**:
-  1. Search for a DO number in the lookup field.
-  2. View complete order metadata, status history, and itemized lines.
-
----
+  - Rapid search by DO Number, Customer Name, Invoice Number, or Tracking ID.
+  - Complete line-item breakdown table displaying SKUs, descriptions, quantities, weights, and unit volumes.
+  - Printable single-order summary sheets with barcode representation.
 
 ### 9. 📈 Shipping Insight (`shipping_insight.html`)
-Analyze historical shipping trends, carrier SLA performance, and regional delivery metrics.
+Historical delivery performance, carrier SLA compliance, and transit time analytics.
 - **Features**:
-  - Carrier volume distribution and delivery turnaround time charts.
-  - On-time delivery (OTD) rate calculation.
-  - Cost per cubic meter / cost per delivery order analytics.
-- **How to Use**:
-  1. Import historical shipping dataset.
-  2. Filter by date range, carrier, or destination region.
-  3. Review analytical charts and export summary insights.
+  - Carrier volume distribution, transit duration averages, and on-time delivery (OTD) rates.
+  - Cost per cubic meter and cost per delivery order analytics.
+  - Regional route density analysis and destination heatmaps.
 
----
-
-### 10. 🏭 Batch Analytics (`batch_analytics.html`)
-Warehouse picking efficiency and batch wave performance analytics.
+### 10. 🏭 Batch Picking Analytics (`batch_analytics.html`)
+Warehouse picking efficiency, wave release tracking, and operational velocity analytics.
 - **Features**:
-  - Wave pick analysis from `.xlsm` picking logs.
+  - Ingestion of warehouse picking logs (`.xlsm` / `.xlsx`).
   - Picker productivity tracking, SKU velocity heatmaps, and batch completion timelines.
-- **How to Use**:
-  1. Upload the warehouse batch picking file (`.xlsm` / `.xlsx`).
-  2. Inspect pick rates, bottleneck analysis, and wave completion statuses.
-
----
+  - Bottleneck diagnosis across warehouse zones and picking bins.
 
 ### 11. 📉 DO Activity Trend (`do_activity_trend.html`)
-Time-series activity tracking comparing daily, weekly, and monthly DO volumes.
+Time-series activity tracking comparing daily, weekly, and monthly delivery order volumes.
 - **Features**:
-  - Interactive timeline charts with multi-metric toggles (Order count vs. Volume vs. Weight).
-  - Day-of-week and peak-hour heatmaps.
-- **How to Use**:
-  1. Upload date-stamped DO activity records.
-  2. Toggle chart views to analyze volume spikes and recurring peak patterns.
-
----
+  - Interactive multi-metric timeline charts (Order Count vs. Volume m³ vs. Weight kg).
+  - Day-of-week and peak-hour distribution heatmaps.
+  - Moving averages and trend forecasting for logistics capacity planning.
 
 ### 12. 🏆 Challenger List (`challenger_list.html`)
-Specialized tracking for high-priority, delayed, or problematic delivery orders requiring escalated intervention.
+Exception tracking for aged, delayed, or high-risk orders requiring escalated operational attention.
 - **Features**:
-  - Priority scoring based on aging days, customer tier, and delivery exceptions.
-  - Filterable action list for operations and customer service teams.
-- **How to Use**:
-  1. Load current open orders.
-  2. Filter by aging status or exception category to identify critical orders.
-  3. Add follow-up remarks and export the action list.
-
----
+  - Dynamic priority scoring based on aging days, customer tier, and delivery hold reasons.
+  - Filterable action list for operations and customer support follow-up.
+  - Custom remarks and status updates with confirm dialog workflows.
 
 ### 13. 📋 Packing List (`packing_sheet.html`)
-Packing details sheet wrapper embedding the React-based packing-sheet app.
+Comprehensive packing details sheet embedding a dedicated React-based packing management engine.
 - **Features**:
-  - Packing sheet form with master lookup and quick import modals.
-  - Verification workflow with confirm dialogs.
-  - Excel import/export of packing data.
-- **How to Use**:
-  1. Open the page to load the embedded packing-sheet app.
-  2. Import or key in packing details per DO.
-  3. Verify entries and export the packing list.
-
----
+  - Packing sheet form with master SKU lookup and quick import modals.
+  - Case/carton numbering, tare/gross weight calculation, and dimension validation.
+  - Two-way Excel import and export with strict template schema verification.
 
 ### 14. 🔠 OCR Document Scanner (`ocr_scanner.html`)
-Extract delivery order data from scanned PDF documents (e.g., multi-page DO batches).
+Browser-based document data extraction for scanned delivery order PDFs and images.
 - **Features**:
-  - Browser-based OCR of scanned delivery order PDFs.
-  - Structured extraction of DO numbers and line items.
-- **How to Use**:
-  1. Upload a scanned DO PDF.
-  2. Run the scan and review extracted records.
+  - Client-side OCR parsing of scanned DO documents and multi-page manifests.
+  - Automatic pattern extraction for DO numbers, customer names, dates, and item lines.
+  - Export of extracted records directly to CSV or Excel for downstream planning.
 
 ---
 
 ## 🛠️ Tech Stack & Architecture
 
-- **Frontend Core**: Pure HTML5, Vanilla JavaScript (ES6 Modules), CSS3 Variables & Flex/Grid
-- **Excel & Data Engine**: [SheetJS (xlsx)](https://sheetjs.com/), `xlsx-js-style`, ExcelJS
-- **Visualization & Charts**: [Chart.js](https://www.chartjs.org/) + `chartjs-plugin-datalabels`
-- **3D Graphics Engine**: [Three.js (r128)](https://threejs.org/) with OrbitControls & WebGL
-- **Packing Sheet App**: React (vendored, production builds) embedded in a vanilla-JS dashboard
-- **Backend (Optional Server)**: Node.js + [Express](https://expressjs.com/) (`server.js`)
-- **PWA**: `manifest.json` + `sw.js` service worker for installable, offline-capable usage
-- **Storage**: Client-side `localStorage` for theme, font preferences, and app configurations
+| Layer | Technologies | Purpose |
+|---|---|---|
+| **Core Frontend** | Pure HTML5, Vanilla JavaScript (ES6 Modules), CSS3 Variables | Maximum performance, zero bundlers, instant loading |
+| **Styling & Design** | Custom CSS3 Design System (Shadcn-inspired tokens, CSS Flexbox/Grid) | Consistent typography, unified buttons, responsive cards |
+| **Spreadsheet Engine** | [SheetJS (xlsx)](https://sheetjs.com/), `xlsx-js-style`, ExcelJS | Browser-based parsing, formatting, and multi-sheet exports |
+| **Data Visualization** | [Chart.js](https://www.chartjs.org/) + `chartjs-plugin-datalabels` | Reactive, theme-aware analytical charts and distribution graphs |
+| **3D Rendering Engine**| [Three.js (r128)](https://threejs.org/) with OrbitControls & WebGL | Interactive 3D truck cargo bays, pallet grids, and box packing |
+| **Subsystems** | React 18 (Vendored, production build) in `packing-sheet/` | Embedded complex packing list management |
+| **App Shell & PWA** | `manifest.json`, Service Worker (`sw.js` v44) | Offline caching, home-screen installation, fast reloads |
+| **Web Server (Optional)**| Node.js + [Express](https://expressjs.com/) (`server.js`) | Optional local file server and static asset hosting |
 
 ---
 
 ## 🚀 Quick Start Guide
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v16+ recommended)
+- Modern web browser (Chrome, Edge, Firefox, Safari)
+- Optional: [Node.js](https://nodejs.org/) (v16+) or Python (v3+)
 
-### 1. Installation & Running Locally
+### Option A: Node.js Server (Recommended)
 ```bash
 # 1. Clone the repository
 git clone https://github.com/topjohnnywu/do-insight-system-v5.git
 cd do-insight-system-v5
 
-# 2. Install dependencies (Express server)
+# 2. Install dependencies
 npm install
 
-# 3. Start the server
+# 3. Start the application
 npm start
 ```
-
-### 2. Access the Application
 Open your browser and navigate to:
 ```text
 http://localhost:3000
 ```
 
-> **Alternative (Zero-Dependency Option)**: You can also run the app using any static server:
-> - **Python**: `python -m http.server 8000` (then open `http://localhost:8000`)
-> - **VS Code**: Use the *Live Server* extension.
-> - **Direct File**: Open `index.html` directly in any modern browser.
+### Option B: Zero-Dependency Static Server
+Because all core processing runs client-side in the browser, you can host the project with any static web server:
+
+- **Python 3**:
+  ```bash
+  python -m http.server 8000
+  # Open http://localhost:8000
+  ```
+- **VS Code Live Server**: Right-click `index.html` and select **Open with Live Server**.
+- **Direct File Access**: Double-click `index.html` to open directly in any modern browser.
 
 ---
 
-## 🎨 Theme Customization & Settings
+## 🎨 Theme Engine & Customization
 
-Click the **Palette / Settings** icon in the sidebar or top navigation on any page to customize your experience:
-- **Themes (13 variants)**:
-  - *Linear* (Default sleek dark)
-  - *Terminal* (Green monospace hacker style)
-  - *Cyberpunk* (Neon cyan & purple)
-  - *AMOLED* (True high-contrast black)
-  - *Premium* (Ultra-dark corporate teal)
-  - *Light / Organic / Retro / Dopamine / Bitcoin / Bauhaus / Mono / GitHub*
-- **Universal Font Selector**: Choose between *Inter*, *Roboto*, *Fira Code*, *JetBrains Mono*, *System Default*, etc.
-- **Interface Zoom**: Scale the UI between 80% and 130% for different screen resolutions and laptop displays.
+Click the **Palette / Settings** icon in the sidebar or navigation header on any page to open the universal settings modal:
+- **13 Switchable Themes**:
+  - *Linear* (Default sleek corporate dark)
+  - *Terminal* (Monochrome green monospace hacker aesthetic)
+  - *Cyberpunk* (Vibrant neon cyan & magenta)
+  - *AMOLED* (Pure high-contrast true black)
+  - *Premium* (Ultra-dark slate and cyan accents)
+  - *Light*, *Organic*, *Retro*, *Dopamine*, *Bitcoin*, *Bauhaus*, *Mono*, and *GitHub*
+- **Theme Sync Engine**: Dynamically updates CSS custom properties (`--bg-color`, `--card-bg`, `--text-primary`, `--accent`, etc.) and automatically recolors all active Chart.js instances without reloading the page.
+- **Universal Font Selector**: Choose between *Inter*, *Roboto*, *Fira Code*, *JetBrains Mono*, or *System Default*.
+- **Interface Zoom**: Scale the UI between 80% and 130% for high-DPI displays or laptop screens.
 
 ---
 
 ## 📁 Repository Structure
 
 ```
+do-insight-system-v5/
 ├── server.js                      # Express static file server (port 3000)
-├── package.json                   # Node dependencies & run scripts
-├── package-lock.json              # Locked dependency versions
-├── manifest.json                  # PWA manifest
-├── sw.js                          # Service worker (offline caching)
-├── metadata.json                  # App metadata
-├── README.md                      # Project documentation
+├── package.json                   # Project metadata & dependencies
+├── package-lock.json              # Locked dependency tree
+├── manifest.json                  # PWA web app manifest
+├── sw.js                          # Service Worker cache controller (v44)
+├── metadata.json                  # Application metadata
+├── README.md                      # Comprehensive system documentation
 │
 ├── index.html                     # 1. Summary Analytics Dashboard
 ├── do_summary_generator.html      # 2. DO Summary Generator
@@ -280,53 +218,85 @@ Click the **Palette / Settings** icon in the sidebar or top navigation on any pa
 ├── batch_analytics.html           # 10. Batch Picking Analytics
 ├── do_activity_trend.html         # 11. DO Activity Trend
 ├── challenger_list.html           # 12. Challenger Exception Tracker
-├── packing_sheet.html             # 13. Packing List (wrapper)
+├── packing_sheet.html             # 13. Packing List (React wrapper)
 ├── ocr_scanner.html               # 14. OCR Document Scanner
 │
-├── extract_do_numbers.py          # Utility: extract DO numbers from documents
+├── extract_do_numbers.py          # CLI utility: extract DO numbers from PDF/images
 │
 ├── css/
-│   └── styles.css                 # Unified stylesheet & CSS theme variables
+│   └── styles.css                 # Unified stylesheet, design tokens & theme variables
 │
 ├── icons/
-│   └── icon.svg                   # App icon
+│   └── icon.svg                   # Vector application icon
 │
 ├── js/
-│   ├── app.js                     # Main application initialization & helpers
-│   ├── charts.js                  # Chart.js engine & theme sync palettes
-│   ├── parsers.js                 # Shared Excel/CSV parsing logic
-│   ├── settings.js                # Universal theme, font & zoom controller
-│   ├── batch_analytics.js         # Module script: Batch analytics
-│   ├── batch_charts.js            # Module script: Batch picking charts
-│   ├── challenger_list.js         # Module script: Challenger tracking
-│   ├── do_activity_trend.js       # Module script: Activity trend charts
-│   ├── do_load_planner.js         # Module script: DO pallet planner
-│   ├── do_summary_generator.js    # Module script: Summary generator & quick remarks
-│   ├── loose_load_planner.js      # Module script: Loose cargo 3D planner
-│   ├── manual_truck_planning.js   # Module script: Manual truck planning
-│   ├── mtp_source_upload.js       # Module script: MTP source file upload
-│   ├── truck_planning.js          # Module script: Truck manifest planner
-│   ├── volume_capacity_planner.js # Module script: 3D Truck volume simulator
-│   └── xlsx.bundle.js             # Client-side Excel engine bundle
+│   ├── app.js                     # Main application initialization & utilities
+│   ├── charts.js                  # Chart.js engine & theme synchronization palettes
+│   ├── parsers.js                 # Shared Excel/CSV file parsing pipelines
+│   ├── settings.js                # Universal theme, font, zoom & shadcn dialog engine
+│   ├── batch_analytics.js         # Logic: Batch picking analytics
+│   ├── batch_charts.js            # Visualizations: Batch wave performance
+│   ├── challenger_list.js         # Logic: Challenger exception tracking
+│   ├── do_activity_trend.js       # Logic: Time-series activity trend analysis
+│   ├── do_load_planner.js         # Logic: DO pallet allocation planner
+│   ├── do_summary_generator.js    # Logic: Summary generator, filters & quick remarks
+│   ├── loose_load_planner.js      # Logic: 3D loose box packing simulation
+│   ├── manual_truck_planning.js   # Logic: Manual vehicle trip composition
+│   ├── mtp_source_upload.js       # Logic: Source data ingestion for manual planning
+│   ├── truck_planning.js          # Logic: Automated truck payload planning
+│   ├── volume_capacity_planner.js # Logic: 3D truck container simulation
+│   └── xlsx.bundle.js             # Client-side Excel parsing & styling bundle
 │
-├── packing-sheet/                 # Embedded React packing-sheet app
+├── packing-sheet/                 # Embedded React packing list application
 │   ├── index.html
 │   ├── css/main.css
 │   └── js/
-│       ├── App.js                 # React root component
-│       ├── components/            # ConfirmDialog, QuickImportModal, etc.
-│       ├── utils/                 # Excel import/export, lookup parsing
-│       └── vendor/                # Vendored React, ExcelJS, Tailwind, SheetJS
+│       ├── App.js                 # Root React component
+│       ├── components/            # Modal & form UI components
+│       ├── utils/                 # Excel import/export helpers
+│       └── vendor/                # Vendored React, Tailwind, ExcelJS, SheetJS
 │
-└── arkib/                         # Archive: legacy one-off patch/fix/test scripts
+└── arkib/                         # Historical reference and archived scripts
 ```
 
 ---
 
-## 🔒 Privacy & Security
+## 🔒 Security & Data Privacy
 
-- All data uploaded through Excel/CSV files is parsed **locally in your browser session**.
-- No business records, customer information, or delivery orders are sent to external cloud APIs or third-party storage.
+- **Zero Cloud Uploads**: All data processing is performed directly in client memory via browser JavaScript APIs and Web Workers.
+- **No Third-Party Tracking**: The system makes no telemetry calls, analytical tracking requests, or external database queries with your operational data.
+- **Enterprise Compliant**: Suitable for environments with strict NDA, GDPR, and data residency requirements.
+
+---
+
+## 🆕 Recent Features & Changelog
+
+### 1. Shadcn-Inspired Dialog System Unification
+- **Standardized Alert Dialog Tokens**: Replaced ad-hoc confirmation prompts and legacy emoji headers (`⚠️`, `✏️`, `✕`) with a cohesive, professional shadcn-inspired dialog architecture in `js/settings.js`.
+- **Global API (`window.showConfirmDialog` & `window.showPromptDialog`)**:
+  - Modal backdrops with smooth blur transitions (`.alert-dialog-overlay`).
+  - Structured card containers (`.alert-dialog-content`), headers (`.alert-dialog-title`, `.alert-dialog-description`), and standard action buttons (`.action-btn.outline`, `.action-btn.danger`, `.btn-primary`).
+  - Seamlessly updated across operational modules including **Challenger List** (clearing and deleting records), **DO Activity Trend** (data resets), **Loose Load Planner** (plan clearing), and **MTP Source Upload** (bulk clear operations).
+
+### 2. Unified Custom Upload Button Design System
+- **Eliminated Native Browser File Inputs**: Replaced default browser "Choose File" / "Choose Files" grey rectangular buttons with sleek shadcn-style action buttons across:
+  - `index.html` (Summary Analytics upload card)
+  - `challenger_list.html` (Challenger file ingestion)
+  - `do_activity_trend.html` (Activity trend file ingestion)
+  - `shipping_insight.html` (Shipping dataset upload)
+- **Standardized Tokens**: Implemented `.btn-primary.sm` with embedded vector icons, hidden native file inputs, keyboard accessibility, and dynamic filename badges displaying selected file names or upload status.
+
+### 3. Layout Optimization in Summary Analytics (`index.html`)
+- **Card Removal**: Removed the legacy and unused "DO Remarks Overview" card from the Summary Analytics dashboard.
+- **Expanded Responsive Viewports**: Expanded the Direct Delivery analytical chart container to take full advantage of screen real estate, improving readability and data density across wide monitors and laptops.
+
+### 4. AutoFilter Menu Floating Position Fix (`do_summary_generator.html`)
+- **Containing Block Decoupling**: Fixed a critical positioning bug where clicking column filter triggers (`#dsgExcelFilterMenu`) caused the menu to appear far to the right or off-screen.
+- **Direct Body Attachment**: Relocated the filter popup DOM node out of animated container cards (`.compact-wrapper`, `.table-card`) whose CSS `transform` animations created a shifted coordinate system. Attached directly to `document.body` with fixed viewport positioning, dynamic boundary clamping, and auto-dismissal on window scroll or escape key.
+
+### 5. Progressive Web App (PWA) Cache Upgrade
+- **Cache Increment**: Incremented Service Worker cache key to `planner-cache-v44` in `sw.js`.
+- **Clean Invalidation**: Guarantees that clients instantly fetch the latest HTML structure, styles, and dialog scripts without manual hard-refreshing.
 
 ---
 

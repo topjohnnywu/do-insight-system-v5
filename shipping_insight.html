@@ -841,10 +841,15 @@
 
             <!-- Ingestion & Main Filter Bar -->
             <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
-                <div class="file-upload-box">
-                    <label for="insightPicker">Upload Insight File (.xlsx):</label>
-                    <input type="file" id="insightPicker" accept=".xlsx, .xls, .xlsm" onchange="handleShippingInsightUpload(event)">
-                </div>
+                <button type="button" class="btn-primary sm" onclick="document.getElementById('insightPicker').click()" data-tip="Upload Shipping Insight File (.xlsx, .xlsm)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    Upload Insight File
+                </button>
+                <input type="file" id="insightPicker" accept=".xlsx, .xls, .xlsm" style="display: none;" onchange="handleShippingInsightUpload(event)">
                 <div class="filter-box">
                     <label for="typeFilter">Filter DO Type:</label>
                     <select id="typeFilter" onchange="applyInsightFilter()">

@@ -2684,6 +2684,11 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
         const menuEl = document.getElementById("dsgExcelFilterMenu");
         if (!menuEl) return;
 
+        // Ensure menu is attached to document.body so position:fixed is relative to viewport
+        if (menuEl.parentElement !== document.body) {
+            document.body.appendChild(menuEl);
+        }
+
         if (this.activeExcelMenuState.colKey === colKey && menuEl.classList.contains("open")) {
             this.closeExcelFilterMenu();
             return;
@@ -2763,9 +2768,13 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
 
         const btn = event ? (event.currentTarget || event.target.closest('.excel-filter-btn')) : document.getElementById(`dsg_btn_${colKey}`);
         if (btn) {
-            const rect = btn.getBoundingClientRect();
-            let top = rect.bottom + 4;
-            let left = rect.left;
+            const btnRect = btn.getBoundingClientRect();
+            const th = btn.closest('th');
+            const thRect = th ? th.getBoundingClientRect() : btnRect;
+
+            let top = btnRect.bottom + 4;
+            // Align with left edge of column header cell
+            let left = thRect.left;
 
             const menuWidth = 280;
             if (left + menuWidth > window.innerWidth - 12) {
@@ -2775,11 +2784,11 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
 
             const menuHeight = 360;
             if (top + menuHeight > window.innerHeight - 10) {
-                top = Math.max(10, rect.top - menuHeight - 4);
+                top = Math.max(10, btnRect.top - menuHeight - 4);
             }
 
-            menuEl.style.top = `${top}px`;
-            menuEl.style.left = `${left}px`;
+            menuEl.style.top = `${Math.round(top)}px`;
+            menuEl.style.left = `${Math.round(left)}px`;
         }
 
         menuEl.style.display = "flex";
@@ -2797,6 +2806,15 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
             document.addEventListener("click", this._boundExcelClickOutside);
         }, 20);
 
+        if (this._boundExcelScroll) {
+            window.removeEventListener("scroll", this._boundExcelScroll, true);
+        }
+        this._boundExcelScroll = (e) => {
+            if (menuEl && menuEl.contains(e.target)) return;
+            this.closeExcelFilterMenu();
+        };
+        window.addEventListener("scroll", this._boundExcelScroll, true);
+
         if (searchInp) {
             setTimeout(() => searchInp.focus(), 80);
         }
@@ -2811,6 +2829,10 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
         if (this._boundExcelClickOutside) {
             document.removeEventListener("click", this._boundExcelClickOutside);
             this._boundExcelClickOutside = null;
+        }
+        if (this._boundExcelScroll) {
+            window.removeEventListener("scroll", this._boundExcelScroll, true);
+            this._boundExcelScroll = null;
         }
     }
 

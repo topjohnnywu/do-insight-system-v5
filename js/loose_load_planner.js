@@ -433,7 +433,7 @@ class LooseLoadPlanner {
 
     async clearAllModels() {
         if (Object.keys(this.batchData).length === 0) return;
-        const proceed = await window.showConfirmDialog({ title: "Clear Planner", message: "Are you sure you want to clear all loaded models from the planner?", confirmText: "Clear", isDanger: true, icon: "🗑️" });
+        const proceed = await window.showConfirmDialog({ title: "Clear Planner", message: "Are you sure you want to clear all loaded models from the planner?", confirmText: "Clear", isDanger: true });
         if (!proceed) return;
         
         this.batchData = {};
@@ -464,7 +464,7 @@ class LooseLoadPlanner {
     }
 
     async clearMasterData() {
-        const proceed = await window.showConfirmDialog({ title: "Clear Master Data", message: "Are you sure you want to clear the saved Master Data from memory?", confirmText: "Clear", isDanger: true, icon: "🗑️" });
+        const proceed = await window.showConfirmDialog({ title: "Clear Master Data", message: "Are you sure you want to clear the saved Master Data from memory?", confirmText: "Clear", isDanger: true });
         if (proceed) {
             localStorage.removeItem('GlobalMasterDataMap');
             this.masterData = {};
@@ -484,7 +484,7 @@ class LooseLoadPlanner {
     }
     
     async clearBatchData() {
-        const proceed = await window.showConfirmDialog({ title: "Clear Batch Data", message: "Are you sure you want to clear the saved Batch Picking data from memory?", confirmText: "Clear", isDanger: true, icon: "🗑️" });
+        const proceed = await window.showConfirmDialog({ title: "Clear Batch Data", message: "Are you sure you want to clear the saved Batch Picking data from memory?", confirmText: "Clear", isDanger: true });
         if (!proceed) return;
         
         try { localStorage.removeItem('LoosePlannerBatchData'); } catch (e) { console.error(e); }
@@ -509,7 +509,7 @@ class LooseLoadPlanner {
     }
     
     async clearRouteData() {
-        const proceed = await window.showConfirmDialog({ title: "Clear Route Files", message: "Are you sure you want to clear the saved Route Files data from memory?", confirmText: "Clear", isDanger: true, icon: "🗑️" });
+        const proceed = await window.showConfirmDialog({ title: "Clear Route Files", message: "Are you sure you want to clear the saved Route Files data from memory?", confirmText: "Clear", isDanger: true });
         if (!proceed) return;
         
         try { localStorage.removeItem('LoosePlannerRouteData'); } catch (e) { console.error(e); }

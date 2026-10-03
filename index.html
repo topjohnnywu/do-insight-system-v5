@@ -280,24 +280,30 @@
             <!-- File Upload Grid (DO Summary and Batch Picking only) -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 12px; margin-bottom: 12px;">
                 <!-- 1. DO Summary File Upload -->
-                <div class="file-upload-box" style="flex-direction: column; align-items: flex-start; position: relative;">
-                    <div style="display: flex; align-items: center; width: 100%;">
-                        <label for="filePicker">DO Summary File(s):</label>
-                        <input type="file" id="filePicker" accept=".xlsx, .xls, .xlsm" multiple onchange="handleFileUpload(event)">
-                        <button type="button" class="reset-file-btn" onclick="resetSpecificFile('do')" title="Clear DO Summary File" style="position: absolute; right: 15px; top: 15px;">✕</button>
+                <div class="file-upload-box" style="flex-direction: column; align-items: flex-start; position: relative; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button type="button" class="btn-primary sm" onclick="document.getElementById('filePicker').click()" data-tip="Upload DO Summary Excel files (.xlsx, .xls, .xlsm)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Choose DO Summary File(s)
+                        </button>
+                        <input type="file" id="filePicker" accept=".xlsx, .xls, .xlsm" multiple style="display: none;" onchange="handleFileUpload(event)">
                     </div>
+                    <button type="button" class="reset-file-btn" onclick="resetSpecificFile('do')" title="Clear DO Summary File" style="position: absolute; right: 15px; top: 15px;">✕</button>
                     <div id="doSummaryChips" class="file-chips-wrapper">
                         <button class="file-chip active" data-filename="ALL" onclick="filterByFile('ALL', this)">All Files Combined (0)</button>
                     </div>
                 </div>
 
                 <!-- 2. Batch Picking / Source File Upload -->
-                <div class="file-upload-box" style="flex-direction: column; align-items: flex-start; position: relative;">
-                    <div style="display: flex; align-items: center; width: 100%;">
-                        <label for="productMasterPicker">Batch Picking File (.xlsm):</label>
-                        <input type="file" id="productMasterPicker" accept=".csv, .xlsx, .xls, .xlsm" multiple onchange="handleProductMasterUpload(event)">
-                        <button type="button" class="reset-file-btn" onclick="resetSpecificFile('batch')" title="Clear Batch Picking File" style="position: absolute; right: 15px; top: 15px;">✕</button>
+                <div class="file-upload-box" style="flex-direction: column; align-items: flex-start; position: relative; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button type="button" class="btn-primary sm" onclick="document.getElementById('productMasterPicker').click()" data-tip="Upload Batch Picking File (.xlsm, .csv)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Choose Batch Picking File(s)
+                        </button>
+                        <input type="file" id="productMasterPicker" accept=".csv, .xlsx, .xls, .xlsm" multiple style="display: none;" onchange="handleProductMasterUpload(event)">
                     </div>
+                    <button type="button" class="reset-file-btn" onclick="resetSpecificFile('batch')" title="Clear Batch Picking File" style="position: absolute; right: 15px; top: 15px;">✕</button>
                     <div id="batchFileChips" class="file-chips-wrapper">
                         <button class="file-chip active" data-filename="ALL" onclick="filterBatchByFile('ALL', this)">All Files Combined (0)</button>
                     </div>
@@ -351,31 +357,8 @@
                 </div>
             </div>
 
-            <!-- Top Grid: Equal 50/50 Split Layout -->
-            <div class="charts-container">
-                <!-- DO Remarks Overview Card (Left 50%) -->
-                <div class="chart-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <h3 style="margin-bottom: 0;">DO Remarks Overview</h3>
-                        <select id="remarkFilter" onchange="applyRemarkFilter()" style="padding:4px 8px; font-size:12px; outline:none; max-width: 200px;">
-                            <option value="ALL">All Remarks</option>
-                        </select>
-                    </div>
-                    <div class="table-wrapper" style="max-height: 260px; overflow-y: auto;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="width: 35%;">DO Number</th>
-                                    <th>Remarks Note</th>
-                                </tr>
-                            </thead>
-                            <tbody id="remarksOverviewBody">
-                                <tr><td colspan="2" style="text-align:center; color:#64748b; padding:20px;">No DO data loaded.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+            <!-- Direct Delivery Chart Container -->
+            <div class="charts-container" style="grid-template-columns: 1fr;">
                 <!-- Addresses Exceeding 5 m³ Volume Chart Card -->
                 <div class="chart-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px;">
