@@ -1298,25 +1298,32 @@ html[data-sidebar-autohide="true"] .sidebar:not(:hover):not(.is-hovered) .sideba
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     border: none;
-    background: rgba(255, 255, 255, 0.2);
-    color: currentColor;
-    font-size: 11px;
-    font-weight: 700;
+    background: #ef4444;
+    color: #ffffff;
     cursor: pointer;
     line-height: 1;
     padding: 0;
-    margin-left: 4px;
+    margin-left: 6px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.35);
     transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
 .chip-remove-btn:hover {
-    background: #ef4444;
+    background: #dc2626;
     color: #ffffff;
-    transform: scale(1.15);
+    transform: scale(1.12);
+}
+
+.chip-remove-btn svg {
+    width: 10px;
+    height: 10px;
+    stroke-width: 2.5;
+    stroke: #ffffff;
 }
 
 /* ------------------------------------------------------------------
@@ -1369,23 +1376,29 @@ html[data-sidebar-autohide="true"] .sidebar:not(:hover):not(.is-hovered) .sideba
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 22px;
-    height: 22px;
-    border-radius: 4px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--fg-subtle);
-    font-size: 12px;
-    font-weight: 700;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: #ef4444;
+    color: #ffffff;
     cursor: pointer;
     margin-left: auto;
-    transition: all 0.15s ease;
+    box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+    transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
 .reset-file-btn:hover {
-    border-color: #ef4444;
-    color: #ef4444;
-    background: rgba(239, 68, 68, 0.15);
+    background: #dc2626;
+    color: #ffffff;
+    transform: scale(1.12);
+}
+
+.reset-file-btn svg {
+    width: 11px;
+    height: 11px;
+    stroke-width: 2.5;
+    stroke: #ffffff;
 }
 
 select {
