@@ -57,13 +57,11 @@ class PalletCalculationEngine {
         const dBtn40 = document.getElementById('dashTruckSize40Btn');
         const dBtn20 = document.getElementById('dashTruckSize20Btn');
         if (dBtn40 && dBtn20) {
-            if (type === '40HC') {
-                dBtn40.classList.remove('ghost'); dBtn40.classList.add('active');
-                dBtn20.classList.remove('active'); dBtn20.classList.add('ghost');
-            } else {
-                dBtn20.classList.remove('ghost'); dBtn20.classList.add('active');
-                dBtn40.classList.remove('active'); dBtn40.classList.add('ghost');
-            }
+            const is40 = (type === '40HC');
+            dBtn40.style.background = is40 ? 'var(--accent, #8b5cf6)' : 'transparent';
+            dBtn40.style.color = is40 ? 'var(--accent-foreground, #0a0a0a)' : 'var(--fg-muted, #a1a1aa)';
+            dBtn20.style.background = !is40 ? 'var(--accent, #8b5cf6)' : 'transparent';
+            dBtn20.style.color = !is40 ? 'var(--accent-foreground, #0a0a0a)' : 'var(--fg-muted, #a1a1aa)';
         }
         
         // Update modal title if present
@@ -1982,11 +1980,11 @@ ${overflowDetailsHtml}
         let html = `
             <div class="table-card" style="padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.2);">
                 <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 16px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px; border: 1px solid var(--border);">
-                    <button id="dashTruckSize40Btn" onclick="plannerEngine.setTruckType('40HC')" title="40-Foot High Cube Container (76 m³)" style="background: ${this.selectedTruckType === '40HC' ? 'var(--accent, #8b5cf6)' : 'transparent'}; color: ${this.selectedTruckType === '40HC' ? '#fff' : 'var(--fg-muted, #a1a1aa)'}; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;">
+                    <button id="dashTruckSize40Btn" onclick="plannerEngine.setTruckType('40HC')" title="40-Foot High Cube Container (76 m³)" style="background: ${this.selectedTruckType === '40HC' ? 'var(--accent, #8b5cf6)' : 'transparent'}; color: ${this.selectedTruckType === '40HC' ? 'var(--accent-foreground, #0a0a0a)' : 'var(--fg-muted, #a1a1aa)'}; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;">
                         <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                         40ft HC (76m³)
                     </button>
-                    <button id="dashTruckSize20Btn" onclick="plannerEngine.setTruckType('20GP')" title="20-Foot Standard Container (33.2 m³)" style="background: ${this.selectedTruckType === '20GP' ? 'var(--accent, #8b5cf6)' : 'transparent'}; color: ${this.selectedTruckType === '20GP' ? '#fff' : 'var(--fg-muted, #a1a1aa)'}; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;">
+                    <button id="dashTruckSize20Btn" onclick="plannerEngine.setTruckType('20GP')" title="20-Foot Standard Container (33.2 m³)" style="background: ${this.selectedTruckType === '20GP' ? 'var(--accent, #8b5cf6)' : 'transparent'}; color: ${this.selectedTruckType === '20GP' ? 'var(--accent-foreground, #0a0a0a)' : 'var(--fg-muted, #a1a1aa)'}; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;">
                         <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                         20ft GP (33.2m³)
                     </button>
