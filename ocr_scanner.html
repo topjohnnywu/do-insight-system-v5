@@ -2098,8 +2098,8 @@ function updateRoiFillColor() {
     });
 }
 
-function toggleRoiMode() {
-    isRoiActive = !isRoiActive;
+function setRoiActive(active = true) {
+    isRoiActive = Boolean(active);
     const btn = $('btnToggleRoi');
     const stateText = $('roiToggleStateText');
     const content = $('roiContentArea');
@@ -2112,11 +2112,6 @@ function toggleRoiMode() {
         if (content) content.style.display = 'block';
         if (badge) badge.style.display = 'inline-block';
         if (badgeTab) badgeTab.style.display = 'inline-flex';
-        
-        // Auto-switch right panel to ROI tab
-        if (typeof window.switchRightTab === 'function') {
-            window.switchRightTab('roi');
-        }
 
         // If files are already loaded, render preview immediately
         const files = [...$('pdfFiles').files];
@@ -2135,6 +2130,15 @@ function toggleRoiMode() {
         if (badgeTab) badgeTab.style.display = 'none';
     }
 }
+
+function toggleRoiMode() {
+    setRoiActive(!isRoiActive);
+    if (isRoiActive && typeof window.switchRightTab === 'function') {
+        window.switchRightTab('roi');
+    }
+}
+window.setRoiActive = setRoiActive;
+window.toggleRoiMode = toggleRoiMode;
 
 function drawEmptyRoiPlaceholder() {
     const canvas = $('roiPreviewCanvas');
@@ -4526,8 +4530,16 @@ window.switchRightTab = function(tab) {
     if (paneRoi) paneRoi.style.display = !isResults ? 'flex' : 'none';
     if (toolbar) toolbar.style.display = isResults ? 'flex' : 'none';
 
-    if (!isResults && roiCurrentDoc && roiCurrentPageNum) {
-        renderRoiPage(roiCurrentPageNum);
+    if (!isResults) {
+        // Automatically activate ROI isolation mode
+        if (typeof setRoiActive === 'function') {
+            setRoiActive(true);
+        }
+        if (roiCurrentDoc && roiCurrentPageNum) {
+            renderRoiPage(roiCurrentPageNum);
+        } else if (!roiCurrentDoc) {
+            drawEmptyRoiPlaceholder();
+        }
     }
 };
 
