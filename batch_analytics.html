@@ -239,14 +239,14 @@
 
                 <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                     <input type="text" id="uploadedByInput" class="search-box" placeholder="Your Name" style="width: 130px;">
-                    <button class="action-btn outline" onclick="document.getElementById('newBatchPicker').click()" data-tip="Upload a new batch file for analysis">
+                    <button class="action-btn outline sm" onclick="document.getElementById('newBatchPicker').click()" data-tip="Upload a new batch file for analysis">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
                             <line x1="12" y1="5" x2="12" y2="19"/>
                             <line x1="5" y1="12" x2="19" y2="12"/>
                         </svg>
                         Upload New Batch
                     </button>
-                    <button class="action-btn outline" onclick="document.getElementById('updateBatchPicker').click()" data-tip="Update an existing batch with new data">
+                    <button class="action-btn outline sm" onclick="document.getElementById('updateBatchPicker').click()" data-tip="Update an existing batch with new data">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
                             <polyline points="23 4 23 10 17 10"/>
                             <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
@@ -255,7 +255,7 @@
                     </button>
 
                     <!-- JSON Backup & Sharing Controls -->
-                    <button class="action-btn outline" onclick="exportBatchAnalyticsJSON()" data-tip="Download all batch data as JSON" style="height: 32px; padding: 0 12px; font-size: 11px;">
+                    <button class="action-btn outline sm" onclick="exportBatchAnalyticsJSON()" data-tip="Download all batch data as JSON">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="7 10 12 15 17 10"/>
@@ -264,7 +264,7 @@
                         Export JSON (.json)
                     </button>
 
-                    <button class="action-btn outline" onclick="document.getElementById('batchJsonPicker').click()" data-tip="Import batch data from a JSON file" style="height: 32px; padding: 0 12px; font-size: 11px;">
+                    <button class="action-btn outline sm" onclick="document.getElementById('batchJsonPicker').click()" data-tip="Import batch data from a JSON file">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="17 8 12 3 7 8"/>
@@ -274,7 +274,7 @@
                     </button>
                     <input type="file" id="batchJsonPicker" accept=".json" style="display: none;" onchange="importBatchAnalyticsJSON(event)">
 
-                    <button class="action-btn danger" onclick="resetBatchAnalytics()" data-tip="Reset the dashboard and clear all batches">
+                    <button class="action-btn danger sm" onclick="resetBatchAnalytics()" data-tip="Reset the dashboard and clear all batches">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
                             <polyline points="1 4 1 10 7 10"/>
                             <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
@@ -283,7 +283,7 @@
                     </button>
                     <input type="file" id="newBatchPicker" accept=".xlsx, .xls, .xlsm" multiple style="display:none" onchange="handleNewBatchUpload(event)">
                     <input type="file" id="updateBatchPicker" accept=".xlsx, .xls, .xlsm" multiple style="display:none" onchange="handleUpdateBatchUpload(event)">
-                    <button id="themeToggleBtn" onclick="toggleTheme()" style="cursor:pointer;">Mode: Dark</button>
+                    <button id="themeToggleBtn" onclick="toggleTheme()" class="action-btn outline sm">Mode: Dark</button>
                 </div>
             </div>
 

@@ -2544,6 +2544,79 @@ body.light-mode .slicer-btn.active {
 .action-btn.outline.action-btn-icon > svg { margin: 0; }
 
 /* ------------------------------------------------------------------
+   Button Size Modifiers (.sm, .xs, .lg)
+   Standardized heights, paddings, and font sizes across all variants.
+   ------------------------------------------------------------------ */
+.action-btn.sm, .btn-primary.sm, .header-btn.sm {
+    height: 32px;
+    padding: 0 12px;
+    font-size: 12px;
+    gap: 6px;
+}
+
+.action-btn.xs, .btn-primary.xs, .header-btn.xs {
+    height: 26px;
+    padding: 0 8px;
+    font-size: 11px;
+    gap: 4px;
+}
+
+.action-btn.lg, .btn-primary.lg {
+    height: 44px;
+    padding: 0 24px;
+    font-size: 15px;
+    gap: 10px;
+}
+
+.action-btn.sm > svg, .btn-primary.sm > svg, .header-btn.sm > svg {
+    width: 15px;
+    height: 15px;
+}
+
+.action-btn.xs > svg, .btn-primary.xs > svg, .header-btn.xs > svg {
+    width: 13px;
+    height: 13px;
+}
+
+/* Disabled button state */
+.action-btn:disabled,
+.action-btn[disabled],
+.btn-primary:disabled,
+.btn-primary[disabled],
+.primary-button:disabled,
+.primary-button[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed !important;
+    pointer-events: none;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* Fallback/alias for .primary-button */
+.primary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    background-color: var(--accent);
+    color: var(--accent-foreground, #ffffff);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-control);
+    box-shadow: var(--shadow-cta);
+    transition: background-color 0.15s var(--ease), transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+.primary-button:hover:not(:disabled) {
+    background-color: var(--accent-bright);
+    border-color: var(--accent-bright);
+    transform: translateY(-1px);
+}
+
+/* ------------------------------------------------------------------
    .btn-primary — canonical base for primary buttons.
    Previously this class had NO base rule (only a dark-theme color override),
    so any button using it rendered as an unstyled browser default. Now it is a

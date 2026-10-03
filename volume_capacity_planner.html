@@ -253,14 +253,14 @@
 
                 <div style="display: flex; gap: 16px; align-items: center;">
                     <input type="file" id="masterDataFileInput" accept=".xlsx, .xls, .csv" style="display: none;" onchange="plannerEngine.handleImportSelect(event)">
-                    <button class="action-btn secondary" onclick="plannerEngine.exportMasterData()" data-tip="Download the current master data" style="padding: 6px 14px; font-size: 13px; height: auto;">Export Master Data</button>
-                    <button class="action-btn primary" onclick="plannerEngine.triggerImport()" data-tip="Import master data (carton models / volumes)" style="padding: 6px 14px; font-size: 13px; height: auto;">Import Master Data</button>
+                    <button class="action-btn secondary sm" onclick="plannerEngine.exportMasterData()" data-tip="Download the current master data">Export Master Data</button>
+                    <button class="action-btn primary sm" onclick="plannerEngine.triggerImport()" data-tip="Import master data (carton models / volumes)">Import Master Data</button>
                     
-                    <a href="do_load_planner.html" style="text-decoration: none; color: var(--fg, #e4e4e7); display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; background: rgba(255,255,255,0.05); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border, #27272a); transition: background 0.2s;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    <a href="do_load_planner.html" class="action-btn outline sm" style="text-decoration: none;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                         Back to Planner
                     </a>
-                    <button id="themeToggleBtn" onclick="toggleTheme()" class="action-btn secondary" style="padding: 6px 10px; font-size: 12px; height: auto;">Mode: Dark</button>
+                    <button id="themeToggleBtn" onclick="toggleTheme()" class="action-btn outline sm">Mode: Dark</button>
                 </div>
             </div>
 

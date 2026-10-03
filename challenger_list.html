@@ -251,7 +251,7 @@
                         <input type="file" id="challengerFilePicker" accept=".csv, .xlsx, .xls" multiple onchange="challengerGenerator.handleFileUpload(event)">
                     </div>
 
-                    <button class="action-btn outline" onclick="challengerGenerator.exportToExcel()" data-tip="Download the Challenger list as an Excel workbook">
+                    <button class="action-btn outline sm" onclick="challengerGenerator.exportToExcel()" data-tip="Download the Challenger list as an Excel workbook">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="7 10 12 15 17 10"/>
@@ -260,7 +260,7 @@
                         Export Workbook (.xlsx)
                     </button>
 
-                    <button class="action-btn ch-reset-btn" onclick="challengerGenerator.reset()">
+                    <button class="action-btn ch-reset-btn sm" onclick="challengerGenerator.reset()">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M3 6h18"/>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
@@ -271,7 +271,7 @@
                         Reset Generator
                     </button>
 
-                    <button id="themeToggleBtn" onclick="toggleTheme()" style="cursor:pointer;">Mode: Dark</button>
+                    <button id="themeToggleBtn" onclick="toggleTheme()" class="action-btn outline sm">Mode: Dark</button>
                 </div>
             </div>
 

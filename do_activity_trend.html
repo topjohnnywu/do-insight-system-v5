@@ -262,7 +262,7 @@
                     </div>
 
                     <!-- JSON Backup & Sharing Controls -->
-                    <button class="action-btn outline" onclick="activityTrend.exportToJSON()" data-tip="Download activity history as JSON">
+                    <button class="action-btn outline sm" onclick="activityTrend.exportToJSON()" data-tip="Download activity history as JSON">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="7 10 12 15 17 10"/>
@@ -271,7 +271,7 @@
                         Export JSON (.json)
                     </button>
 
-                    <button class="action-btn outline" onclick="document.getElementById('activityJsonPicker').click()" data-tip="Import activity history from a JSON file">
+                    <button class="action-btn outline sm" onclick="document.getElementById('activityJsonPicker').click()" data-tip="Import activity history from a JSON file">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="17 8 12 3 7 8"/>
@@ -281,7 +281,7 @@
                     </button>
                     <input type="file" id="activityJsonPicker" accept=".json" style="display: none;" onchange="activityTrend.importFromJSON(event)">
 
-                    <button class="action-btn outline" onclick="activityTrend.exportToExcel()" data-tip="Download the activity trend as an Excel workbook">
+                    <button class="action-btn outline sm" onclick="activityTrend.exportToExcel()" data-tip="Download the activity trend as an Excel workbook">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="7 10 12 15 17 10"/>
@@ -290,7 +290,7 @@
                         Export Workbook (.xlsx)
                     </button>
 
-                    <button class="action-btn dat-reset-btn" onclick="activityTrend.reset()">
+                    <button class="action-btn dat-reset-btn sm" onclick="activityTrend.reset()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M3 6h18"/>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
@@ -301,7 +301,7 @@
                         Reset History
                     </button>
 
-                    <button id="themeToggleBtn" onclick="toggleTheme()" style="cursor:pointer;">Mode: Dark</button>
+                    <button id="themeToggleBtn" onclick="toggleTheme()" class="action-btn outline sm">Mode: Dark</button>
                 </div>
             </div>
 
