@@ -995,23 +995,30 @@
         }
     }
 
-    const AVATAR_PRESETS = [
-        { id: "initials", label: "Initials Fallback", url: "" },
-        { id: "shadcn", label: "Shadcn", url: "https://github.com/shadcn.png" },
-        { id: "evilrabbit", label: "Evil Rabbit", url: "https://github.com/evilrabbit.png" },
-        { id: "maxleiter", label: "Max Leiter", url: "https://github.com/maxleiter.png" },
-        { id: "rauchg", label: "Guillermo", url: "https://github.com/rauchg.png" },
-        { id: "avatar1", label: "Operations Lead", url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" },
-        { id: "avatar2", label: "Logistics Specialist", url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" },
-        { id: "icon", label: "DO Truck Icon", url: "./icons/icon.svg" }
-    ];
+    function getDiceBearAvataaars(currentName) {
+        const safeSeed = encodeURIComponent(currentName || "User");
+        return [
+            { id: "initials", label: "Initials Fallback", url: "" },
+            { id: "personal", label: `Personalized (${currentName || "User"})`, url: `https://api.dicebear.com/10.x/avataaars/svg?seed=${safeSeed}` },
+            { id: "felix", label: "Felix", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Felix" },
+            { id: "aneka", label: "Aneka", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Aneka" },
+            { id: "adrian", label: "Adrian", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Adrian" },
+            { id: "jessica", label: "Jessica", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Jessica" },
+            { id: "oliver", label: "Oliver", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Oliver" },
+            { id: "zoe", label: "Zoe", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Zoe" },
+            { id: "leo", label: "Leo", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Leo" },
+            { id: "milo", label: "Milo", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Milo" },
+            { id: "icon", label: "DO Truck Icon", url: "./icons/icon.svg" }
+        ];
+    }
 
     function renderPresetAvatars(grid, currentUrl, currentName) {
         if (!grid) return;
         grid.innerHTML = "";
         const initials = computeInitials(currentName);
+        const presets = getDiceBearAvataaars(currentName);
 
-        AVATAR_PRESETS.forEach(preset => {
+        presets.forEach(preset => {
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "uprofile-preset-btn";
