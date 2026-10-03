@@ -2870,19 +2870,23 @@ table.compact-table tbody tr:hover {
     background-color: var(--surface-hover, #1a1a20) !important;
 }
 
+.compact-remark-input,
+.compact-input,
 table.compact-table .compact-remark-input,
 table.compact-table .compact-input {
     background: var(--surface-solid, #121215);
     color: var(--fg, #ffffff);
     border: 1px solid var(--border, #27272a);
-    border-radius: 4px;
-    padding: 6px 8px;
-    font-size: 12px;
+    border-radius: var(--radius-control, 6px);
+    padding: 6px 12px;
+    font-size: 13px;
     outline: none;
-    height: 32px;
+    box-sizing: border-box;
     transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
+.compact-remark-input:focus,
+.compact-input:focus,
 table.compact-table .compact-remark-input:focus,
 table.compact-table .compact-input:focus {
     border-color: var(--accent, #8b5cf6);
@@ -3014,6 +3018,8 @@ body.light-mode table.compact-table tbody tr:hover {
     background-color: #e2e8f0 !important;
 }
 
+body.light-mode .compact-input,
+body.light-mode .compact-remark-input,
 body.light-mode table.compact-table .compact-input,
 body.light-mode table.compact-table .compact-remark-input {
     background-color: #ffffff !important;
@@ -3021,6 +3027,8 @@ body.light-mode table.compact-table .compact-remark-input {
     border-color: #cbd5e1 !important;
 }
 
+body.light-mode .compact-input:focus,
+body.light-mode .compact-remark-input:focus,
 body.light-mode table.compact-table .compact-input:focus,
 body.light-mode table.compact-table .compact-remark-input:focus {
     border-color: #3b82f6 !important;
@@ -3333,7 +3341,17 @@ body.light-mode .dat-date-cell {
 }
 
 /* Inputs & Search Boxes */
+input[type="text"],
+input[type="search"],
+input[type="number"],
+select {
+    background-color: var(--surface-solid, #121215);
+    color: var(--fg, #ffffff);
+    border: 1px solid var(--border, #27272a);
+}
+
 body.light-mode input[type="text"],
+body.light-mode input[type="search"],
 body.light-mode input[type="number"],
 body.light-mode select {
     background-color: #ffffff !important;

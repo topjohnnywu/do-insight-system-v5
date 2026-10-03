@@ -277,12 +277,12 @@
                 <div style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
                     <div style="flex: 2; min-width: 300px;">
                         <label style="font-size: 12px; color: var(--fg-muted); display: block; margin-bottom: 6px;">Search / Select Model</label>
-                        <input type="search" id="orderModelInput" onfocus="this.select()" list="orderModelList" class="compact-input" style="width: 100%; height: 42px; font-size: 14px;" placeholder="Type model code... e.g., 55A14G">
+                        <input type="search" id="orderModelInput" onfocus="this.select()" onkeydown="if(event.key==='Enter') plannerEngine.addOrder()" list="orderModelList" class="search-box" style="width: 100%; height: 42px; font-size: 14px; padding: 0 14px; border-radius: 8px; box-sizing: border-box;" placeholder="Type model code... e.g., 55A14G">
                         <datalist id="orderModelList"></datalist>
                     </div>
                     <div style="flex: 1; min-width: 120px;">
                         <label style="font-size: 12px; color: var(--fg-muted); display: block; margin-bottom: 6px;">Quantity</label>
-                        <input type="number" id="orderQty" class="compact-input" style="width: 100%; height: 42px; font-size: 14px;" min="1" value="180">
+                        <input type="number" id="orderQty" onkeydown="if(event.key==='Enter') plannerEngine.addOrder()" class="search-box" style="width: 100%; height: 42px; font-size: 14px; padding: 0 14px; border-radius: 8px; box-sizing: border-box;" min="1" value="180">
                     </div>
                     <div>
                         <button class="action-btn primary" onclick="plannerEngine.addOrder()" data-tip="Add a new order row manually" style="height: 42px; padding: 0 20px; font-size: 14px; font-weight: 500;">
