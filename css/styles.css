@@ -1317,6 +1317,17 @@ html[data-sidebar-autohide="true"] .sidebar:not(:hover):not(.is-hovered) .sideba
     transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
+/* Remove icon inside batch tabs — same circular red badge as index file-chips.
+   Rendered as a <span role="button"> inside the tab's <button>. */
+.batch-tab-remove {
+    margin-left: 2px;
+    cursor: pointer;
+    pointer-events: auto;
+}
+.batch-tab-remove:hover {
+    transform: scale(1.12);
+}
+
 .chip-remove-btn:hover {
     background: #dc2626;
     color: #ffffff;
@@ -2471,6 +2482,27 @@ body.light-mode .slicer-btn.active {
 
 .action-btn.danger { background-color: var(--btn-danger-bg); color: var(--btn-danger-fg); border: 1px solid transparent; }
 .action-btn.danger:hover { background-color: var(--btn-danger-hover-bg); color: var(--btn-danger-hover-fg); transform: translateY(-2px); box-shadow: 0 4px 12px var(--btn-danger-bg); }
+
+/* shadcn "destructive" variant — solid red, white text (opt-in, unlike .danger
+   which stays soft/translucent). Use for delete/remove actions. */
+.action-btn.destructive {
+    background-color: #dc2626;
+    color: #ffffff;
+    border: 1px solid #dc2626;
+    box-shadow: var(--shadow-cta, 0 1px 2px rgba(0,0,0,0.2));
+}
+.action-btn.destructive:hover {
+    background-color: #ef4444;
+    border-color: #ef4444;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+}
+.action-btn.destructive:active { transform: translateY(0) scale(0.98); }
+.action-btn.destructive:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.4); }
+.action-btn.destructive > svg { color: #ffffff; }
+body.light-mode .action-btn.destructive { background-color: #dc2626; border-color: #dc2626; color: #ffffff; }
+body.light-mode .action-btn.destructive:hover { background-color: #b91c1c; border-color: #b91c1c; }
 .action-btn.success { background-color: var(--sem-green-bg); color: var(--sem-green); border: 1px solid var(--sem-green-border); }
 .action-btn.success:hover { background-color: var(--sem-green); color: #ffffff; transform: translateY(-2px); box-shadow: 0 4px 12px var(--sem-green-bg); }
 .action-btn.warning { background-color: var(--sem-orange-bg); color: var(--sem-orange); border: 1px solid var(--sem-orange-border); }
@@ -7534,34 +7566,49 @@ body.light-mode .empty-description { color: #475569; }
 .dsg-choice-group { display: flex; flex-direction: column; gap: 8px; }
 .dsg-choice {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 8px;
     font-size: 12px;
     color: var(--fg, #f4f4f5);
     cursor: pointer;
-    flex-wrap: wrap;
+    line-height: 1.4;
 }
-.dsg-choice input[type="radio"] { accent-color: var(--accent, #3b82f6); margin: 0; cursor: pointer; }
+.dsg-choice > span { flex: 1; min-width: 0; }
+.dsg-choice input[type="radio"] { accent-color: var(--accent, #3b82f6); margin: 2px 0 0 0; cursor: pointer; flex-shrink: 0; }
 
 /* Alert / duplicate group */
 .dsg-field-alert {
     background: rgba(245, 158, 11, 0.07);
     border: 1px solid rgba(245, 158, 11, 0.25);
     border-radius: 8px;
-    padding: 10px 12px;
+    padding: 12px 14px;
+    /* ensure children never overlap: explicit column layout with comfortable gaps */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
-.dsg-label-warning { color: #d97706; }
+.dsg-field-alert .dsg-label-warning {
+    color: #d97706;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 0;
+}
 .dsg-dupe-samples {
     font-size: 11px;
     font-family: var(--font-mono, monospace);
     color: var(--fg-muted, #a1a1aa);
     background: var(--surface-solid, rgba(0,0,0,0.15));
     border: 1px solid var(--border, rgba(255,255,255,0.08));
-    padding: 6px 8px;
-    border-radius: 5px;
-    max-height: 72px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    max-height: 96px;
     overflow-y: auto;
+    line-height: 1.6;
+    /* contain long content so it can't bleed into the radios below */
+    overflow-x: hidden;
+    display: block;
 }
+.dsg-field-alert .dsg-choice-group { gap: 6px; }
 
 /* Footer */
 .dsg-dialog-footer {
@@ -8171,9 +8218,98 @@ body.light-mode .uprofile-preset-btn {
     box-sizing: border-box;
 }
 
-.shadcn-tabs-list::-webkit-scrollbar {
-    display: none;
+/* --- Batch tabs: scrollable overflow handling (many batches) ---
+   Wrap the tabs-list in .tabs-scroll-wrap to get edge fades + arrow buttons. */
+.tabs-scroll-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    min-width: 0;
 }
+.tabs-scroll-wrap .shadcn-tabs-list {
+    flex: 1;
+    min-width: 0;
+    display: flex;               /* override inline-flex so it fills the wrap */
+    max-width: none;
+    /* slim, visible scrollbar so users know it scrolls */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-hover, rgba(255,255,255,0.2)) transparent;
+}
+.tabs-scroll-wrap .shadcn-tabs-list::-webkit-scrollbar { display: block; height: 5px; }
+.tabs-scroll-wrap .shadcn-tabs-list::-webkit-scrollbar-track { background: transparent; }
+.tabs-scroll-wrap .shadcn-tabs-list::-webkit-scrollbar-thumb {
+    background: var(--border-hover, rgba(255,255,255,0.18));
+    border-radius: 999px;
+}
+.tabs-scroll-wrap .shadcn-tabs-list::-webkit-scrollbar-thumb:hover { background: var(--border-accent, rgba(255,255,255,0.3)); }
+
+/* Edge fade masks — shown only when there is more content on that side */
+.tabs-scroll-wrap::before,
+.tabs-scroll-wrap::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 5px;                 /* stop above the scrollbar */
+    width: 28px;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+.tabs-scroll-wrap::before {
+    left: 34px;                   /* sit just right of the left arrow */
+    background: linear-gradient(to right, var(--bg-base, #0a0a0a), transparent);
+}
+.tabs-scroll-wrap::after {
+    right: 34px;                  /* sit just left of the right arrow */
+    background: linear-gradient(to left, var(--bg-base, #0a0a0a), transparent);
+}
+.tabs-scroll-wrap.can-scroll-left::before { opacity: 1; }
+.tabs-scroll-wrap.can-scroll-right::after { opacity: 1; }
+
+/* ◀ ▶ scroll arrow buttons */
+.tabs-scroll-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--border, rgba(255,255,255,0.1));
+    background: var(--surface, rgba(255,255,255,0.04));
+    color: var(--fg-muted, #a1a1aa);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+    z-index: 3;
+}
+.tabs-scroll-btn:hover { background: var(--surface-hover, rgba(255,255,255,0.08)); color: var(--fg, #f4f4f5); border-color: var(--border-hover); }
+.tabs-scroll-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+.tabs-scroll-btn svg { width: 15px; height: 15px; }
+
+/* Compact tabs — tighter padding + truncate long wave badges so more fit */
+.shadcn-tabs-list .shadcn-tabs-trigger {
+    padding: 6px 10px;
+    gap: 6px;
+}
+.shadcn-tabs-list .shadcn-tab-badge {
+    max-width: 90px;              /* truncate "Wave SONY - DO Summary Li..." */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 1;
+    min-width: 0;
+}
+.shadcn-tabs-list .shadcn-tabs-trigger > span:first-child {
+    max-width: 110px;             /* truncate long batch names */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+body.light-mode .tabs-scroll-btn { background: #ffffff; border-color: #e2e8f0; color: #64748b; }
+body.light-mode .tabs-scroll-btn:hover { background: #f1f5f9; color: #0f172a; }
 
 body.light-mode .shadcn-tabs-list {
     background: #f1f5f9;

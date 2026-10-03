@@ -352,27 +352,6 @@
                             .dsg-util-btn:active {
                                 transform: translateY(0) scale(0.98);
                             }
-                            /* Delete Batch: Reveal Crimson on Hover */
-                            .dsg-btn-delete:hover {
-                                color: #f87171 !important;
-                                background: rgba(239, 68, 68, 0.12) !important;
-                                border-color: rgba(239, 68, 68, 0.4) !important;
-                                box-shadow: 0 2px 10px rgba(239, 68, 68, 0.2) !important;
-                            }
-                            /* Clear Summary: Reveal Sky Blue on Hover */
-                            .dsg-btn-clear:hover {
-                                color: #38bdf8 !important;
-                                background: rgba(56, 189, 248, 0.12) !important;
-                                border-color: rgba(56, 189, 248, 0.4) !important;
-                                box-shadow: 0 2px 10px rgba(56, 189, 248, 0.2) !important;
-                            }
-                            /* Reset All: Reveal Amber / Coral on Hover */
-                            .dsg-btn-reset-all:hover {
-                                color: #fb923c !important;
-                                background: rgba(251, 146, 60, 0.12) !important;
-                                border-color: rgba(251, 146, 60, 0.4) !important;
-                                box-shadow: 0 2px 10px rgba(251, 146, 60, 0.2) !important;
-                            }
                             /* Mode button standard subtle hover */
                             .dsg-btn-mode:hover {
                                 color: var(--fg, #ffffff) !important;
@@ -381,17 +360,17 @@
                             }
                         </style>
                         <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-                            <button class="action-btn outline dsg-util-btn dsg-btn-delete" onclick="summaryGenerator.resetCurrentBatch()" title="Delete the currently selected batch">
+                            <button class="action-btn destructive dsg-util-btn" onclick="summaryGenerator.resetCurrentBatch()" data-tip="Delete the currently selected batch">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="3 6 5 6 21 6"/>
                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                                 </svg>
                                 Delete Batch
                             </button>
-                            <button class="action-btn outline dsg-util-btn dsg-btn-clear" onclick="summaryGenerator.resetFinalSummary()" title="Clear compiled final summary cache">
+                            <button class="action-btn destructive dsg-util-btn" onclick="summaryGenerator.resetFinalSummary()" data-tip="Clear compiled final summary cache">
                                 Clear Summary
                             </button>
-                            <button class="action-btn outline dsg-util-btn dsg-btn-reset-all" onclick="summaryGenerator.reset()" title="Reset all batches and state">
+                            <button class="action-btn destructive dsg-util-btn" onclick="summaryGenerator.reset()" data-tip="Reset all batches and state">
                                 Reset All
                             </button>
                             <button id="themeToggleBtn" class="action-btn outline sm dsg-util-btn dsg-btn-mode" onclick="toggleTheme()">
@@ -747,10 +726,18 @@
                 </div>
             </div>
 
-            <!-- Batch Selector Tabs -->
+            <!-- Batch Selector Tabs (scrollable when many batches) -->
             <div class="shadcn-tabs" style="margin-bottom: 16px;">
-                <div class="shadcn-tabs-list" role="tablist" id="generatorBatchTabs">
-                    <!-- Dynamically rendered batch tabs -->
+                <div class="tabs-scroll-wrap" id="batchTabsScrollWrap">
+                    <button type="button" class="tabs-scroll-btn" id="batchTabsScrollLeft" data-tip="Scroll tabs left" aria-label="Scroll tabs left" onclick="summaryGenerator.scrollBatchTabs(-1)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <div class="shadcn-tabs-list" role="tablist" id="generatorBatchTabs">
+                        <!-- Dynamically rendered batch tabs -->
+                    </div>
+                    <button type="button" class="tabs-scroll-btn" id="batchTabsScrollRight" data-tip="Scroll tabs right" aria-label="Scroll tabs right" onclick="summaryGenerator.scrollBatchTabs(1)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
                 </div>
             </div>
 
@@ -776,7 +763,7 @@
 
                         <span id="batchSearchCount" style="font-size: 11px; color: var(--accent-text, var(--accent)); font-weight: 600; background: var(--accent-glow); border: 1px solid var(--border-accent); padding: 2px 8px; border-radius: 12px; display: none;">0 DOs</span>
                         
-                        <div class="ui-switch-field" data-tip="Condense the table to essential columns">
+                        <div class="ui-switch-field">
                             <button id="btnSimplifyMode" type="button" class="ui-switch" role="switch" aria-checked="true" aria-label="Simplify Mode" onclick="summaryGenerator.toggleSimplifyMode()">
                                 <span class="ui-switch-thumb"></span>
                             </button>
@@ -821,7 +808,7 @@
                             </svg>
                             <span>Deselect All</span>
                         </button>
-                        <button class="action-btn" onclick="summaryGenerator.deleteSelectedRows()" style="background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid #7f1d1d; font-size: 11px; font-weight: 600; cursor: pointer; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;">
+                        <button class="action-btn destructive" onclick="summaryGenerator.deleteSelectedRows()" data-tip="Delete the selected DO rows" style="height: 32px; padding: 0 12px; font-size: 11px;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M3 6h18"/>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
@@ -829,7 +816,7 @@
                             </svg>
                             Delete Selected
                         </button>
-                        <button type="button" id="dsgClearAllExcelFiltersBtn" class="action-btn" onclick="summaryGenerator.clearAllExcelFilters()" style="display: none; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-size: 11px; font-weight: 600; cursor: pointer; padding: 4px 10px; border-radius: 6px; align-items: center; gap: 5px;">
+                        <button type="button" id="dsgClearAllExcelFiltersBtn" class="action-btn destructive" onclick="summaryGenerator.clearAllExcelFilters()" data-tip="Clear all active column filters" style="display: none; height: 32px; padding: 0 12px; font-size: 11px; align-items: center; gap: 5px;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                             <span>Clear Column Filters</span>
                         </button>

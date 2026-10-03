@@ -37,6 +37,14 @@ class DOSummaryGenerator {
         this.loadFromStorage();
         this.renderUI();
         this.applySimplifyModeUI();
+
+        // Keep batch-tab scroll fades/arrows in sync with scrolling + resizing
+        const tabs = document.getElementById("generatorBatchTabs");
+        if (tabs) {
+            tabs.addEventListener('scroll', () => this.updateBatchTabsScrollState(), { passive: true });
+        }
+        window.addEventListener('resize', () => this.updateBatchTabsScrollState());
+        this.updateBatchTabsScrollState();
     }
 
     loadFromStorage() {
@@ -241,6 +249,36 @@ class DOSummaryGenerator {
         this.batches.splice(this.currentBatchIndex, 1);
         if (this.currentBatchIndex >= this.batches.length) {
             this.currentBatchIndex = Math.max(0, this.batches.length - 1);
+        }
+        this.saveToStorage();
+        this.renderUI();
+        this.showToast(`Deleted ${deletedName}.`, "success");
+    }
+
+    // Delete a specific batch by index (used by the per-tab remove icon).
+    // Same behaviour as resetCurrentBatch() but targets an arbitrary tab.
+    async deleteBatchAt(index) {
+        if (this.batches.length === 0 || !this.batches[index]) {
+            this.showToast("No batch available to delete.", "warning");
+            return;
+        }
+
+        const targetBatch = this.batches[index];
+        const confirmed = await this.showConfirmDialog({
+            title: `Delete ${targetBatch.batchName}?`,
+            message: `Are you sure you want to delete ${targetBatch.batchName} containing ${targetBatch.records.length} DO records?`,
+            confirmText: "Delete Batch",
+            isDanger: true
+        });
+        if (!confirmed) return;
+
+        const deletedName = targetBatch.batchName;
+        this.batches.splice(index, 1);
+        // Keep the active index valid after removal
+        if (this.currentBatchIndex >= this.batches.length) {
+            this.currentBatchIndex = Math.max(0, this.batches.length - 1);
+        } else if (index < this.currentBatchIndex) {
+            this.currentBatchIndex -= 1;
         }
         this.saveToStorage();
         this.renderUI();
@@ -497,7 +535,7 @@ class DOSummaryGenerator {
             const dupeTotalCount = document.getElementById("importDupeTotalCount");
 
             if (duplicateRecords.length > 0) {
-                if (dupeGroup) dupeGroup.style.display = "block";
+                if (dupeGroup) dupeGroup.style.display = "flex"; // .dsg-field is a flex column
                 if (dupeSummary) dupeSummary.innerText = `${duplicateRecords.length} Duplicate DO(s) Detected in Existing Batches`;
                 if (dupeSamples) {
                     dupeSamples.innerHTML = duplicateRecords.slice(0, 6).map(d => `• ${d.record.invoiceNo} (found in ${d.foundIn})`).join("<br>");
@@ -2116,20 +2154,64 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
         }
 
         let html = "";
+        const removeSvg = `<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
         this.batches.forEach((b, idx) => {
             const isActive = idx === this.currentBatchIndex;
             const isFinal = b.batchName === "FINAL SUMMARY" || (b.batchName && b.batchName.toUpperCase().includes("FINAL"));
             const activeClass = isActive ? "active" : "";
             const finalClass = isFinal ? "batch-tab-final" : "";
             const waveLabel = isFinal ? "ALL WAVES" : `Wave ${b.waveNumber || '-'}`;
+            // Same remove icon as index.html file-chips; clicking it deletes the batch
+            // (or clears the final summary) — same behaviour as the header buttons.
+            const removeAction = isFinal
+                ? "summaryGenerator.resetFinalSummary()"
+                : `summaryGenerator.deleteBatchAt(${idx})`;
+            const removeTip = isFinal ? "Clear Final Summary" : `Delete ${b.batchName}`;
             html += `<button type="button" class="shadcn-tabs-trigger batch-tab-btn ${activeClass} ${finalClass}" onclick="summaryGenerator.selectBatch(${idx})" role="tab" aria-selected="${isActive}">
                 <span>${b.batchName}</span>
                 <span class="shadcn-tab-badge">${waveLabel}</span>
                 <span class="shadcn-tab-count">${b.records.length} DO</span>
+                <span class="chip-remove-btn batch-tab-remove" role="button" tabindex="-1" data-tip="${removeTip}" aria-label="${removeTip}" onclick="event.stopPropagation(); ${removeAction}">${removeSvg}</span>
             </button>`;
         });
 
         container.innerHTML = html;
+
+        // Keep the active tab visible + refresh scroll affordances after re-render
+        requestAnimationFrame(() => {
+            const active = container.querySelector('.batch-tab-btn.active');
+            if (active && active.scrollIntoView) {
+                active.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' });
+            }
+            this.updateBatchTabsScrollState();
+        });
+    }
+
+    // Scroll the batch tab strip left (-1) or right (+1) by one viewport-ish amount.
+    scrollBatchTabs(direction) {
+        const container = document.getElementById("generatorBatchTabs");
+        if (!container) return;
+        const amount = Math.max(120, container.clientWidth * 0.7);
+        container.scrollBy({ left: direction * amount, behavior: 'smooth' });
+        // state updates happen via the scroll listener
+    }
+
+    // Show/hide edge fades and enable/disable the arrow buttons based on scroll position.
+    updateBatchTabsScrollState() {
+        const container = document.getElementById("generatorBatchTabs");
+        const wrap = document.getElementById("batchTabsScrollWrap");
+        const leftBtn = document.getElementById("batchTabsScrollLeft");
+        const rightBtn = document.getElementById("batchTabsScrollRight");
+        if (!container || !wrap) return;
+
+        const maxScroll = container.scrollWidth - container.clientWidth;
+        const canLeft = container.scrollLeft > 2;
+        const canRight = container.scrollLeft < maxScroll - 2;
+
+        wrap.classList.toggle('can-scroll-left', canLeft);
+        wrap.classList.toggle('can-scroll-right', canRight);
+        if (leftBtn) leftBtn.disabled = !canLeft;
+        if (rightBtn) rightBtn.disabled = !canRight;
     }
 
     selectBatch(index) {

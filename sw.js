@@ -1,8 +1,8 @@
 // Bump this version on EVERY code deploy/edit. A new version forces the
 // browser to install a fresh service worker and (via `activate`) delete the
 // old cache, so users always receive the latest HTML/CSS/JS instead of stale
-// cached copies. v24: applied Empty component to volume_capacity, challenger, loose_load, batch_analytics, do_activity_trend.
-const CACHE_NAME = 'planner-cache-v65';
+// cached copies. v30: batch tabs overflow — compact tabs, edge fades, scroll arrows, auto-scroll active into view.
+const CACHE_NAME = 'planner-cache-v71';
 const urlsToCache = [
     '/',
     '/index.html',
