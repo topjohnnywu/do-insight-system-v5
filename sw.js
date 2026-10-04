@@ -1,8 +1,8 @@
 // Bump this version on EVERY code deploy/edit. A new version forces the
 // browser to install a fresh service worker and (via `activate`) delete the
 // old cache, so users always receive the latest HTML/CSS/JS instead of stale
-// cached copies. v75: inverted contrast theme tooltips (white in dark mode, black in light mode).
-const CACHE_NAME = 'planner-cache-v75';
+// cached copies. v76: automatic title interception and eliminate native browser tooltips.
+const CACHE_NAME = 'planner-cache-v76';
 const urlsToCache = [
     '/',
     '/index.html',

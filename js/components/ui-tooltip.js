@@ -1,6 +1,7 @@
 /*
    Minimalist Tooltip — shadcn / Radix style, dependency-free
-   Focused only on explicit [data-tip] elements with hover intent.
+   Focused only on explicit [data-tip], [data-tooltip], or [title] elements with hover intent.
+   Automatically intercepts and removes native browser title attributes to eliminate OS browser tooltips.
 */
 (function () {
     "use strict";
@@ -28,10 +29,25 @@
         return tipEl;
     }
 
-    // Only get text from explicit [data-tip] or [data-tooltip].
+    // Intercept native title and convert to data-tip so the browser OS tooltip never appears
+    function convertTitleAttr(el) {
+        if (!el || !el.getAttribute) return el;
+        const target = el.closest ? el.closest("[data-tip], [data-tooltip], [title]") : el;
+        if (target && target.hasAttribute && target.hasAttribute("title") && target.tagName !== "TITLE") {
+            const rawTitle = target.getAttribute("title");
+            if (rawTitle && rawTitle.trim() && !target.getAttribute("data-tip")) {
+                target.setAttribute("data-tip", rawTitle.trim());
+            }
+            target.removeAttribute("title");
+        }
+        return target;
+    }
+
+    // Get tooltip text from data-tip, data-tooltip, or converted title.
     // Suppress if empty or if it merely duplicates visible button text.
     function getText(el) {
         if (!el || !el.getAttribute) return "";
+        convertTitleAttr(el);
         const raw = el.getAttribute("data-tip") || el.getAttribute("data-tooltip") || "";
         const trimmed = raw.trim();
         if (!trimmed) return "";
@@ -182,7 +198,9 @@
     }
 
     function onOver(e) {
-        const t = e.target.closest && e.target.closest("[data-tip], [data-tooltip]");
+        const rawTarget = e.target.closest && e.target.closest("[data-tip], [data-tooltip], [title]");
+        const t = convertTitleAttr(rawTarget);
+
         // Moving within current active trigger
         if (t && t === activeTrigger) {
             if (hideTimer) {
@@ -208,7 +226,8 @@
     }
 
     function onOut(e) {
-        const t = e.target.closest && e.target.closest("[data-tip], [data-tooltip]");
+        const rawTarget = e.target.closest && e.target.closest("[data-tip], [data-tooltip], [title]");
+        const t = convertTitleAttr(rawTarget);
         if (!t) return;
 
         // Ignore transitions between child nodes of the same trigger
@@ -239,12 +258,14 @@
     }
 
     function onFocus(e) {
-        const t = e.target.closest && e.target.closest("[data-tip], [data-tooltip]");
+        const rawTarget = e.target.closest && e.target.closest("[data-tip], [data-tooltip], [title]");
+        const t = convertTitleAttr(rawTarget);
         if (t) show(t);
     }
 
     function onBlur(e) {
-        const t = e.target.closest && e.target.closest("[data-tip], [data-tooltip]");
+        const rawTarget = e.target.closest && e.target.closest("[data-tip], [data-tooltip], [title]");
+        const t = convertTitleAttr(rawTarget);
         if (t && (t === activeTrigger || t === pendingTrigger)) hide();
     }
 
@@ -260,9 +281,28 @@
         if (activeTrigger) hide();
     }
 
+    // Proactively scrub any existing title attributes to data-tip so browser tooltips never show
+    function scrubTitles(root) {
+        const base = root || document;
+        if (!base.querySelectorAll) return;
+        try {
+            const els = base.querySelectorAll("[title]");
+            els.forEach(el => {
+                if (el.tagName === "TITLE") return;
+                const raw = el.getAttribute("title");
+                if (raw && raw.trim() && !el.getAttribute("data-tip")) {
+                    el.setAttribute("data-tip", raw.trim());
+                }
+                el.removeAttribute("title");
+            });
+        } catch (_) {}
+    }
+
     function init() {
         if (init.__bound) return;
         init.__bound = true;
+        scrubTitles(document);
+
         document.addEventListener("mouseover", onOver, true);
         document.addEventListener("mouseout", onOut, true);
         document.addEventListener("pointerdown", onPointerDown, true);
@@ -273,6 +313,43 @@
         window.addEventListener("blur", onDocMouseLeave);
         window.addEventListener("scroll", onScroll, true);
         window.addEventListener("resize", onScroll, true);
+
+        // Continuous DOM observer to catch dynamic templates or client re-renders
+        if (typeof MutationObserver !== "undefined") {
+            const observer = new MutationObserver(mutations => {
+                for (const m of mutations) {
+                    if (m.type === "childList") {
+                        m.addedNodes.forEach(node => {
+                            if (node.nodeType === 1) {
+                                if (node.hasAttribute && node.hasAttribute("title") && node.tagName !== "TITLE") {
+                                    const raw = node.getAttribute("title");
+                                    if (raw && raw.trim() && !node.getAttribute("data-tip")) {
+                                        node.setAttribute("data-tip", raw.trim());
+                                    }
+                                    node.removeAttribute("title");
+                                }
+                                scrubTitles(node);
+                            }
+                        });
+                    } else if (m.type === "attributes" && m.attributeName === "title") {
+                        const target = m.target;
+                        if (target && target.hasAttribute && target.hasAttribute("title") && target.tagName !== "TITLE") {
+                            const raw = target.getAttribute("title");
+                            if (raw && raw.trim() && !target.getAttribute("data-tip")) {
+                                target.setAttribute("data-tip", raw.trim());
+                            }
+                            target.removeAttribute("title");
+                        }
+                    }
+                }
+            });
+            observer.observe(document.documentElement, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ["title"]
+            });
+        }
     }
 
     if (document.readyState === "loading") {
@@ -281,5 +358,5 @@
         init();
     }
 
-    window.UITooltip = { init, show, hide };
+    window.UITooltip = { init, show, hide, scrubTitles };
 })();
