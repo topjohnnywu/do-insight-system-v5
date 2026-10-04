@@ -202,49 +202,108 @@ async function inspectFileSchema(file) {
                     return;
                 }
 
-                const sheetNamesLower = workbook.SheetNames.map(s => s.toLowerCase().trim());
-                const hasInsertBatchSheet = sheetNamesLower.some(s => s.includes('insert batch') || s === 'batch' || s.startsWith('batch '));
-                const hasSummarySheet = sheetNamesLower.some(s => (s.includes('summary') || s.includes('consolidated') || s.includes('overall') || s === 'final') && !s.includes('batch'));
+                const sheetNames = workbook.SheetNames;
+                const sheetNamesLower = sheetNames.map(s => s.toLowerCase().trim());
 
-                let isBatchLikely = hasInsertBatchSheet;
-                let isDoLikely = hasSummarySheet;
+                // 1. Explicit sheet tab checks
+                // "Insert Batch" is the definitive signature of a Batch Picking file.
+                // DO NOT treat "Batch 01", "Batch 02", etc. as "Insert Batch", because DO Summary workbooks use "Batch 01", "Batch 02" for each batch wave!
+                const hasInsertBatchSheet = sheetNamesLower.some(s => s === 'insert batch' || s.includes('insert batch'));
+                const hasSummarySheet = sheetNamesLower.some(s => s.includes('summary') || s.includes('consolidated') || s.includes('overall') || s === 'final' || s.includes('final summary'));
+                const hasWaveBatchSheet = sheetNamesLower.some(s => /^batch\s*\d+/i.test(s));
 
-                const targetSheetName = hasInsertBatchSheet 
-                    ? workbook.SheetNames.find(s => s.toLowerCase().trim().includes('batch')) 
-                    : (hasSummarySheet ? workbook.SheetNames.find(s => s.toLowerCase().trim().includes('summary') || s.toLowerCase().trim() === 'final') : workbook.SheetNames[0]);
-                
-                const sheet = workbook.Sheets[targetSheetName];
-                const rawRows = sheet ? XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false }) : [];
+                // 2. Cell content scanning across available sheets (up to first 4 sheets, first 10 rows)
+                let foundTruck = false;
+                let foundHub = false;
+                let foundProductCode = false;
+                let foundConsignee = false;
+                let foundAddress = false;
+                let foundDivision = false;
+                let foundDoNumber = false;
+                let foundSummaryTitle = false;
 
-                for (let r = 0; r < Math.min(8, rawRows.length); r++) {
-                    const row = rawRows[r] || [];
-                    const rowText = row.map(c => String(c || '').toUpperCase().trim());
+                const sheetsToScan = sheetNames.slice(0, 4);
+                for (const sName of sheetsToScan) {
+                    const sheet = workbook.Sheets[sName];
+                    if (!sheet) continue;
+                    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false });
+                    const maxRows = Math.min(10, rows.length);
 
-                    const hasTruck = rowText.some(t => t.includes('TRUCK'));
-                    const hasHub = rowText.some(t => t === 'HUB');
-                    const hasBatch = rowText.some(t => t === 'BATCH' || t === 'BATCH NO');
-                    if (hasTruck && hasHub) isBatchLikely = true;
-                    if (hasBatch && hasTruck) isBatchLikely = true;
+                    for (let r = 0; r < maxRows; r++) {
+                        const row = rows[r] || [];
+                        const textCells = row.map(c => String(c || '').toUpperCase().trim());
 
-                    const firstCell = rowText[0] || '';
-                    const hasTrailing = rowText.some(t => t.includes('TRAILING') || t === 'STATUS 1');
-                    const hasConsignee = rowText.some(t => t.includes('CONSIGNEE') || t.includes('CUSTOMER') || t.includes('NAME'));
-                    const hasAddress = rowText.some(t => t.includes('ADDRESS'));
-                    if ((firstCell.includes('INVOICE') || firstCell.includes('DO') || firstCell.includes('SHIPMENT')) && (hasTrailing || hasConsignee || hasAddress)) {
-                        isDoLikely = true;
+                        if (textCells.some(t => t.includes('TRUCK') || t.includes('LORRY'))) foundTruck = true;
+                        if (textCells.some(t => t === 'HUB' || t.includes('HUB '))) foundHub = true;
+                        if (textCells.some(t => t.includes('PRODUCT CODE') || t.includes('PART NO'))) foundProductCode = true;
+                        
+                        if (textCells.some(t => t.includes('CONSIGNEE') || t.includes('CUSTOMER'))) foundConsignee = true;
+                        if (textCells.some(t => t.includes('ADDRESS1') || t.includes('DELIVERY ADDRESS') || (t.includes('ADDRESS') && !t.includes('MAC')))) foundAddress = true;
+                        if (textCells.some(t => t.includes('DIVISION'))) foundDivision = true;
+                        if (textCells.some(t => t.includes('INVOICE') || t.includes('DO NO') || t.includes('DO NUMBER') || t.includes('SHIPMENT'))) foundDoNumber = true;
+                        if (textCells.some(t => t.includes('SUMMARY') || t.includes('FINAL SUMMARY'))) foundSummaryTitle = true;
                     }
                 }
 
-                const nameLower = file.name.toLowerCase();
-                if (nameLower.includes('batch picking') || nameLower.includes('insert batch')) isBatchLikely = true;
-                if (nameLower.includes('do summary') || nameLower.includes('summary list')) isDoLikely = true;
+                // 3. Filename indicators
+                const nameLower = file.name.toLowerCase().trim();
+                const filenameSaysBatch = nameLower.includes('batch picking') || nameLower.includes('insert batch') || nameLower.includes('batch_picking');
+                const filenameSaysDo = nameLower.includes('do summary') || nameLower.includes('do_summary') || nameLower.includes('summary list') || nameLower.includes('final_summary') || nameLower.includes('final summary');
 
-                if (isBatchLikely && !isDoLikely) resolve({ type: 'batch' });
-                else if (isDoLikely && !isBatchLikely) resolve({ type: 'dosummary' });
-                else if (isBatchLikely && isDoLikely) resolve({ type: hasInsertBatchSheet ? 'batch' : 'dosummary' });
-                else resolve({ type: 'unknown' });
+                // 4. Robust Classification Decision
+                let detectedType = 'unknown';
+
+                // Definitive DO Summary indicators: has Consignee or Address or Division, and no Truck/Hub
+                if ((foundConsignee || foundAddress || foundDivision) && !foundTruck && !foundHub) {
+                    detectedType = 'dosummary';
+                }
+                // Explicit Insert Batch tab or Truck + Hub or Product Code
+                else if (hasInsertBatchSheet || (foundTruck && foundHub) || (foundTruck && foundProductCode)) {
+                    detectedType = 'batch';
+                }
+                // DO summary with "Batch 01" / "Final Summary List" tabs
+                else if (hasWaveBatchSheet && (foundDoNumber || hasSummarySheet || filenameSaysDo) && !foundTruck && !foundHub) {
+                    detectedType = 'dosummary';
+                }
+                // Filename-based fallback
+                else if (filenameSaysDo && !foundTruck && !foundHub) {
+                    detectedType = 'dosummary';
+                }
+                else if (filenameSaysBatch && !foundConsignee && !foundAddress) {
+                    detectedType = 'batch';
+                }
+                // If DO number column exists with Summary sheet tab or title
+                else if (foundDoNumber && (hasSummarySheet || foundSummaryTitle) && !foundTruck && !foundHub) {
+                    detectedType = 'dosummary';
+                }
+                // If it has truck
+                else if (foundTruck && !foundConsignee) {
+                    detectedType = 'batch';
+                }
+
+                console.log(`[inspectFileSchema] File: "${file.name}" -> Detected: "${detectedType}"`, {
+                    sheetNames,
+                    hasInsertBatchSheet,
+                    hasWaveBatchSheet,
+                    hasSummarySheet,
+                    foundTruck,
+                    foundHub,
+                    foundProductCode,
+                    foundConsignee,
+                    foundAddress,
+                    foundDivision,
+                    foundDoNumber,
+                    filenameSaysBatch,
+                    filenameSaysDo
+                });
+
+                resolve({ 
+                    type: detectedType, 
+                    details: { foundTruck, foundHub, foundConsignee, foundAddress, foundDivision, foundDoNumber, hasInsertBatchSheet } 
+                });
             } catch (err) {
-                resolve({ type: 'error', error: err });
+                console.error("[inspectFileSchema] Parse error:", err);
+                resolve({ type: 'unknown', error: err });
             }
         };
         if (isCsv) reader.readAsText(file);
@@ -261,36 +320,50 @@ async function handleFileUpload(event) {
     // Pre-flight check on the first file to prevent inverted/incompatible upload
     if (FileListObjects.length > 0) {
         const schema = await inspectFileSchema(FileListObjects[0]);
+        console.log("[handleFileUpload] Pre-flight inspection result:", schema);
         if (schema.type === 'batch') {
+            let swap = false;
             if (typeof window.showConfirmDialog === 'function') {
-                const swap = await window.showConfirmDialog({
+                swap = await window.showConfirmDialog({
                     title: "Wrong File Slot Detected",
                     message: `"${FileListObjects[0].name}" appears to be a Batch Picking file, but you uploaded it into the DO Summary slot.\n\nWould you like to load it into Batch Picking instead?`,
                     confirmText: "Load into Batch Picking",
                     cancelText: "Cancel Upload",
                     isDanger: false
                 });
-                if (swap) {
-                    if (event.target) event.target.value = "";
-                    return handleProductMasterUpload({ target: { files: FileListObjects } });
-                } else {
-                    if (event.target) event.target.value = "";
-                    return;
-                }
+            } else {
+                swap = window.confirm(`"${FileListObjects[0].name}" appears to be a Batch Picking file, but you uploaded it into the DO Summary slot.\n\nClick OK to load into Batch Picking instead, or Cancel to abort.`);
+            }
+
+            if (swap) {
+                const doPicker = document.getElementById("filePicker");
+                if (doPicker) doPicker.value = "";
+                if (event.target) event.target.value = "";
+                return handleProductMasterUpload({ target: { files: FileListObjects } });
+            } else {
+                const doPicker = document.getElementById("filePicker");
+                if (doPicker) doPicker.value = "";
+                if (event.target) event.target.value = "";
+                return;
             }
         } else if (schema.type === 'unknown') {
+            let proceed = false;
             if (typeof window.showConfirmDialog === 'function') {
-                const proceed = await window.showConfirmDialog({
+                proceed = await window.showConfirmDialog({
                     title: "Unrecognized File Format",
                     message: `"${FileListObjects[0].name}" does not match the expected DO Summary format (missing Invoice/DO columns).\n\nDo you want to attempt parsing this file anyway?`,
                     confirmText: "Attempt Parse",
                     cancelText: "Cancel Upload",
                     isDanger: false
                 });
-                if (!proceed) {
-                    if (event.target) event.target.value = "";
-                    return;
-                }
+            } else {
+                proceed = window.confirm(`"${FileListObjects[0].name}" does not match the expected DO Summary format.\n\nAttempt to parse anyway?`);
+            }
+            if (!proceed) {
+                const doPicker = document.getElementById("filePicker");
+                if (doPicker) doPicker.value = "";
+                if (event.target) event.target.value = "";
+                return;
             }
         }
     }
@@ -420,36 +493,50 @@ async function handleProductMasterUpload(event) {
     // Pre-flight check on the first file to prevent inverted/incompatible upload
     if (SourceFiles.length > 0) {
         const schema = await inspectFileSchema(SourceFiles[0]);
+        console.log("[handleProductMasterUpload] Pre-flight inspection result:", schema);
         if (schema.type === 'dosummary') {
+            let swap = false;
             if (typeof window.showConfirmDialog === 'function') {
-                const swap = await window.showConfirmDialog({
+                swap = await window.showConfirmDialog({
                     title: "Wrong File Slot Detected",
                     message: `"${SourceFiles[0].name}" appears to be a DO Summary file, but you uploaded it into the Batch Picking slot.\n\nWould you like to load it into DO Summary instead?`,
                     confirmText: "Load into DO Summary",
                     cancelText: "Cancel Upload",
                     isDanger: false
                 });
-                if (swap) {
-                    if (event.target) event.target.value = "";
-                    return handleFileUpload({ target: { files: SourceFiles } });
-                } else {
-                    if (event.target) event.target.value = "";
-                    return;
-                }
+            } else {
+                swap = window.confirm(`"${SourceFiles[0].name}" appears to be a DO Summary file, but you uploaded it into the Batch Picking slot.\n\nClick OK to load into DO Summary instead, or Cancel to abort.`);
+            }
+
+            if (swap) {
+                const batchPicker = document.getElementById("productMasterPicker");
+                if (batchPicker) batchPicker.value = "";
+                if (event.target) event.target.value = "";
+                return handleFileUpload({ target: { files: SourceFiles } });
+            } else {
+                const batchPicker = document.getElementById("productMasterPicker");
+                if (batchPicker) batchPicker.value = "";
+                if (event.target) event.target.value = "";
+                return;
             }
         } else if (schema.type === 'unknown') {
+            let proceed = false;
             if (typeof window.showConfirmDialog === 'function') {
-                const proceed = await window.showConfirmDialog({
+                proceed = await window.showConfirmDialog({
                     title: "Unrecognized File Format",
                     message: `"${SourceFiles[0].name}" does not match the expected Batch Picking format (missing "Insert Batch" sheet or Truck/Hub columns).\n\nDo you want to attempt parsing this file anyway?`,
                     confirmText: "Attempt Parse",
                     cancelText: "Cancel Upload",
                     isDanger: false
                 });
-                if (!proceed) {
-                    if (event.target) event.target.value = "";
-                    return;
-                }
+            } else {
+                proceed = window.confirm(`"${SourceFiles[0].name}" does not match the expected Batch Picking format.\n\nAttempt to parse anyway?`);
+            }
+            if (!proceed) {
+                const batchPicker = document.getElementById("productMasterPicker");
+                if (batchPicker) batchPicker.value = "";
+                if (event.target) event.target.value = "";
+                return;
             }
         }
     }
