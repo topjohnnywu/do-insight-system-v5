@@ -1,20 +1,35 @@
 # 📦 DO Insight System (v5)
 
-A high-performance, enterprise-grade logistics analytics and operational planning platform designed for **Delivery Order (DO) management, truck load planning, 3D cargo simulation, batch analytics, volume calculation, packing lists, and shipping insights**.
+[![Release](https://img.shields.io/badge/Release-v5.0.0-blue.svg)](https://github.com/topjohnnywu/do-insight-system-v5)
+[![License](https://img.shields.io/badge/License-Proprietary-red.svg)](https://github.com/topjohnnywu/do-insight-system-v5)
+[![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20PWA-green.svg)](https://github.com/topjohnnywu/do-insight-system-v5)
+[![Zero-Bundler](https://img.shields.io/badge/Architecture-Zero%20Build%20%7C%20Vanilla%20ES6-orange.svg)](https://github.com/topjohnnywu/do-insight-system-v5)
+[![Privacy First](https://img.shields.io/badge/Data%20Privacy-100%25%20Client--Side-brightgreen.svg)](https://github.com/topjohnnywu/do-insight-system-v5)
 
-Built with pure **HTML5, modern CSS3, and vanilla JavaScript (ES6 Modules)** — zero build steps, zero framework overhead, 100% client-side privacy-first processing, with an optional Node.js Express server and Progressive Web App (PWA) offline capabilities.
+> **GitHub Repository Description (Copy & Paste):**  
+> *A high-performance, enterprise-grade logistics analytics and operational planning platform for Delivery Order (DO) management, 3D cargo load simulation, direct delivery candidate analytics, multi-wave batch picking, and shipping intelligence. Zero build tools, 100% client-side privacy.*
+
+---
+
+## 📖 About The System
+
+**DO Insight System (v5)** is a modern, privacy-first web application designed for supply chain coordinators, warehouse leads, and transport planners. It streamlines the entire delivery lifecycle—from raw daily spreadsheet ingestion and multi-wave batch picking analytics to 3D truck cargo container packing and shipping SLA monitoring.
+
+Engineered with pure **HTML5, modern CSS3, and vanilla JavaScript (ES6 Modules)**, the system requires **zero build steps** and **zero external servers for core data operations**. Every spreadsheet parse, 3D calculation, and analytical visualization executes directly inside the user's browser, ensuring sensitive supply chain data never leaves the local machine.
 
 ---
 
 ## 🌟 Key Highlights & Capabilities
 
-- **🚀 100% Client-Side Processing**: Parse `.xlsx`, `.xlsm`, and `.csv` files directly in your browser using **SheetJS** and custom streaming parsers. Sensitive supply chain data never leaves your local workstation.
+- **🚀 100% Client-Side Privacy**: Parse `.xlsx`, `.xlsm`, and `.csv` files directly in your browser using **SheetJS** and custom streaming parsers. Sensitive supply chain data never leaves your workstation.
+- **🛡️ Pre-Flight Upload Safeguard**: Automated schema detection checks whether an uploaded spreadsheet matches the expected format (e.g. distinguishing DO Summary tabs from Batch Picking logs) and prompts an intelligent swap modal before modifying data.
+- **📊 Direct Delivery Candidates (> 5 m³)**: Vertical grouped dual-bar visualization powered by **Chart.js** with independent dual Y-axes, comparing cubic volume ($m^3$) against DO count with modern Shadcn aesthetic tokens.
 - **🚛 Interactive 3D Cargo Load Planners**: Real-time 3D truck cargo bay and mixed-carton visualization powered by **Three.js (WebGL)** with orbit controls, collision detection, layer slicing, dimension bounds, and loading sequence guidance.
 - **🎨 13 Switchable UI Themes**: Live theme engine (Linear, Terminal, Cyberpunk, AMOLED, Premium, Bitcoin, Bauhaus, Retro, Dopamine, Light, and more) with automatic **Chart.js** palette reskinning and persistent `localStorage` settings.
 - **🔍 Real-Time KPI Recalculation**: Live metric aggregation (Total DOs, Quantity, Volume m³, Gross Weight kg, Pallet Equivalents) reacting instantaneously to multi-column filters, search queries, and status toggles.
 - **⚡ Quick Actions & Remarks Engine**: 1-click batch status tagging (`SELF COLLECT`, `HOLD`, `LOCAL DELIVERY`, `DIRECT DELIVERY`, `URGENT`, `CANCELLED`) with instant visual feedback and audit log preservation.
 - **📑 Formatted Multi-Sheet Excel Exports**: Generates styled spreadsheets with customized headers, cell alignments, auto-fit column widths, freeze panes, and aggregate summary rows via `xlsx-js-style` and ExcelJS.
-- **📱 PWA & Offline Support**: Built-in Service Worker caching (`sw.js`) and Web App Manifest (`manifest.json`) enabling installability on desktop or mobile and offline operation.
+- **📱 PWA & Offline Support**: Built-in Service Worker caching (`sw.js` v84) and Web App Manifest (`manifest.json`) enabling installability on desktop or mobile and offline operation.
 - **🧩 Shadcn-Inspired Design Tokens**: Clean, minimalist UI design system with unified buttons (`.btn-primary`, `.action-btn`, size variants `.sm`, `.xs`, `.lg`), standardized alert dialogs, and consistent typography.
 
 ---
@@ -26,9 +41,11 @@ The platform consists of **14 dedicated modules**, each engineered for specific 
 ### 1. 📊 Summary Analytics (`index.html`)
 Central command center for delivery performance, carrier distribution, and daily dispatch tracking.
 - **Features**:
-  - Drag-and-drop or styled button upload for daily DO tracking spreadsheets (`.xlsx`, `.csv`).
-  - High-level KPI indicators: Total Orders, Delivered, Pending, In-Transit, and Exception rates.
-  - Direct Delivery distribution charts, carrier breakdowns, top consignee volume rankings, and regional routes.
+  - Drag-and-drop or styled button upload for daily DO tracking spreadsheets (`.xlsx`, `.csv`) with smart file chip badge and date indicator sync.
+  - **Pre-Flight File Safeguards**: Instant schema verification distinguishing DO Summary logs from Batch files, prompting auto-redirection when files are misplaced.
+  - High-level KPI indicators: Total Orders, Delivered, Pending, In-Transit, and Exception rates with real-time recalculation.
+  - **Direct Delivery Candidates (> 5 m³)**: Grouped dual-bar visualization comparing volume ($m^3$) and DO count across high-volume consignees with dual Y-axes, Shadcn pill caps, and threshold filtering.
+  - Carrier breakdown charts, top consignee volume rankings, and regional routes.
   - Quick-filter bar for instant slice-and-dice of active delivery records.
 
 ### 2. 📝 DO Summary Generator (`do_summary_generator.html`)
@@ -137,7 +154,7 @@ Browser-based document data extraction for scanned delivery order PDFs and image
 | **Data Visualization** | [Chart.js](https://www.chartjs.org/) + `chartjs-plugin-datalabels` | Reactive, theme-aware analytical charts and distribution graphs |
 | **3D Rendering Engine**| [Three.js (r128)](https://threejs.org/) with OrbitControls & WebGL | Interactive 3D truck cargo bays, pallet grids, and box packing |
 | **Subsystems** | React 18 (Vendored, production build) in `packing-sheet/` | Embedded complex packing list management |
-| **App Shell & PWA** | `manifest.json`, Service Worker (`sw.js` v44) | Offline caching, home-screen installation, fast reloads |
+| **App Shell & PWA** | `manifest.json`, Service Worker (`sw.js` v84) | Offline caching, home-screen installation, fast reloads |
 | **Web Server (Optional)**| Node.js + [Express](https://expressjs.com/) (`server.js`) | Optional local file server and static asset hosting |
 
 ---
@@ -202,7 +219,7 @@ do-insight-system-v5/
 ├── package.json                   # Project metadata & dependencies
 ├── package-lock.json              # Locked dependency tree
 ├── manifest.json                  # PWA web app manifest
-├── sw.js                          # Service Worker cache controller (v44)
+├── sw.js                          # Service Worker cache controller (v84)
 ├── metadata.json                  # Application metadata
 ├── README.md                      # Comprehensive system documentation
 │
@@ -309,6 +326,16 @@ do-insight-system-v5/
   - Supports relative/local URL folder paths (e.g. `./icons/avatar.png`).
   - Graceful fallback initials (`AvatarFallback`) when no image is loaded (e.g., `AD` for Administrator).
 - **Shadcn Design Tokens**: Full CSS support for `.shadcn-avatar` (sizes `.sm`, `.md`, `.lg`), `.shadcn-avatar-badge`, `.shadcn-avatar-group`, and `.shadcn-avatar-group-count`.
+
+### 7. Direct Delivery Candidates (> 5 m³) Chart Upgrade
+- **Dual-Metric Grouped Bar Chart**: Upgraded the high-volume consignee visualization in `index.html` to a vertical grouped bar chart comparing Volume ($m^3$) and DO Count side-by-side.
+- **Independent Dual Y-Axes**: Left axis measures Volume ($m^3$) with primary brand color `#2563eb`; right axis measures DO Count with secondary accent `#60a5fa`, with independent gridline separation.
+- **Shadcn Modern Aesthetics**: Enhanced bar elements with 4px pill top-border radii, custom interactive tooltips with badge indicators, and dynamic responsive height.
+
+### 8. Pre-Flight File Ingestion Safeguards & Smart Date Sync
+- **Intelligent Slot Detection**: Pre-flight inspection in `js/parsers.js` inspects workbook sheet structures (e.g. differentiating DO Summary sheets from "Batch 01" / "Insert Batch" tabs) to catch accidental mismatches before parsing.
+- **Auto-Redirect Modal**: Triggers a non-destructive alert dialog offering to automatically redirect wrongly slotted spreadsheets to their intended module.
+- **Smart File Date Synchronization**: Uploaded file date chips seamlessly synchronize with dashboard date filters and persist active session state.
 
 ---
 
