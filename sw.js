@@ -1,8 +1,8 @@
 // Bump this version on EVERY code deploy/edit. A new version forces the
 // browser to install a fresh service worker and (via `activate`) delete the
 // old cache, so users always receive the latest HTML/CSS/JS instead of stale
-// cached copies. v79: bi-directional date sync and mismatch confirmation for file chips.
-const CACHE_NAME = 'planner-cache-v79';
+// cached copies. v80: pre-flight upload schema validation and auto-swap detection.
+const CACHE_NAME = 'planner-cache-v80';
 const urlsToCache = [
     '/',
     '/index.html',
