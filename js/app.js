@@ -52,6 +52,67 @@ let isCompactDensity = false;
 let activeDataSourceType = 'none'; // 'generator' | 'upload' | 'sample'
 let activeDataSourceDetail = '';
 
+// Format raw file names into clean, readable chip labels (Option B)
+function formatFileChipLabel(rawName) {
+    if (!rawName || rawName === 'ALL') return rawName;
+
+    // 1. Strip common file extensions (.xlsm, .xlsx, .xls, .csv)
+    let clean = String(rawName).replace(/\.(xlsm|xlsx|xls|csv)$/i, '').trim();
+
+    // 2. Determine file category
+    const isBatch = /batch\s*picking/i.test(clean) || /batch/i.test(clean);
+    const isDO = /do\s*summary/i.test(clean) || /\bdo\b/i.test(clean);
+
+    // 3. Extract Date:
+    let formattedDate = "";
+
+    // Pattern A: YYYY[-_]?MM[-_]?DD (e.g. 2026-08-25, 2026_08_25, 20260825)
+    const ymdMatch = clean.match(/(?:^|\D)(20\d{2})[-_]?(\d{2})[-_]?(\d{2})(?:\D|$)/);
+    if (ymdMatch) {
+        const y = parseInt(ymdMatch[1], 10);
+        const m = parseInt(ymdMatch[2], 10);
+        const d = parseInt(ymdMatch[3], 10);
+        if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+            formattedDate = `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+        }
+    }
+
+    // Pattern B: DD[-_]?MM[-_]?YYYY (e.g. 25082026, 25-08-2026, 25_08_2026)
+    if (!formattedDate) {
+        const dmyMatch = clean.match(/(?:^|\D)(\d{2})[-_]?(\d{2})[-_]?(20\d{2})(?:\D|$)/);
+        if (dmyMatch) {
+            const d = parseInt(dmyMatch[1], 10);
+            const m = parseInt(dmyMatch[2], 10);
+            const y = parseInt(dmyMatch[3], 10);
+            if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+                formattedDate = `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+            }
+        }
+    }
+
+    if (isBatch && formattedDate) {
+        return `Batch ${formattedDate}`;
+    }
+
+    if (isDO && formattedDate) {
+        return `DO ${formattedDate}`;
+    }
+
+    if (formattedDate) {
+        const firstWord = clean.split(/[\s\-_0-9]/)[0] || "";
+        const prefix = firstWord.length > 0 && firstWord.length <= 12 ? firstWord : "File";
+        return `${prefix} ${formattedDate}`;
+    }
+
+    // 4. Fallback for files without recognizable date:
+    let fallback = clean.replace(/[_\-]+/g, ' ').replace(/\s+/g, ' ').trim();
+    if (fallback.length > 26) {
+        fallback = fallback.substring(0, 24) + '...';
+    }
+    return fallback;
+}
+window.formatFileChipLabel = formatFileChipLabel;
+
 // Update memory status badge with clean chip pills and individual ✕ remove buttons
 function updateMemoryBadge() {
     const BadgeElement = document.getElementById("memoryStatusBadge");
@@ -86,13 +147,16 @@ function updateMemoryBadge() {
     const chipRemoveSvg = `<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
     let html = "";
     if (displayDoName) {
-        html += `<span class="file-chip green" data-filetype="do" title="DO Summary File: ${displayDoName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${displayDoName}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('do')" title="Remove DO Summary File" aria-label="Remove DO Summary File">${chipRemoveSvg}</button></span>`;
+        const labelDo = displayDoName.startsWith("All") ? displayDoName : formatFileChipLabel(displayDoName);
+        html += `<span class="file-chip green" data-filetype="do" data-tip="DO Summary File: ${displayDoName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${labelDo}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('do')" title="Remove DO Summary File" aria-label="Remove DO Summary File">${chipRemoveSvg}</button></span>`;
     }
     if (displayRouteName) {
-        html += `<span class="file-chip blue" data-filetype="batch" title="Batch Picking File: ${displayRouteName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${displayRouteName}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('batch')" title="Remove Batch Picking File" aria-label="Remove Batch Picking File">${chipRemoveSvg}</button></span>`;
+        const labelRoute = displayRouteName.startsWith("All") ? displayRouteName : formatFileChipLabel(displayRouteName);
+        html += `<span class="file-chip blue" data-filetype="batch" data-tip="Batch Picking File: ${displayRouteName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${labelRoute}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('batch')" title="Remove Batch Picking File" aria-label="Remove Batch Picking File">${chipRemoveSvg}</button></span>`;
     }
     if (SavedInsightName) {
-        html += `<span class="file-chip purple" data-filetype="shipping" title="Shipping Insight File: ${SavedInsightName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${SavedInsightName}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('shipping')" title="Remove Shipping Insight File" aria-label="Remove Shipping Insight File">${chipRemoveSvg}</button></span>`;
+        const labelInsight = formatFileChipLabel(SavedInsightName);
+        html += `<span class="file-chip purple" data-filetype="shipping" data-tip="Shipping Insight File: ${SavedInsightName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${labelInsight}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('shipping')" title="Remove Shipping Insight File" aria-label="Remove Shipping Insight File">${chipRemoveSvg}</button></span>`;
     }
     BadgeElement.innerHTML = html;
     // Re-apply any in-flight loading state after re-render
@@ -2414,7 +2478,7 @@ function bootRestoreSavedFiles() {
                 const keys = Object.keys(MasterBatchLookupMap);
                 let chipsHtml = `<button class="file-chip" data-filename="ALL" onclick="filterBatchByFile('ALL', this)">All Files Combined (${keys.length})</button>`;
                 keys.forEach(f => {
-                    chipsHtml += `<button class="file-chip" data-filename="${f}" onclick="filterBatchByFile('${f}', this)">${f}</button>`;
+                    chipsHtml += `<button class="file-chip" data-filename="${f}" data-tip="${f}" onclick="filterBatchByFile('${f}', this)">${formatFileChipLabel(f)}</button>`;
                 });
                 batchFileChips.innerHTML = chipsHtml;
                 
@@ -2465,7 +2529,7 @@ function bootRestoreSavedFiles() {
                 if (doSummaryChips) {
                     let chipsHtml = `<button class="file-chip" data-filename="ALL" onclick="filterByFile('ALL', this)">All Files Combined (${uniqueFiles.length})</button>`;
                     uniqueFiles.forEach(f => {
-                        chipsHtml += `<button class="file-chip" data-filename="${f}" onclick="filterByFile('${f}', this)">${f}</button>`;
+                        chipsHtml += `<button class="file-chip" data-filename="${f}" data-tip="${f}" onclick="filterByFile('${f}', this)">${formatFileChipLabel(f)}</button>`;
                     });
                     doSummaryChips.innerHTML = chipsHtml;
                     

@@ -112,13 +112,19 @@ function updateMemoryBadge() {
     const chipRemoveSvg = `<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
     let html = "";
     if (displayDoName) {
-        html += `<span class="file-chip green" data-filetype="do" title="DO Summary File: ${displayDoName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${displayDoName}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('do')" title="Remove DO Summary File" aria-label="Remove DO Summary File">${chipRemoveSvg}</button></span>`;
+        const fmt = window.formatFileChipLabel || ((s) => s);
+        const labelDo = displayDoName.startsWith("All") ? displayDoName : fmt(displayDoName);
+        html += `<span class="file-chip green" data-filetype="do" data-tip="DO Summary File: ${displayDoName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${labelDo}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('do')" title="Remove DO Summary File" aria-label="Remove DO Summary File">${chipRemoveSvg}</button></span>`;
     }
     if (displayRouteName) {
-        html += `<span class="file-chip blue" data-filetype="batch" title="Batch Picking File: ${displayRouteName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${displayRouteName}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('batch')" title="Remove Batch Picking File" aria-label="Remove Batch Picking File">${chipRemoveSvg}</button></span>`;
+        const fmt = window.formatFileChipLabel || ((s) => s);
+        const labelRoute = displayRouteName.startsWith("All") ? displayRouteName : fmt(displayRouteName);
+        html += `<span class="file-chip blue" data-filetype="batch" data-tip="Batch Picking File: ${displayRouteName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${labelRoute}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('batch')" title="Remove Batch Picking File" aria-label="Remove Batch Picking File">${chipRemoveSvg}</button></span>`;
     }
     if (SavedInsightName) {
-        html += `<span class="file-chip purple" data-filetype="shipping" title="Shipping Insight File: ${SavedInsightName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${SavedInsightName}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('shipping')" title="Remove Shipping Insight File" aria-label="Remove Shipping Insight File">${chipRemoveSvg}</button></span>`;
+        const fmt = window.formatFileChipLabel || ((s) => s);
+        const labelInsight = fmt(SavedInsightName);
+        html += `<span class="file-chip purple" data-filetype="shipping" data-tip="Shipping Insight File: ${SavedInsightName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${labelInsight}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('shipping')" title="Remove Shipping Insight File" aria-label="Remove Shipping Insight File">${chipRemoveSvg}</button></span>`;
     }
     BadgeElement.innerHTML = html;
     // Re-apply any in-flight loading state after re-render
@@ -198,7 +204,9 @@ async function handleFileUpload(event) {
 
     for (const FilePickerElement of FileListObjects) {
         if (doSummaryChips) {
-            doSummaryChips.insertAdjacentHTML('beforeend', `<button class="file-chip" data-filename="${FilePickerElement.name}" onclick="filterByFile('${FilePickerElement.name}', this)">${FilePickerElement.name}</button>`);
+            const fmt = window.formatFileChipLabel || ((s) => s);
+            const chipLabel = fmt(FilePickerElement.name);
+            doSummaryChips.insertAdjacentHTML('beforeend', `<button class="file-chip" data-filename="${FilePickerElement.name}" data-tip="${FilePickerElement.name}" onclick="filterByFile('${FilePickerElement.name}', this)">${chipLabel}</button>`);
         }
 
         await new Promise((resolve) => {
@@ -320,7 +328,9 @@ async function handleProductMasterUpload(event) {
 
     for (const SourceFile of SourceFiles) {
         if (batchFileChips) {
-            batchFileChips.insertAdjacentHTML('beforeend', `<button class="file-chip" data-filename="${SourceFile.name}" onclick="filterBatchByFile('${SourceFile.name}', this)">${SourceFile.name}</button>`);
+            const fmt = window.formatFileChipLabel || ((s) => s);
+            const chipLabel = fmt(SourceFile.name);
+            batchFileChips.insertAdjacentHTML('beforeend', `<button class="file-chip" data-filename="${SourceFile.name}" data-tip="${SourceFile.name}" onclick="filterBatchByFile('${SourceFile.name}', this)">${chipLabel}</button>`);
         }
         MasterBatchLookupMap[SourceFile.name] = {};
         await new Promise((resolve) => {
