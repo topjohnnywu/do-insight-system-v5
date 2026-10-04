@@ -631,96 +631,6 @@
             box-shadow: 0 0 14px rgba(139, 92, 246, 0.4);
         }
 
-        /* AI Engine & API Key Controls */
-        .engine-selector-wrap {
-            display: flex;
-            gap: 8px;
-            margin-top: 14px;
-            background: var(--surface, rgba(125, 125, 125, 0.08));
-            padding: 4px;
-            border-radius: var(--radius-control, 8px);
-            border: 1px solid var(--border);
-        }
-        .engine-tab-btn {
-            flex: 1;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            background: transparent;
-            color: var(--fg-muted);
-            border: 1px solid transparent;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
-            transition: all 0.2s ease;
-        }
-        .engine-tab-btn:hover {
-            color: var(--fg);
-        }
-        .engine-tab-btn.active {
-            background: var(--surface-card, var(--bg-elevated));
-            color: var(--fg);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            border-color: var(--border-accent, var(--border));
-        }
-        .engine-tab-btn.active.ai {
-            color: #8b5cf6;
-            border-color: rgba(139, 92, 246, 0.4);
-            background: rgba(139, 92, 246, 0.12);
-        }
-        .ai-config-card {
-            display: none;
-            margin-top: 12px;
-            background: var(--surface, rgba(125, 125, 125, 0.05));
-            border: 1px solid rgba(139, 92, 246, 0.35);
-            border-radius: var(--radius-control, 8px);
-            padding: 14px;
-            animation: ocrFadeIn 0.25s ease;
-        }
-        .ai-config-card.active { display: block; }
-        .ai-input-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            margin-top: 8px;
-        }
-        .ai-key-input {
-            flex: 1;
-            padding: 8px 12px;
-            font-size: 13px;
-            font-family: var(--font-mono);
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            background: var(--bg-deep);
-            color: var(--fg);
-            outline: none;
-        }
-        .ai-key-input:focus {
-            border-color: #8b5cf6;
-            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
-        }
-        .ai-badge {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 999px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .ai-badge.saved {
-            background: rgba(16, 185, 129, 0.15);
-            color: #10b981;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-        .ai-badge.missing {
-            background: rgba(245, 158, 11, 0.15);
-            color: #f59e0b;
-            border: 1px solid rgba(245, 158, 11, 0.3);
-        }
 
         .roi-toolbar {
             display: flex;
@@ -1235,7 +1145,7 @@
                                 <path d="M7 12h10M9 8v8M15 8v8"/>
                             </svg>
                             <span>OCR Scanner</span>
-                            <span class="sidebar-menu-badge">AI / FAST</span>
+                            <span class="sidebar-menu-badge">FAST</span>
                         </a>
                     </li>
                     <li>
@@ -1325,145 +1235,17 @@
                 <div class="ocr-card" style="margin-bottom: 16px;">
                     <div class="ocr-card-header">
                         <h2>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                            2. OCR Engine & Vision Model
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                            2. OCR Engine (Tesseract.js)
                         </h2>
+                        <span class="shadcn-tab-badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3);">100% Client-Side</span>
                     </div>
-
-                    <!-- Engine Selector: Shadcn Tabs & Cards -->
-                    <div class="shadcn-tabs">
-                        <div class="shadcn-tabs-list" role="tablist">
-                            <button type="button" id="btnEngineLocal" class="shadcn-tabs-trigger active" data-engine="local" role="tab" aria-selected="true">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-                                Local OCR (Tesseract)
-                            </button>
-                            <button type="button" id="btnEngineAi" class="shadcn-tabs-trigger" data-engine="ai" role="tab" aria-selected="false">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-                                <span id="btnEngineAiLabel">AI Vision</span>
-                            </button>
-                        </div>
-
-                        <!-- Tab 1: Local OCR Card -->
-                        <div id="localConfigCard" class="shadcn-card" style="margin-top: 10px;">
-                            <div class="shadcn-card-header">
-                                <div class="shadcn-card-title">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-                                    Local OCR Engine (Tesseract.js)
-                                    <span class="shadcn-tab-badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3);">100% Client-Side</span>
-                                </div>
-                                <div class="shadcn-card-description">
-                                    Processes documents directly inside browser Web Workers. Zero server uploads, privacy-first, and operates fully offline.
-                                </div>
-                            </div>
-                            <div class="shadcn-card-content">
-                                <div id="localLangWrap" style="display: flex; align-items: center; gap: 10px; font-size: 12px; flex-wrap: wrap;">
-                                    <label style="color: var(--fg-muted); font-weight: 600;">Recognition Language:</label>
-                                    <select id="ocrLanguage" class="roi-select" style="padding: 3px 8px; font-weight: 600;">
-                                        <option value="eng">English (Standard Latin)</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tab 2: Universal Multi-Provider AI Vision Configuration Card -->
-                        <div id="aiConfigCard" class="shadcn-card" style="display:none; margin-top: 10px; border-color: rgba(139, 92, 246, 0.35);">
-                            <div class="shadcn-card-header">
-                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                                    <div class="shadcn-card-title" style="color: #8b5cf6;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                                        Multimodal Generative AI Vision
-                                        <span id="aiKeyStatusBadge" class="shadcn-tab-badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Key Required</span>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 6px;">
-                                        <span style="font-size: 11px; color: var(--fg-muted); font-weight: 600;">Provider:</span>
-                                        <select id="aiProviderSelect" class="roi-select" style="padding: 3px 8px; font-weight: 600;">
-                                            <option value="rootsys">RootSys Cloud (rootsys.cloud)</option>
-                                            <option value="gemini" selected>Google Gemini</option>
-                                            <option value="openai">OpenAI (ChatGPT)</option>
-                                            <option value="anthropic">Anthropic (Claude)</option>
-                                            <option value="groq">Groq (Ultra-Fast)</option>
-                                            <option value="openrouter">OpenRouter</option>
-                                            <option value="custom">Universal / Ollama / Local AI</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="shadcn-card-description">
-                                    Cloud generative AI vision model for complex, skewed, low-resolution, or handwritten delivery orders.
-                                </div>
-                            </div>
-                            <div class="shadcn-card-content">
-                                <div id="rootsysCorsHint" style="display:none; font-size: 11px; padding: 7px 10px; border-radius: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); color: #f59e0b; margin-bottom: 10px; line-height: 1.5;">
-                                    <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color: #f59e0b;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> <strong>Tip:</strong> RootSys Cloud CORS security requires running via local server. <a href="http://localhost:3000/ocr_scanner.html" style="color: #f59e0b; font-weight: 700; text-decoration: underline;">Switch to http://localhost:3000</a>
-                                </div>
-
-                                <!-- Custom Endpoint (Shown for RootSys / OpenRouter / Custom / Ollama) -->
-                                <div id="aiCustomEndpointRow" class="ai-input-row" style="display: none; margin-bottom: 8px;">
-                                    <input id="aiCustomEndpointInput" class="ai-key-input" type="text" placeholder="Base URL (e.g. https://rootsys.cloud/v1 or https://openrouter.ai/api/v1)">
-                                </div>
-
-                                <!-- API Key Input Row -->
-                                <div class="ai-input-row">
-                                    <input id="aiApiKeyInput" class="ai-key-input" type="password" placeholder="Paste API Key" autocomplete="off">
-                                    <button type="button" id="btnToggleKeyVisibility" class="action-btn secondary" style="padding: 7px 10px; font-size: 12px;" title="Show/Hide Key">
-                                        <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                                    </button>
-                                    <button type="button" id="btnSaveApiKey" class="action-btn primary" style="padding: 7px 12px; font-size: 12px; background: #8b5cf6; border-color: #8b5cf6;">Save</button>
-                                    <button type="button" id="btnClearApiKey" class="action-btn secondary" style="padding: 7px 10px; font-size: 12px; color: #ef4444; border-color: rgba(239, 68, 68, 0.35); display: inline-flex; align-items: center; gap: 4px;" title="Clear saved API key from browser storage">
-                                        <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                        Clear
-                                    </button>
-                                </div>
-
-                                <!-- Model & Docs Row -->
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 8px;">
-                                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                        <label style="font-size: 11px; color: var(--fg-muted); display: flex; align-items: center; gap: 6px;">
-                                            Model:
-                                            <select id="aiModelSelect" class="roi-select" style="padding: 2px 6px; font-size: 11px; max-width: 170px;"></select>
-                                        </label>
-                                        <button type="button" id="btnFetchModels" class="action-btn secondary" style="padding: 2px 7px; font-size: 10px; line-height: 1.4; display: inline-flex; align-items: center; gap: 4px;" title="Discover all available models from this endpoint">
-                                            <svg class="inline-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                                            Fetch Models
-                                        </button>
-                                        <input id="aiCustomModelInput" class="ai-key-input" type="text" placeholder="Type model ID..." style="display: none; width: 130px; padding: 2px 6px; font-size: 11px; height: 24px;">
-                                        <label style="font-size: 11px; color: var(--fg-muted); display: flex; align-items: center; gap: 4px;">
-                                            Speed:
-                                            <select id="aiConcurrencySelect" class="roi-select" style="padding: 2px 6px; font-size: 11px;">
-                                                <option value="8">8x Hyperspeed (Fastest)</option>
-                                                <option value="6" selected>6x Turbo (Recommended)</option>
-                                                <option value="4">4x Fast</option>
-                                                <option value="2">2x Light</option>
-                                                <option value="1">1x Sequential</option>
-                                            </select>
-                                        </label>
-                                    </div>
-                                    <a id="aiDocsLink" href="https://rootsys.cloud" target="_blank" rel="noopener noreferrer" style="font-size: 11px; color: #8b5cf6; text-decoration: underline;">
-                                        Get API Key ↗
-                                    </a>
-                                </div>
-
-                                <!-- AI Prompt Mode & Custom Task Selector -->
-                                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(139, 92, 246, 0.25); display: flex; flex-direction: column; gap: 6px;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
-                                        <label style="font-size: 11px; font-weight: 600; color: var(--fg-muted); display: flex; align-items: center; gap: 6px;">
-                                            <span style="display: inline-flex; align-items: center; gap: 4px;">
-                                                <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                                                Prompt Task:
-                                            </span>
-                                            <select id="aiPromptPresetSelect" class="roi-select" style="padding: 2px 8px; font-size: 11px; font-weight: 600;">
-                                                <option value="do_only" selected>DO Numbers Only (Fast & Clean)</option>
-                                                <option value="full_ocr">Full Text Transcription (Standard OCR)</option>
-                                                <option value="custom">Custom Prompt...</option>
-                                            </select>
-                                        </label>
-                                        <span id="aiPromptHelpHint" style="font-size: 10px; color: var(--fg-subtle);">Extracts 8-digit DOs (81/85)</span>
-                                    </div>
-                                    <div id="aiCustomPromptWrap" style="display: none; margin-top: 2px;">
-                                        <textarea id="aiCustomPromptInput" class="ai-key-input" rows="2" style="width: 100%; font-family: monospace; font-size: 11px; resize: vertical; padding: 6px 8px; line-height: 1.4;" placeholder="Type custom instruction for AI Vision (e.g. Extract PO number and invoice date)..."></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <p class="ocr-help">Processes documents directly inside browser Web Workers via Tesseract.js. Zero server uploads, privacy-first, and operates fully offline.</p>
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 12px; flex-wrap: wrap; margin-top: 10px;">
+                        <label style="color: var(--fg-muted); font-weight: 600;">Recognition Language:</label>
+                        <select id="ocrLanguage" class="roi-select" style="padding: 3px 8px; font-weight: 600;">
+                            <option value="eng">English (Standard Latin)</option>
+                        </select>
                     </div>
                 </div>
 
@@ -2374,817 +2156,8 @@ if (dropzone) {
     });
 }
 
-// --- UNIVERSAL MULTI-PROVIDER AI VISION CONFIGURATION & ENGINE ---
-let selectedEngine = localStorage.getItem('ocr_engine_preference') || 'local';
-if (selectedEngine === 'paddle') {
-    selectedEngine = 'local';
-    localStorage.setItem('ocr_engine_preference', 'local');
-}
-let selectedAiProvider = localStorage.getItem('ai_provider_preference') || 'gemini';
-
-const AI_PROVIDERS = {
-    rootsys: {
-        name: 'RootSys Cloud',
-        keyStorage: 'rootsys_api_key',
-        modelStorage: 'rootsys_model_preference',
-        endpointStorage: 'rootsys_endpoint',
-        defaultEndpoint: 'https://rootsys.cloud/v1',
-        keyPlaceholder: 'Paste RootSys Bearer Key (sk-...)',
-        link: 'https://rootsys.cloud',
-        linkLabel: 'RootSys Cloud ↗',
-        defaultModel: 'gpt-4o-mini',
-        models: [
-            { id: 'gpt-4o-mini', name: 'gpt-4o-mini (Fast & Accurate / Recommended)' },
-            { id: 'gemini-2.0-flash', name: 'gemini-2.0-flash (Ultra-Fast)' },
-            { id: 'gemini-1.5-flash', name: 'gemini-1.5-flash (Very Fast)' },
-            { id: 'claude-3-5-haiku', name: 'claude-3-5-haiku (Fast)' },
-            { id: 'qwen2.5-vl-72b-instruct', name: 'qwen2.5-vl-72b-instruct (High Accuracy)' },
-            { id: 'gpt-4o', name: 'gpt-4o (Slower / Heavy)' },
-            { id: 'claude-3-5-sonnet', name: 'claude-3-5-sonnet (Slower / Heavy)' },
-            { id: 'llama-3.2-11b-vision-preview', name: 'llama-3.2-11b-vision' },
-            { id: '__custom__', name: 'Type Custom Model...' }
-        ]
-    },
-    gemini: {
-        name: 'Google Gemini',
-        keyStorage: 'gemini_api_key',
-        modelStorage: 'gemini_model_preference',
-        keyPlaceholder: 'Paste Gemini API Key (AIzaSy...)',
-        link: 'https://aistudio.google.com/app/apikey',
-        linkLabel: 'Get Free Gemini Key at Google AI Studio ↗',
-        defaultModel: 'gemini-3.8-flash',
-        models: [
-            { id: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash (Recommended)' },
-            { id: 'gemini-3.8-pro', name: 'Gemini 3.8 Pro' }
-        ]
-    },
-    openai: {
-        name: 'OpenAI (ChatGPT)',
-        keyStorage: 'openai_api_key',
-        modelStorage: 'openai_model_preference',
-        keyPlaceholder: 'Paste OpenAI API Key (sk-...)',
-        link: 'https://platform.openai.com/api-keys',
-        linkLabel: 'Get OpenAI API Key ↗',
-        defaultModel: 'gpt-4o-mini',
-        models: [
-            { id: 'gpt-4o-mini', name: 'gpt-4o-mini (Fast & Recommended)' },
-            { id: 'gpt-4o', name: 'gpt-4o (High Accuracy / Slower)' }
-        ]
-    },
-    anthropic: {
-        name: 'Anthropic (Claude)',
-        keyStorage: 'anthropic_api_key',
-        modelStorage: 'anthropic_model_preference',
-        keyPlaceholder: 'Paste Claude API Key (sk-ant-...)',
-        link: 'https://console.anthropic.com/settings/keys',
-        linkLabel: 'Get Claude API Key ↗',
-        defaultModel: 'claude-3-5-haiku-20241022',
-        models: [
-            { id: 'claude-3-5-haiku-20241022', name: 'claude-3-5-haiku (Fast)' },
-            { id: 'claude-3-5-sonnet-20241022', name: 'claude-3-5-sonnet (High Intelligence / Slower)' }
-        ]
-    },
-    groq: {
-        name: 'Groq',
-        keyStorage: 'groq_api_key',
-        modelStorage: 'groq_model_preference',
-        keyPlaceholder: 'Paste Groq API Key (gsk_...)',
-        link: 'https://console.groq.com/keys',
-        linkLabel: 'Get Free Groq API Key ↗',
-        defaultModel: 'llama-3.2-11b-vision-preview',
-        models: [
-            { id: 'llama-3.2-11b-vision-preview', name: 'llama-3.2-11b-vision (Ultra-Fast)' },
-            { id: 'llama-3.2-90b-vision-preview', name: 'llama-3.2-90b-vision' }
-        ]
-    },
-    openrouter: {
-        name: 'OpenRouter',
-        keyStorage: 'openrouter_api_key',
-        modelStorage: 'openrouter_model_preference',
-        keyPlaceholder: 'Paste OpenRouter Key (sk-or-...)',
-        link: 'https://openrouter.ai/keys',
-        linkLabel: 'Get OpenRouter Key ↗',
-        defaultModel: 'openai/gpt-4o-mini',
-        models: [
-            { id: 'openai/gpt-4o-mini', name: 'GPT-4o-mini (OpenRouter)' },
-            { id: 'google/gemini-flash-1.5', name: 'Gemini Flash 1.5 (OpenRouter)' },
-            { id: 'meta-llama/llama-3.2-11b-vision-instruct', name: 'Llama 3.2 11B Vision' },
-            { id: 'qwen/qwen-2-vl-72b-instruct', name: 'Qwen 2 VL 72B' }
-        ]
-    },
-    custom: {
-        name: 'Universal / Local (Ollama)',
-        keyStorage: 'custom_api_key',
-        modelStorage: 'custom_model_preference',
-        keyPlaceholder: 'API Key / Bearer token (optional for local Ollama)',
-        link: 'https://ollama.com/',
-        linkLabel: 'Ollama Vision Guide ↗',
-        defaultModel: 'llama3.2-vision',
-        models: [
-            { id: 'llama3.2-vision', name: 'llama3.2-vision (Local)' },
-            { id: 'llava', name: 'llava (Local)' }
-        ]
-    }
-};
-
-const PROMPT_PRESETS = {
-    do_only: {
-        prompt: 
-            "You are an expert Document Order (DO) inspector. Analyze this Delivery Order document page.\n" +
-            "Extract ONLY the valid 8-digit Delivery Order (DO) number(s) (typically starting with 81 or 85, labelled 'Delivery Order No.', 'D/O No.', or located in the header table/box).\n\n" +
-            "CRITICAL OCR RULES:\n" +
-            "1. Pay extreme attention to digits: do NOT confuse '5' with '6' or '8', and do NOT confuse '0' with '8'.\n" +
-            "2. Do NOT extract GST Registration numbers (e.g., MR-8500072-6).\n" +
-            "3. Do NOT extract Company Registration numbers (e.g., 199000682N).\n" +
-            "4. Do NOT extract part/item numbers (e.g., 18064511), telephone numbers, or sales order numbers.\n" +
-            "5. Output ONLY the 8-digit DO number(s), one per line or separated by commas. If no DO number is found, return 'NONE'.\n" +
-            "6. Do NOT write explanations, apologies, markdown formatting, or preamble. Return ONLY numbers or NONE.",
-        maxTokens: 120,
-        hint: "Extracts 8-digit DOs (81/85) with noise filtering"
-    },
-    full_ocr: {
-        prompt: 
-            "Perform complete, accurate Optical Character Recognition (OCR) on this document page.\n" +
-            "Transcribe all readable text verbatim, preserving headings, numbers, tables, lines, and layout.\n" +
-            "Do NOT summarize, truncate, or omit any text.",
-        maxTokens: 1024,
-        hint: "Transcribes all text, tables, and labels verbatim"
-    }
-};
-
-const PROMPT_DO_INSPECTOR = PROMPT_PRESETS.do_only.prompt;
-
-function getActivePromptConfig() {
-    const mode = localStorage.getItem('ai_prompt_mode') || 'do_only';
-    if (mode === 'custom') {
-        const customText = (localStorage.getItem('ai_custom_prompt') || '').trim();
-        return {
-            mode: 'custom',
-            prompt: customText || PROMPT_PRESETS.do_only.prompt,
-            maxTokens: 512,
-            isDoOnly: false
-        };
-    }
-    const preset = PROMPT_PRESETS[mode] || PROMPT_PRESETS.do_only;
-    return {
-        mode: mode,
-        prompt: preset.prompt,
-        maxTokens: preset.maxTokens,
-        isDoOnly: (mode === 'do_only')
-    };
-}
-
-function getActiveProviderKey() {
-    const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
-    return localStorage.getItem(prov.keyStorage) || '';
-}
-
-function getActiveProviderModel() {
-    const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
-    return localStorage.getItem(prov.modelStorage) || prov.defaultModel;
-}
-
-function updateEngineUI() {
-    if (selectedEngine === 'paddle') selectedEngine = 'local';
-    const isAi = selectedEngine === 'ai';
-    const isLocal = selectedEngine === 'local';
-
-    if ($('btnEngineLocal')) {
-        $('btnEngineLocal').classList.toggle('active', isLocal);
-        $('btnEngineLocal').setAttribute('aria-selected', isLocal ? 'true' : 'false');
-    }
-    if ($('btnEngineAi')) {
-        $('btnEngineAi').classList.toggle('active', isAi);
-        $('btnEngineAi').setAttribute('aria-selected', isAi ? 'true' : 'false');
-    }
-
-    if ($('localConfigCard')) $('localConfigCard').style.display = isLocal ? 'block' : 'none';
-    if ($('aiConfigCard')) {
-        $('aiConfigCard').style.display = isAi ? 'block' : 'none';
-        $('aiConfigCard').classList.toggle('active', isAi);
-    }
-    const langWrap = $('localLangWrap');
-    if (langWrap) langWrap.style.display = isLocal ? 'block' : 'none';
-    
-    // Update Provider Config Details
-    const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
-    const shortName = prov.name.split(' ')[0];
-    const aiLabel = $('btnEngineAiLabel');
-    if (aiLabel) aiLabel.textContent = `AI Vision (${shortName})`;
-
-    // Update Run button text
-    if (isAi) {
-        $('runOcr').textContent = `Run ${shortName} AI Vision Scan`;
-    } else {
-        $('runOcr').textContent = 'Run Local OCR Scan';
-    }
-    $('aiProviderSelect').value = selectedAiProvider;
-    
-    // Show custom endpoint input for RootSys, OpenRouter, and Custom/Ollama
-    const endpointRow = $('aiCustomEndpointRow');
-    if (endpointRow) {
-        const needsEndpoint = (selectedAiProvider === 'rootsys' || selectedAiProvider === 'custom' || selectedAiProvider === 'openrouter');
-        endpointRow.style.display = needsEndpoint ? 'flex' : 'none';
-        if (selectedAiProvider === 'rootsys') {
-            $('aiCustomEndpointInput').value = localStorage.getItem('rootsys_endpoint') || 'https://rootsys.cloud/v1';
-        } else if (selectedAiProvider === 'openrouter') {
-            $('aiCustomEndpointInput').value = localStorage.getItem('openrouter_endpoint') || 'https://openrouter.ai/api/v1';
-        } else if (selectedAiProvider === 'custom') {
-            $('aiCustomEndpointInput').value = localStorage.getItem('custom_api_endpoint') || 'http://localhost:11434/v1';
-        }
-    }
-
-    const currentKey = getActiveProviderKey();
-    const keyInput = $('aiApiKeyInput');
-    if (keyInput) {
-        keyInput.value = currentKey;
-        keyInput.placeholder = prov.keyPlaceholder;
-    }
-
-    // Toggle Fetch Models Button
-    const fetchBtn = $('btnFetchModels');
-    if (fetchBtn) {
-        fetchBtn.style.display = (selectedAiProvider === 'rootsys' || selectedAiProvider === 'custom' || selectedAiProvider === 'openrouter' || selectedAiProvider === 'groq' || selectedAiProvider === 'openai') ? 'inline-flex' : 'none';
-    }
-
-    // Toggle RootSys CORS Hint Banner
-    const corsHint = $('rootsysCorsHint');
-    if (corsHint) {
-        corsHint.style.display = (window.location.protocol === 'file:' && selectedAiProvider === 'rootsys') ? 'block' : 'none';
-    }
-
-    // Populate Models Dropdown
-    const modelSelect = $('aiModelSelect');
-    if (modelSelect) {
-        modelSelect.innerHTML = '';
-        const savedModel = getActiveProviderModel();
-        let foundSaved = false;
-
-        prov.models.forEach(m => {
-            const opt = document.createElement('option');
-            opt.value = m.id;
-            opt.textContent = m.name;
-            if (m.id === savedModel) foundSaved = true;
-            modelSelect.appendChild(opt);
-        });
-
-        if (!foundSaved && savedModel && savedModel !== '__custom__') {
-            const customOpt = document.createElement('option');
-            customOpt.value = savedModel;
-            customOpt.textContent = savedModel;
-            modelSelect.insertBefore(customOpt, modelSelect.firstChild);
-        }
-
-        const customInput = $('aiCustomModelInput');
-        if (customInput) {
-            customInput.style.display = (savedModel === '__custom__' || (!foundSaved && savedModel)) ? 'inline-block' : 'none';
-            if (customInput.style.display !== 'none') customInput.value = savedModel || '';
-        }
-
-        modelSelect.value = savedModel;
-    }
-
-    // Update Doc link
-    const docLink = $('aiDocsLink');
-    if (docLink) {
-        docLink.href = prov.link;
-        docLink.textContent = prov.linkLabel;
-    }
-
-    // Update Status Badge
-    const badge = $('aiKeyStatusBadge');
-    if (badge) {
-        if (currentKey && currentKey.trim().length > 5) {
-            badge.className = 'ai-badge saved';
-            badge.textContent = `${prov.name} Key Saved`;
-        } else if (selectedAiProvider === 'custom') {
-            badge.className = 'ai-badge saved';
-            badge.textContent = 'Endpoint Ready';
-        } else {
-            badge.className = 'ai-badge missing';
-            badge.textContent = `${prov.name} Key Required`;
-        }
-    }
-}
-
-// Global auto-fetch model function
-async function autoFetchModels(silent = false) {
-    const prov = AI_PROVIDERS[selectedAiProvider];
-    if (!prov) return;
-    const key = getActiveProviderKey();
-    let endpoint = '';
-    if (selectedAiProvider === 'rootsys') {
-        endpoint = localStorage.getItem('rootsys_endpoint') || 'https://rootsys.cloud/v1';
-    } else if (selectedAiProvider === 'openrouter') {
-        endpoint = localStorage.getItem('openrouter_endpoint') || 'https://openrouter.ai/api/v1';
-    } else if (selectedAiProvider === 'custom') {
-        endpoint = localStorage.getItem('custom_api_endpoint') || 'http://localhost:11434/v1';
-    } else if (selectedAiProvider === 'groq') {
-        endpoint = 'https://api.groq.com/openai/v1';
-    } else if (selectedAiProvider === 'openai') {
-        endpoint = 'https://api.openai.com/v1';
-    }
-
-    if (!endpoint) return;
-
-    if (!key && selectedAiProvider !== 'custom') {
-        if (!silent) {
-            showAppModal({
-                title: 'API Key Required',
-                message: `Please paste and save your ${prov.name} API Key first before fetching available models.`,
-                type: 'warning',
-                onConfirm: () => {
-                    const keyInput = $('aiApiKeyInput');
-                    if (keyInput) keyInput.focus();
-                }
-            });
-        }
-        return;
-    }
-
-    const btn = $('btnFetchModels');
-    let originalHtml = '';
-    if (btn) {
-        originalHtml = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = '<svg class="inline-icon spin" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Loading...';
-    }
-
-    try {
-        const cleanBase = endpoint.replace(/\/+$/, '').replace(/\/chat\/completions$/, '');
-        const targetUrl = cleanBase.endsWith('/models') ? cleanBase : `${cleanBase}/models`;
-
-        const headers = { 'Content-Type': 'application/json' };
-        if (key) {
-            headers['Authorization'] = `Bearer ${key}`;
-            headers['x-api-key'] = key;
-        }
-
-        let resp;
-        try {
-            resp = await fetch(targetUrl, { headers });
-        } catch (netErr) {
-            if (window.location.protocol.startsWith('http')) {
-                resp = await fetch('/api/ai-models-proxy', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ targetUrl, headers })
-                });
-            } else {
-                throw netErr;
-            }
-        }
-        if (!resp.ok) {
-            throw new Error(`HTTP ${resp.status} (${resp.statusText})`);
-        }
-
-        const resData = await resp.json();
-        let modelList = [];
-        if (Array.isArray(resData.data)) modelList = resData.data;
-        else if (Array.isArray(resData.models)) modelList = resData.models;
-        else if (Array.isArray(resData)) modelList = resData;
-
-        if (!modelList.length) {
-            throw new Error('No models returned from endpoint.');
-        }
-
-        const modelIds = modelList.map(m => m.id || m.name).filter(Boolean);
-        modelIds.sort((a, b) => a.localeCompare(b));
-
-        const modelSelect = $('aiModelSelect');
-        modelSelect.innerHTML = '';
-        modelIds.forEach(id => {
-            const opt = document.createElement('option');
-            opt.value = id;
-            opt.textContent = id;
-            modelSelect.appendChild(opt);
-        });
-
-        const customOpt = document.createElement('option');
-        customOpt.value = '__custom__';
-        customOpt.textContent = 'Custom Model...';
-        modelSelect.appendChild(customOpt);
-
-        const activeModel = getActiveProviderModel();
-        if (modelIds.includes(activeModel)) {
-            modelSelect.value = activeModel;
-        } else {
-            const bestDefault = modelIds.find(id => id.includes('4o-mini') || id.includes('vision') || id.includes('flash')) || modelIds[0];
-            modelSelect.value = bestDefault;
-            localStorage.setItem(prov.modelStorage, bestDefault);
-        }
-
-        showToast(`Auto-loaded ${modelIds.length} models from ${new URL(cleanBase).hostname}!`, 'success');
-    } catch (err) {
-        console.error('Fetch Models Error:', err);
-        if (!silent) {
-            if (window.location.protocol === 'file:' && selectedAiProvider === 'rootsys') {
-                showAppModal({
-                    title: 'Local Server Required for RootSys',
-                    message: `RootSys Cloud rejects browser requests made from "file:///" URLs due to CORS restrictions.\n\nYour local server is active on port 3000! Would you like to switch to http://localhost:3000 now?`,
-                    type: 'warning',
-                    confirmText: 'Switch to http://localhost:3000',
-                    onConfirm: () => {
-                        window.location.href = 'http://localhost:3000/ocr_scanner.html';
-                    }
-                });
-            } else {
-                showAppModal({
-                    title: 'Fetch Models Failed',
-                    message: `Could not load models from ${endpoint}:\n\n${err.message}\n\nYou can select one of the built-in RootSys models or type your model ID using "Type Custom Model...".`,
-                    type: 'error'
-                });
-            }
-        }
-    } finally {
-        if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = originalHtml || '<svg class="inline-icon" viewBox="0 0 24 24"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg> Fetch Models';
-        }
-    }
-}
-
-// Initial UI setup
-updateEngineUI();
-if (selectedEngine === 'ai' && (selectedAiProvider === 'rootsys' || selectedAiProvider === 'openrouter') && getActiveProviderKey()) {
-    autoFetchModels(true);
-}
-
-$('btnEngineLocal').addEventListener('click', () => {
-    selectedEngine = 'local';
-    localStorage.setItem('ocr_engine_preference', 'local');
-    updateEngineUI();
-    setStatus('Switched to Local OCR engine (Tesseract.js).');
-});
-
-
-$('btnEngineAi').addEventListener('click', () => {
-    selectedEngine = 'ai';
-    localStorage.setItem('ocr_engine_preference', 'ai');
-    updateEngineUI();
-    const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
-    setStatus(`Switched to ${prov.name} AI Vision engine.`);
-    if (!getActiveProviderKey() && selectedAiProvider !== 'custom') {
-        $('aiApiKeyInput').focus();
-    } else if (selectedAiProvider === 'rootsys') {
-        autoFetchModels(true);
-    }
-});
-
-$('aiProviderSelect').addEventListener('change', (e) => {
-    selectedAiProvider = e.target.value;
-    localStorage.setItem('ai_provider_preference', selectedAiProvider);
-    updateEngineUI();
-    if (getActiveProviderKey()) {
-        autoFetchModels(false);
-    }
-});
-
-$('btnSaveApiKey').addEventListener('click', () => {
-    const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
-    const keyVal = $('aiApiKeyInput').value.trim();
-    localStorage.setItem(prov.keyStorage, keyVal);
-
-    if (selectedAiProvider === 'rootsys') {
-        localStorage.setItem('rootsys_endpoint', $('aiCustomEndpointInput').value.trim() || 'https://rootsys.cloud/v1');
-    } else if (selectedAiProvider === 'openrouter') {
-        localStorage.setItem('openrouter_endpoint', $('aiCustomEndpointInput').value.trim());
-    } else if (selectedAiProvider === 'custom') {
-        localStorage.setItem('custom_api_endpoint', $('aiCustomEndpointInput').value.trim());
-    }
-
-    updateEngineUI();
-    if (keyVal || selectedAiProvider === 'custom') {
-        setStatus(`${prov.name} settings saved in browser localStorage.`);
-        showToast(`${prov.name} credentials saved successfully.`, 'success');
-        if (selectedAiProvider === 'rootsys') {
-            autoFetchModels(false);
-        }
-    } else {
-        setStatus(`${prov.name} key cleared.`);
-        showToast(`${prov.name} key cleared.`, 'info');
-    }
-});
-
-$('btnClearApiKey').addEventListener('click', () => {
-    const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
-    localStorage.removeItem(prov.keyStorage);
-    $('aiApiKeyInput').value = '';
-    updateEngineUI();
-    setStatus(`${prov.name} API key removed from browser storage.`);
-    showToast(`${prov.name} API key removed from browser storage.`, 'info');
-});
-
-$('btnToggleKeyVisibility').addEventListener('click', () => {
-    const input = $('aiApiKeyInput');
-    if (input.type === 'password') {
-        input.type = 'text';
-        $('btnToggleKeyVisibility').innerHTML = '<svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
-    } else {
-        input.type = 'password';
-        $('btnToggleKeyVisibility').innerHTML = '<svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
-    }
-});
-
-$('aiModelSelect').addEventListener('change', (e) => {
-    const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
-    const customInput = $('aiCustomModelInput');
-    if (e.target.value === '__custom__') {
-        if (customInput) {
-            customInput.style.display = 'inline-block';
-            customInput.focus();
-        }
-    } else {
-        if (customInput) customInput.style.display = 'none';
-        localStorage.setItem(prov.modelStorage, e.target.value);
-    }
-});
-
-if ($('aiCustomModelInput')) {
-    $('aiCustomModelInput').addEventListener('input', (e) => {
-        const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
-        const val = e.target.value.trim();
-        if (val) {
-            localStorage.setItem(prov.modelStorage, val);
-        }
-    });
-}
-
-if ($('aiConcurrencySelect')) {
-    const savedConc = localStorage.getItem('ai_concurrency');
-    if (savedConc) $('aiConcurrencySelect').value = savedConc;
-    $('aiConcurrencySelect').addEventListener('change', (e) => {
-        localStorage.setItem('ai_concurrency', e.target.value);
-    });
-}
-
-// Prompt Task & Custom Prompt UI handlers
-const promptPresetSelect = $('aiPromptPresetSelect');
-const customPromptWrap = $('aiCustomPromptWrap');
-const customPromptInput = $('aiCustomPromptInput');
-const promptHelpHint = $('aiPromptHelpHint');
-
-if (promptPresetSelect) {
-    const savedMode = localStorage.getItem('ai_prompt_mode') || 'do_only';
-    promptPresetSelect.value = savedMode;
-    if (customPromptInput) {
-        customPromptInput.value = localStorage.getItem('ai_custom_prompt') || '';
-    }
-
-    const updatePromptModeUI = () => {
-        const mode = promptPresetSelect.value;
-        localStorage.setItem('ai_prompt_mode', mode);
-        if (customPromptWrap) {
-            customPromptWrap.style.display = (mode === 'custom') ? 'block' : 'none';
-        }
-        if (promptHelpHint) {
-            promptHelpHint.textContent = (mode === 'custom')
-                ? 'Custom prompt active'
-                : (PROMPT_PRESETS[mode]?.hint || '');
-        }
-        if (mode === 'custom' && customPromptInput) {
-            customPromptInput.focus();
-        }
-    };
-
-    promptPresetSelect.addEventListener('change', updatePromptModeUI);
-    updatePromptModeUI();
-
-    if (customPromptInput) {
-        customPromptInput.addEventListener('input', (e) => {
-            localStorage.setItem('ai_custom_prompt', e.target.value);
-        });
-    }
-}
-
-// --- OPTIMIZED IMAGE COMPRESSION FOR AI VISION ---
-function getOptimizedBase64Jpeg(canvas, maxDim = 1800, quality = 0.88) {
-    let w = canvas.width;
-    let h = canvas.height;
-    if (w > maxDim || h > maxDim) {
-        if (w > h) {
-            h = Math.round((h * maxDim) / w);
-            w = maxDim;
-        } else {
-            w = Math.round((w * maxDim) / h);
-            h = maxDim;
-        }
-        const temp = document.createElement('canvas');
-        temp.width = w;
-        temp.height = h;
-        const ctx = temp.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(canvas, 0, 0, w, h);
-        return temp.toDataURL('image/jpeg', quality).split(',')[1];
-    }
-    return canvas.toDataURL('image/jpeg', quality).split(',')[1];
-}
-
-// --- INDIVIDUAL PROVIDER CALLERS ---
-async function callGeminiVision(canvas, apiKey, model, promptConfig) {
-    if (!apiKey) throw new Error('Gemini API key is missing.');
-    let targetModel = model || 'gemini-3.8-flash';
-    if (!targetModel || !targetModel.includes('3.8')) targetModel = 'gemini-3.8-flash';
-
-    const pConfig = promptConfig || getActivePromptConfig();
-    const base64Data = getOptimizedBase64Jpeg(canvas);
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
-
-    const payload = {
-        contents: [
-            {
-                parts: [
-                    { text: pConfig.prompt },
-                    { inlineData: { mimeType: 'image/jpeg', data: base64Data } }
-                ]
-            }
-        ],
-        generationConfig: {
-            temperature: 0.0,
-            maxOutputTokens: pConfig.maxTokens || 60
-        }
-    };
-
-    let resp;
-    try {
-        resp = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-    } catch (netErr) {
-        throw new Error(`Gemini connection error: ${netErr.message}`);
-    }
-
-    if (!resp.ok) {
-        const errJson = await resp.json().catch(() => ({}));
-        const errMsg = errJson.error?.message || `HTTP ${resp.status} (${resp.statusText})`;
-        throw new Error(`Gemini API: ${errMsg}`);
-    }
-
-    const data = await resp.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-}
-
-async function callOpenAiVision(canvas, apiKey, model, customEndpoint, promptConfig) {
-    if (!apiKey && selectedAiProvider !== 'custom') throw new Error('API key is missing.');
-    const pConfig = promptConfig || getActivePromptConfig();
-    const base64Data = getOptimizedBase64Jpeg(canvas);
-    let baseUrl = (customEndpoint || 'https://api.openai.com/v1').replace(/\/+$/, '');
-    if (!baseUrl.endsWith('/chat/completions')) {
-        baseUrl += '/chat/completions';
-    }
-
-    const payload = {
-        model: model,
-        messages: [
-            {
-                role: 'user',
-                content: [
-                    { type: 'text', text: pConfig.prompt },
-                    {
-                        type: 'image_url',
-                        image_url: {
-                            url: `data:image/jpeg;base64,${base64Data}`,
-                            detail: 'high'
-                        }
-                    }
-                ]
-            }
-        ],
-        temperature: 0.0,
-        max_tokens: pConfig.maxTokens || 120
-    };
-
-    const headers = { 'Content-Type': 'application/json' };
-    if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
-    if (selectedAiProvider === 'openrouter') {
-        headers['HTTP-Referer'] = window.location.href;
-        headers['X-Title'] = 'DO Insight Scanner';
-    }
-
-    let resp;
-    try {
-        resp = await fetch(baseUrl, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify(payload)
-        });
-    } catch (netErr) {
-        if (window.location.protocol.startsWith('http')) {
-            try {
-                resp = await fetch('/api/ai-proxy', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ targetUrl: baseUrl, headers, body: payload })
-                });
-            } catch (proxyErr) {
-                throw new Error(`Connection error to ${baseUrl}: ${netErr.message}`);
-            }
-        } else {
-            if (window.location.protocol === 'file:' && selectedAiProvider === 'rootsys') {
-                showAppModal({
-                    title: 'Local Server Recommended for RootSys',
-                    message: `RootSys Cloud blocked this direct browser call due to CORS restrictions when opened from a "file:///" URL.\n\nTo run locally, start the local server in your folder (run: npm start or node server.js) and open http://localhost:3000/ocr_scanner.html.`,
-                    type: 'warning'
-                });
-            }
-            throw new Error(`Connection error to ${baseUrl}: ${netErr.message}`);
-        }
-    }
-
-    if (!resp.ok) {
-        const errJson = await resp.json().catch(() => ({}));
-        const errMsg = errJson.error?.message || `HTTP ${resp.status} (${resp.statusText})`;
-        throw new Error(`OpenAI-compatible API: ${errMsg}`);
-    }
-
-    const data = await resp.json();
-    return data.choices?.[0]?.message?.content || '';
-}
-
-async function callAnthropicVision(canvas, apiKey, model, promptConfig) {
-    if (!apiKey) throw new Error('Anthropic API key is missing.');
-    const pConfig = promptConfig || getActivePromptConfig();
-    const base64Data = getOptimizedBase64Jpeg(canvas);
-    const endpoint = 'https://api.anthropic.com/v1/messages';
-
-    const payload = {
-        model: model,
-        max_tokens: pConfig.maxTokens || 60,
-        temperature: 0.0,
-        messages: [
-            {
-                role: 'user',
-                content: [
-                    {
-                        type: 'image',
-                        source: {
-                            type: 'base64',
-                            media_type: 'image/jpeg',
-                            data: base64Data
-                        }
-                    },
-                    { type: 'text', text: pConfig.prompt }
-                ]
-            }
-        ]
-    };
-
-    let resp;
-    try {
-        resp = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': apiKey,
-                'anthropic-version': '2023-06-01',
-                'anthropic-dangerous-direct-browser-access': 'true'
-            },
-            body: JSON.stringify(payload)
-        });
-    } catch (netErr) {
-        throw new Error(`Anthropic connection error: ${netErr.message}`);
-    }
-
-    if (!resp.ok) {
-        const errJson = await resp.json().catch(() => ({}));
-        const errMsg = errJson.error?.message || `HTTP ${resp.status} (${resp.statusText})`;
-        throw new Error(`Anthropic API: ${errMsg}`);
-    }
-
-    const data = await resp.json();
-    return data.content?.[0]?.text || '';
-}
-
-// Universal AI Vision Dispatcher
-async function callUniversalAiVision(canvas, promptConfig) {
-    const provider = selectedAiProvider || 'gemini';
-    const apiKey = getActiveProviderKey();
-    const model = getActiveProviderModel();
-    const pConfig = promptConfig || getActivePromptConfig();
-
-    if (provider === 'gemini') {
-        return await callGeminiVision(canvas, apiKey, model, pConfig);
-    } else if (provider === 'anthropic') {
-        return await callAnthropicVision(canvas, apiKey, model, pConfig);
-    } else if (provider === 'groq') {
-        return await callOpenAiVision(canvas, apiKey, model, 'https://api.groq.com/openai/v1', pConfig);
-    } else if (provider === 'rootsys') {
-        const customEndpoint = localStorage.getItem('rootsys_endpoint') || 'https://rootsys.cloud/v1';
-        return await callOpenAiVision(canvas, apiKey, model, customEndpoint, pConfig);
-    } else {
-        // OpenAI, OpenRouter, or Custom Ollama
-        let customEndpoint = 'https://api.openai.com/v1';
-        if (provider === 'openrouter') {
-            customEndpoint = localStorage.getItem('openrouter_endpoint') || 'https://openrouter.ai/api/v1';
-        } else if (provider === 'custom') {
-            customEndpoint = localStorage.getItem('custom_api_endpoint') || 'http://localhost:11434/v1';
-        }
-        return await callOpenAiVision(canvas, apiKey, model, customEndpoint, pConfig);
-    }
-}
+// --- OCR ENGINE CONFIGURATION (TESSERACT.JS) ---
+const selectedEngine = 'local';
 
 // --- PERMANENT PIXEL BURN-IN EXPORT PIPELINE (jsPDF & CANVAS) ---
 async function exportFlattenedIsolatedPdf() {
@@ -3361,103 +2334,7 @@ async function runIsolatedRoiOcr() {
             return worker;
         };
 
-        if (selectedEngine === 'ai') {
-            const allPages = [];
-            for (let fIdx = 0; fIdx < pdfDocs.length; fIdx++) {
-                const { file, pdf } = pdfDocs[fIdx];
-                for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
-                    allPages.push({ file, pdf, pageNo, fIdx });
-                }
-            }
-
-            const concurrencyVal = parseInt($('aiConcurrencySelect')?.value || localStorage.getItem('ai_concurrency') || '6', 10);
-            const concurrency = Math.max(1, Math.min(10, concurrencyVal));
-            const pageTexts = new Array(allPages.length);
-            let completed = 0;
-            let nextIndex = 0;
-            const provName = AI_PROVIDERS[selectedAiProvider]?.name || 'AI Vision';
-
-            async function roiAiWorker() {
-                while (nextIndex < allPages.length) {
-                    const idx = nextIndex++;
-                    const { file, pdf, pageNo } = allPages[idx];
-
-                    try {
-                        const page = await pdf.getPage(pageNo);
-                        const scale = 2.0; // High DPI for crisp AI ROI recognition
-                        const viewport = page.getViewport({ scale });
-                        let pageCombinedText = '';
-
-                        // Step 1: Hybrid Check - Embedded Digital Text
-                        try {
-                            const textContent = await page.getTextContent();
-                            if (textContent && textContent.items && textContent.items.length > 0) {
-                                const roiItems = textContent.items.filter(item => {
-                                    if (!item.transform) return false;
-                                    const [tx, ty] = viewport.convertToViewportPoint(item.transform[4], item.transform[5]);
-                                    const normX = tx / viewport.width;
-                                    const normY = ty / viewport.height;
-                                    return normX >= (roiBox.x - 0.03) && normX <= (roiBox.x + roiBox.width + 0.03) &&
-                                           normY >= (roiBox.y - 0.03) && normY <= (roiBox.y + roiBox.height + 0.03);
-                                });
-                                pageCombinedText = roiItems.map(item => item.str).join(' ');
-                            }
-                        } catch (digitalErr) {}
-
-                        // Step 2: AI Vision strictly on cropped ROI canvas
-                        if (!pageCombinedText || pageCombinedText.trim().length < 3) {
-                            const fullCanvas = document.createElement('canvas');
-                            fullCanvas.width = viewport.width;
-                            fullCanvas.height = viewport.height;
-                            const fullCtx = fullCanvas.getContext('2d');
-                            await page.render({ canvasContext: fullCtx, viewport }).promise;
-
-                            const padX = Math.round(fullCanvas.width * 0.015);
-                            const padY = Math.round(fullCanvas.height * 0.015);
-                            const doX = Math.max(0, Math.floor(roiBox.x * fullCanvas.width) - padX);
-                            const doY = Math.max(0, Math.floor(roiBox.y * fullCanvas.height) - padY);
-                            const doW = Math.min(fullCanvas.width - doX, Math.ceil(roiBox.width * fullCanvas.width) + (padX * 2));
-                            const doH = Math.min(fullCanvas.height - doY, Math.ceil(roiBox.height * fullCanvas.height) + (padY * 2));
-
-                            const cropCanvas = document.createElement('canvas');
-                            cropCanvas.width = Math.max(20, doW);
-                            cropCanvas.height = Math.max(20, doH);
-                            const cropCtx = cropCanvas.getContext('2d');
-                            cropCtx.fillStyle = '#ffffff';
-                            cropCtx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
-                            cropCtx.drawImage(fullCanvas, doX, doY, doW, doH, 0, 0, doW, doH);
-
-                            // Apply Image Enhancement if active
-                            if (currentEnhancePreset !== 'none') {
-                                applyCanvasEnhancement(cropCanvas, currentEnhancePreset);
-                            }
-
-                            // Send strictly the cropped box to AI Vision
-                            pageCombinedText = await callUniversalAiVision(cropCanvas);
-
-                            cropCanvas.width = 1;
-                            cropCanvas.height = 1;
-                            fullCanvas.width = 1;
-                            fullCanvas.height = 1;
-                        }
-
-                        pageTexts[idx] = pageCombinedText;
-                    } catch (err) {
-                        console.error(`Error on ROI page ${pageNo}:`, err);
-                        pageTexts[idx] = '';
-                    }
-
-                    completed++;
-                    const currentPct = 15 + ((completed / allPages.length) * 75);
-                    setProgress(currentPct, `Parallel ROI ${concurrency}x: ${completed}/${allPages.length}`);
-                    setStatus(`${provName} ROI: page ${pageNo}/${pdf.numPages} • [${completed}/${allPages.length} done]`);
-                }
-            }
-
-            const pool = Array.from({ length: Math.min(concurrency, allPages.length) }, () => roiAiWorker());
-            await Promise.all(pool);
-            extractedText = pageTexts.filter(Boolean).join('\n');
-        } else {
+        
             // Local Tesseract OCR (sequential)
             for (let fIdx = 0; fIdx < pdfDocs.length; fIdx++) {
                 const { file, pdf } = pdfDocs[fIdx];
@@ -3541,10 +2418,10 @@ async function runIsolatedRoiOcr() {
                     processedPages++;
                 }
             }
-        }
+        
 
         // Clean output & results rendering based on selected Prompt Task
-        const pConfig = (selectedEngine === 'ai') ? getActivePromptConfig() : { isDoOnly: true };
+        const pConfig = { isDoOnly: true };
         numbers = extractNumbers(extractedText);
         if (numbers.length > 0) {
             TerminalConsole.log(`Indexed ${numbers.length} DO candidate(s): ${numbers.slice(0, 3).join(', ')}${numbers.length > 3 ? '...' : ''}`, 'success');
@@ -3564,9 +2441,7 @@ async function runIsolatedRoiOcr() {
             : (pConfig.isDoOnly ? `0 DO numbers found matching 81xxxxxx or 85xxxxxx. Check document quality or adjust ROI box.` : `Completed text extraction.`);
 
         setProgress(100, 'Scan Complete', sarcasticFinish);
-        setStatus(pConfig.isDoOnly 
-            ? `Extraction complete: ${numbers.length} unique 8-digit DO number(s) found.` 
-            : `Completed: ${files.length} file(s) processed with custom/full OCR.`);
+        setStatus(`Extraction complete: ${numbers.length} unique 8-digit DO number(s) found.`);
 
         // Smooth scroll down to view results
         setTimeout(() => {
@@ -3872,8 +2747,7 @@ function setProgress(percent, stageText, finalComment = null) {
 
     // Start a new run if one isn't currently active
     if (!TerminalConsole.currentRunActive) {
-        const engineLabel = selectedEngine === 'ai' ? `ai-${selectedAiProvider}` : selectedEngine;
-        TerminalConsole.startNewRun(`do-scanner --engine=${engineLabel} --roi=${isRoiActive ? 'active' : 'off'}`);
+        TerminalConsole.startNewRun(`do-scanner --engine=tesseract --roi=${isRoiActive ? 'active' : 'off'}`);
         TerminalConsole.log('Preflight check complete. System ready.', 'success');
     } else if (!TerminalConsole.isUserMinimized && overlay && !overlay.classList.contains('active')) {
         TerminalConsole.showModal();
@@ -4081,28 +2955,10 @@ async function runOcr() {
     const invalid = files.find(file => file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf'));
     if (invalid) { setStatus(`Unsupported file: ${invalid.name}. Please select PDF files only.`); return; }
     
-    if (selectedEngine === 'ai') {
-        const prov = AI_PROVIDERS[selectedAiProvider] || AI_PROVIDERS.gemini;
-        const currentKey = getActiveProviderKey();
-        if (!currentKey && selectedAiProvider !== 'custom') {
-            setStatus(`Please enter and save your ${prov.name} API Key above.`);
-            showAppModal({
-                title: `${prov.name} Key Required`,
-                message: `Please enter and save your ${prov.name} API key in the AI Vision panel above before scanning.`,
-                type: 'warning',
-                onConfirm: () => {
-                    const keyInput = $('aiApiKeyInput');
-                    if (keyInput) keyInput.focus();
-                }
-            });
-            return;
-        }
-    }
-
     $('runOcr').disabled = true;
     extractedText = '';
     numbers = [];
-    setProgress(5, selectedEngine === 'ai' ? 'Initializing AI Vision' : 'Questioning Career Choices');
+    setProgress(5, 'Questioning Career Choices');
     startSarcasticComments();
     
     let worker;
@@ -4112,15 +2968,14 @@ async function runOcr() {
 
         // Preliminary count of total pages for accurate progress bar
         const pdfDocs = [];
-        setProgress(10, selectedEngine === 'ai' ? 'Connecting to Gemini' : 'Reviewing Paperwork (Sigh)');
+        setProgress(10, 'Reviewing Paperwork (Sigh)');
         for (const file of files) {
             const pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
             pdfDocs.push({ file, pdf });
         }
         const totalPages = pdfDocs.reduce((acc, item) => acc + item.pdf.numPages, 0) || 1;
 
-        if (selectedEngine === 'local') {
-            worker = await Tesseract.createWorker($('ocrLanguage').value, 1, {
+        worker = await Tesseract.createWorker($('ocrLanguage').value, 1, {
                 logger: message => {
                     if (message.status === 'recognizing text' && typeof message.progress === 'number') {
                         const pageBasePct = (processedPages / totalPages) * 80 + 15;
@@ -4130,78 +2985,8 @@ async function runOcr() {
                     }
                 }
             });
-        }
 
-        if (selectedEngine === 'ai') {
-            const allPages = [];
-            for (let fIdx = 0; fIdx < pdfDocs.length; fIdx++) {
-                const { file, pdf } = pdfDocs[fIdx];
-                for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
-                    allPages.push({ file, pdf, pageNo, fIdx });
-                }
-            }
-
-            const concurrencyVal = parseInt($('aiConcurrencySelect')?.value || localStorage.getItem('ai_concurrency') || '6', 10);
-            const concurrency = Math.max(1, Math.min(10, concurrencyVal));
-            const pageTexts = new Array(allPages.length);
-            let completed = 0;
-            let nextIndex = 0;
-            const provName = AI_PROVIDERS[selectedAiProvider]?.name || 'AI Vision';
-
-            async function aiWorker() {
-                while (nextIndex < allPages.length) {
-                    const idx = nextIndex++;
-                    const { file, pdf, pageNo } = allPages[idx];
-
-                    try {
-                        const page = await pdf.getPage(pageNo);
-                        let text = '';
-
-                        // Step 1: Instant embedded digital text check (0ms)
-                        try {
-                            const textContent = await page.getTextContent();
-                            const embedded = textContent.items.map(item => item.str).join(' ').replace(/\s+/g, ' ').trim();
-                            if (embedded && embedded.length > 5) {
-                                text = embedded;
-                            }
-                        } catch (e) {}
-
-                        // Step 2: Scanned raster image
-                        if (!text) {
-                            const viewport = page.getViewport({ scale: 1.75 }); // Crisp 1.75x DPI rendering
-                            const canvas = document.createElement('canvas');
-                            canvas.width = viewport.width;
-                            canvas.height = viewport.height;
-                            await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-
-                            if (currentEnhancePreset !== 'none') {
-                                applyCanvasEnhancement(canvas, currentEnhancePreset);
-                            }
-
-                            text = await callUniversalAiVision(canvas);
-
-                            canvas.width = 1;
-                            canvas.height = 1;
-                        }
-
-                        pageTexts[idx] = text;
-                    } catch (err) {
-                        console.error(`Error on page ${pageNo}:`, err);
-                        pageTexts[idx] = '';
-                    }
-
-                    completed++;
-                    const currentPct = 15 + ((completed / allPages.length) * 80);
-                    setProgress(currentPct, `Parallel ${concurrency}x: ${completed}/${allPages.length} pages done`);
-                    setStatus(`${provName} streaming: page ${pageNo}/${pdf.numPages} • [${completed}/${allPages.length} done]`);
-                }
-            }
-
-            const pool = Array.from({ length: Math.min(concurrency, allPages.length) }, () => aiWorker());
-            await Promise.all(pool);
-
-            extractedText = pageTexts.filter(Boolean).join('\n');
-        } else {
+        
             // Local OCR engine (Sequential single-worker)
             for (let fIdx = 0; fIdx < pdfDocs.length; fIdx++) {
                 const { file, pdf } = pdfDocs[fIdx];
@@ -4236,10 +3021,10 @@ async function runOcr() {
                     processedPages++;
                 }
             }
-        }
+        
 
         // Clean Output & results rendering based on selected Prompt Task
-        const pConfig = (selectedEngine === 'ai') ? getActivePromptConfig() : { isDoOnly: true };
+        const pConfig = { isDoOnly: true };
         numbers = extractNumbers(extractedText);
         if (numbers.length > 0) {
             TerminalConsole.log(`Indexed ${numbers.length} DO candidate(s): ${numbers.slice(0, 3).join(', ')}${numbers.length > 3 ? '...' : ''}`, 'success');
@@ -4248,7 +3033,7 @@ async function runOcr() {
             if (numbers.length > 0) {
                 $('fullText').value = numbers.join('\n');
             } else {
-                $('fullText').value = `[Notice: 0 numbers matching 81xxxxxx or 85xxxxxx pattern]\n\n--- RAW EXTRACTED TEXT FROM SCAN ---\n${extractedText.trim() || '(No characters detected by OCR engine. Try switching to Local Tesseract or adjusting scan contrast)'}`;
+                $('fullText').value = `[Notice: 0 numbers matching 81xxxxxx or 85xxxxxx pattern]\n\n--- RAW EXTRACTED TEXT FROM SCAN ---\n${extractedText.trim() || '(No characters detected by OCR engine. Try adjusting scan contrast or ROI box)'}`;
             }
         } else {
             $('fullText').value = extractedText.trim();
@@ -4263,9 +3048,7 @@ async function runOcr() {
             : (pConfig.isDoOnly ? `0 DO numbers found matching 81xxxxxx or 85xxxxxx. Check document quality or adjust scan settings.` : `Completed text extraction.`);
 
         setProgress(100, 'Shift Complete', sarcasticFinish);
-        setStatus(pConfig.isDoOnly 
-            ? `Completed: ${files.length} file(s), ${numbers.length} unique DO number(s).` 
-            : `Completed: ${files.length} file(s) processed with custom/full OCR.`);
+        setStatus(`Completed: ${files.length} file(s), ${numbers.length} unique DO number(s).`);
     } catch (error) {
         console.error(error);
         $('fullText').value = '';

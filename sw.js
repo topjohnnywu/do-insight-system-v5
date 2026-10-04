@@ -1,8 +1,8 @@
 // Bump this version on EVERY code deploy/edit. A new version forces the
 // browser to install a fresh service worker and (via `activate`) delete the
 // old cache, so users always receive the latest HTML/CSS/JS instead of stale
-// cached copies. v89: universal Shadcn selects without CORS blocking under file:// protocol.
-const CACHE_NAME = 'planner-cache-v89';
+// cached copies. v90: pure local Tesseract.js OCR scanner with all AI references removed.
+const CACHE_NAME = 'planner-cache-v90';
 const urlsToCache = [
     '/',
     '/index.html',

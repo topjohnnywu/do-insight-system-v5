@@ -28,7 +28,7 @@ Engineered with pure **HTML5, modern CSS3, and vanilla JavaScript (ES6 Modules)*
 - **🔍 Real-Time KPI Recalculation**: Live metric aggregation (Total DOs, Quantity, Volume m³, Gross Weight kg, Pallet Equivalents) reacting instantaneously to multi-column filters, search queries, and status toggles.
 - **⚡ Quick Actions & Remarks Engine**: 1-click batch status tagging (`SELF COLLECT`, `HOLD`, `LOCAL DELIVERY`, `DIRECT DELIVERY`, `URGENT`, `CANCELLED`) with instant visual feedback and audit log preservation.
 - **📑 Formatted Multi-Sheet Excel Exports**: Generates styled spreadsheets with customized headers, cell alignments, auto-fit column widths, freeze panes, and aggregate summary rows via `xlsx-js-style` and ExcelJS.
-- **📱 PWA & Offline Support**: Built-in Service Worker caching (`sw.js` v89) and Web App Manifest (`manifest.json`) enabling installability on desktop or mobile and offline operation.
+- **📱 PWA & Offline Support**: Built-in Service Worker caching (`sw.js` v90) and Web App Manifest (`manifest.json`) enabling installability on desktop or mobile and offline operation.
 - **🧩 Shadcn-Inspired Design Tokens**: Clean, minimalist UI design system with unified buttons (`.btn-primary`, `.action-btn`, size variants `.sm`, `.xs`, `.lg`), standardized alert dialogs, and consistent typography.
 
 ---
@@ -154,7 +154,7 @@ Browser-based document data extraction for scanned delivery order PDFs and image
 | **Data Visualization** | [Chart.js](https://www.chartjs.org/) + `chartjs-plugin-datalabels` | Reactive, theme-aware analytical charts and distribution graphs |
 | **3D Rendering Engine**| [Three.js (r128)](https://threejs.org/) with OrbitControls & WebGL | Interactive 3D truck cargo bays, pallet grids, and box packing |
 | **Subsystems** | React 18 (Vendored, production build) in `packing-sheet/` | Embedded complex packing list management |
-| **App Shell & PWA** | `manifest.json`, Service Worker (`sw.js` v87) | Offline caching, home-screen installation, fast reloads |
+| **App Shell & PWA** | `manifest.json`, Service Worker (`sw.js` v90) | Offline caching, home-screen installation, fast reloads |
 | **Web Server (Optional)**| Node.js + [Express](https://expressjs.com/) (`server.js`) | Optional local file server and static asset hosting |
 
 ---
@@ -219,7 +219,7 @@ do-insight-system-v5/
 ├── package.json                   # Project metadata & dependencies
 ├── package-lock.json              # Locked dependency tree
 ├── manifest.json                  # PWA web app manifest
-├── sw.js                          # Service Worker cache controller (v87)
+├── sw.js                          # Service Worker cache controller (v90)
 ├── metadata.json                  # Application metadata
 ├── README.md                      # Comprehensive system documentation
 │
