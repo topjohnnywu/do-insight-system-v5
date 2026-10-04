@@ -18,6 +18,372 @@
     <meta name="theme-color" content="#1e40af">
 
     <style>
+        /* --- Slim Modern Shadcn KPI Cards --- */
+        .slim-kpi-grid {
+            margin-bottom: 16px;
+        }
+
+        .slim-kpi-card {
+            padding: 14px 16px !important;
+            border-radius: 12px !important;
+            background: var(--surface, #18181b) !important;
+            border: 1px solid var(--border, #27272a) !important;
+            border-left: 1px solid var(--border, #27272a) !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 94px;
+            box-sizing: border-box;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .slim-kpi-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-hover, #3f3f46) !important;
+            box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.2);
+        }
+
+        .slim-kpi-card .kpi-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .slim-kpi-card .kpi-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--fg-muted, #a1a1aa);
+        }
+
+        .kpi-icon-badge {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .kpi-icon-badge.blue {
+            background: rgba(59, 130, 246, 0.12);
+            color: #3b82f6;
+        }
+
+        .kpi-icon-badge.green {
+            background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+        }
+
+        .kpi-icon-badge.purple {
+            background: rgba(139, 92, 246, 0.12);
+            color: #8b5cf6;
+        }
+
+        .kpi-icon-badge.amber {
+            background: rgba(245, 158, 11, 0.12);
+            color: #f59e0b;
+        }
+
+        .slim-kpi-card .kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            color: var(--fg, #f4f4f5);
+            margin-bottom: 4px;
+        }
+
+        .slim-kpi-card .kpi-sub-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11.5px;
+        }
+
+        .kpi-sub-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: rgba(100, 116, 139, 0.15);
+            color: var(--fg-muted, #94a3b8);
+        }
+
+        .kpi-sub-badge.green {
+            background: rgba(16, 185, 129, 0.12);
+            color: #34d399;
+        }
+
+        .kpi-sub-badge.purple {
+            background: rgba(139, 92, 246, 0.12);
+            color: #a78bfa;
+        }
+
+        .kpi-sub-badge.amber {
+            background: rgba(245, 158, 11, 0.12);
+            color: #fbbf24;
+        }
+
+        .kpi-sub-desc {
+            color: var(--fg-muted, #71717a);
+            font-size: 11px;
+        }
+
+        body.light-mode .slim-kpi-card {
+            background: #ffffff !important;
+            border-color: #e2e8f0 !important;
+        }
+
+        body.light-mode .slim-kpi-card .kpi-value {
+            color: #0f172a !important;
+        }
+
+        /* --- Consolidated Progress Split Grid --- */
+        .progress-split-grid {
+            display: grid;
+            grid-template-columns: minmax(280px, 340px) 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .progress-split-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        .overall-compact-card,
+        .category-breakdown-card {
+            border-radius: 14px !important;
+            background: var(--surface, #18181b) !important;
+            border: 1px solid var(--border, #27272a) !important;
+            padding: 16px 20px !important;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        body.light-mode .overall-compact-card,
+        body.light-mode .category-breakdown-card {
+            background: #ffffff !important;
+            border-color: #e2e8f0 !important;
+        }
+
+        .compact-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 12px;
+        }
+
+        .compact-card-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--fg, #f4f4f5);
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        body.light-mode .compact-card-title {
+            color: #0f172a !important;
+        }
+
+        .compact-card-subtitle {
+            font-size: 11.5px;
+            color: var(--fg-muted, #71717a);
+            margin: 2px 0 0 0;
+        }
+
+        /* Overall Radial Gauge */
+        .overall-gauge-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 0 0 0;
+        }
+
+        .overall-gauge-canvas {
+            width: 190px;
+            height: 95px;
+            position: relative;
+        }
+
+        .overall-gauge-center {
+            text-align: center;
+            margin-top: -10px;
+        }
+
+        .overall-gauge-val {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1;
+            color: #10b981;
+        }
+
+        .overall-gauge-sub {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--fg-muted, #a1a1aa);
+            margin-top: 4px;
+        }
+
+        .status-pill-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 9999px;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .status-pill-badge.green {
+            background: rgba(16, 185, 129, 0.12);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .status-pill-badge.amber {
+            background: rgba(245, 158, 11, 0.12);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+
+        /* Category Breakdown Horizontal Bars */
+        .category-header-badges {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .unmatched-chip {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 6px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .unmatched-chip .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+
+        .category-bars-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .category-bar-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .category-bar-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .category-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--fg, #e4e4e7);
+        }
+
+        body.light-mode .category-label {
+            color: #1e293b !important;
+        }
+
+        .category-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .category-badge-count {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            font-weight: 500;
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: var(--surface-raised, #27272a);
+            color: var(--fg-muted, #a1a1aa);
+        }
+
+        body.light-mode .category-badge-count {
+            background: #f1f5f9 !important;
+            color: #475569 !important;
+        }
+
+        .category-metrics {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-pct {
+            font-weight: 700;
+            font-size: 12.5px;
+        }
+
+        .category-pending-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: rgba(100, 116, 139, 0.12);
+            color: var(--fg-muted, #94a3b8);
+        }
+
+        .category-pending-pill.has-pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+        }
+
+        .category-progress-track {
+            height: 7px;
+            background: var(--surface-raised, #27272a);
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body.light-mode .category-progress-track {
+            background: #f1f5f9;
+        }
+
+        .category-progress-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         /* --- Modern Detailed Status Manifest Styles & Typography --- */
         .manifest-card {
             border-radius: 18px !important;
@@ -864,110 +1230,155 @@
                 </div>
             </div>
 
-            <!-- Top 4 KPI Cards Grid -->
-            <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 20px;">
-                <div class="kpi-card">
+            <!-- Top 4 Slim KPI Cards Grid -->
+            <div class="kpi-grid slim-kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                <div class="kpi-card slim-kpi-card">
                     <div class="kpi-card-header">
-                        <div class="kpi-title">Total DOs</div>
-                        <div class="kpi-icon" style="color: #3b82f6;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                        <span class="kpi-title">Total DOs</span>
+                        <div class="kpi-icon-badge blue">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                         </div>
                     </div>
                     <div class="kpi-value tabular-nums" id="kpi-total">0</div>
-                    <div class="kpi-sub">Filter Context</div>
+                    <div class="kpi-sub-row">
+                        <span class="kpi-sub-badge" id="kpi-breakdown-sub">Official DOs</span>
+                    </div>
                 </div>
 
-                <div class="kpi-card green">
+                <div class="kpi-card slim-kpi-card">
                     <div class="kpi-card-header">
-                        <div class="kpi-title">Completed</div>
-                        <div class="kpi-icon" style="color: #10b981;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        <span class="kpi-title">Completed</span>
+                        <div class="kpi-icon-badge green">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                         </div>
                     </div>
-                    <div class="kpi-value tabular-nums" id="kpi-completed">0</div>
-                    <div class="kpi-sub tabular-nums" id="pct-completed">0%</div>
+                    <div class="kpi-value tabular-nums text-emerald" id="kpi-completed" style="color: #10b981;">0</div>
+                    <div class="kpi-sub-row">
+                        <span class="kpi-sub-badge green tabular-nums" id="pct-completed">0%</span>
+                        <span class="kpi-sub-desc">Scanned</span>
+                    </div>
                 </div>
 
-                <div class="kpi-card purple">
+                <div class="kpi-card slim-kpi-card">
                     <div class="kpi-card-header">
-                        <div class="kpi-title">In Process</div>
-                        <div class="kpi-icon" style="color: #8b5cf6;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        <span class="kpi-title">In Process</span>
+                        <div class="kpi-icon-badge purple">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                         </div>
                     </div>
-                    <div class="kpi-value tabular-nums" id="kpi-process">0</div>
-                    <div class="kpi-sub tabular-nums" id="pct-process">0%</div>
+                    <div class="kpi-value tabular-nums text-purple" id="kpi-process" style="color: #8b5cf6;">0</div>
+                    <div class="kpi-sub-row">
+                        <span class="kpi-sub-badge purple tabular-nums" id="pct-process">0%</span>
+                        <span class="kpi-sub-desc">Active</span>
+                    </div>
                 </div>
 
-                <div class="kpi-card yellow">
+                <div class="kpi-card slim-kpi-card">
                     <div class="kpi-card-header">
-                        <div class="kpi-title">Pending</div>
-                        <div class="kpi-icon" style="color: #f59e0b;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span class="kpi-title">Pending</span>
+                        <div class="kpi-icon-badge amber">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                         </div>
                     </div>
-                    <div class="kpi-value tabular-nums" id="kpi-pending">0</div>
-                    <div class="kpi-sub tabular-nums" id="pct-pending">0%</div>
+                    <div class="kpi-value tabular-nums text-amber" id="kpi-pending" style="color: #f59e0b;">0</div>
+                    <div class="kpi-sub-row">
+                        <span class="kpi-sub-badge amber tabular-nums" id="pct-pending">0%</span>
+                        <span class="kpi-sub-desc">Waiting</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Mini Summary Dashboard Strip -->
-            <div class="status-summary-strip">
-                <div class="status-strip-item">
-                    <span class="status-strip-label"><span class="status-strip-dot" style="color: #ef4444;"></span>Unmatched</span>
-                    <span id="sum-unmatched" class="status-strip-value tabular-nums" style="color: #ef4444;">0</span>
-                </div>
-                <div class="status-strip-divider"></div>
-                <div class="status-strip-item">
-                    <span class="status-strip-label"><span class="status-strip-dot" style="color: #3b82f6;"></span>Big</span>
-                    <span id="cat-big" class="status-strip-value tabular-nums" style="color: #60a5fa;">0</span>
-                </div>
-                <div class="status-strip-divider"></div>
-                <div class="status-strip-item">
-                    <span class="status-strip-label"><span class="status-strip-dot" style="color: #f59e0b;"></span>Small</span>
-                    <span id="cat-small" class="status-strip-value tabular-nums" style="color: #fbbf24;">0</span>
-                </div>
-                <div class="status-strip-divider"></div>
-                <div class="status-strip-item">
-                    <span class="status-strip-label"><span class="status-strip-dot" style="color: #10b981;"></span>Mix</span>
-                    <span id="cat-mix" class="status-strip-value tabular-nums" style="color: #34d399;">0</span>
-                </div>
-            </div>
-
-            <!-- Progress Gauges Horizontal Row -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                <div class="chart-card gauge-card">
-                    <h3 class="gauge-card-title">Overall Completion Gauge</h3>
-                    <div class="gauge-canvas-container">
-                        <canvas id="overallMeterChart"></canvas>
+            <!-- Consolidated Progress Split Grid (2 Cards) -->
+            <div class="progress-split-grid">
+                <!-- Card 1: Overall Completion (Left) -->
+                <div class="chart-card overall-compact-card">
+                    <div class="compact-card-header">
+                        <div>
+                            <h3 class="compact-card-title">Overall Completion</h3>
+                            <p class="compact-card-subtitle">Total scanning progress</p>
+                        </div>
+                        <span id="overallStatusBadge" class="status-pill-badge green">0% Complete</span>
                     </div>
-                    <div id="overallMeterText" class="gauge-readout-large tabular-nums">0%</div>
+                    <div class="overall-gauge-wrapper">
+                        <div class="overall-gauge-canvas">
+                            <canvas id="overallMeterChart"></canvas>
+                        </div>
+                        <div class="overall-gauge-center">
+                            <div id="overallMeterText" class="overall-gauge-val tabular-nums">0%</div>
+                            <div id="overallMeterRatio" class="overall-gauge-sub tabular-nums">0 / 0 DOs</div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="chart-card gauge-card">
-                    <h3 class="gauge-card-title">BIG DO Progress</h3>
-                    <div class="gauge-canvas-container">
-                        <canvas id="bigTypeChart"></canvas>
+                <!-- Card 2: Category Progress Breakdown (Right) -->
+                <div class="chart-card category-breakdown-card">
+                    <div class="compact-card-header">
+                        <div>
+                            <h3 class="compact-card-title">Category Progress Breakdown</h3>
+                            <p class="compact-card-subtitle">Scanning velocity across DO classifications</p>
+                        </div>
+                        <div class="category-header-badges">
+                            <span class="unmatched-chip" id="unmatchedChip">
+                                <span class="dot"></span> Unmatched: <strong id="sum-unmatched" class="tabular-nums">0</strong>
+                            </span>
+                        </div>
                     </div>
-                    <div id="bigPctText" class="gauge-readout tabular-nums" style="color: #8b5cf6;">0%</div>
-                    <div id="bigPendingText" class="gauge-subtext tabular-nums">0 DO Pending Left</div>
-                </div>
 
-                <div class="chart-card gauge-card">
-                    <h3 class="gauge-card-title">SMALL DO Progress</h3>
-                    <div class="gauge-canvas-container">
-                        <canvas id="smallTypeChart"></canvas>
-                    </div>
-                    <div id="smallPctText" class="gauge-readout tabular-nums" style="color: #3b82f6;">0%</div>
-                    <div id="smallPendingText" class="gauge-subtext tabular-nums">0 DO Pending Left</div>
-                </div>
+                    <div class="category-bars-list">
+                        <!-- BIG DO Progress Bar -->
+                        <div class="category-bar-row">
+                            <div class="category-bar-info">
+                                <span class="category-label">
+                                    <span class="category-dot" style="background: #8b5cf6;"></span>
+                                    <strong>BIG DO</strong>
+                                    <span class="category-badge-count tabular-nums" id="cat-big-count">0 DOs</span>
+                                </span>
+                                <div class="category-metrics">
+                                    <span class="category-pct tabular-nums" id="bigPctText" style="color: #a78bfa;">0%</span>
+                                    <span class="category-pending-pill tabular-nums" id="bigPendingText">0 pending</span>
+                                </div>
+                            </div>
+                            <div class="category-progress-track">
+                                <div class="category-progress-fill" id="bigProgressBar" style="width: 0%; background: #8b5cf6;"></div>
+                            </div>
+                        </div>
 
-                <div class="chart-card gauge-card">
-                    <h3 class="gauge-card-title">MIX DO Progress</h3>
-                    <div class="gauge-canvas-container">
-                        <canvas id="mixTypeChart"></canvas>
+                        <!-- SMALL DO Progress Bar -->
+                        <div class="category-bar-row">
+                            <div class="category-bar-info">
+                                <span class="category-label">
+                                    <span class="category-dot" style="background: #3b82f6;"></span>
+                                    <strong>SMALL DO</strong>
+                                    <span class="category-badge-count tabular-nums" id="cat-small-count">0 DOs</span>
+                                </span>
+                                <div class="category-metrics">
+                                    <span class="category-pct tabular-nums" id="smallPctText" style="color: #60a5fa;">0%</span>
+                                    <span class="category-pending-pill tabular-nums" id="smallPendingText">0 pending</span>
+                                </div>
+                            </div>
+                            <div class="category-progress-track">
+                                <div class="category-progress-fill" id="smallProgressBar" style="width: 0%; background: #3b82f6;"></div>
+                            </div>
+                        </div>
+
+                        <!-- MIX DO Progress Bar -->
+                        <div class="category-bar-row">
+                            <div class="category-bar-info">
+                                <span class="category-label">
+                                    <span class="category-dot" style="background: #f59e0b;"></span>
+                                    <strong>MIX DO</strong>
+                                    <span class="category-badge-count tabular-nums" id="cat-mix-count">0 DOs</span>
+                                </span>
+                                <div class="category-metrics">
+                                    <span class="category-pct tabular-nums" id="mixPctText" style="color: #fbbf24;">0%</span>
+                                    <span class="category-pending-pill tabular-nums" id="mixPendingText">0 pending</span>
+                                </div>
+                            </div>
+                            <div class="category-progress-track">
+                                <div class="category-progress-fill" id="mixProgressBar" style="width: 0%; background: #f59e0b;"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div id="mixPctText" class="gauge-readout tabular-nums" style="color: #f59e0b;">0%</div>
                 </div>
             </div>
 
@@ -1035,9 +1446,9 @@
             </div>
         </div> <!-- End .main-content -->
     </div> <!-- End .app-container -->
-    <script src="js/parsers.js?v=81"></script>
-    <script src="js/charts.js?v=81"></script>
-    <script type="module" src="js/components/ui-select.js?v=81"></script>
+    <script src="js/parsers.js?v=85"></script>
+    <script src="js/charts.js?v=85"></script>
+    <script type="module" src="js/components/ui-select.js?v=85"></script>
     <script>
         let RawPayload = JSON.parse(localStorage.getItem("ShippingInsightData")) || [];
         let StatusChartObj = null;
@@ -1434,16 +1845,22 @@
             document.getElementById("pct-pending").innerText = OfficialTotalCount > 0 
                 ? ((PendingCount / OfficialTotalCount)*100).toFixed(1) + "%" : "0%";
 
-            // === Mini Summary Strip: Unmatched + Category counts (MIX rolls into Big & Small, matching gauge logic) ===
+            // === Category Counts & Subtitle Badges ===
             const UnmatchedCount = Filtered.filter(item => item.doType === "UNMATCHED DO").length;
             const BigCount = Filtered.filter(item => item.doType === "BIG" || item.doType === "MIX").length;
             const SmallCount = Filtered.filter(item => item.doType === "SMALL" || item.doType === "MIX").length;
             const MixCount = Filtered.filter(item => item.doType === "MIX").length;
 
-            document.getElementById("sum-unmatched").innerText = UnmatchedCount;
-            document.getElementById("cat-big").innerText = BigCount;
-            document.getElementById("cat-small").innerText = SmallCount;
-            document.getElementById("cat-mix").innerText = MixCount;
+            const sumUnmatchedEl = document.getElementById("sum-unmatched");
+            if (sumUnmatchedEl) sumUnmatchedEl.innerText = UnmatchedCount;
+            const unmatchedChip = document.getElementById("unmatchedChip");
+            if (unmatchedChip) {
+                unmatchedChip.style.display = UnmatchedCount > 0 ? "inline-flex" : "none";
+            }
+            const breakdownSub = document.getElementById("kpi-breakdown-sub");
+            if (breakdownSub) {
+                breakdownSub.innerText = `${BigCount} Big · ${SmallCount} Small · ${MixCount} Mix`;
+            }
 
             // Update manifest count badge
             const countBadge = document.getElementById("manifestCountBadge");
@@ -1584,9 +2001,27 @@
             const OverallPct = TotalAllDos > 0 ? Math.round((TotalAllCompleted / TotalAllDos) * 100) : 0;
             const overallGaugeColor = getDynamicGaugeColor(OverallPct);
             const isLightMode = isLightTheme();
-            const overallTrackColor = isLightMode ? '#e2e8f0' : '#1e293b';
+            const overallTrackColor = isLightMode ? '#e2e8f0' : '#27272a';
 
-            document.getElementById("overallMeterText").innerText = OverallPct + "% (" + TotalAllCompleted + "/" + TotalAllDos + ")";
+            const overallMeterText = document.getElementById("overallMeterText");
+            if (overallMeterText) {
+                overallMeterText.innerText = OverallPct + "%";
+                overallMeterText.style.color = overallGaugeColor;
+            }
+            const overallMeterRatio = document.getElementById("overallMeterRatio");
+            if (overallMeterRatio) {
+                overallMeterRatio.innerText = TotalAllCompleted + " / " + TotalAllDos + " DOs Scanned";
+            }
+            const overallStatusBadge = document.getElementById("overallStatusBadge");
+            if (overallStatusBadge) {
+                if (OverallPct === 100 && TotalAllDos > 0) {
+                    overallStatusBadge.innerText = "100% Complete";
+                    overallStatusBadge.className = "status-pill-badge green";
+                } else {
+                    overallStatusBadge.innerText = OverallPct + "% In Progress";
+                    overallStatusBadge.className = "status-pill-badge amber";
+                }
+            }
 
             const currentFilterKey = `T:${SelectedType}_TR:${SelectedTruck}_H:${SelectedHub}_S:${SearchTerm}`;
 
@@ -1607,7 +2042,6 @@
             }
 
             const safeOverallRemaining = TotalAllDos === 0 ? 1 : Math.max(0, TotalAllDos - TotalAllCompleted);
-
             const overallFinalData = [TotalAllCompleted, safeOverallRemaining];
 
             if (!OverallMeterObj) {
@@ -1626,38 +2060,76 @@
                         maintainAspectRatio: false,
                         circumference: 180,
                         rotation: 270,
-                        cutout: '75%',
+                        cutout: '78%',
                         animation: {
-                            duration: 2000,
+                            duration: 1200,
                             animateRotate: true,
-                            animateScale: true,
+                            animateScale: false,
                             easing: 'easeOutQuart'
                         },
-                        plugins: { legend: { display: false } }
+                        plugins: { legend: { display: false }, tooltip: { enabled: false } }
                     }
                 });
             } else {
                 OverallMeterObj.data.datasets[0].backgroundColor = [overallGaugeColor, overallTrackColor];
-                OverallMeterObj.data.datasets[0].data = [0, (overallFinalData[0] + overallFinalData[1]) || 1];
-                OverallMeterObj.update('none');
-
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        OverallMeterObj.data.datasets[0].data = overallFinalData;
-                        OverallMeterObj.update();
-                    });
-                });
+                OverallMeterObj.data.datasets[0].data = overallFinalData;
+                OverallMeterObj.update();
             }
 
-            // === REVISED LOGIC BELOW: MIX DO totals included into BIG and SMALL Doughnuts ===
-            const BigPendingLeft = (TypeMetrics.BIG.total + TypeMetrics.MIX.total) - (TypeMetrics.BIG.completed + TypeMetrics.MIX.completed);
-            const SmallPendingLeft = (TypeMetrics.SMALL.total + TypeMetrics.MIX.total) - (TypeMetrics.SMALL.completed + TypeMetrics.MIX.completed);
-            document.getElementById("bigPendingText").innerText = BigPendingLeft + " DO Pending Left";
-            document.getElementById("smallPendingText").innerText = SmallPendingLeft + " DO Pending Left";
+            // === Category Breakdown Progress Bars (BIG, SMALL, MIX) ===
+            const BigTotal = TypeMetrics.BIG.total + TypeMetrics.MIX.total;
+            const BigCompleted = TypeMetrics.BIG.completed + TypeMetrics.MIX.completed;
+            const BigPendingLeft = Math.max(0, BigTotal - BigCompleted);
+            const BigPct = BigTotal > 0 ? Math.round((BigCompleted / BigTotal) * 100) : 0;
 
-            BigTypeChartObj = buildProgressDoughnut('bigTypeChart', BigTypeChartObj, TypeMetrics.BIG.completed + TypeMetrics.MIX.completed, TypeMetrics.BIG.total + TypeMetrics.MIX.total, '#8b5cf6', 'bigPctText');
-            SmallTypeChartObj = buildProgressDoughnut('smallTypeChart', SmallTypeChartObj, TypeMetrics.SMALL.completed + TypeMetrics.MIX.completed, TypeMetrics.SMALL.total + TypeMetrics.MIX.total, '#3b82f6', 'smallPctText');
-            MixTypeChartObj = buildProgressDoughnut('mixTypeChart', MixTypeChartObj, TypeMetrics.MIX.completed, TypeMetrics.MIX.total, '#f59e0b', 'mixPctText');
+            const SmallTotal = TypeMetrics.SMALL.total + TypeMetrics.MIX.total;
+            const SmallCompleted = TypeMetrics.SMALL.completed + TypeMetrics.MIX.completed;
+            const SmallPendingLeft = Math.max(0, SmallTotal - SmallCompleted);
+            const SmallPct = SmallTotal > 0 ? Math.round((SmallCompleted / SmallTotal) * 100) : 0;
+
+            const MixTotal = TypeMetrics.MIX.total;
+            const MixCompleted = TypeMetrics.MIX.completed;
+            const MixPendingLeft = Math.max(0, MixTotal - MixCompleted);
+            const MixPct = MixTotal > 0 ? Math.round((MixCompleted / MixTotal) * 100) : 0;
+
+            // BIG DO
+            const catBigCount = document.getElementById("cat-big-count");
+            if (catBigCount) catBigCount.innerText = `${BigCompleted}/${BigTotal} DOs`;
+            const bigPctEl = document.getElementById("bigPctText");
+            if (bigPctEl) bigPctEl.innerText = `${BigPct}%`;
+            const bigPendEl = document.getElementById("bigPendingText");
+            if (bigPendEl) {
+                bigPendEl.innerText = BigPendingLeft === 0 ? "0 pending" : `${BigPendingLeft} pending`;
+                bigPendEl.className = "category-pending-pill tabular-nums" + (BigPendingLeft > 0 ? " has-pending" : "");
+            }
+            const bigBar = document.getElementById("bigProgressBar");
+            if (bigBar) bigBar.style.width = `${BigPct}%`;
+
+            // SMALL DO
+            const catSmallCount = document.getElementById("cat-small-count");
+            if (catSmallCount) catSmallCount.innerText = `${SmallCompleted}/${SmallTotal} DOs`;
+            const smallPctEl = document.getElementById("smallPctText");
+            if (smallPctEl) smallPctEl.innerText = `${SmallPct}%`;
+            const smallPendEl = document.getElementById("smallPendingText");
+            if (smallPendEl) {
+                smallPendEl.innerText = SmallPendingLeft === 0 ? "0 pending" : `${SmallPendingLeft} pending`;
+                smallPendEl.className = "category-pending-pill tabular-nums" + (SmallPendingLeft > 0 ? " has-pending" : "");
+            }
+            const smallBar = document.getElementById("smallProgressBar");
+            if (smallBar) smallBar.style.width = `${SmallPct}%`;
+
+            // MIX DO
+            const catMixCount = document.getElementById("cat-mix-count");
+            if (catMixCount) catMixCount.innerText = `${MixCompleted}/${MixTotal} DOs`;
+            const mixPctEl = document.getElementById("mixPctText");
+            if (mixPctEl) mixPctEl.innerText = `${MixPct}%`;
+            const mixPendEl = document.getElementById("mixPendingText");
+            if (mixPendEl) {
+                mixPendEl.innerText = MixPendingLeft === 0 ? "0 pending" : `${MixPendingLeft} pending`;
+                mixPendEl.className = "category-pending-pill tabular-nums" + (MixPendingLeft > 0 ? " has-pending" : "");
+            }
+            const mixBar = document.getElementById("mixProgressBar");
+            if (mixBar) mixBar.style.width = `${MixPct}%`;
         }
 
         window.onload = function() {

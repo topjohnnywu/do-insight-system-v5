@@ -28,7 +28,7 @@ Engineered with pure **HTML5, modern CSS3, and vanilla JavaScript (ES6 Modules)*
 - **🔍 Real-Time KPI Recalculation**: Live metric aggregation (Total DOs, Quantity, Volume m³, Gross Weight kg, Pallet Equivalents) reacting instantaneously to multi-column filters, search queries, and status toggles.
 - **⚡ Quick Actions & Remarks Engine**: 1-click batch status tagging (`SELF COLLECT`, `HOLD`, `LOCAL DELIVERY`, `DIRECT DELIVERY`, `URGENT`, `CANCELLED`) with instant visual feedback and audit log preservation.
 - **📑 Formatted Multi-Sheet Excel Exports**: Generates styled spreadsheets with customized headers, cell alignments, auto-fit column widths, freeze panes, and aggregate summary rows via `xlsx-js-style` and ExcelJS.
-- **📱 PWA & Offline Support**: Built-in Service Worker caching (`sw.js` v84) and Web App Manifest (`manifest.json`) enabling installability on desktop or mobile and offline operation.
+- **📱 PWA & Offline Support**: Built-in Service Worker caching (`sw.js` v85) and Web App Manifest (`manifest.json`) enabling installability on desktop or mobile and offline operation.
 - **🧩 Shadcn-Inspired Design Tokens**: Clean, minimalist UI design system with unified buttons (`.btn-primary`, `.action-btn`, size variants `.sm`, `.xs`, `.lg`), standardized alert dialogs, and consistent typography.
 
 ---
@@ -153,7 +153,7 @@ Browser-based document data extraction for scanned delivery order PDFs and image
 | **Data Visualization** | [Chart.js](https://www.chartjs.org/) + `chartjs-plugin-datalabels` | Reactive, theme-aware analytical charts and distribution graphs |
 | **3D Rendering Engine**| [Three.js (r128)](https://threejs.org/) with OrbitControls & WebGL | Interactive 3D truck cargo bays, pallet grids, and box packing |
 | **Subsystems** | React 18 (Vendored, production build) in `packing-sheet/` | Embedded complex packing list management |
-| **App Shell & PWA** | `manifest.json`, Service Worker (`sw.js` v84) | Offline caching, home-screen installation, fast reloads |
+| **App Shell & PWA** | `manifest.json`, Service Worker (`sw.js` v85) | Offline caching, home-screen installation, fast reloads |
 | **Web Server (Optional)**| Node.js + [Express](https://expressjs.com/) (`server.js`) | Optional local file server and static asset hosting |
 
 ---
@@ -218,7 +218,7 @@ do-insight-system-v5/
 ├── package.json                   # Project metadata & dependencies
 ├── package-lock.json              # Locked dependency tree
 ├── manifest.json                  # PWA web app manifest
-├── sw.js                          # Service Worker cache controller (v84)
+├── sw.js                          # Service Worker cache controller (v85)
 ├── metadata.json                  # Application metadata
 ├── README.md                      # Comprehensive system documentation
 │
@@ -335,6 +335,13 @@ do-insight-system-v5/
 - **Intelligent Slot Detection**: Pre-flight inspection in `js/parsers.js` inspects workbook sheet structures (e.g. differentiating DO Summary sheets from "Batch 01" / "Insert Batch" tabs) to catch accidental mismatches before parsing.
 - **Auto-Redirect Modal**: Triggers a non-destructive alert dialog offering to automatically redirect wrongly slotted spreadsheets to their intended module.
 - **Smart File Date Synchronization**: Uploaded file date chips seamlessly synchronize with dashboard date filters and persist active session state.
+
+### 9. Shipping Insight High-Density Layout Redesign
+- **Slim Modern Shadcn KPI Cards**: Streamlined top statistics into 4 compact, high-density metric cards (~94px) with subtle tinted icon badges, crisp numbers, and integrated DO category subtitles, eliminating bulky empty card spaces.
+- **Consolidated Progress Split Grid**: Replaced 4 massive donut gauge cards with a sleek two-column progress panel:
+  - *Left*: Refined semi-circular Overall Completion meter with live percentage readout and scanned ratio.
+  - *Right*: Category Progress Breakdown featuring horizontal animated progress bars for **BIG DO**, **SMALL DO**, and **MIX DO**, complete with counts and pending status badges.
+- **Immediate Table Visibility**: Reclaimed over 300px of vertical viewport height, bringing the Detailed Status Manifest table directly above the fold on desktop and laptop displays.
 
 ---
 

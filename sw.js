@@ -1,8 +1,8 @@
 // Bump this version on EVERY code deploy/edit. A new version forces the
 // browser to install a fresh service worker and (via `activate`) delete the
 // old cache, so users always receive the latest HTML/CSS/JS instead of stale
-// cached copies. v84: refined Direct Delivery Candidates (> 5 m³) chart title.
-const CACHE_NAME = 'planner-cache-v84';
+// cached copies. v85: compact modern UI layout for Shipping Insight dashboard.
+const CACHE_NAME = 'planner-cache-v85';
 const urlsToCache = [
     '/',
     '/index.html',
