@@ -1,8 +1,8 @@
 // Bump this version on EVERY code deploy/edit. A new version forces the
 // browser to install a fresh service worker and (via `activate`) delete the
 // old cache, so users always receive the latest HTML/CSS/JS instead of stale
-// cached copies. v83: upgraded Direct Delivery chart to shadcn vertical grouped dual-bar design.
-const CACHE_NAME = 'planner-cache-v83';
+// cached copies. v84: refined Direct Delivery Candidates (> 5 m³) chart title.
+const CACHE_NAME = 'planner-cache-v84';
 const urlsToCache = [
     '/',
     '/index.html',
