@@ -874,6 +874,22 @@ html[data-sidebar-autohide="true"] .sidebar .sidebar-nav-item {
     transition: all 0.2s ease;
 }
 
+/* Ensure icons are centered in collapsed icon mode */
+html[data-sidebar-autohide="true"] .sidebar:not(:hover):not(.is-hovered) .sidebar-nav-item svg {
+    margin: 0 auto;
+    flex-shrink: 0;
+}
+
+/* Fully suppress menu badge in collapsed icon mode to prevent flex misalignment */
+html[data-sidebar-autohide="true"] .sidebar:not(:hover):not(.is-hovered) .sidebar-menu-badge {
+    display: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    width: 0 !important;
+    max-width: 0 !important;
+}
+
 html[data-sidebar-autohide="true"] .sidebar:hover .sidebar-nav-item,
 html[data-sidebar-autohide="true"] .sidebar.is-hovered .sidebar-nav-item {
     justify-content: flex-start;
@@ -897,13 +913,24 @@ html[data-sidebar-autohide="true"] .sidebar .sidebar-footer-text {
 html[data-sidebar-autohide="true"] .sidebar:hover .sidebar-nav-item span,
 html[data-sidebar-autohide="true"] .sidebar:hover .sidebar-group-label,
 html[data-sidebar-autohide="true"] .sidebar:hover .sidebar-section-label,
-html[data-sidebar-autohide="true"] .sidebar:hover .sidebar-menu-badge,
 html[data-sidebar-autohide="true"] .sidebar:hover .sidebar-footer-text,
 html[data-sidebar-autohide="true"] .sidebar.is-hovered .sidebar-nav-item span,
 html[data-sidebar-autohide="true"] .sidebar.is-hovered .sidebar-group-label,
 html[data-sidebar-autohide="true"] .sidebar.is-hovered .sidebar-section-label,
-html[data-sidebar-autohide="true"] .sidebar.is-hovered .sidebar-menu-badge,
 html[data-sidebar-autohide="true"] .sidebar.is-hovered .sidebar-footer-text {
+    opacity: 1;
+    max-width: 200px;
+    pointer-events: auto;
+    transition: opacity 0.2s 0.08s ease, max-width 0.25s ease;
+}
+
+/* Restore menu badge when hovered */
+html[data-sidebar-autohide="true"] .sidebar:hover .sidebar-menu-badge,
+html[data-sidebar-autohide="true"] .sidebar.is-hovered .sidebar-menu-badge {
+    display: inline-flex !important;
+    margin-left: auto !important;
+    padding: 2px 6px !important;
+    border: 1px solid rgba(16, 185, 129, 0.35) !important;
     opacity: 1;
     max-width: 200px;
     pointer-events: auto;
