@@ -6,7 +6,6 @@
 [![Zero-Bundler](https://img.shields.io/badge/Architecture-Zero%20Build%20%7C%20Vanilla%20ES6-orange.svg)](https://github.com/topjohnnywu/do-insight-system-v5)
 [![Privacy First](https://img.shields.io/badge/Data%20Privacy-100%25%20Client--Side-brightgreen.svg)](https://github.com/topjohnnywu/do-insight-system-v5)
 
-> **GitHub Repository Description (Copy & Paste):**  
 > *A high-performance, enterprise-grade logistics analytics and operational planning platform for Delivery Order (DO) management, 3D cargo load simulation, direct delivery candidate analytics, multi-wave batch picking, and shipping intelligence. Zero build tools, 100% client-side privacy.*
 
 ---
