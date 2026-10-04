@@ -625,9 +625,9 @@ body::after {
     position: sticky;
     top: 0;
     height: 100vh;
-    width: 250px;
-    min-width: 250px;
-    max-width: 250px;
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
     flex-shrink: 0;
     overflow-y: auto;
     overflow-x: hidden;
@@ -773,10 +773,18 @@ body::after {
     color: var(--accent);
 }
 
+.sidebar-nav-item > span:first-of-type {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
 /* Shadcn-Style Sidebar Menu Badge */
 .sidebar-menu-badge {
     margin-left: auto;
-    font-size: 9px;
+    flex-shrink: 0;
+    font-size: 8.5px;
     font-weight: 700;
     letter-spacing: 0.04em;
     padding: 2px 6px;
@@ -826,10 +834,10 @@ html[data-sidebar-autohide="true"] .sidebar {
 
 html[data-sidebar-autohide="true"] .sidebar:hover,
 html[data-sidebar-autohide="true"] .sidebar.is-hovered {
-    width: 250px;
-    min-width: 250px;
-    max-width: 250px;
-    padding: 24px 16px;
+    width: 275px;
+    min-width: 275px;
+    max-width: 275px;
+    padding: 24px 14px;
     box-shadow: 14px 0 35px rgba(0, 0, 0, 0.65), 0 0 0 1px var(--border);
     background-color: var(--sidebar-bg);
 }
@@ -893,8 +901,8 @@ html[data-sidebar-autohide="true"] .sidebar:not(:hover):not(.is-hovered) .sideba
 html[data-sidebar-autohide="true"] .sidebar:hover .sidebar-nav-item,
 html[data-sidebar-autohide="true"] .sidebar.is-hovered .sidebar-nav-item {
     justify-content: flex-start;
-    padding: 11px 14px;
-    gap: 12px;
+    padding: 10px 12px;
+    gap: 10px;
 }
 
 html[data-sidebar-autohide="true"] .sidebar .sidebar-nav-item span,
@@ -932,7 +940,8 @@ html[data-sidebar-autohide="true"] .sidebar.is-hovered .sidebar-menu-badge {
     padding: 2px 6px !important;
     border: 1px solid rgba(16, 185, 129, 0.35) !important;
     opacity: 1;
-    max-width: 200px;
+    max-width: 120px;
+    flex-shrink: 0 !important;
     pointer-events: auto;
     transition: opacity 0.2s 0.08s ease, max-width 0.25s ease;
 }

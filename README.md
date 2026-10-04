@@ -28,7 +28,7 @@ Engineered with pure **HTML5, modern CSS3, and vanilla JavaScript (ES6 Modules)*
 - **🔍 Real-Time KPI Recalculation**: Live metric aggregation (Total DOs, Quantity, Volume m³, Gross Weight kg, Pallet Equivalents) reacting instantaneously to multi-column filters, search queries, and status toggles.
 - **⚡ Quick Actions & Remarks Engine**: 1-click batch status tagging (`SELF COLLECT`, `HOLD`, `LOCAL DELIVERY`, `DIRECT DELIVERY`, `URGENT`, `CANCELLED`) with instant visual feedback and audit log preservation.
 - **📑 Formatted Multi-Sheet Excel Exports**: Generates styled spreadsheets with customized headers, cell alignments, auto-fit column widths, freeze panes, and aggregate summary rows via `xlsx-js-style` and ExcelJS.
-- **📱 PWA & Offline Support**: Built-in Service Worker caching (`sw.js` v87) and Web App Manifest (`manifest.json`) enabling installability on desktop or mobile and offline operation.
+- **📱 PWA & Offline Support**: Built-in Service Worker caching (`sw.js` v88) and Web App Manifest (`manifest.json`) enabling installability on desktop or mobile and offline operation.
 - **🧩 Shadcn-Inspired Design Tokens**: Clean, minimalist UI design system with unified buttons (`.btn-primary`, `.action-btn`, size variants `.sm`, `.xs`, `.lg`), standardized alert dialogs, and consistent typography.
 
 ---
