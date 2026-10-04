@@ -1,8 +1,8 @@
 // Bump this version on EVERY code deploy/edit. A new version forces the
 // browser to install a fresh service worker and (via `activate`) delete the
 // old cache, so users always receive the latest HTML/CSS/JS instead of stale
-// cached copies. v85: compact modern UI layout for Shipping Insight dashboard.
-const CACHE_NAME = 'planner-cache-v85';
+// cached copies. v86: high-contrast status badge and metric pills in light mode.
+const CACHE_NAME = 'planner-cache-v86';
 const urlsToCache = [
     '/',
     '/index.html',
