@@ -121,11 +121,12 @@ Time-series activity tracking comparing daily, weekly, and monthly delivery orde
   - Moving averages and trend forecasting for logistics capacity planning.
 
 ### 12. 🏆 Challenger List (`challenger_list.html`)
-Exception tracking for aged, delayed, or high-risk orders requiring escalated operational attention.
+Dedicated extraction and manifest generator for **Challenger** consignee delivery orders from SONY outbound route logs.
 - **Features**:
-  - Dynamic priority scoring based on aging days, customer tier, and delivery hold reasons.
-  - Filterable action list for operations and customer support follow-up.
-  - Custom remarks and status updates with confirm dialog workflows.
+  - Automated scanning of `SONY - ROUTE OUTBOUND` files (`.xlsx`, `.csv`) to filter and extract all DO line items destined for **Challenger** consignee branches.
+  - Extracts key operational fields: Sequence No (`Seq`), Consignee Name (`Consignee`), Item Code (`Item`), Item Description (`Item Desc`), and Quantity (`Ship_Qua`).
+  - Multi-file batch upload support with automatic aggregation and real-time total quantity and DO counters.
+  - Formatted Excel export (`.xlsx`) via `xlsx-js-style` preserving headers and table layouts for delivery dispatch teams.
 
 ### 13. 📋 Packing List (`packing_sheet.html`)
 Comprehensive packing details sheet embedding a dedicated React-based packing management engine.
@@ -233,7 +234,7 @@ do-insight-system-v5/
 ├── shipping_insight.html          # 9. Shipping Insight Analytics
 ├── batch_analytics.html           # 10. Batch Picking Analytics
 ├── do_activity_trend.html         # 11. DO Activity Trend
-├── challenger_list.html           # 12. Challenger Exception Tracker
+├── challenger_list.html           # 12. Challenger List Generator (SONY Outbound)
 ├── packing_sheet.html             # 13. Packing List (React wrapper)
 ├── ocr_scanner.html               # 14. OCR Document Scanner
 │
@@ -252,7 +253,7 @@ do-insight-system-v5/
 │   ├── settings.js                # Universal theme, font, zoom & shadcn dialog engine
 │   ├── batch_analytics.js         # Logic: Batch picking analytics
 │   ├── batch_charts.js            # Visualizations: Batch wave performance
-│   ├── challenger_list.js         # Logic: Challenger exception tracking
+│   ├── challenger_list.js         # Logic: Challenger consignee DO extraction & export
 │   ├── do_activity_trend.js       # Logic: Time-series activity trend analysis
 │   ├── do_load_planner.js         # Logic: DO pallet allocation planner
 │   ├── do_summary_generator.js    # Logic: Summary generator, filters & quick remarks
