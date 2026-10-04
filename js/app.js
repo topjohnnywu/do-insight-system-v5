@@ -113,6 +113,39 @@ function formatFileChipLabel(rawName, contextPrefix) {
 }
 window.formatFileChipLabel = formatFileChipLabel;
 
+// Extract date in DD/MM/YYYY format from a file name
+function extractFileDate(fileName) {
+    if (!fileName || fileName === 'ALL') return 'ALL';
+    const clean = String(fileName).replace(/\.(xlsm|xlsx|xls|csv)$/i, '').trim();
+
+    // Pattern A: YYYY[-_]?MM[-_]?DD (e.g. 2026-08-25, 2026_08_25, 20260825)
+    const ymdMatch = clean.match(/(?:^|\D)(20\d{2})[-_]?(\d{2})[-_]?(\d{2})(?:\D|$)/);
+    if (ymdMatch) {
+        const y = parseInt(ymdMatch[1], 10);
+        const m = parseInt(ymdMatch[2], 10);
+        const d = parseInt(ymdMatch[3], 10);
+        if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+            return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+        }
+    }
+
+    // Pattern B: DD[-_]?MM[-_]?YYYY (e.g. 25082026, 25-08-2026, 25_08_2026)
+    if (!formattedDateHelper(clean)) {
+        const dmyMatch = clean.match(/(?:^|\D)(\d{2})[-_]?(\d{2})[-_]?(20\d{2})(?:\D|$)/);
+        if (dmyMatch) {
+            const d = parseInt(dmyMatch[1], 10);
+            const m = parseInt(dmyMatch[2], 10);
+            const y = parseInt(dmyMatch[3], 10);
+            if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+                return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+            }
+        }
+    }
+    return null;
+}
+function formattedDateHelper() { return false; }
+window.extractFileDate = extractFileDate;
+
 // Update memory status badge with clean chip pills and individual ✕ remove buttons
 function updateMemoryBadge() {
     const BadgeElement = document.getElementById("memoryStatusBadge");
@@ -2019,8 +2052,58 @@ function refreshDashboard() {
     renderRemarksOverview(DataHoarderArray);
 }
 
+let isSyncingFileFilters = false;
+
 // Filter dashboard data by specific uploaded file
-function filterByFile(selectedFile, chipElement = null) {
+async function filterByFile(selectedFile = null, chipElement = null, isUserClick = true) {
+    if (!selectedFile) {
+        selectedFile = localStorage.getItem("ActiveDoSummaryFilter") || "ALL";
+        isUserClick = false;
+    }
+
+    // 1. Bi-directional sync & mismatch confirmation on user click
+    if (isUserClick && !isSyncingFileFilters) {
+        const currentBatchFile = localStorage.getItem("ActiveBatchFilter") || "ALL";
+        const currentBatchDate = extractFileDate(currentBatchFile);
+        const newDoDate = extractFileDate(selectedFile);
+        const batchKeys = Object.keys(MasterBatchLookupMap);
+
+        if (selectedFile === "ALL") {
+            if (currentBatchFile !== "ALL") {
+                isSyncingFileFilters = true;
+                try {
+                    await filterBatchByFile("ALL", null, false);
+                } finally {
+                    isSyncingFileFilters = false;
+                }
+            }
+        } else if (newDoDate && batchKeys.length > 0) {
+            const matchingBatchFile = batchKeys.find(f => extractFileDate(f) === newDoDate);
+
+            if (matchingBatchFile) {
+                if (currentBatchFile !== matchingBatchFile) {
+                    isSyncingFileFilters = true;
+                    try {
+                        await filterBatchByFile(matchingBatchFile, null, false);
+                    } finally {
+                        isSyncingFileFilters = false;
+                    }
+                }
+            } else if (currentBatchDate && currentBatchDate !== "ALL" && currentBatchDate !== newDoDate) {
+                if (typeof window.showConfirmDialog === 'function') {
+                    const proceed = await window.showConfirmDialog({
+                        title: "Date Mismatch Confirmation",
+                        message: `No matching Batch Picking file found for ${newDoDate}.\nBatch Picking remains set to ${currentBatchDate}.\n\nDo you want to proceed with different dates?`,
+                        confirmText: "Proceed with Different Dates",
+                        cancelText: "Cancel (Keep Synced)",
+                        isDanger: false
+                    });
+                    if (!proceed) return;
+                }
+            }
+        }
+    }
+
     if (chipElement) {
         document.querySelectorAll('#doSummaryChips .file-chip').forEach(el => el.classList.remove('active'));
         chipElement.classList.add('active');
@@ -2045,7 +2128,55 @@ function filterByFile(selectedFile, chipElement = null) {
 }
 
 // Filter batch picking data by specific uploaded file
-function filterBatchByFile(selectedFile, chipElement = null) {
+async function filterBatchByFile(selectedFile = null, chipElement = null, isUserClick = true) {
+    if (!selectedFile) {
+        selectedFile = localStorage.getItem("ActiveBatchFilter") || "ALL";
+        isUserClick = false;
+    }
+
+    // 1. Bi-directional sync & mismatch confirmation on user click
+    if (isUserClick && !isSyncingFileFilters) {
+        const currentDoFile = localStorage.getItem("ActiveDoSummaryFilter") || "ALL";
+        const currentDoDate = extractFileDate(currentDoFile);
+        const newBatchDate = extractFileDate(selectedFile);
+        const doFiles = [...new Set(MasterFileStoreArray.map(item => item.fileName).filter(Boolean))];
+
+        if (selectedFile === "ALL") {
+            if (currentDoFile !== "ALL") {
+                isSyncingFileFilters = true;
+                try {
+                    await filterByFile("ALL", null, false);
+                } finally {
+                    isSyncingFileFilters = false;
+                }
+            }
+        } else if (newBatchDate && doFiles.length > 0) {
+            const matchingDoFile = doFiles.find(f => extractFileDate(f) === newBatchDate);
+
+            // If DO Summary is currently set to a DIFFERENT specific date, warn before applying mismatch
+            if (currentDoDate && currentDoDate !== "ALL" && currentDoDate !== newBatchDate) {
+                if (typeof window.showConfirmDialog === 'function') {
+                    const proceed = await window.showConfirmDialog({
+                        title: "Date Mismatch Confirmation",
+                        message: `DO Summary is currently set to ${currentDoDate}, but you selected Batch Picking ${newBatchDate}.\n\nDo you want to proceed with different dates?`,
+                        confirmText: "Proceed with Different Dates",
+                        cancelText: "Cancel (Keep Synced)",
+                        isDanger: false
+                    });
+                    if (!proceed) return;
+                }
+            } else if (matchingDoFile && currentDoFile !== matchingDoFile && currentDoDate === "ALL") {
+                // If DO Summary was on ALL, auto-sync it to this date as well
+                isSyncingFileFilters = true;
+                try {
+                    await filterByFile(matchingDoFile, null, false);
+                } finally {
+                    isSyncingFileFilters = false;
+                }
+            }
+        }
+    }
+
     if (chipElement) {
         document.querySelectorAll('#batchFileChips .file-chip').forEach(el => el.classList.remove('active'));
         chipElement.classList.add('active');
@@ -2483,7 +2614,7 @@ function bootRestoreSavedFiles() {
                 batchFileChips.innerHTML = chipsHtml;
                 
                 const savedBatchFilter = localStorage.getItem("ActiveBatchFilter") || "ALL";
-                filterBatchByFile(savedBatchFilter);
+                filterBatchByFile(savedBatchFilter, null, false);
             }
         } catch (e) {
             console.error("Failed parsing master batch lookup map from memory:", e);
@@ -2534,7 +2665,7 @@ function bootRestoreSavedFiles() {
                     doSummaryChips.innerHTML = chipsHtml;
                     
                     const savedFilter = localStorage.getItem("ActiveDoSummaryFilter") || "ALL";
-                    filterByFile(savedFilter);
+                    filterByFile(savedFilter, null, false);
                 }
             }
             
