@@ -1,8 +1,8 @@
 // Bump this version on EVERY code deploy/edit. A new version forces the
 // browser to install a fresh service worker and (via `activate`) delete the
 // old cache, so users always receive the latest HTML/CSS/JS instead of stale
-// cached copies. v90: pure local Tesseract.js OCR scanner with all AI references removed.
-const CACHE_NAME = 'planner-cache-v90';
+// cached copies. v91: codebase dead code cleanup, removed obsolete styles and remnants, synced ConfirmDialog and ocr_scanner in PWA cache.
+const CACHE_NAME = 'planner-cache-v91';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -17,6 +17,7 @@ const urlsToCache = [
     '/batch_analytics.html',
     '/do_load_planner.html',
     '/packing_sheet.html',
+    '/ocr_scanner.html',
     '/css/styles.css',
     '/js/loose_load_planner.js',
     '/js/volume_capacity_planner.js',
@@ -43,6 +44,7 @@ const urlsToCache = [
     '/packing-sheet/js/components/QuickImportModal.js',
     '/packing-sheet/js/components/MasterLookupModal.js',
     '/packing-sheet/js/components/ConfirmVerifyModal.js',
+    '/packing-sheet/js/components/ConfirmDialog.js',
     '/packing-sheet/js/components/PackingSheetForm.js',
     '/packing-sheet/js/vendor/react.production.min.js',
     '/packing-sheet/js/vendor/react-dom.production.min.js',

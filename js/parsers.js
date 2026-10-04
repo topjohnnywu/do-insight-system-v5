@@ -783,54 +783,6 @@ async function handleProductMasterUpload(event) {
     if (typeof setFileChipLoading === 'function') setFileChipLoading('batch', false);
 }
 
-// Save Master Catalog rules to localStorage
-function handleRulesUpload(event) {
-    const RulesFile = event.target.files[0];
-    if (!RulesFile) return;
-
-    const ReaderObject = new FileReader();
-    ReaderObject.onload = function(e) {
-        try {
-            const RawArrayBuffer = e.target.result;
-            const WorkbookObject = XLSX.read(RawArrayBuffer, { type: 'array' });
-            const FirstSheet = WorkbookObject.Sheets[WorkbookObject.SheetNames[0]];
-            const RawRows = XLSX.utils.sheet_to_json(FirstSheet, { header: 1, raw: false });
-
-            ProductSizeRuleMap = JSON.parse(localStorage.getItem("ProductSizeVault")) || {};
-            let SavedCount = 0;
-
-            const firstRowColB = String(RawRows[0]?.[1] || "").toLowerCase().trim();
-            const startIdx = (firstRowColB.includes("big") || firstRowColB.includes("small")) ? 0 : 1;
-
-            for (let i = startIdx; i < RawRows.length; i++) {
-                const row = RawRows[i];
-                if (!row || !row[0]) continue;
-
-                const ProdCode = String(row[0]).trim();
-                const RawSize = String(row[1] || "").toLowerCase().trim();
-
-                let SizeVal = "";
-                if (RawSize.includes("big")) SizeVal = "big";
-                else if (RawSize.includes("small")) SizeVal = "small";
-
-                if (ProdCode && SizeVal) {
-                    ProductSizeRuleMap[ProdCode] = SizeVal;
-                    SavedCount++;
-                }
-            }
-
-            localStorage.setItem("ProductSizeVault", JSON.stringify(ProductSizeRuleMap));
-            updateRulesStatusUI();
-            showToast(`Saved ${SavedCount.toLocaleString()} product rules! Total Vault: ${Object.keys(ProductSizeRuleMap).length.toLocaleString()} items.`, "success");
-            refreshDashboard();
-
-        } catch (err) {
-            showToast("Failed to parse Master Catalog file: " + err.message);
-        }
-    };
-    ReaderObject.readAsArrayBuffer(RulesFile);
-}
-
 // Separate Shipping Insight File Loader with Full Summary Reconciliation
 async function handleShippingInsightUpload(event) {
     const InsightFile = event.target.files[0];

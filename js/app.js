@@ -7,16 +7,12 @@ let MasterFileStoreArray = [];
 // Interactive Explorer Filter & Sort State
 let explorerFilters = {
     doText: "",
-    selectedDos: new Set(), // Set of ticked DO invoice numbers
-    isDoSelectionActive: false, // true when user explicitly restricted to a ticked DO subset
-    filterOnlyTicked: false, // toggle to show only ticked rows
     onlyDirect5m3: false, // Quick filter for Addresses Exceeding 5 m³ Volume (able to go direct)
     onlyNonDirect: false, // Quick filter for Non-Direct Delivery (exclude direct DOs)
     route: "ALL",
     consignee: "",
     address: "",
     division: "ALL",
-    preset: "ALL",
     minVol: "",
     minQty: "",
     category: "ALL"
@@ -452,116 +448,6 @@ function handleStandaloneExplorerUpload(event) {
     reader.readAsArrayBuffer(file);
 }
 
-// =========================================================================
-// DO Multi-Select Checkbox Picker & Table Selection Engine
-// =========================================================================
-
-function toggleDoPickerPopover(forceState) {
-    const popover = document.getElementById("doPickerPopover");
-    if (!popover) return;
-
-    const isOpen = forceState !== undefined ? forceState : popover.classList.toggle("open");
-    if (forceState !== undefined) {
-        if (forceState) popover.classList.add("open");
-        else popover.classList.remove("open");
-    }
-
-    if (isOpen) {
-        populateDoPickerList();
-        const searchInp = document.getElementById("doPickerSearchInput");
-        if (searchInp) {
-            searchInp.value = "";
-            setTimeout(() => searchInp.focus(), 50);
-        }
-        
-        // Add click outside listener
-        setTimeout(() => {
-            document.addEventListener("click", handleDoPickerClickOutside);
-        }, 10);
-    } else {
-        document.removeEventListener("click", handleDoPickerClickOutside);
-    }
-}
-
-function handleDoPickerClickOutside(e) {
-    const container = document.getElementById("doPickerContainer");
-    if (container && !container.contains(e.target)) {
-        toggleDoPickerPopover(false);
-    }
-}
-
-// Return candidate DO invoices based on active quick filters (e.g. Direct Delivery > 5m³ or Non-Direct Delivery)
-function getCandidateDoList() {
-    const directInvoices = getDirectDeliveryEligibleInvoices();
-    if (explorerFilters.onlyDirect5m3) {
-        return Array.from(new Set(DataHoarderArray.filter(r => directInvoices.has(r.inv)).map(r => r.inv))).sort();
-    }
-    if (explorerFilters.onlyNonDirect) {
-        return Array.from(new Set(DataHoarderArray.filter(r => !directInvoices.has(r.inv)).map(r => r.inv))).sort();
-    }
-    return Array.from(new Set(DataHoarderArray.map(r => r.inv))).sort();
-}
-
-// Populate the scrollable checklist inside DO Multi-Select Popover
-function populateDoPickerList() {
-    const listEl = document.getElementById("doPickerList");
-    const counterEl = document.getElementById("doPickerListCounter");
-    if (!listEl) return;
-
-    if (DataHoarderArray.length === 0) {
-        listEl.innerHTML = `<div style="text-align: center; color: var(--fg-muted); font-size: 12px; padding: 24px;">No DO records loaded. Sync or upload data first.</div>`;
-        if (counterEl) counterEl.innerText = "0 of 0 selected";
-        return;
-    }
-
-    // Get candidate DO list based on Direct / Non-Direct Delivery quick filter state
-    const uniqueDos = getCandidateDoList();
-    const isDirectFilter = explorerFilters.onlyDirect5m3;
-    const isNonDirectFilter = explorerFilters.onlyNonDirect;
-    
-    // Map DO details for easy preview
-    const doSummaryMap = {};
-    DataHoarderArray.forEach(r => {
-        if (!doSummaryMap[r.inv]) {
-            doSummaryMap[r.inv] = {
-                consignee: r.name || 'Consignee',
-                route: r.route || 'Route',
-                vol: r.vol || 0,
-                qty: r.qty || 0
-            };
-        }
-    });
-
-    // If selection is not active, all candidate unique DOs are treated as selected
-    const isAllSelected = !explorerFilters.isDoSelectionActive;
-    let selectedCount = 0;
-
-    let html = "";
-    uniqueDos.forEach(inv => {
-        const isChecked = isAllSelected || explorerFilters.selectedDos.has(inv);
-        if (isChecked) selectedCount++;
-        const info = doSummaryMap[inv] || {};
-
-        html += `
-            <div class="do-picker-item ${isChecked ? 'selected' : ''}" id="do_item_${escapeAttr(inv)}" data-inv="${escapeAttr(inv)}" onclick="toggleDoCheckboxItem(this.dataset.inv)">
-                <input type="checkbox" id="do_check_${escapeAttr(inv)}" class="spreadsheet-row-check" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); handleDoCheckboxToggle(this.closest('.do-picker-item').dataset.inv, this.checked)">
-                <div class="do-picker-item-info">
-                    <div class="do-picker-item-title">${inv}</div>
-                    <div class="do-picker-item-sub">${escapeHtml(info.consignee)} • ${escapeHtml(info.route)} • ${info.vol > 0 ? Number(info.vol).toFixed(3) + 'm³' : '0m³'}</div>
-                </div>
-            </div>
-        `;
-    });
-
-    listEl.innerHTML = html;
-    if (counterEl) {
-        let filterLabel = "";
-        if (isDirectFilter) filterLabel = " (Direct >5m³)";
-        else if (isNonDirectFilter) filterLabel = " (Non-Direct)";
-        counterEl.innerText = `${selectedCount} of ${uniqueDos.length} selected${filterLabel}`;
-    }
-}
-
 function escapeAttr(str) {
     return String(str || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
@@ -570,272 +456,6 @@ function escapeHtml(str) {
     return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-// Filter items in DO Picker Popover search box
-function filterDoPickerList(query) {
-    const q = (query || '').toLowerCase().trim();
-    const items = document.querySelectorAll('#doPickerList .do-picker-item');
-    items.forEach(el => {
-        const text = el.textContent.toLowerCase();
-        if (!q || text.includes(q)) {
-            el.style.display = 'flex';
-        } else {
-            el.style.display = 'none';
-        }
-    });
-}
-
-// Toggle DO Checkbox item when clicked
-function toggleDoCheckboxItem(inv) {
-    const itemEl = findDoPickerItem(inv);
-    const chk = itemEl ? itemEl.querySelector('input[type="checkbox"]') : null;
-    if (chk) {
-        chk.checked = !chk.checked;
-        handleDoCheckboxToggle(inv, chk.checked);
-    }
-}
-
-// Resolve a DO picker item element by its raw (unescaped) inv value
-function findDoPickerItem(inv) {
-    const items = document.querySelectorAll('#doPickerList .do-picker-item');
-    for (const el of items) {
-        if (el.dataset.inv === inv) return el;
-    }
-    return null;
-}
-
-// Handle single DO checkbox change in Popover
-function handleDoCheckboxToggle(inv, checked) {
-    const candidateDos = getCandidateDoList();
-    // If transitioning from all selected, initialize the set with all candidate DOs first
-    if (!explorerFilters.isDoSelectionActive) {
-        explorerFilters.isDoSelectionActive = true;
-        explorerFilters.selectedDos = new Set(candidateDos);
-    }
-
-    if (checked) {
-        explorerFilters.selectedDos.add(inv);
-    } else {
-        explorerFilters.selectedDos.delete(inv);
-    }
-
-    const itemEl = findDoPickerItem(inv);
-    if (itemEl) {
-        if (checked) itemEl.classList.add('selected');
-        else itemEl.classList.remove('selected');
-    }
-
-    updateDoPickerCounter();
-}
-
-// Select All / Deselect All in Popover
-function selectAllDoCheckboxes(selectAll) {
-    const candidateDos = getCandidateDoList();
-    
-    if (selectAll) {
-        explorerFilters.isDoSelectionActive = false; // Reset to all
-        explorerFilters.selectedDos.clear();
-    } else {
-        explorerFilters.isDoSelectionActive = true;
-        explorerFilters.selectedDos.clear();
-    }
-
-    const checkboxes = document.querySelectorAll('#doPickerList input[type="checkbox"]');
-    checkboxes.forEach(chk => {
-        chk.checked = selectAll;
-        const itemEl = chk.closest('.do-picker-item');
-        if (itemEl) {
-            if (selectAll) itemEl.classList.add('selected');
-            else itemEl.classList.remove('selected');
-        }
-    });
-
-    updateDoPickerCounter();
-}
-
-// Invert DO Checkbox selection in Popover
-function invertDoCheckboxes() {
-    const candidateDos = getCandidateDoList();
-    
-    if (!explorerFilters.isDoSelectionActive) {
-        explorerFilters.isDoSelectionActive = true;
-        explorerFilters.selectedDos = new Set();
-    } else {
-        const newSet = new Set();
-        candidateDos.forEach(inv => {
-            if (!explorerFilters.selectedDos.has(inv)) {
-                newSet.add(inv);
-            }
-        });
-        explorerFilters.selectedDos = newSet;
-    }
-
-    const checkboxes = document.querySelectorAll('#doPickerList input[type="checkbox"]');
-    checkboxes.forEach(chk => {
-        chk.checked = !chk.checked;
-        const itemEl = chk.closest('.do-picker-item');
-        if (itemEl) {
-            if (chk.checked) itemEl.classList.add('selected');
-            else itemEl.classList.remove('selected');
-        }
-    });
-
-    updateDoPickerCounter();
-}
-
-function updateDoPickerCounter() {
-    const candidateDos = getCandidateDoList();
-    const totalCandidate = candidateDos.length;
-    let selectedCount = 0;
-    if (!explorerFilters.isDoSelectionActive) {
-        selectedCount = totalCandidate;
-    } else {
-        candidateDos.forEach(inv => {
-            if (explorerFilters.selectedDos.has(inv)) selectedCount++;
-        });
-    }
-
-    const counterEl = document.getElementById("doPickerListCounter");
-    if (counterEl) {
-        let filterSuffix = "";
-        if (explorerFilters.onlyDirect5m3) filterSuffix = " (Direct >5m³)";
-        else if (explorerFilters.onlyNonDirect) filterSuffix = " (Non-Direct)";
-        counterEl.innerText = `${selectedCount} of ${totalCandidate} selected${filterSuffix}`;
-    }
-}
-
-// Reset DO Selection to All
-function resetDoSelectionToAll() {
-    explorerFilters.isDoSelectionActive = false;
-    explorerFilters.selectedDos.clear();
-    explorerFilters.filterOnlyTicked = false;
-    
-    selectAllDoCheckboxes(true);
-    updateDoPickerTriggerBadge();
-    toggleDoPickerPopover(false);
-    applyExplorerFilters();
-
-    if (typeof showToast === 'function') {
-        showToast("DO Filter reset to include all Delivery Orders.", "info");
-    }
-}
-
-// Apply selection from Popover to dashboard
-function applyDoPickerSelection() {
-    const candidateDos = getCandidateDoList();
-    const totalCandidate = candidateDos.length;
-    let selectedCount = 0;
-    if (!explorerFilters.isDoSelectionActive) {
-        selectedCount = totalCandidate;
-    } else {
-        candidateDos.forEach(inv => {
-            if (explorerFilters.selectedDos.has(inv)) selectedCount++;
-        });
-    }
-
-    if (explorerFilters.isDoSelectionActive && selectedCount === totalCandidate) {
-        explorerFilters.isDoSelectionActive = false;
-    }
-
-    updateDoPickerTriggerBadge();
-    toggleDoPickerPopover(false);
-    applyExplorerFilters();
-
-    if (typeof showToast === 'function') {
-        const msg = !explorerFilters.isDoSelectionActive
-            ? "Showing All Delivery Orders"
-            : `Filtered to ${selectedCount} selected Delivery Order${selectedCount === 1 ? '' : 's'}`;
-        showToast(msg, "success");
-    }
-}
-
-// Update the DO picker trigger button label and badge
-function updateDoPickerTriggerBadge() {
-    const badge = document.getElementById("doPickerSelectedBadge");
-    const label = document.getElementById("doPickerTriggerLabel");
-    const candidateDos = getCandidateDoList();
-    const totalCandidate = candidateDos.length;
-    
-    if (!badge || !label) return;
-
-    if (!explorerFilters.isDoSelectionActive) {
-        badge.className = "do-picker-badge all";
-        let suffix = "";
-        if (explorerFilters.onlyDirect5m3) suffix = " Direct";
-        else if (explorerFilters.onlyNonDirect) suffix = " Non-Direct";
-        badge.innerText = `All${suffix} (${totalCandidate})`;
-        label.innerText = "Tick DOs";
-    } else {
-        let count = 0;
-        candidateDos.forEach(inv => {
-            if (explorerFilters.selectedDos.has(inv)) count++;
-        });
-        badge.className = "do-picker-badge custom";
-        badge.innerText = `${count} of ${totalCandidate} DOs`;
-        label.innerText = `Ticked (${count})`;
-    }
-
-    updateTickedToolbarButtons();
-}
-
-// NOTE: The former "spreadsheet table row checkbox" handlers
-// (toggleSelectAllVisibleRows / handleRowCheckboxChange / updateMasterCheckboxState)
-// were removed: their DOM elements (.row-do-checkbox, #masterDoCheckbox) are never
-// rendered anywhere and the functions had no callers. DO selection is handled
-// entirely via the DO picker popover (handleDoCheckboxToggle / selectAllDoCheckboxes).
-
-// Toggle Filter Only Ticked Mode
-function toggleFilterOnlyTicked() {
-    explorerFilters.filterOnlyTicked = !explorerFilters.filterOnlyTicked;
-    
-    // If enabling and no specific subset is selected yet, make currently visible rows selected
-    if (explorerFilters.filterOnlyTicked && !explorerFilters.isDoSelectionActive) {
-        explorerFilters.isDoSelectionActive = true;
-        explorerFilters.selectedDos = new Set(currentFilteredDataset.map(r => r.inv));
-    }
-
-    updateTickedToolbarButtons();
-    applyExplorerFilters();
-
-    if (typeof showToast === 'function') {
-        const msg = explorerFilters.filterOnlyTicked
-            ? `Filter active: Showing ${explorerFilters.selectedDos.size} ticked DO rows only`
-            : "Filter cleared: Showing all matching rows";
-        showToast(msg, explorerFilters.filterOnlyTicked ? "info" : "default");
-    }
-}
-
-function updateTickedToolbarButtons() {
-    const toolbarBtn = document.getElementById("filterTickedToolbarBtn");
-    const toolbarLabel = document.getElementById("filterTickedToolbarLabel");
-    const inlineBtn = document.getElementById("inlineTickFilterBtn");
-    
-    const totalUnique = new Set(DataHoarderArray.map(r => r.inv)).size;
-    const selectedCount = !explorerFilters.isDoSelectionActive ? totalUnique : explorerFilters.selectedDos.size;
-
-    if (toolbarLabel) {
-        toolbarLabel.innerText = explorerFilters.filterOnlyTicked 
-            ? `Ticked Filter ON (${selectedCount})` 
-            : `Ticked Only (${selectedCount})`;
-    }
-
-    if (toolbarBtn) {
-        if (explorerFilters.filterOnlyTicked) {
-            toolbarBtn.classList.add("active");
-        } else {
-            toolbarBtn.classList.remove("active");
-        }
-    }
-
-    if (inlineBtn) {
-        if (explorerFilters.filterOnlyTicked) {
-            inlineBtn.classList.add("active");
-            inlineBtn.innerText = "✓ ON";
-        } else {
-            inlineBtn.classList.remove("active");
-            inlineBtn.innerText = "✓";
-        }
-    }
-}
 
 // =========================================================================
 // Authentic Excel-Style Table Header AutoFilter System
@@ -1307,19 +927,6 @@ function populateExplorerDropdowns() {
     if (inlineDivSelect) inlineDivSelect.innerHTML = divHtml;
     divSelect.value = explorerFilters.division;
     if (inlineDivSelect) inlineDivSelect.value = explorerFilters.division;
-
-    // Also update DO picker trigger badge
-    updateDoPickerTriggerBadge();
-}
-
-// Quick Preset Filter Handler
-function setFilterPreset(preset) {
-    explorerFilters.preset = preset;
-    document.querySelectorAll('.filter-preset-chip').forEach(el => {
-        if (el.dataset.preset === preset) el.classList.add('active');
-        else el.classList.remove('active');
-    });
-    handleExplorerFilterChange();
 }
 
 // Multi-Dimensional Filter Handler
@@ -1344,37 +951,6 @@ function handleExplorerFilterChange() {
     if (inlineRoute && inlineRoute.value !== explorerFilters.route) inlineRoute.value = explorerFilters.route;
     if (inlineAddr && inlineAddr.value !== explorerFilters.address) inlineAddr.value = explorerFilters.address;
     if (inlineDiv && inlineDiv.value !== explorerFilters.division) inlineDiv.value = explorerFilters.division;
-
-    applyExplorerFilters();
-}
-
-// Inline Excel Filter Row Handler
-function handleInlineFilterChange(field, val) {
-    if (field === 'doText') {
-        explorerFilters.doText = val.trim();
-        const topDo = document.getElementById("explorerDoInput");
-        if (topDo) topDo.value = val;
-    } else if (field === 'route') {
-        explorerFilters.route = val;
-        const topRoute = document.getElementById("explorerRouteFilter");
-        if (topRoute) topRoute.value = val;
-    } else if (field === 'consignee') {
-        explorerFilters.consignee = val.trim();
-    } else if (field === 'address') {
-        explorerFilters.address = val.trim();
-        const topAddr = document.getElementById("explorerAddressInput");
-        if (topAddr) topAddr.value = val;
-    } else if (field === 'division') {
-        explorerFilters.division = val;
-        const topDiv = document.getElementById("explorerDivisionFilter");
-        if (topDiv) topDiv.value = val;
-    } else if (field === 'minVol') {
-        explorerFilters.minVol = val;
-    } else if (field === 'minQty') {
-        explorerFilters.minQty = val;
-    } else if (field === 'category') {
-        explorerFilters.category = val;
-    }
 
     applyExplorerFilters();
 }
@@ -1450,8 +1026,6 @@ function toggleDirectDeliveryQuickFilter() {
         explorerFilters.onlyNonDirect = false;
     }
     updateDirectDeliveryButtonState();
-    updateDoPickerTriggerBadge();
-    populateDoPickerList();
     applyExplorerFilters();
 
     if (typeof showToast === 'function') {
@@ -1472,8 +1046,6 @@ function toggleNonDirectDeliveryQuickFilter() {
         explorerFilters.onlyDirect5m3 = false;
     }
     updateDirectDeliveryButtonState();
-    updateDoPickerTriggerBadge();
-    populateDoPickerList();
     applyExplorerFilters();
 
     if (typeof showToast === 'function') {
@@ -1617,12 +1189,6 @@ function resetAllExplorerFilters() {
     if (inlineMinQty) inlineMinQty.value = "";
     if (inlineCat) inlineCat.value = "ALL";
 
-    document.querySelectorAll('.filter-preset-chip').forEach(el => {
-        if (el.dataset.preset === 'ALL') el.classList.add('active');
-        else el.classList.remove('active');
-    });
-
-    updateDoPickerTriggerBadge();
     applyExplorerFilters();
 }
 
@@ -1819,8 +1385,6 @@ function renderActiveFilterTags() {
             clear: () => {
                 explorerFilters.onlyDirect5m3 = false;
                 updateDirectDeliveryButtonState();
-                updateDoPickerTriggerBadge();
-                populateDoPickerList();
                 applyExplorerFilters();
             }
         });
@@ -1833,8 +1397,6 @@ function renderActiveFilterTags() {
             clear: () => {
                 explorerFilters.onlyNonDirect = false;
                 updateDirectDeliveryButtonState();
-                updateDoPickerTriggerBadge();
-                populateDoPickerList();
                 applyExplorerFilters();
             }
         });
@@ -2357,11 +1919,6 @@ function renderRemarksOverview(dataset) {
     });
 }
 
-// Triggered when user selects a specific remark from the dropdown
-function applyRemarkFilter() {
-    renderRemarksOverview(DataHoarderArray);
-}
-
 // Spreadsheet View Mode: "default" (clean manifest view) vs "batch" (expanded batch view with Col K/L codes and truck/hub info)
 let spreadsheetViewMode = localStorage.getItem("spreadsheetViewMode") || "default";
 
@@ -2498,25 +2055,6 @@ function renderTable(dataSlice) {
 
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-// Search Filter (Legacy search-box connector)
-function filterTable() {
-    const searchInput = document.getElementById("searchInput");
-    if (!searchInput) return;
-    explorerFilters.address = searchInput.value;
-    const topAddr = document.getElementById("explorerAddressInput");
-    if (topAddr) topAddr.value = searchInput.value;
-    applyExplorerFilters();
-}
-
-// Update UI status tag showing number of saved rules
-function updateRulesStatusUI() {
-    const StoredCount = Object.keys(ProductSizeRuleMap).length;
-    const StatusElement = document.getElementById("rulesStatusTag");
-    if (StatusElement) {
-        StatusElement.innerText = `(${StoredCount.toLocaleString()} rules saved)`;
-    }
 }
 
 // Reset Dashboard

@@ -413,14 +413,11 @@
 [data-theme="dark"] .sticky-remarks-card .panel-toggle-btn,
 [data-theme="dark"] .spreadsheet-table th.sortable-th:hover,
 [data-theme="dark"] .spreadsheet-table th.sorted .sort-icon,
-[data-theme="dark"] .do-picker-action-btn,
 [data-theme="dark"] .quick-filter-direct-btn svg,
 [data-theme="dark"] .quick-filter-direct-btn.active,
 [data-theme="dark"] .quick-filter-direct-btn.active svg,
 [data-theme="dark"] .chart-action-btn,
-[data-theme="dark"] .dashboard-header-brand-icon,
-[data-theme="dark"] .btn-do-link,
-[data-theme="dark"] .btn-do-link:hover {
+[data-theme="dark"] .dashboard-header-brand-icon {
     color: var(--accent-text, #e4e4e7);
 }
 
@@ -434,11 +431,8 @@
 [data-theme="dark"] .action-btn.primary,
 [data-theme="dark"] .batch-tab-btn.active-tab,
 [data-theme="dark"] .file-chips-wrapper .file-chip.active,
-[data-theme="dark"] .filter-preset-chip.active,
 [data-theme="dark"] .excel-filter-btn.active,
 [data-theme="dark"] .excel-btn-ok,
-[data-theme="dark"] .do-picker-badge,
-[data-theme="dark"] .btn-tick-action.active,
 [data-theme="dark"] .alert-dialog-action.action-primary,
 [data-theme="dark"] .view-toggle-btn.active,
 [data-theme="dark"] .chart-action-btn.active,
@@ -3492,9 +3486,6 @@ body.light-mode #themeToggleBtn {
 
 
 
-/* --- Floating decorative shapes (theme-only) --- */
-.dopamine-decor { display: none; }
-
 
 
 
@@ -3609,11 +3600,6 @@ body.light-mode #themeToggleBtn {
 
 /* --- Tiled 90s background pattern --- */
 
-
-/* --- Marquee scrolling banner (theme-gated) --- */
-.retro-marquee { display: none; }.retro-construction { display: none; }
-.retro-hr { display: none; }
-.retro-new { display: none; }
 
 
 
@@ -3910,71 +3896,6 @@ body.light-mode #themeToggleBtn {
 
 
 
-/* --- Bauhaus decor overlays (theme-gated) --- */
-.bauhaus-decor,
-.bauhaus-decor .bd-bar,
-.bauhaus-decor .bd-circle,
-.bauhaus-decor .bd-square,
-.bauhaus-decor .bd-triangle,
-.bauhaus-decor .bd-grid { display: none; }
-
-
-
-/* Tricolor bar — the constructivist motif */
-
-
-/* Corner compositions: red circle, rotated blue square, yellow triangle */
-
-
-
-
-
-
-/* Dot-grid slab — white dots on black, the poster texture block */
-
-
-
-
-/* Sidebar — stark black slab, constructivist yellow active nav */
-
-
-
-
-
-
-
-
-/* Geometric brand logo trio (circle / square / triangle) */
-.bauhaus-shapes {
-    display: none;
-    align-items: center;
-    gap: 8px;
-    margin-top: 10px;
-    padding-left: 2px;
-}
-
-
-
-.bauhaus-shapes .bh {
-    display: block;
-    width: 10px;
-    height: 10px;
-}
-
-.bauhaus-shapes .bh-circle {
-    background: #D02020;
-    border-radius: 50%;
-}
-
-.bauhaus-shapes .bh-square {
-    background: #1040C0;
-    transform: rotate(45deg);
-}
-
-.bauhaus-shapes .bh-triangle {
-    background: #F0C020;
-    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-}
 
 
 
@@ -4455,116 +4376,6 @@ body.light-mode #themeToggleBtn {
     width: auto !important;
 }
 
-/* Theme Settings Sidebar */
-.theme-settings-sidebar {
-    position: fixed;
-    top: 0;
-    right: -320px;
-    width: 320px;
-    height: 100vh;
-    background: var(--surface-raised, #18181b);
-    border-left: 1px solid var(--border, #27272a);
-    z-index: 9999;
-    transition: right 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    box-shadow: -4px 0 24px rgba(0,0,0,0.5);
-}
-.theme-settings-sidebar.open {
-    right: 0;
-}
-.theme-settings-header {
-    padding: 20px;
-    border-bottom: 1px solid var(--border, #27272a);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-.theme-settings-header h2 {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--fg, #ffffff);
-    margin: 0;
-}
-.theme-settings-close {
-    background: none;
-    border: none;
-    color: var(--fg-muted, #a1a1aa);
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-}
-.theme-settings-close:hover {
-    background: var(--surface-hover, #27272a);
-    color: var(--fg, #ffffff);
-}
-.theme-settings-content {
-    padding: 20px;
-    overflow-y: auto;
-    flex: 1;
-}
-.theme-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-}
-.theme-card {
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
-    background: var(--surface-solid, #121215);
-    border: 1px solid var(--border, #27272a);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-    color: var(--fg, #ffffff);
-}
-.theme-card:hover {
-    border-color: var(--fg-muted, #a1a1aa);
-    background: var(--surface-hover, #27272a);
-}
-.theme-card.active {
-    border-color: var(--accent, #3b82f6);
-    background: rgba(59, 130, 246, 0.1);
-}
-.theme-card-swatch {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    margin-right: 12px;
-    border: 1px solid rgba(255,255,255,0.1);
-}
-.theme-card-name {
-    font-weight: 500;
-    font-size: 14px;
-}
-
-body.light-mode .theme-settings-sidebar {
-    background: #ffffff;
-    border-left: 1px solid #e2e8f0;
-    box-shadow: -4px 0 24px rgba(0,0,0,0.1);
-}
-body.light-mode .theme-settings-header {
-    border-bottom: 1px solid #e2e8f0;
-}
-body.light-mode .theme-settings-header h2 { color: #0f172a; }
-body.light-mode .theme-settings-close { color: #64748b; }
-body.light-mode .theme-settings-close:hover { background: #f1f5f9; color: #0f172a; }
-body.light-mode .theme-card {
-    background: #f8fafc;
-    border-color: #e2e8f0;
-    color: #0f172a;
-}
-body.light-mode .theme-card:hover {
-    border-color: #cbd5e1;
-    background: #f1f5f9;
-}
-body.light-mode .theme-card.active {
-    border-color: #3b82f6;
-    background: rgba(59, 130, 246, 0.05);
-}
-
 /* Force Dark Context for 3D Viewer Overlays (Always Dark Background) */
 .dark-overlay .action-btn.ghost {
     color: #a1a1aa !important;
@@ -4801,117 +4612,6 @@ body.light-mode .glass-card {
     cursor: pointer;
     width: 100%;
     height: 100%;
-}
-
-/* Multi-Dimensional Filter Card */
-.explorer-filter-card {
-    background: var(--surface-card, var(--bg-elevated));
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card, 12px);
-    box-shadow: var(--shadow-card);
-    padding: 16px 20px;
-    margin-bottom: 16px;
-}
-
-.explorer-filter-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 14px;
-}
-
-.explorer-filter-header h3 {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--fg);
-}
-
-.explorer-filter-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 14px;
-    margin-bottom: 14px;
-}
-
-.filter-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.filter-field label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--fg-muted);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.filter-field input,
-.filter-field select {
-    width: 100%;
-    padding: 8px 12px;
-    background: var(--surface-solid, var(--bg-base));
-    border: 1px solid var(--border);
-    border-radius: var(--radius-control, 8px);
-    color: var(--fg);
-    font-size: 13px;
-    outline: none;
-    transition: all var(--dur) var(--ease);
-}
-
-.filter-field input:focus,
-.filter-field select:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px var(--accent-glow);
-}
-
-.filter-presets-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding-top: 10px;
-    border-top: 1px solid var(--border);
-}
-
-.filter-preset-chips {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-}
-
-.filter-preset-chip {
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    background: var(--surface);
-    color: var(--fg-muted);
-    border: 1px solid var(--border);
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-.filter-preset-chip:hover {
-    background: var(--surface-hover);
-    color: var(--fg);
-    border-color: var(--border-hover);
-}
-
-.filter-preset-chip.active {
-    background: var(--accent);
-    color: #ffffff;
-    border-color: var(--accent-bright);
 }
 
 .active-filter-tags {
@@ -5563,185 +5263,6 @@ body.light-mode .glass-card {
     border-color: var(--border-hover, #64748b);
 }
 
-/* ==========================================================
-   DO Multi-Select Checkbox Dropdown Picker & Row Checkboxes
-   ========================================================== */
-.do-picker-container {
-    position: relative;
-    width: 100%;
-}
-
-.do-picker-trigger {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 8px 12px;
-    background: var(--surface-solid, var(--bg-base));
-    border: 1px solid var(--border);
-    border-radius: var(--radius-control, 8px);
-    color: var(--fg);
-    font-size: 13px;
-    cursor: pointer;
-    text-align: left;
-    transition: all var(--dur) var(--ease);
-}
-
-.do-picker-trigger:hover {
-    border-color: var(--border-hover);
-    background: var(--surface-hover);
-}
-
-.do-picker-trigger.active {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px var(--accent-glow);
-}
-
-.do-picker-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 7px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 700;
-    background: var(--accent);
-    color: #ffffff;
-    margin-left: 6px;
-}
-
-.do-picker-badge.all {
-    background: var(--surface-hover);
-    color: var(--fg-muted);
-    border: 1px solid var(--border);
-}
-
-.do-picker-popover {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    right: 0;
-    min-width: 320px;
-    max-width: 440px;
-    background: var(--surface-card, var(--bg-elevated));
-    border: 1px solid var(--border-accent, var(--border));
-    border-radius: var(--radius-card, 12px);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05);
-    z-index: 100;
-    display: none;
-    flex-direction: column;
-    overflow: hidden;
-    animation: popoverFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.do-picker-popover.open {
-    display: flex;
-}
-
-@keyframes popoverFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-6px) scale(0.98);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-.do-picker-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-}
-
-.do-picker-header span {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--fg);
-}
-
-.do-picker-search-wrap {
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface-card, var(--bg-elevated));
-}
-
-.do-picker-search-input {
-    width: 100%;
-    padding: 6px 10px;
-    font-size: 12px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--surface-solid, var(--bg-base));
-    color: var(--fg);
-    outline: none;
-}
-
-.do-picker-search-input:focus {
-    border-color: var(--accent);
-}
-
-.do-picker-quick-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 14px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    font-size: 11px;
-}
-
-.do-picker-action-btn {
-    background: none;
-    border: none;
-    color: var(--accent-bright, #3b82f6);
-    font-weight: 600;
-    font-size: 11px;
-    cursor: pointer;
-    padding: 2px 4px;
-    border-radius: 4px;
-}
-
-.do-picker-action-btn:hover {
-    text-decoration: underline;
-    background: rgba(59, 130, 246, 0.08);
-}
-
-.do-picker-list {
-    max-height: 240px;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    padding: 6px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--accent, #3b82f6) rgba(15, 23, 42, 0.6);
-}
-
-.do-picker-list::-webkit-scrollbar {
-    width: 8px;
-    display: block;
-}
-
-.do-picker-list::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.25);
-    border-radius: 4px;
-}
-
-.do-picker-list::-webkit-scrollbar-thumb {
-    background: var(--accent, #3b82f6);
-    border-radius: 4px;
-    border: 2px solid var(--surface-solid, #0f172a);
-}
-
-.do-picker-list::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-bright, #60a5fa);
-}
-
 .quick-filter-direct-btn {
     background: var(--surface, #1e293b);
     border: 1px solid var(--border, #334155);
@@ -5829,132 +5350,6 @@ body.light-mode .glass-card {
 
 .chart-action-btn.active svg {
     stroke: #ffffff;
-}
-
-.do-picker-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 7px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.12s ease;
-    user-select: none;
-}
-
-.do-picker-item:hover {
-    background: var(--surface-hover);
-}
-
-.do-picker-item.selected {
-    background: rgba(59, 130, 246, 0.08);
-}
-
-.do-picker-item input[type="checkbox"] {
-    cursor: pointer;
-    margin: 0;
-}
-
-.do-picker-item-info {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-width: 0;
-}
-
-.do-picker-item-main {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    font-size: 12px;
-}
-
-.do-picker-item-do {
-    font-weight: 700;
-    font-family: var(--font-mono, monospace);
-    color: var(--fg);
-}
-
-.do-picker-item-vol {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--fg-muted);
-}
-
-.do-picker-item-sub {
-    font-size: 11px;
-    color: var(--fg-muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.do-picker-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 14px;
-    border-top: 1px solid var(--border);
-    background: var(--surface);
-}
-
-/* Checkbox Column in Spreadsheet Table */
-.th-checkbox-col,
-.td-checkbox-col {
-    width: 38px;
-    text-align: center !important;
-    padding: 6px !important;
-}
-
-.spreadsheet-row-check {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-    accent-color: var(--accent);
-    margin: 0;
-    vertical-align: middle;
-}
-
-.spreadsheet-table tr.row-selected td {
-    background: rgba(59, 130, 246, 0.06);
-}
-
-.spreadsheet-table tr.row-selected:hover td {
-    background: rgba(59, 130, 246, 0.12);
-}
-
-.batch-ticking-toolbar {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-left: 8px;
-}
-
-.btn-tick-action {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    background: var(--surface);
-    color: var(--fg);
-    border: 1px solid var(--border);
-    transition: all 0.15s ease;
-}
-
-.btn-tick-action:hover {
-    background: var(--surface-hover);
-    border-color: var(--border-hover);
-}
-
-.btn-tick-action.active {
-    background: var(--accent);
-    color: #ffffff;
-    border-color: var(--accent-bright);
 }
 
 /* Antislop-UI Consolidated Classes for Summary Analytics */
@@ -6049,96 +5444,6 @@ body.light-mode .glass-card {
     overflow-y: auto;
 }
 
-/* Antislop-UI Consolidated Classes for Tracking DO Status (Shipping Insight) */
-.status-summary-strip {
-    display: flex;
-    align-items: stretch;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 0;
-    padding: 10px 18px;
-    margin-bottom: 20px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md, 8px);
-}
-
-.status-strip-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 4px 24px;
-}
-
-.status-strip-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    color: var(--fg-muted, #71717a);
-}
-
-.status-strip-dot {
-    display: inline-block;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: currentColor;
-}
-
-.status-strip-value {
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1.3;
-}
-
-.status-strip-divider {
-    width: 1px;
-    align-self: stretch;
-    background: var(--border, #27272a);
-    margin: 2px 0;
-}
-
-/* Gauge Cards */
-.gauge-card {
-    text-align: center;
-    padding: 16px;
-}
-
-.gauge-card-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--fg, #f4f4f5);
-    margin-bottom: 4px;
-}
-
-.gauge-canvas-container {
-    height: 120px;
-    position: relative;
-}
-
-.gauge-readout {
-    font-size: 13px;
-    font-weight: 700;
-    margin-top: 2px;
-}
-
-.gauge-readout-large {
-    font-size: 18px;
-    font-weight: 700;
-    color: #10b981;
-    margin-top: -20px;
-}
-
-.gauge-subtext {
-    font-size: 12px;
-    font-weight: 600;
-    color: #f59e0b;
-    margin-top: 4px;
-}
 
 /* Status Table Toolbar & Search */
 .status-table-toolbar {
@@ -6160,33 +5465,6 @@ body.light-mode .glass-card {
     transform: translateY(-50%);
     pointer-events: none;
     color: var(--fg-muted, #71717a);
-}
-
-/* Accessible DO Link Button */
-.btn-do-link {
-    background: transparent;
-    border: none;
-    padding: 0;
-    margin: 0;
-    font-family: inherit;
-    font-size: inherit;
-    font-weight: 700;
-    color: var(--accent, #3b82f6);
-    cursor: pointer;
-    text-decoration: underline;
-    text-decoration-color: transparent;
-    transition: text-decoration-color 0.15s ease, color 0.15s ease;
-}
-
-.btn-do-link:hover {
-    color: var(--accent-hover, #60a5fa);
-    text-decoration-color: currentColor;
-}
-
-.btn-do-link:focus-visible {
-    outline: 2px solid var(--accent, #3b82f6);
-    outline-offset: 2px;
-    border-radius: 2px;
 }
 
 /* Badges */

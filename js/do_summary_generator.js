@@ -436,11 +436,6 @@ class DOSummaryGenerator {
         }
     }
 
-    setModalWave(wave) {
-        const input = document.getElementById("importModalWaveInput");
-        if (input) input.value = wave;
-    }
-
     onImportDestChange() {
         const isAppend = document.getElementById("importDestAppend")?.checked;
         const select = document.getElementById("importModalAppendSelect");

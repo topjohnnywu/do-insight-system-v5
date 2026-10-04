@@ -27,25 +27,8 @@ function isLightTheme() {
 }
 
 function updateThemeMenu(themeName) {
-    document.querySelectorAll('.theme-option[data-theme-option]').forEach(el => {
-        el.classList.toggle('active', el.getAttribute('data-theme-option') === themeName);
-    });
-    // For the newly injected theme sidebar grid
-    document.querySelectorAll('#theme-grid-container .theme-card').forEach(el => {
-        el.classList.toggle('active', el.getAttribute('data-theme-option') === themeName);
-    });
+    // Theme options are managed directly via toggleTheme and data-theme attribute
 }
-
-// Live theme picker: per-theme palette dots (click commits)
-let activeTheme = "dark";
-
-const THEME_PALETTES = {
-    dark:     ["#fafafa", "#a1a1aa", "#0a0a0a", "#262626"],
-    light:    ["#3b82f6", "#2563eb", "#ffffff", "#e2e8f0"]
-};
-
-// NOTE: With only two themes (dark + light), the old theme-settings sidebar
-// was removed — the header button now toggles directly (see toggleTheme).
 
 function applyChartTheme(themeName) {
     if (!window.Chart) return;
