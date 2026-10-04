@@ -1,8 +1,8 @@
 // Bump this version on EVERY code deploy/edit. A new version forces the
 // browser to install a fresh service worker and (via `activate`) delete the
 // old cache, so users always receive the latest HTML/CSS/JS instead of stale
-// cached copies. v74: fix tooltip lingering bug and reduce delay to 180ms.
-const CACHE_NAME = 'planner-cache-v74';
+// cached copies. v75: inverted contrast theme tooltips (white in dark mode, black in light mode).
+const CACHE_NAME = 'planner-cache-v75';
 const urlsToCache = [
     '/',
     '/index.html',

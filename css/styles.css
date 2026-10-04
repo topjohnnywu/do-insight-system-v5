@@ -7034,29 +7034,30 @@ body.light-mode .alert-dialog-action.action-primary:hover {
     transform: scale(1) translateY(0);
 }
 
+/* Tooltip content: inverted high-contrast WHITE card in dark mode */
 .ui-tooltip-content {
-    background: #18181b;
-    color: #f4f4f5;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #ffffff;
+    color: #09090b;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 5px;
     padding: 3.5px 8px;
     font-size: 11px;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.25;
     text-align: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
     white-space: normal;
     word-wrap: break-word;
     letter-spacing: 0.15px;
 }
 
-/* Arrow (rotated square) */
+/* Arrow (rotated square): matches tooltip background */
 .ui-tooltip-arrow {
     position: absolute;
     width: 6px;
     height: 6px;
-    background: #18181b;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     transform: translateX(-50%) rotate(45deg);
 }
 .ui-tooltip[data-side="top"] .ui-tooltip-arrow {
@@ -7082,18 +7083,18 @@ body.light-mode .alert-dialog-action.action-primary:hover {
     margin-left: -3px;
 }
 
-/* Light mode — high-contrast crisp dark tooltip on light surface */
+/* Light mode — inverted high-contrast BLACK card on light surface */
 body.light-mode .ui-tooltip-content,
 html[data-theme="light"] .ui-tooltip-content {
-    background: #0f172a;
-    color: #f8fafc;
-    border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+    background: #09090b;
+    color: #fafafa;
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
 }
 body.light-mode .ui-tooltip-arrow,
 html[data-theme="light"] .ui-tooltip-arrow {
-    background: #0f172a;
-    border-color: rgba(255, 255, 255, 0.15);
+    background: #09090b;
+    border-color: rgba(255, 255, 255, 0.16);
 }
 
 /* Hide on touch devices without true hover pointer */
