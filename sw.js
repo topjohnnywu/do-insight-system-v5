@@ -1,8 +1,8 @@
 // Bump this version on EVERY code deploy/edit. A new version forces the
 // browser to install a fresh service worker and (via `activate`) delete the
 // old cache, so users always receive the latest HTML/CSS/JS instead of stale
-// cached copies. v82: added shadcn grouped dual-bar comparison chart to Shipping Insight.
-const CACHE_NAME = 'planner-cache-v82';
+// cached copies. v81: bulletproof DO Summary vs Batch Picking pre-flight detection and auto-swap alert dialog.
+const CACHE_NAME = 'planner-cache-v81';
 const urlsToCache = [
     '/',
     '/index.html',
