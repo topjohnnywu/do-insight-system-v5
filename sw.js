@@ -1,8 +1,8 @@
 // Bump this version on EVERY code deploy/edit. A new version forces the
 // browser to install a fresh service worker and (via `activate`) delete the
 // old cache, so users always receive the latest HTML/CSS/JS instead of stale
-// cached copies. v81: bulletproof DO Summary vs Batch Picking pre-flight detection and auto-swap alert dialog.
-const CACHE_NAME = 'planner-cache-v81';
+// cached copies. v83: upgraded Direct Delivery chart to shadcn vertical grouped dual-bar design.
+const CACHE_NAME = 'planner-cache-v83';
 const urlsToCache = [
     '/',
     '/index.html',

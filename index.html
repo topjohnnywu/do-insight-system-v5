@@ -360,15 +360,22 @@
             <!-- Direct Delivery Chart Container -->
             <div class="charts-container" style="grid-template-columns: 1fr;">
                 <!-- Addresses Exceeding 5 m³ Volume Chart Card -->
-                <div class="chart-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px;">
-                        <h3 style="margin-bottom: 0;">Addresses Exceeding 5 m³ Volume (able to go direct)</h3>
+                <div class="chart-card shadcn-chart-card">
+                    <div class="shadcn-chart-header">
+                        <div>
+                            <h3 class="shadcn-chart-title">Addresses Exceeding 5 m³ Volume (able to go direct)</h3>
+                            <p class="shadcn-chart-subtitle">
+                                Direct Delivery Eligible
+                                <span class="legend-badge legend-volume">■ Volume (m³)</span>
+                                <span class="legend-badge legend-docount">■ DO Count</span>
+                            </p>
+                        </div>
                         <button type="button" class="chart-action-btn" id="chartFilterDirectBtn" onclick="toggleDirectDeliveryQuickFilter()" title="Filter spreadsheet manifest to only Direct Delivery (> 5 m³) orders">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
                             <span>Filter Manifest</span>
                         </button>
                     </div>
-                    <div class="chart-wrapper">
+                    <div class="chart-wrapper" style="height: 300px; position: relative;">
                         <canvas id="consigneeChart"></canvas>
                     </div>
                 </div>
@@ -574,11 +581,11 @@
     </div>
 
     <!-- Modular JS Scripts -->
-    <script src="js/app.js?v=81"></script>
-    <script src="js/batch_analytics.js?v=81"></script>
-    <script src="js/parsers.js?v=81"></script>
-    <script src="js/charts.js?v=81"></script>
-    <script type="module" src="js/components/ui-select.js?v=81"></script>
+    <script src="js/app.js?v=83"></script>
+    <script src="js/batch_analytics.js?v=83"></script>
+    <script src="js/parsers.js?v=83"></script>
+    <script src="js/charts.js?v=83"></script>
+    <script type="module" src="js/components/ui-select.js?v=83"></script>
 
     <script>
         if ('serviceWorker' in navigator) {

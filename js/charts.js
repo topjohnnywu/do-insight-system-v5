@@ -214,11 +214,12 @@ if (document.readyState === "loading") {
 }
 
 // Render Consignees Chart (> 5 m³ volume, ALL consignees included)
+// Upgraded to shadcn grouped dual-bar design (Volume m³ vs DO Count)
 function renderCharts() {
     const consigneeChartElem = document.getElementById('consigneeChart');
     if (!consigneeChartElem) return;
 
-    const consigneeVol = {};
+    const consigneeStats = {};
     let courtsOriginalKey = null;
     let courtsHasSrWhse = false;
 
@@ -240,7 +241,11 @@ function renderCharts() {
                 return;
             }
 
-            consigneeVol[consigneeKey] = (consigneeVol[consigneeKey] || 0) + item.vol;
+            if (!consigneeStats[consigneeKey]) {
+                consigneeStats[consigneeKey] = { vol: 0, doCount: 0 };
+            }
+            consigneeStats[consigneeKey].vol += item.vol;
+            consigneeStats[consigneeKey].doCount += 1;
 
             // Detect COURTS consignee + Tampines North SR/WHSE address (col F)
             if (isCourts) {
@@ -253,89 +258,81 @@ function renderCharts() {
     });
 
     // Relabel COURTS bar to flag SR/WHSE direct-delivery hub (merged total volume)
-    if (courtsHasSrWhse && courtsOriginalKey && consigneeVol[courtsOriginalKey]) {
-        consigneeVol["COURTS (SINGAPORE) PTE LTD (SR/WHSE)"] = consigneeVol[courtsOriginalKey];
-        delete consigneeVol[courtsOriginalKey];
+    if (courtsHasSrWhse && courtsOriginalKey && consigneeStats[courtsOriginalKey]) {
+        consigneeStats["COURTS (SINGAPORE) PTE LTD (SR/WHSE)"] = consigneeStats[courtsOriginalKey];
+        delete consigneeStats[courtsOriginalKey];
     }
 
-    if (TopConsigneeChart) TopConsigneeChart.destroy();
+    if (TopConsigneeChart) {
+        TopConsigneeChart.destroy();
+        TopConsigneeChart = null;
+    }
 
-    const sortedConsignees = Object.entries(consigneeVol)
-        .filter(item => item[1] > 5)
-        .sort((a, b) => b[1] - a[1]);
+    const sortedConsignees = Object.entries(consigneeStats)
+        .filter(item => item[1].vol > 5)
+        .sort((a, b) => b[1].vol - a[1].vol);
+
+    if (sortedConsignees.length === 0) {
+        return;
+    }
 
     const isLight = isLightTheme();
-    const gridColor = isLight ? '#e2e8f0' : '#18181b';
-    const textColor = isLight ? '#334155' : '#a1a1aa';
+    const gridColor = isLight ? '#f4f4f5' : '#18181b';
+    const textColor = isLight ? '#71717a' : '#a1a1aa';
+    const tooltipBg = isLight ? '#ffffff' : '#09090b';
+    const tooltipBorder = isLight ? '#e4e4e7' : '#27272a';
+    const tooltipTitle = isLight ? '#09090b' : '#f4f4f5';
+    const tooltipBody = isLight ? '#27272a' : '#d4d4d8';
 
-    const VibrantColors = [
-        '#10b981', // Emerald Green
-        '#8b5cf6', // Royal Purple
-        '#3b82f6', // Electric Blue
-        '#f59e0b', // Sunset Amber
-        '#ec4899', // Neon Pink
-        '#06b6d4', // Cyan Teal
-        '#6366f1'  // Indigo
-    ];
+    const COLOR_VOLUME = '#2563eb';  // shadcn primary royal blue
+    const COLOR_DO_COUNT = '#60a5fa'; // shadcn secondary sky blue
 
-    const BorderColors = [
-        '#34d399',
-        '#a78bfa',
-        '#60a5fa',
-        '#fbbf24',
-        '#f472b6',
-        '#22d3ee',
-        '#818cf8'
-    ];
-
-    const barColors = sortedConsignees.map((_, idx) => VibrantColors[idx % VibrantColors.length]);
-    const barBorders = sortedConsignees.map((_, idx) => BorderColors[idx % BorderColors.length]);
-
-    const finalVolData = sortedConsignees.map(item => parseFloat(item[1].toFixed(2)));
+    const fullLabels = sortedConsignees.map(item => item[0]);
+    const finalVolData = sortedConsignees.map(item => parseFloat(item[1].vol.toFixed(2)));
+    const finalDoData = sortedConsignees.map(item => item[1].doCount);
 
     TopConsigneeChart = new Chart(consigneeChartElem, {
         type: 'bar',
         data: {
-            labels: sortedConsignees.map(item => item[0]),
-            datasets: [{
-                label: 'Volume (m³)',
-                data: sortedConsignees.map(() => 0), // Start from 0 to trigger growth animation
-                backgroundColor: barColors,
-                borderColor: barBorders,
-                borderWidth: 1.5,
-                borderRadius: 6,
-                borderSkipped: false
-            }]
+            labels: fullLabels,
+            datasets: [
+                {
+                    label: 'Volume (m³)',
+                    data: finalVolData,
+                    backgroundColor: COLOR_VOLUME,
+                    borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
+                    borderSkipped: false,
+                    barPercentage: 0.8,
+                    categoryPercentage: 0.65,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'DO Count',
+                    data: finalDoData,
+                    backgroundColor: COLOR_DO_COUNT,
+                    borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
+                    borderSkipped: false,
+                    barPercentage: 0.8,
+                    categoryPercentage: 0.65,
+                    yAxisID: 'y1'
+                }
+            ]
         },
         options: {
-            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
-            maxBarThickness: 28,
             animation: {
-                duration: 1200,
+                duration: 900,
                 easing: 'easeOutQuart'
             },
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: isLight ? '#ffffff' : '#09090b',
-                    titleColor: isLight ? '#0f172a' : '#ffffff',
-                    bodyColor: isLight ? '#059669' : '#34d399',
-                    borderColor: isLight ? '#cbd5e1' : '#27272a',
-                    borderWidth: 1,
-                    padding: 10,
-                    callbacks: {
-                        label: function(context) {
-                            return ' Volume: ' + context.parsed.x + ' m³ (Direct Delivery Eligible • Click to Filter)';
-                        }
-                    }
-                }
+            interaction: {
+                mode: 'index',
+                intersect: false
             },
             onClick: (event, elements) => {
                 if (elements && elements.length > 0) {
                     const elemIndex = elements[0].index;
-                    const clickedLabel = TopConsigneeChart.data.labels[elemIndex];
+                    const clickedLabel = fullLabels[elemIndex];
                     let searchName = clickedLabel;
                     if (searchName && searchName.includes("COURTS")) {
                         searchName = "COURTS";
@@ -345,25 +342,81 @@ function renderCharts() {
                     }
                 }
             },
-            scales: {
-                x: { 
-                    grid: { color: gridColor }, 
-                    ticks: { 
-                        color: textColor,
-                        callback: function(val) { return val + ' m³'; }
-                    } 
+            plugins: {
+                legend: {
+                    display: false // Using custom shadcn legend badges in card header
                 },
-                y: { grid: { color: gridColor }, ticks: { color: textColor, font: { weight: '600' } } }
+                tooltip: {
+                    backgroundColor: tooltipBg,
+                    borderColor: tooltipBorder,
+                    borderWidth: 1,
+                    titleColor: tooltipTitle,
+                    bodyColor: tooltipBody,
+                    cornerRadius: 8,
+                    padding: 10,
+                    callbacks: {
+                        title: function(items) {
+                            if (!items || !items.length) return '';
+                            return fullLabels[items[0].dataIndex] || '';
+                        },
+                        label: function(context) {
+                            if (context.datasetIndex === 0) {
+                                return ` Volume: ${context.parsed.y} m³`;
+                            } else {
+                                return ` DO Count: ${context.parsed.y} DO`;
+                            }
+                        },
+                        afterBody: function() {
+                            return '\n💡 Direct Delivery Eligible • Click to Filter Manifest';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        color: textColor,
+                        font: { size: 11, weight: '600' },
+                        maxRotation: 30,
+                        minRotation: 0,
+                        callback: function(val, index) {
+                            const name = fullLabels[index] || '';
+                            if (name.length > 22) {
+                                return name.substring(0, 20) + '...';
+                            }
+                            return name;
+                        }
+                    }
+                },
+                y: {
+                    type: 'linear',
+                    position: 'left',
+                    beginAtZero: true,
+                    grid: {
+                        color: gridColor,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: COLOR_VOLUME,
+                        font: { size: 11, weight: '600' },
+                        callback: function(val) { return val + ' m³'; }
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    position: 'right',
+                    beginAtZero: true,
+                    grid: { display: false },
+                    ticks: {
+                        color: COLOR_DO_COUNT,
+                        font: { size: 11, weight: '600' },
+                        precision: 0,
+                        callback: function(val) { return val + ' DO'; }
+                    }
+                }
             }
         }
-    });
-
-    // Trigger smooth bar growth animation extending from 0 to full volume
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            TopConsigneeChart.data.datasets[0].data = finalVolData;
-            TopConsigneeChart.update();
-        });
     });
 }
 
