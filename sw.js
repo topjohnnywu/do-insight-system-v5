@@ -1,8 +1,8 @@
 // Bump this version on EVERY code deploy/edit. A new version forces the
 // browser to install a fresh service worker and (via `activate`) delete the
 // old cache, so users always receive the latest HTML/CSS/JS instead of stale
-// cached copies. v88: fix AI/FAST badge truncation in OCR scanner nav item on expanded autohide sidebar.
-const CACHE_NAME = 'planner-cache-v88';
+// cached copies. v89: universal Shadcn selects without CORS blocking under file:// protocol.
+const CACHE_NAME = 'planner-cache-v89';
 const urlsToCache = [
     '/',
     '/index.html',

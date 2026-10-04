@@ -20,7 +20,7 @@ const SVG_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 let _uid = 0;
 const _openInstances = new Set();
 
-export class UISelect {
+class UISelect {
     constructor(select, options = {}) {
         if (!select || select.tagName !== 'SELECT') {
             throw new Error('UISelect requires a native <select> element');
@@ -350,7 +350,7 @@ export class UISelect {
 }
 
 /* ---------- Bulk enhance ---------- */
-export function enhanceSelects(root = document, filter) {
+function enhanceSelects(root = document, filter) {
     const selects = root.querySelectorAll('select:not([data-no-ui-select])');
     const out = [];
     selects.forEach(s => {
@@ -382,4 +382,13 @@ if (typeof document !== 'undefined') {
         }
     });
     mo.observe(document.documentElement, { childList: true, subtree: true });
+}
+
+// Expose globally for classic script tags (file:/// and http:// compatible)
+if (typeof window !== 'undefined') {
+    window.UISelect = UISelect;
+    window.enhanceSelects = enhanceSelects;
+}
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { UISelect, enhanceSelects };
 }
