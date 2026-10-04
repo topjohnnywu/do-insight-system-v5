@@ -1,8 +1,8 @@
 // Bump this version on EVERY code deploy/edit. A new version forces the
 // browser to install a fresh service worker and (via `activate`) delete the
 // old cache, so users always receive the latest HTML/CSS/JS instead of stale
-// cached copies. v77: smart file chip labels with Option B (Batch DD/MM/YYYY) and tooltips.
-const CACHE_NAME = 'planner-cache-v77';
+// cached copies. v78: smart file chip labels with Summary DD/MM/YYYY and Batch DD/MM/YYYY.
+const CACHE_NAME = 'planner-cache-v78';
 const urlsToCache = [
     '/',
     '/index.html',

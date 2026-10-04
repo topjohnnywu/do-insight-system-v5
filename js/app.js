@@ -53,15 +53,15 @@ let activeDataSourceType = 'none'; // 'generator' | 'upload' | 'sample'
 let activeDataSourceDetail = '';
 
 // Format raw file names into clean, readable chip labels (Option B)
-function formatFileChipLabel(rawName) {
+function formatFileChipLabel(rawName, contextPrefix) {
     if (!rawName || rawName === 'ALL') return rawName;
 
     // 1. Strip common file extensions (.xlsm, .xlsx, .xls, .csv)
     let clean = String(rawName).replace(/\.(xlsm|xlsx|xls|csv)$/i, '').trim();
 
-    // 2. Determine file category
-    const isBatch = /batch\s*picking/i.test(clean) || /batch/i.test(clean);
-    const isDO = /do\s*summary/i.test(clean) || /\bdo\b/i.test(clean);
+    // 2. Determine file category (either from contextPrefix or file name)
+    const isBatch = contextPrefix === 'Batch' || /batch\s*picking/i.test(clean) || /batch/i.test(clean);
+    const isSummary = contextPrefix === 'Summary' || /do\s*summary/i.test(clean) || /\bdo\b/i.test(clean) || /summary/i.test(clean);
 
     // 3. Extract Date:
     let formattedDate = "";
@@ -90,12 +90,12 @@ function formatFileChipLabel(rawName) {
         }
     }
 
-    if (isBatch && formattedDate) {
-        return `Batch ${formattedDate}`;
+    if (isSummary && formattedDate) {
+        return `Summary ${formattedDate}`;
     }
 
-    if (isDO && formattedDate) {
-        return `DO ${formattedDate}`;
+    if (isBatch && formattedDate) {
+        return `Batch ${formattedDate}`;
     }
 
     if (formattedDate) {
@@ -147,11 +147,11 @@ function updateMemoryBadge() {
     const chipRemoveSvg = `<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
     let html = "";
     if (displayDoName) {
-        const labelDo = displayDoName.startsWith("All") ? displayDoName : formatFileChipLabel(displayDoName);
+        const labelDo = displayDoName.startsWith("All") ? displayDoName : formatFileChipLabel(displayDoName, 'Summary');
         html += `<span class="file-chip green" data-filetype="do" data-tip="DO Summary File: ${displayDoName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${labelDo}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('do')" title="Remove DO Summary File" aria-label="Remove DO Summary File">${chipRemoveSvg}</button></span>`;
     }
     if (displayRouteName) {
-        const labelRoute = displayRouteName.startsWith("All") ? displayRouteName : formatFileChipLabel(displayRouteName);
+        const labelRoute = displayRouteName.startsWith("All") ? displayRouteName : formatFileChipLabel(displayRouteName, 'Batch');
         html += `<span class="file-chip blue" data-filetype="batch" data-tip="Batch Picking File: ${displayRouteName}"><span class="file-chip-spinner" aria-hidden="true">${chipSpinnerSvg}</span><span class="chip-label">${labelRoute}</span> <button type="button" class="chip-remove-btn" onclick="resetSpecificFile('batch')" title="Remove Batch Picking File" aria-label="Remove Batch Picking File">${chipRemoveSvg}</button></span>`;
     }
     if (SavedInsightName) {
@@ -2478,7 +2478,7 @@ function bootRestoreSavedFiles() {
                 const keys = Object.keys(MasterBatchLookupMap);
                 let chipsHtml = `<button class="file-chip" data-filename="ALL" onclick="filterBatchByFile('ALL', this)">All Files Combined (${keys.length})</button>`;
                 keys.forEach(f => {
-                    chipsHtml += `<button class="file-chip" data-filename="${f}" data-tip="${f}" onclick="filterBatchByFile('${f}', this)">${formatFileChipLabel(f)}</button>`;
+                    chipsHtml += `<button class="file-chip" data-filename="${f}" data-tip="${f}" onclick="filterBatchByFile('${f}', this)">${formatFileChipLabel(f, 'Batch')}</button>`;
                 });
                 batchFileChips.innerHTML = chipsHtml;
                 
@@ -2529,7 +2529,7 @@ function bootRestoreSavedFiles() {
                 if (doSummaryChips) {
                     let chipsHtml = `<button class="file-chip" data-filename="ALL" onclick="filterByFile('ALL', this)">All Files Combined (${uniqueFiles.length})</button>`;
                     uniqueFiles.forEach(f => {
-                        chipsHtml += `<button class="file-chip" data-filename="${f}" data-tip="${f}" onclick="filterByFile('${f}', this)">${formatFileChipLabel(f)}</button>`;
+                        chipsHtml += `<button class="file-chip" data-filename="${f}" data-tip="${f}" onclick="filterByFile('${f}', this)">${formatFileChipLabel(f, 'Summary')}</button>`;
                     });
                     doSummaryChips.innerHTML = chipsHtml;
                     
