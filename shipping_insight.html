@@ -971,6 +971,31 @@
                 </div>
             </div>
 
+            <!-- Comparative Status Breakdown (shadcn Grouped Bar Chart) -->
+            <div class="chart-card shadcn-chart-card" id="shippingComparisonCard" style="margin-bottom: 24px;">
+                <div class="shadcn-chart-header">
+                    <div>
+                        <h3 class="shadcn-chart-title">Scanning Progress Breakdown</h3>
+                        <p class="shadcn-chart-subtitle">
+                            Completed vs. Pending DOs
+                            <span class="legend-badge legend-completed">■ Completed</span>
+                            <span class="legend-badge legend-pending">■ Pending</span>
+                        </p>
+                    </div>
+                    <div class="shadcn-chart-controls">
+                        <span class="control-label">Group by:</span>
+                        <div class="segmented-control" id="shippingChartGroupByControl" role="tablist" aria-label="Chart Group By">
+                            <button type="button" class="btn-segment active" data-group="hub" onclick="setShippingChartGroupBy('hub')">Hub</button>
+                            <button type="button" class="btn-segment" data-group="route" onclick="setShippingChartGroupBy('route')">Route</button>
+                            <button type="button" class="btn-segment" data-group="truck" onclick="setShippingChartGroupBy('truck')">Truck</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-wrapper" style="height: 270px; position: relative;">
+                    <canvas id="shippingComparisonBarChart"></canvas>
+                </div>
+            </div>
+
             <!-- Full Width Detailed Status Manifest Table Card -->
             <div class="table-card manifest-card" style="margin-bottom: 24px;">
                 <div class="manifest-card-header">
@@ -1045,6 +1070,8 @@
         let BigTypeChartObj = null;
         let SmallTypeChartObj = null;
         let MixTypeChartObj = null;
+        let ShippingComparisonChartObj = null;
+        let shippingChartGroupBy = 'hub';
         let celebrationTimeoutId = null;
         let LastCelebratedKey = null;
 
@@ -1658,6 +1685,247 @@
             BigTypeChartObj = buildProgressDoughnut('bigTypeChart', BigTypeChartObj, TypeMetrics.BIG.completed + TypeMetrics.MIX.completed, TypeMetrics.BIG.total + TypeMetrics.MIX.total, '#8b5cf6', 'bigPctText');
             SmallTypeChartObj = buildProgressDoughnut('smallTypeChart', SmallTypeChartObj, TypeMetrics.SMALL.completed + TypeMetrics.MIX.completed, TypeMetrics.SMALL.total + TypeMetrics.MIX.total, '#3b82f6', 'smallPctText');
             MixTypeChartObj = buildProgressDoughnut('mixTypeChart', MixTypeChartObj, TypeMetrics.MIX.completed, TypeMetrics.MIX.total, '#f59e0b', 'mixPctText');
+
+            // Render shadcn-styled dual-bar comparison chart
+            renderShippingComparisonChart(Filtered);
+        }
+
+        function setShippingChartGroupBy(mode) {
+            shippingChartGroupBy = mode;
+            const container = document.getElementById("shippingChartGroupByControl");
+            if (container) {
+                container.querySelectorAll(".btn-segment").forEach(btn => {
+                    btn.classList.toggle("active", btn.getAttribute("data-group") === mode);
+                });
+            }
+            if (window.lastFilteredShippingRecords) {
+                renderShippingComparisonChart(window.lastFilteredShippingRecords);
+            } else {
+                applyInsightFilter();
+            }
+        }
+
+        function drilldownFromShippingChart(clickedGroup, groupType) {
+            if (!clickedGroup) return;
+
+            if (groupType === 'hub') {
+                const hubSelect = document.getElementById("hubFilter");
+                if (hubSelect) {
+                    let found = false;
+                    for (let opt of hubSelect.options) {
+                        if (opt.value.toUpperCase() === clickedGroup.toUpperCase()) {
+                            hubSelect.value = opt.value;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        const search = document.getElementById("insightSearch");
+                        if (search) search.value = clickedGroup === "UNASSIGNED" ? "" : clickedGroup;
+                    }
+                }
+            } else if (groupType === 'truck') {
+                const truckSelect = document.getElementById("truckFilter");
+                const cleanTruck = clickedGroup.replace(/^truck\s*/i, '').trim();
+                if (truckSelect) {
+                    let found = false;
+                    for (let opt of truckSelect.options) {
+                        if (opt.value.toUpperCase() === cleanTruck.toUpperCase()) {
+                            truckSelect.value = opt.value;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        const search = document.getElementById("insightSearch");
+                        if (search) search.value = cleanTruck === "UNASSIGNED" ? "" : cleanTruck;
+                    }
+                }
+            } else if (groupType === 'route') {
+                const search = document.getElementById("insightSearch");
+                if (search) {
+                    search.value = clickedGroup === "OTHER" ? "" : clickedGroup;
+                }
+            }
+
+            applyInsightFilter();
+
+            // Smooth scroll down to the manifest table
+            const tableCard = document.querySelector('.manifest-card');
+            if (tableCard) {
+                tableCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function renderShippingComparisonChart(records) {
+            const canvas = document.getElementById("shippingComparisonBarChart");
+            if (!canvas) return;
+
+            window.lastFilteredShippingRecords = records || [];
+            const validRecords = (records || []).filter(item => item.doType !== "UNMATCHED DO");
+
+            // Group counts
+            const groupMap = {}; // groupKey -> { completed: number, pending: number, total: number }
+
+            validRecords.forEach(item => {
+                let key = "UNASSIGNED";
+                if (shippingChartGroupBy === 'hub') {
+                    const h = String(item.hub || '').trim();
+                    key = (h && h !== 'N/A') ? h.toUpperCase() : "UNASSIGNED";
+                } else if (shippingChartGroupBy === 'truck') {
+                    const t = String(item.truck || '').trim();
+                    key = (t && t !== 'N/A') ? `Truck ${t}` : "UNASSIGNED";
+                } else if (shippingChartGroupBy === 'route') {
+                    // Extract route code from address (e.g. "SOP - ...", "LEA - ...")
+                    const match = String(item.addr || '').match(/^([A-Z0-9]{2,6})\s*[-–—]/i);
+                    if (match) {
+                        key = match[1].toUpperCase();
+                    } else if (item.route && item.route.trim() !== '' && item.route !== 'N/A') {
+                        key = String(item.route).toUpperCase().trim();
+                    } else {
+                        key = "OTHER";
+                    }
+                }
+
+                if (!groupMap[key]) {
+                    groupMap[key] = { completed: 0, pending: 0, total: 0 };
+                }
+
+                const isCompleted = item.status && item.status.includes("Completed");
+                if (isCompleted) {
+                    groupMap[key].completed++;
+                } else {
+                    groupMap[key].pending++;
+                }
+                groupMap[key].total++;
+            });
+
+            // Sort categories descending by total DO count, top 12
+            const sortedGroups = Object.entries(groupMap)
+                .sort((a, b) => b[1].total - a[1].total)
+                .slice(0, 12);
+
+            const labels = sortedGroups.map(g => g[0]);
+            const completedData = sortedGroups.map(g => g[1].completed);
+            const pendingData = sortedGroups.map(g => g[1].pending);
+
+            const isLight = isLightTheme();
+            const gridColor = isLight ? '#f4f4f5' : '#18181b';
+            const textColor = isLight ? '#71717a' : '#a1a1aa';
+            const tooltipBg = isLight ? '#ffffff' : '#09090b';
+            const tooltipBorder = isLight ? '#e4e4e7' : '#27272a';
+            const tooltipTitle = isLight ? '#09090b' : '#f4f4f5';
+            const tooltipBody = isLight ? '#27272a' : '#d4d4d8';
+
+            const COLOR_COMPLETED = '#2563eb'; // shadcn primary blue
+            const COLOR_PENDING = '#60a5fa';   // shadcn light sky blue
+
+            if (ShippingComparisonChartObj) {
+                ShippingComparisonChartObj.destroy();
+                ShippingComparisonChartObj = null;
+            }
+
+            if (labels.length === 0) {
+                return;
+            }
+
+            ShippingComparisonChartObj = new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Completed DO',
+                            data: completedData,
+                            backgroundColor: COLOR_COMPLETED,
+                            borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
+                            borderSkipped: false,
+                            barPercentage: 0.8,
+                            categoryPercentage: 0.65
+                        },
+                        {
+                            label: 'Pending DO',
+                            data: pendingData,
+                            backgroundColor: COLOR_PENDING,
+                            borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
+                            borderSkipped: false,
+                            barPercentage: 0.8,
+                            categoryPercentage: 0.65
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 700,
+                        easing: 'easeOutQuart'
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    onClick: (evt, elements) => {
+                        if (elements && elements.length > 0) {
+                            const idx = elements[0].index;
+                            const clickedGroup = labels[idx];
+                            drilldownFromShippingChart(clickedGroup, shippingChartGroupBy);
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: tooltipBg,
+                            borderColor: tooltipBorder,
+                            borderWidth: 1,
+                            titleColor: tooltipTitle,
+                            bodyColor: tooltipBody,
+                            cornerRadius: 8,
+                            padding: 10,
+                            callbacks: {
+                                afterTitle: function(items) {
+                                    if (!items || !items.length) return '';
+                                    const idx = items[0].dataIndex;
+                                    const comp = completedData[idx] || 0;
+                                    const pend = pendingData[idx] || 0;
+                                    const tot = comp + pend;
+                                    const rate = tot > 0 ? Math.round((comp / tot) * 100) : 0;
+                                    return `Total: ${tot} DO (${rate}% Completed)`;
+                                },
+                                label: function(context) {
+                                    return ` ${context.dataset.label}: ${context.parsed.y} DO`;
+                                },
+                                afterBody: function() {
+                                    return '\n💡 Click bar to filter manifest';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: textColor,
+                                font: { size: 11, weight: '600' }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: gridColor,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: textColor,
+                                font: { size: 11 },
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         window.onload = function() {
