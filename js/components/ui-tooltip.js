@@ -5,13 +5,14 @@
 (function () {
     "use strict";
 
-    const SHOW_DELAY = 450;   // ms deliberate hover intent (prevents accidental popups when skimming)
-    const HIDE_DELAY = 80;    // ms grace period before hiding
+    const SHOW_DELAY = 180;   // ms deliberate hover intent (snappy, modern feel)
+    const HIDE_DELAY = 60;    // ms grace period before hiding
     const OFFSET = 6;         // gap between trigger and tooltip
     const VIEWPORT_PAD = 8;   // min distance from viewport edge
 
     let tipEl = null;         // singleton tooltip node
     let activeTrigger = null;
+    let pendingTrigger = null;
     let showTimer = null;
     let hideTimer = null;
     let idCounter = 0;
@@ -110,9 +111,17 @@
     }
 
     function show(trigger) {
+        if (!trigger || !document.contains(trigger)) {
+            cancelPending();
+            return;
+        }
         const text = getText(trigger);
-        if (!text) return;
+        if (!text) {
+            cancelPending();
+            return;
+        }
         clearTimeout(hideTimer);
+        cancelPending();
         activeTrigger = trigger;
         const tip = ensureTipEl();
         tip.querySelector(".ui-tooltip-content").textContent = text;
@@ -125,56 +134,143 @@
         tip.hidden = false;
     }
 
+    function cancelPending() {
+        if (showTimer) {
+            clearTimeout(showTimer);
+            showTimer = null;
+        }
+        pendingTrigger = null;
+    }
+
     function hide() {
-        clearTimeout(showTimer);
+        cancelPending();
+        if (hideTimer) {
+            clearTimeout(hideTimer);
+            hideTimer = null;
+        }
         const tip = tipEl;
         if (!tip) return;
         tip.classList.remove("ui-tooltip-open");
         if (activeTrigger) activeTrigger.removeAttribute("aria-describedby");
         activeTrigger = null;
-        hideTimer = setTimeout(() => { if (tipEl) tipEl.hidden = true; }, 120);
+        hideTimer = setTimeout(() => {
+            if (tipEl && !activeTrigger) tipEl.hidden = true;
+        }, 120);
     }
 
     function scheduleShow(trigger) {
-        clearTimeout(showTimer);
-        clearTimeout(hideTimer);
-        showTimer = setTimeout(() => show(trigger), SHOW_DELAY);
+        cancelPending();
+        if (hideTimer) {
+            clearTimeout(hideTimer);
+            hideTimer = null;
+        }
+        pendingTrigger = trigger;
+        showTimer = setTimeout(() => {
+            if (pendingTrigger === trigger && document.contains(trigger)) {
+                show(trigger);
+            }
+        }, SHOW_DELAY);
     }
+
     function scheduleHide() {
-        clearTimeout(showTimer);
-        clearTimeout(hideTimer);
+        cancelPending();
+        if (hideTimer) {
+            clearTimeout(hideTimer);
+            hideTimer = null;
+        }
         hideTimer = setTimeout(hide, HIDE_DELAY);
     }
 
     function onOver(e) {
         const t = e.target.closest && e.target.closest("[data-tip], [data-tooltip]");
-        if (t && t !== activeTrigger) {
-            scheduleShow(t);
+        // Moving within current active trigger
+        if (t && t === activeTrigger) {
+            if (hideTimer) {
+                clearTimeout(hideTimer);
+                hideTimer = null;
+            }
+            return;
+        }
+        // Hovering a new trigger
+        if (t) {
+            if (t !== pendingTrigger) {
+                scheduleShow(t);
+            }
+            return;
+        }
+        // Mouse moved over an element without tooltip
+        if (pendingTrigger) {
+            cancelPending();
+        }
+        if (activeTrigger) {
+            scheduleHide();
         }
     }
+
     function onOut(e) {
         const t = e.target.closest && e.target.closest("[data-tip], [data-tooltip]");
-        if (t && t === activeTrigger) scheduleHide();
+        if (!t) return;
+
+        // Ignore transitions between child nodes of the same trigger
+        const related = e.relatedTarget;
+        if (related && t.contains(related)) {
+            return;
+        }
+
+        // Mouse genuinely exited the trigger
+        if (t === pendingTrigger) {
+            cancelPending();
+        }
+        if (t === activeTrigger) {
+            scheduleHide();
+        }
     }
+
+    function onPointerDown() {
+        // Dismiss tooltip immediately when clicking/pressing anywhere
+        cancelPending();
+        if (activeTrigger) hide();
+    }
+
+    function onDocMouseLeave() {
+        // Cursor left the browser window
+        cancelPending();
+        if (activeTrigger) hide();
+    }
+
     function onFocus(e) {
         const t = e.target.closest && e.target.closest("[data-tip], [data-tooltip]");
         if (t) show(t);
     }
+
     function onBlur(e) {
         const t = e.target.closest && e.target.closest("[data-tip], [data-tooltip]");
-        if (t && t === activeTrigger) hide();
+        if (t && (t === activeTrigger || t === pendingTrigger)) hide();
     }
-    function onKey(e) { if (e.key === "Escape") hide(); }
-    function onScroll() { if (activeTrigger) hide(); }
+
+    function onKey(e) {
+        if (e.key === "Escape") {
+            cancelPending();
+            hide();
+        }
+    }
+
+    function onScroll() {
+        cancelPending();
+        if (activeTrigger) hide();
+    }
 
     function init() {
         if (init.__bound) return;
         init.__bound = true;
         document.addEventListener("mouseover", onOver, true);
         document.addEventListener("mouseout", onOut, true);
+        document.addEventListener("pointerdown", onPointerDown, true);
         document.addEventListener("focusin", onFocus, true);
         document.addEventListener("focusout", onBlur, true);
         document.addEventListener("keydown", onKey, true);
+        document.documentElement.addEventListener("mouseleave", onDocMouseLeave);
+        window.addEventListener("blur", onDocMouseLeave);
         window.addEventListener("scroll", onScroll, true);
         window.addEventListener("resize", onScroll, true);
     }

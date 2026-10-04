@@ -1,8 +1,8 @@
 // Bump this version on EVERY code deploy/edit. A new version forces the
 // browser to install a fresh service worker and (via `activate`) delete the
 // old cache, so users always receive the latest HTML/CSS/JS instead of stale
-// cached copies. v31: wave badge shows just the number, with "Wave N" tooltip.
-const CACHE_NAME = 'planner-cache-v72';
+// cached copies. v74: fix tooltip lingering bug and reduce delay to 180ms.
+const CACHE_NAME = 'planner-cache-v74';
 const urlsToCache = [
     '/',
     '/index.html',

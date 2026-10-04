@@ -32,6 +32,17 @@ class DOSummaryGenerator {
         this.init();
     }
 
+    isFinalSummaryName(name) {
+        if (!name) return false;
+        const upper = String(name).trim().toUpperCase();
+        return upper === "FINAL SUMMARY" || upper === "FINAL SUMMARY LIST" || upper.includes("FINAL SUMMARY");
+    }
+
+    isFinalSummaryBatch(batch) {
+        if (!batch) return false;
+        return this.isFinalSummaryName(batch.batchName);
+    }
+
     init() {
         this.isSimplifyMode = true;
         this.loadFromStorage();
@@ -54,7 +65,7 @@ class DOSummaryGenerator {
                 this.batches = JSON.parse(stored);
                 // Ensure all records have selected property initialized
                 this.batches.forEach(b => {
-                if (b.batchName === "FINAL SUMMARY") return;
+                    if (this.isFinalSummaryBatch(b)) return;
                     if (b.records) {
                         b.records.forEach(r => {
                             if (r.selected === undefined) r.selected = true;
@@ -66,7 +77,7 @@ class DOSummaryGenerator {
                 this.batches = [];
             }
         }
-        this.hasCompiledFinalSummary = localStorage.getItem("DO_Summary_Generator_Compiled") === "1";
+        this.hasCompiledFinalSummary = localStorage.getItem("DO_Summary_Generator_Compiled") === "1" || this.batches.some(b => this.isFinalSummaryBatch(b));
         this.targetFileName = localStorage.getItem("DO_Summary_Generator_FileName") || "";
         this.generatorDate = localStorage.getItem("DO_Summary_Generator_Date") || "";
 
@@ -237,6 +248,10 @@ class DOSummaryGenerator {
         }
         
         const activeBatch = this.batches[this.currentBatchIndex];
+        if (this.isFinalSummaryBatch(activeBatch)) {
+            return this.resetFinalSummary();
+        }
+
         const confirmed = await this.showConfirmDialog({
             title: `Delete ${activeBatch.batchName}?`,
             message: `Are you sure you want to delete ${activeBatch.batchName} containing ${activeBatch.records.length} DO records?`,
@@ -264,6 +279,10 @@ class DOSummaryGenerator {
         }
 
         const targetBatch = this.batches[index];
+        if (this.isFinalSummaryBatch(targetBatch)) {
+            return this.resetFinalSummary();
+        }
+
         const confirmed = await this.showConfirmDialog({
             title: `Delete ${targetBatch.batchName}?`,
             message: `Are you sure you want to delete ${targetBatch.batchName} containing ${targetBatch.records.length} DO records?`,
@@ -286,7 +305,8 @@ class DOSummaryGenerator {
     }
 
     async resetFinalSummary() {
-        if (!this.hasCompiledFinalSummary) {
+        const hasFinalBatch = this.batches.some(b => this.isFinalSummaryBatch(b));
+        if (!this.hasCompiledFinalSummary && !hasFinalBatch) {
             this.showToast("No compiled Final Summary exists.", "info");
             return;
         }
@@ -300,15 +320,12 @@ class DOSummaryGenerator {
         
         this.hasCompiledFinalSummary = false;
         
-        // Remove the FINAL SUMMARY batch from the array
-        const finalBatchIndex = this.batches.findIndex(b => b.batchName === "FINAL SUMMARY");
-        if (finalBatchIndex >= 0) {
-            this.batches.splice(finalBatchIndex, 1);
-            
-            // Adjust current batch index if we were looking at the deleted tab or it's out of bounds
-            if (this.currentBatchIndex >= this.batches.length) {
-                this.currentBatchIndex = Math.max(0, this.batches.length - 1);
-            }
+        // Remove all matching final summary batches from the array
+        this.batches = this.batches.filter(b => !this.isFinalSummaryBatch(b));
+        
+        // Adjust current batch index if we were looking at the deleted tab or it's out of bounds
+        if (this.currentBatchIndex >= this.batches.length) {
+            this.currentBatchIndex = Math.max(0, this.batches.length - 1);
         }
 
         localStorage.removeItem("DO_Summary_Generator_Compiled");
@@ -756,7 +773,7 @@ class DOSummaryGenerator {
         // DUPLICATE CHECK ACROSS ALL ACTIVE BATCHES
         const existingMap = {};
         this.batches.forEach(b => {
-                if (b.batchName === "FINAL SUMMARY") return;
+            if (this.isFinalSummaryBatch(b)) return;
             b.records.forEach(r => {
                 existingMap[r.invoiceNo] = b.batchName;
             });
@@ -826,7 +843,7 @@ class DOSummaryGenerator {
 
                 // Match against all existing batches in memory
                 this.batches.forEach(b => {
-                if (b.batchName === "FINAL SUMMARY") return;
+                    if (this.isFinalSummaryBatch(b)) return;
                     b.records.forEach(r => {
                         if (r.invoiceNo === invoiceNo) {
                             let isUpdated = false;
@@ -879,7 +896,7 @@ class DOSummaryGenerator {
 
     // Compile Final Summary List by merging all batches
     async compileFinalSummary() {
-        const sourceBatches = this.batches.filter(b => b.batchName !== "FINAL SUMMARY");
+        const sourceBatches = this.batches.filter(b => !this.isFinalSummaryBatch(b));
 
         if (sourceBatches.length === 0) {
             this.showToast("No batches available to compile. Please upload a source file first!", "warning");
@@ -896,7 +913,7 @@ class DOSummaryGenerator {
         });
 
         // Add or update FINAL SUMMARY batch
-        const finalBatchIndex = this.batches.findIndex(b => b.batchName === "FINAL SUMMARY");
+        const finalBatchIndex = this.batches.findIndex(b => this.isFinalSummaryBatch(b));
         const finalBatchObj = {
             batchName: "FINAL SUMMARY",
             waveNumber: "ALL",
@@ -1021,7 +1038,7 @@ class DOSummaryGenerator {
 
         // 1. Add individual Batch sheets
         this.batches.forEach((b, batchIdx) => {
-            if (b.batchName === "FINAL SUMMARY") return; 
+            if (this.isFinalSummaryBatch(b)) return; 
             const sheetData = [];
             const activeRecords = b.records.filter(r => r.selected !== false);
             
@@ -1130,7 +1147,7 @@ class DOSummaryGenerator {
             let challengerDOCount = 0;
 
             this.batches.forEach(b => {
-                if (b.batchName === "FINAL SUMMARY") return;
+                if (this.isFinalSummaryBatch(b)) return;
                 const batchCleanName = b.batchName.replace("Batch ", "");
                 const waveCleanNum = b.waveNumber || "-";
 
@@ -1353,20 +1370,21 @@ class DOSummaryGenerator {
                     const workbook = XLSX.read(dataBuffer, { type: 'array' });
                     
                     const cleanBatches = [];
+                    let finalSummaryBatch = null;
                     let totalImportedDO = 0;
                     
                     workbook.SheetNames.forEach((sheetName) => {
-                        if (sheetName.toUpperCase() === "FINAL SUMMARY") return;
+                        const isFinalSheet = this.isFinalSummaryName(sheetName);
                         
                         const sheet = workbook.Sheets[sheetName];
                         const rawRows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false });
                         
                         if (!rawRows || rawRows.length < 3) return;
                         
-                        let waveNumber = "01";
-                        let batchName = sheetName;
+                        let waveNumber = isFinalSheet ? "ALL" : "01";
+                        let batchName = isFinalSheet ? "FINAL SUMMARY" : sheetName;
                         
-                        if (rawRows[0] && rawRows[0][11] && String(rawRows[0][11]).includes("Wave :")) {
+                        if (!isFinalSheet && rawRows[0] && rawRows[0][11] && String(rawRows[0][11]).includes("Wave :")) {
                             waveNumber = String(rawRows[0][11]).replace("Wave :", "").trim();
                         }
                         
@@ -1435,14 +1453,29 @@ class DOSummaryGenerator {
                         }
                         
                         if (records.length > 0) {
-                            totalImportedDO += records.length;
-                            cleanBatches.push({
-                                batchName: batchName,
-                                waveNumber: waveNumber,
-                                records: records
-                            });
+                            if (isFinalSheet) {
+                                finalSummaryBatch = {
+                                    batchName: "FINAL SUMMARY",
+                                    waveNumber: "ALL",
+                                    records: records
+                                };
+                            } else {
+                                totalImportedDO += records.length;
+                                cleanBatches.push({
+                                    batchName: batchName,
+                                    waveNumber: waveNumber,
+                                    records: records
+                                });
+                            }
                         }
                     });
+                    
+                    if (finalSummaryBatch) {
+                        cleanBatches.push(finalSummaryBatch);
+                        if (cleanBatches.length === 1) {
+                            totalImportedDO = finalSummaryBatch.records.length;
+                        }
+                    }
                     
                     if (cleanBatches.length === 0 || totalImportedDO === 0) {
                         this.showToast("No valid DO records found in the Excel file.", "warning");
@@ -1452,9 +1485,7 @@ class DOSummaryGenerator {
                     if (this.batches && this.batches.length > 0) {
                         const choice = await this.showConfirmDialog({
                             title: "Import Excel Session",
-                            message: `Existing session contains ${this.batches.length} batch(es).
-
-Do you want to REPLACE your current session (Confirm) or keep current session (Cancel)?`,
+                            message: `Existing session contains ${this.batches.length} batch(es).\n\nDo you want to REPLACE your current session (Confirm) or keep current session (Cancel)?`,
                             confirmText: "Replace All",
                             cancelText: "Cancel",
                             isDanger: true
@@ -1466,11 +1497,15 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
                     }
                     
                     this.batches = cleanBatches;
-                    this.hasCompiledFinalSummary = false; 
+                    this.hasCompiledFinalSummary = Boolean(finalSummaryBatch);
+                    this.currentBatchIndex = 0;
                     this.saveToStorage();
                     this.renderUI();
                     
-                    this.showToast(`Imported ${cleanBatches.length} batch(es) from Excel successfully!`, "success");
+                    const batchCountDesc = finalSummaryBatch && cleanBatches.length > 1
+                        ? `${cleanBatches.length - 1} batch(es) + Final Summary`
+                        : `${cleanBatches.length} batch(es)`;
+                    this.showToast(`Imported ${batchCountDesc} from Excel successfully!`, "success");
 
                 } catch (err) {
                     console.error("Excel Session Import Error:", err);
@@ -1510,12 +1545,14 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
 
                 // Sanitize and validate imported batches
                 const cleanBatches = [];
+                let finalSummaryBatch = null;
                 let totalImportedDO = 0;
 
                 importedBatches.forEach((b, bIdx) => {
                     if (!b) return;
-                    const batchName = b.batchName || `Batch ${String(bIdx + 1).padStart(2, '0')}`;
-                    const waveNumber = b.waveNumber || "01";
+                    const isFinal = this.isFinalSummaryBatch(b);
+                    const batchName = isFinal ? "FINAL SUMMARY" : (b.batchName || `Batch ${String(bIdx + 1).padStart(2, '0')}`);
+                    const waveNumber = isFinal ? "ALL" : (b.waveNumber || "01");
                     const records = [];
 
                     if (Array.isArray(b.records)) {
@@ -1556,13 +1593,28 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
                         });
                     }
 
-                    totalImportedDO += records.length;
-                    cleanBatches.push({
-                        batchName: batchName,
-                        waveNumber: waveNumber,
-                        records: records
-                    });
+                    if (isFinal) {
+                        finalSummaryBatch = {
+                            batchName: "FINAL SUMMARY",
+                            waveNumber: "ALL",
+                            records: records
+                        };
+                    } else {
+                        totalImportedDO += records.length;
+                        cleanBatches.push({
+                            batchName: batchName,
+                            waveNumber: waveNumber,
+                            records: records
+                        });
+                    }
                 });
+
+                if (finalSummaryBatch) {
+                    cleanBatches.push(finalSummaryBatch);
+                    if (cleanBatches.length === 1) {
+                        totalImportedDO = finalSummaryBatch.records.length;
+                    }
+                }
 
                 if (cleanBatches.length === 0 || totalImportedDO === 0) {
                     this.showToast("No valid DO records found in the JSON file.", "warning");
@@ -1589,8 +1641,12 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
                 this.batches = cleanBatches;
                 if (content.targetFileName) this.targetFileName = content.targetFileName;
                 if (content.generatorDate) this.generatorDate = content.generatorDate;
-                if (content.hasCompiledFinalSummary !== undefined) {
+                if (finalSummaryBatch) {
+                    this.hasCompiledFinalSummary = true;
+                } else if (content.hasCompiledFinalSummary !== undefined) {
                     this.hasCompiledFinalSummary = !!content.hasCompiledFinalSummary;
+                } else {
+                    this.hasCompiledFinalSummary = false;
                 }
 
                 // Restore custom preset remarks if available
@@ -2072,7 +2128,7 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
     }
 
     renderKPIs(customRecords = null) {
-        let totalBatches = this.batches.filter(b => b.batchName !== "FINAL SUMMARY").length;
+        let totalBatches = this.batches.filter(b => !this.isFinalSummaryBatch(b)).length;
         let totalDO = 0;
         let totalVol = 0;
         let totalQty = 0;
@@ -2103,7 +2159,7 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
             });
         } else {
             this.batches.forEach(b => {
-                if (b.batchName === "FINAL SUMMARY") return;
+                if (this.isFinalSummaryBatch(b)) return;
                 const activeRecs = b.records.filter(r => r.selected !== false);
                 totalDO += activeRecs.length;
                 activeRecs.forEach(r => {
@@ -2157,7 +2213,7 @@ Do you want to REPLACE your current session (Confirm) or keep current session (C
         const removeSvg = `<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
         this.batches.forEach((b, idx) => {
             const isActive = idx === this.currentBatchIndex;
-            const isFinal = b.batchName === "FINAL SUMMARY" || (b.batchName && b.batchName.toUpperCase().includes("FINAL"));
+            const isFinal = this.isFinalSummaryBatch(b);
             const activeClass = isActive ? "active" : "";
             const finalClass = isFinal ? "batch-tab-final" : "";
             // Badge shows just the wave number; a tooltip clarifies it's the wave.
