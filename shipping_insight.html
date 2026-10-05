@@ -9,7 +9,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,600..800&family=Nunito:wght@400;500;600;700;800&family=Orbitron:wght@400;500;700;800;900&family=Share+Tech+Mono&family=Fira+Code:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="js/xlsx.bundle.js"></script>
+    <script>
+        if (typeof XLSX === 'undefined') {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"><\/script>');
+        }
+    </script>
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/settings.js"></script>
     <script src="js/components/ui-tooltip.js"></script>
@@ -1479,7 +1484,7 @@
                             <span class="input-group-addon" data-align="inline-start">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                             </span>
-                            <input type="text" id="insightSearch" class="input-group-control" placeholder="Search DOs, Status, Address..." onkeyup="applyInsightFilter()">
+                            <input type="text" id="insightSearch" class="input-group-control" placeholder="Search DOs, Status, Address..." oninput="applyInsightFilter()" onkeyup="applyInsightFilter()">
                         </div>
 
                         <!-- Copy Filtered DOs Button -->
@@ -1652,7 +1657,8 @@
             // Rebuild Truck dropdown if options list changed
             const existingTruckOptions = Array.from(truckSelect.options).map(o => o.value).filter(v => v !== "ALL");
             if (JSON.stringify(existingTruckOptions) !== JSON.stringify(sortedTrucks)) {
-                truckSelect.innerHTML = '<option value="ALL">All Trucks</option>';
+                const defaultTruckLabel = sortedTrucks.length === 0 ? "All Trucks (No Route Data)" : "All Trucks";
+                truckSelect.innerHTML = `<option value="ALL">${defaultTruckLabel}</option>`;
                 sortedTrucks.forEach(t => {
                     const opt = document.createElement("option");
                     opt.value = t;
@@ -1665,12 +1671,16 @@
                 } else {
                     truckSelect.value = "ALL";
                 }
+                if (truckSelect._uiSelect) {
+                    truckSelect._uiSelect._refreshItems();
+                }
             }
 
             // Rebuild Hub dropdown if options list changed
             const existingHubOptions = Array.from(hubSelect.options).map(o => o.value).filter(v => v !== "ALL");
             if (JSON.stringify(existingHubOptions) !== JSON.stringify(sortedHubs)) {
-                hubSelect.innerHTML = '<option value="ALL">All Hubs</option>';
+                const defaultHubLabel = sortedHubs.length === 0 ? "All Hubs (No Route Data)" : "All Hubs";
+                hubSelect.innerHTML = `<option value="ALL">${defaultHubLabel}</option>`;
                 sortedHubs.forEach(h => {
                     const opt = document.createElement("option");
                     opt.value = h;
@@ -1682,6 +1692,9 @@
                     hubSelect.value = currentHub;
                 } else {
                     hubSelect.value = "ALL";
+                }
+                if (hubSelect._uiSelect) {
+                    hubSelect._uiSelect._refreshItems();
                 }
             }
         }
@@ -2143,7 +2156,7 @@
             if (typeof initTheme === 'function') initTheme();
             if (typeof updateMemoryBadge === 'function') updateMemoryBadge();
             restoreInsightFilterState(); // Restore static type filter + search box before first render
-            setTimeout(applyInsightFilter, 150);
+            applyInsightFilter();
         };
     </script>
 

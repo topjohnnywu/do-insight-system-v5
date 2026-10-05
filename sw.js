@@ -1,8 +1,8 @@
 // Bump this version on EVERY code deploy/edit. A new version forces the
 // browser to install a fresh service worker and (via `activate`) delete the
 // old cache, so users always receive the latest HTML/CSS/JS instead of stale
-// cached copies. v91: codebase dead code cleanup, removed obsolete styles and remnants, synced ConfirmDialog and ocr_scanner in PWA cache.
-const CACHE_NAME = 'planner-cache-v91';
+// cached copies. v92: robust UISelect positioning, dynamic option observer, and shipping insight filter reliability.
+const CACHE_NAME = 'planner-cache-v92';
 const urlsToCache = [
     '/',
     '/index.html',

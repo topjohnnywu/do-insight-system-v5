@@ -32,10 +32,19 @@ class UISelect {
         this.id = `ui-select-${++_uid}`;
         this.isOpen = false;
         this.highlightedIndex = -1;
+        this._closeTimer = null;
 
         this._build();
         this._bind();
         this.syncFromNative();
+
+        // Automatically refresh dropdown items if <select> options are modified dynamically
+        if (typeof MutationObserver !== 'undefined') {
+            this._optionObserver = new MutationObserver(() => {
+                this._refreshItems();
+            });
+            this._optionObserver.observe(this.select, { childList: true, subtree: true });
+        }
 
         select._uiSelect = this;
     }
@@ -79,6 +88,18 @@ class UISelect {
 
         // Content (popover) — created lazily on open so it can portal to <body>
         this.content = null;
+
+        // If an explicit <label for="..."> exists for this select, wire it to focus and toggle this trigger
+        if (s.id) {
+            const label = document.querySelector(`label[for="${s.id}"]`);
+            if (label) {
+                label.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.trigger.focus();
+                    this.toggle();
+                });
+            }
+        }
     }
 
     _buildContent() {
@@ -194,10 +215,22 @@ class UISelect {
         // Close any other open selects
         _openInstances.forEach(inst => inst !== this && inst.close());
 
+        // Cancel pending closing removal if reopened quickly
+        if (this._closeTimer) {
+            clearTimeout(this._closeTimer);
+            this._closeTimer = null;
+        }
+
         if (!this.content) this._buildContent();
         else this._refreshItems();
 
-        document.body.appendChild(this.content);
+        if (this.content) {
+            this.content.classList.remove('closing');
+            if (!this.content.parentNode) {
+                document.body.appendChild(this.content);
+            }
+        }
+
         this.isOpen = true;
         _openInstances.add(this);
         this.trigger.setAttribute('aria-expanded', 'true');
@@ -220,28 +253,39 @@ class UISelect {
     }
 
     close(refocus = false) {
-        if (!this.isOpen) return;
+        if (!this.isOpen && !(this.content && this.content.classList.contains('closing'))) return;
         this.isOpen = false;
         _openInstances.delete(this);
         this.trigger.setAttribute('aria-expanded', 'false');
+
+        if (this._closeTimer) {
+            clearTimeout(this._closeTimer);
+            this._closeTimer = null;
+        }
+
         if (this.content && this.content.parentNode) {
             const c = this.content;
             c.classList.add('closing');
-            setTimeout(() => { if (c.parentNode) c.parentNode.removeChild(c); c.classList.remove('closing'); }, 100);
+            this._closeTimer = setTimeout(() => {
+                if (c.parentNode) c.parentNode.removeChild(c);
+                c.classList.remove('closing');
+                this._closeTimer = null;
+            }, 100);
         }
         if (refocus) this.trigger.focus();
     }
 
     /* ---------- Positioning (flip + clamp, like Base UI Positioner) ---------- */
     _position() {
+        if (!this.content || !this.trigger) return;
         const r = this.trigger.getBoundingClientRect();
         const c = this.content;
         const offset = 4;
         c.style.minWidth = `${Math.max(r.width, 144)}px`;
 
         // Measure after it's in the DOM
-        const ch = c.offsetHeight;
-        const cw = c.offsetWidth;
+        const ch = c.offsetHeight || 200;
+        const cw = c.offsetWidth || 144;
         const vw = window.innerWidth;
         const vh = window.innerHeight;
 
@@ -249,7 +293,7 @@ class UISelect {
         const spaceAbove = r.top;
         let side = 'bottom';
         let top;
-        if (spaceBelow < ch + offset && spaceAbove > spaceBelow) {
+        if (spaceBelow < Math.min(ch, 180) + offset && spaceAbove > spaceBelow) {
             side = 'top';
             top = r.top - ch - offset;
         } else {
@@ -262,7 +306,11 @@ class UISelect {
 
         c.style.top = `${top + window.scrollY}px`;
         c.style.left = `${left + window.scrollX}px`;
-        c.style.maxHeight = `${Math.min(280, (side === 'bottom' ? spaceBelow : spaceAbove) - 12)}px`;
+
+        // Clamp maxHeight ensuring it never collapses to 0 or negative
+        const availableSpace = side === 'bottom' ? spaceBelow : spaceAbove;
+        const safeMaxHeight = Math.max(120, Math.min(280, availableSpace - 12));
+        c.style.maxHeight = `${safeMaxHeight}px`;
     }
 
     /* ---------- Selection ---------- */
@@ -325,16 +373,26 @@ class UISelect {
 
     _refreshItems() {
         // Rebuild items if options changed
+        const oldContent = this.content;
         this._buildContent();
-        if (this.isOpen) {
-            const old = this.content;
-            if (old && old.parentNode) old.parentNode.replaceChild(this.content, old);
+        if (this.isOpen && oldContent && oldContent.parentNode) {
+            oldContent.parentNode.replaceChild(this.content, oldContent);
+        } else if (oldContent && oldContent.parentNode) {
+            oldContent.parentNode.removeChild(oldContent);
         }
         this.syncFromNative();
     }
 
     /* ---------- Teardown ---------- */
     destroy() {
+        if (this._closeTimer) {
+            clearTimeout(this._closeTimer);
+            this._closeTimer = null;
+        }
+        if (this._optionObserver) {
+            this._optionObserver.disconnect();
+            this._optionObserver = null;
+        }
         this.close();
         document.removeEventListener('pointerdown', this._onDocPointerDown, true);
         window.removeEventListener('resize', this._onWindowChange);
