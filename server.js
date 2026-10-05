@@ -7,6 +7,12 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Ensure web app can be embedded seamlessly in GitHub Pages portal
+app.use((req, res, next) => {
+  res.removeHeader('X-Frame-Options');
+  next();
+});
+
 // Serve static assets and HTML pages from root directory
 app.use(express.static(__dirname));
 
