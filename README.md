@@ -24,7 +24,7 @@ Engineered with pure **HTML5, modern CSS3, and vanilla JavaScript (ES6 Modules)*
 - **🛡️ Pre-Flight Upload Safeguard**: Automated schema detection checks whether an uploaded spreadsheet matches the expected format (e.g. distinguishing DO Summary tabs from Batch Picking logs) and prompts an intelligent swap modal before modifying data.
 - **📊 Direct Delivery Candidates (> 5 m³)**: Vertical grouped dual-bar visualization powered by **Chart.js** with independent dual Y-axes, comparing cubic volume ($m^3$) against DO count with modern Shadcn aesthetic tokens.
 - **🚛 Interactive 3D Cargo Load Planners**: Real-time 3D truck cargo bay and mixed-carton visualization powered by **Three.js (WebGL)** with orbit controls, collision detection, layer slicing, dimension bounds, and loading sequence guidance.
-- **🎨 13 Switchable UI Themes**: Live theme engine (Linear, Terminal, Cyberpunk, AMOLED, Premium, Bitcoin, Bauhaus, Retro, Dopamine, Light, and more) with automatic **Chart.js** palette reskinning and persistent `localStorage` settings.
+- **🎨 Dual Theme System (Dark / Light)**: High-contrast Dark mode (default) and Light mode with zero-FOUC boot initialization, automatic **Chart.js** palette reskinning, and persistent `localStorage` settings.
 - **🔍 Real-Time KPI Recalculation**: Live metric aggregation (Total DOs, Quantity, Volume m³, Gross Weight kg, Pallet Equivalents) reacting instantaneously to multi-column filters, search queries, and status toggles.
 - **⚡ Quick Actions & Remarks Engine**: 1-click batch status tagging (`SELF COLLECT`, `HOLD`, `LOCAL DELIVERY`, `DIRECT DELIVERY`, `URGENT`, `CANCELLED`) with instant visual feedback and audit log preservation.
 - **📑 Formatted Multi-Sheet Excel Exports**: Generates styled spreadsheets with customized headers, cell alignments, auto-fit column widths, freeze panes, and aggregate summary rows via `xlsx-js-style` and ExcelJS.
@@ -197,17 +197,13 @@ Because all core processing runs client-side in the browser, you can host the pr
 
 ## 🎨 Theme Engine & Customization
 
-Click the **Palette / Settings** icon in the sidebar or navigation header on any page to open the universal settings modal:
-- **13 Switchable Themes**:
-  - *Linear* (Default sleek corporate dark)
-  - *Terminal* (Monochrome green monospace hacker aesthetic)
-  - *Cyberpunk* (Vibrant neon cyan & magenta)
-  - *AMOLED* (Pure high-contrast true black)
-  - *Premium* (Ultra-dark slate and cyan accents)
-  - *Light*, *Organic*, *Retro*, *Dopamine*, *Bitcoin*, *Bauhaus*, *Mono*, and *GitHub*
-- **Theme Sync Engine**: Dynamically updates CSS custom properties (`--bg-color`, `--card-bg`, `--text-primary`, `--accent`, etc.) and automatically recolors all active Chart.js instances without reloading the page.
-- **Universal Font Selector**: Choose between *Inter*, *Roboto*, *Fira Code*, *JetBrains Mono*, or *System Default*.
-- **Interface Zoom**: Scale the UI between 80% and 130% for high-DPI displays or laptop screens.
+The platform features a modern, unified customization system accessible via the **Settings / Profile** button and the **Theme Toggle** on every page:
+- **Dual Theme System (Dark / Light)**: High-contrast corporate Dark mode (default) and Light mode with zero-FOUC (Flash of Unstyled Content) boot initialization.
+- **Theme Sync Engine**: Dynamically toggles CSS custom properties (`--bg`, `--surface-card`, `--border`, `--fg`, `--accent`, etc.) and automatically updates active **Chart.js** instances to match the active palette without reloading.
+- **Universal Font Selector**: Choose between *Optimistic*, *Netflix Sans*, *Helvetica Neue*, *SF Pro Text*, *Inter*, *Roboto*, *Montserrat*, *JetBrains Mono*, and other typography styles.
+- **Interface Zoom**: Scale the UI layout smoothly between 80% and 130% for high-DPI monitors or compact laptop displays.
+- **Collapsible / Auto-Hide Sidebar**: Toggle auto-hide mode (or press `Ctrl+B` / `Cmd+B`) to maximize screen width for high-density logistics tables.
+- **User Profile Widget**: Integrated profile and role selector with custom initials, avatars, and role tags.
 
 ---
 
