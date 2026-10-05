@@ -1021,6 +1021,13 @@ function getDirectDeliveryEligibleInvoices() {
 
 // Toggle Quick Filter for Addresses Exceeding 5 m³ Volume (able to go direct)
 function toggleDirectDeliveryQuickFilter() {
+    const directInvoices = getDirectDeliveryEligibleInvoices();
+    if (!explorerFilters.onlyDirect5m3 && (!directInvoices || directInvoices.size === 0)) {
+        if (typeof showToast === 'function') {
+            showToast("No direct delivery orders (> 5 m³) in current manifest.", "info");
+        }
+        return;
+    }
     explorerFilters.onlyDirect5m3 = !explorerFilters.onlyDirect5m3;
     if (explorerFilters.onlyDirect5m3) {
         explorerFilters.onlyNonDirect = false;
@@ -1113,9 +1120,15 @@ function updateDirectDeliveryButtonState() {
     if (chartBtn) {
         if (explorerFilters.onlyDirect5m3) {
             chartBtn.classList.add("active");
+            chartBtn.disabled = false;
+            chartBtn.title = "Direct Delivery (> 5 m³) filter is active. Click to clear filter.";
             chartBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>Active (${count} DOs)</span>`;
         } else {
             chartBtn.classList.remove("active");
+            chartBtn.disabled = (count === 0);
+            chartBtn.title = (count === 0)
+                ? "No direct delivery orders (> 5 m³) in current manifest"
+                : "Filter spreadsheet manifest to only Direct Delivery (> 5 m³) orders";
             chartBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg> <span>Filter Manifest</span>`;
         }
     }

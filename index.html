@@ -377,6 +377,21 @@
                     </div>
                     <div class="chart-wrapper" style="height: 300px; position: relative;">
                         <canvas id="consigneeChart"></canvas>
+                        <!-- Modern Shadcn Empty State (shown when volume <= 5 m³ or no data) -->
+                        <div id="consigneeChartEmpty" class="empty" style="display: none; height: 100%; margin: 0; border-style: dashed; justify-content: center;">
+                            <div class="empty-header">
+                                <div class="empty-media">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="1" y="3" width="15" height="13"></rect>
+                                        <polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon>
+                                        <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                                        <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                                    </svg>
+                                </div>
+                                <h4 class="empty-title" id="consigneeEmptyTitle">No Direct Delivery Candidates</h4>
+                                <p class="empty-description" id="consigneeEmptyDesc">All consignees in this manifest are under the 5.0 m³ threshold. Orders qualify for standard hub dispatch.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

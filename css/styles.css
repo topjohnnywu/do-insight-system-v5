@@ -5352,6 +5352,16 @@ body.light-mode .glass-card {
     stroke: #ffffff;
 }
 
+.chart-action-btn:disabled,
+.chart-action-btn[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+    border-color: var(--border, rgba(255, 255, 255, 0.1));
+    color: var(--fg-muted, #a1a1aa);
+    box-shadow: none;
+}
+
 /* Antislop-UI Consolidated Classes for Summary Analytics */
 .tabular-nums {
     font-variant-numeric: tabular-nums;

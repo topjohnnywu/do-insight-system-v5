@@ -255,8 +255,30 @@ function renderCharts() {
         .filter(item => item[1].vol > 5)
         .sort((a, b) => b[1].vol - a[1].vol);
 
+    const emptyElem = document.getElementById('consigneeChartEmpty');
+    const emptyTitle = document.getElementById('consigneeEmptyTitle');
+    const emptyDesc = document.getElementById('consigneeEmptyDesc');
+
     if (sortedConsignees.length === 0) {
+        consigneeChartElem.style.display = 'none';
+        if (emptyElem) {
+            emptyElem.style.display = 'flex';
+            if (emptyTitle && emptyDesc) {
+                if (!Array.isArray(DataHoarderArray) || DataHoarderArray.length === 0) {
+                    emptyTitle.textContent = "No Manifest Data Loaded";
+                    emptyDesc.textContent = "Upload or select a Delivery Order manifest to view direct delivery candidates.";
+                } else {
+                    emptyTitle.textContent = "No Direct Delivery Candidates";
+                    emptyDesc.textContent = "All consignees in this manifest have total volume \u2264 5.0 m\u00B3. Orders qualify for standard hub dispatch.";
+                }
+            }
+        }
         return;
+    }
+
+    consigneeChartElem.style.display = 'block';
+    if (emptyElem) {
+        emptyElem.style.display = 'none';
     }
 
     const isLight = isLightTheme();
