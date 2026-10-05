@@ -360,22 +360,33 @@
             <!-- Direct Delivery Chart Container -->
             <div class="charts-container" style="grid-template-columns: 1fr;">
                 <!-- Direct Delivery Candidates (> 5 m³) Chart Card -->
-                <div class="chart-card shadcn-chart-card">
+                <div class="chart-card shadcn-chart-card" id="consigneeChartCard">
                     <div class="shadcn-chart-header">
                         <div>
-                            <h3 class="shadcn-chart-title">Direct Delivery Candidates (&gt; 5 m³)</h3>
-                            <p class="shadcn-chart-subtitle">
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <h3 class="shadcn-chart-title">Direct Delivery Candidates (&gt; 5 m³)</h3>
+                                <span id="consigneeZeroCandidatesBadge" class="chart-status-badge" style="display: none;">0 Candidates • Standard Hub Dispatch</span>
+                            </div>
+                            <p class="shadcn-chart-subtitle" id="consigneeChartSubtitle">
                                 High-Volume Destinations
                                 <span class="legend-badge legend-volume">■ Volume (m³)</span>
                                 <span class="legend-badge legend-docount">■ DO Count</span>
                             </p>
                         </div>
-                        <button type="button" class="chart-action-btn" id="chartFilterDirectBtn" onclick="toggleDirectDeliveryQuickFilter()" title="Filter spreadsheet manifest to only Direct Delivery (> 5 m³) orders">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
-                            <span>Filter Manifest</span>
-                        </button>
+                        <div class="chart-header-actions" style="display: flex; align-items: center; gap: 8px;">
+                            <button type="button" class="chart-action-btn" id="chartFilterDirectBtn" onclick="toggleDirectDeliveryQuickFilter()" title="Filter spreadsheet manifest to only Direct Delivery (> 5 m³) orders">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                <span>Filter Manifest</span>
+                            </button>
+                            <button type="button" class="chart-action-btn chart-toggle-btn" id="consigneeChartToggleBtn" onclick="toggleConsigneeChartMinimized()" title="Minimize / Expand Chart" aria-label="Minimize or expand chart section">
+                                <svg id="consigneeChartToggleIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="18 15 12 9 6 15"></polyline>
+                                </svg>
+                                <span id="consigneeChartToggleText">Minimize</span>
+                            </button>
+                        </div>
                     </div>
-                    <div class="chart-wrapper" style="height: 300px; position: relative;">
+                    <div class="chart-wrapper" id="consigneeChartWrapper" style="height: 300px; position: relative;">
                         <canvas id="consigneeChart"></canvas>
                         <!-- Modern Shadcn Empty State (shown when volume <= 5 m³ or no data) -->
                         <div id="consigneeChartEmpty" class="empty" style="display: none; height: 100%; margin: 0; border-style: dashed; justify-content: center;">

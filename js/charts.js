@@ -196,6 +196,35 @@ if (document.readyState === "loading") {
     initTheme();
 }
 
+// Toggle minimization of Direct Delivery Candidates (> 5 m³) chart section
+function toggleConsigneeChartMinimized(forceState) {
+    const card = document.getElementById('consigneeChartCard');
+    const toggleIcon = document.getElementById('consigneeChartToggleIcon');
+    const toggleText = document.getElementById('consigneeChartToggleText');
+    const toggleBtn = document.getElementById('consigneeChartToggleBtn');
+    if (!card) return;
+
+    const shouldMinimize = (typeof forceState === 'boolean')
+        ? forceState
+        : !card.classList.contains('minimized');
+
+    if (shouldMinimize) {
+        card.classList.add('minimized');
+        if (toggleText) toggleText.textContent = 'Expand';
+        if (toggleBtn) toggleBtn.title = 'Expand Direct Delivery chart section';
+        if (toggleIcon) {
+            toggleIcon.innerHTML = '<polyline points="6 9 12 15 18 9"></polyline>';
+        }
+    } else {
+        card.classList.remove('minimized');
+        if (toggleText) toggleText.textContent = 'Minimize';
+        if (toggleBtn) toggleBtn.title = 'Minimize Direct Delivery chart section';
+        if (toggleIcon) {
+            toggleIcon.innerHTML = '<polyline points="18 15 12 9 6 15"></polyline>';
+        }
+    }
+}
+
 // Render Consignees Chart (> 5 m³ volume, ALL consignees included)
 // Upgraded to shadcn grouped dual-bar design (Volume m³ vs DO Count)
 function renderCharts() {
@@ -258,6 +287,7 @@ function renderCharts() {
     const emptyElem = document.getElementById('consigneeChartEmpty');
     const emptyTitle = document.getElementById('consigneeEmptyTitle');
     const emptyDesc = document.getElementById('consigneeEmptyDesc');
+    const zeroBadge = document.getElementById('consigneeZeroCandidatesBadge');
 
     if (sortedConsignees.length === 0) {
         consigneeChartElem.style.display = 'none';
@@ -273,8 +303,24 @@ function renderCharts() {
                 }
             }
         }
+        if (zeroBadge) {
+            zeroBadge.style.display = 'inline-flex';
+            if (!Array.isArray(DataHoarderArray) || DataHoarderArray.length === 0) {
+                zeroBadge.textContent = "No Manifest Loaded";
+            } else {
+                zeroBadge.textContent = "0 Candidates (> 5 m\u00B3) \u2022 Standard Hub Dispatch";
+            }
+        }
+        // Auto-minimize the card to save vertical screen real estate
+        toggleConsigneeChartMinimized(true);
         return;
     }
+
+    if (zeroBadge) {
+        zeroBadge.style.display = 'none';
+    }
+    // Auto-expand when direct delivery candidates exist
+    toggleConsigneeChartMinimized(false);
 
     consigneeChartElem.style.display = 'block';
     if (emptyElem) {
