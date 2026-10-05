@@ -299,7 +299,7 @@ function renderCharts() {
                     emptyDesc.textContent = "Upload or select a Delivery Order manifest to view direct delivery candidates.";
                 } else {
                     emptyTitle.textContent = "No Direct Delivery Candidates";
-                    emptyDesc.textContent = "All consignees in this manifest have total volume \u2264 5.0 m\u00B3. Orders qualify for standard hub dispatch.";
+                    emptyDesc.textContent = "All DO in this manifest have total volume \u2264 5.0 m\u00B3. All orders should be qualify for cross-dock only.";
                 }
             }
         }
