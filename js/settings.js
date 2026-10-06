@@ -681,30 +681,21 @@
     // =========================================================================
     const DEFAULT_USER_PROFILE = {
         name: "Administrator",
-        role: "Mythic",
         avatarUrl: "",
         status: "online"
     };
-
-    function getRankIconUrl(rankName) {
-        if (!rankName) return "";
-        const key = String(rankName).toLowerCase().trim();
-        const isSubdir = typeof window !== "undefined" && window.location && window.location.pathname && window.location.pathname.includes("/packing-sheet");
-        const base = isSubdir ? "../icons/ranks/" : "./icons/ranks/";
-        if (key === "master") return base + "master.png";
-        if (key === "grandmaster") return base + "grandmaster.png";
-        if (key === "epic") return base + "epic.png";
-        if (key === "legend") return base + "legend.png";
-        if (key === "mythic") return base + "mythic.png";
-        return "";
-    }
 
     function getUserProfile() {
         try {
             const raw = localStorage.getItem("app_user_profile");
             if (raw) {
                 const parsed = JSON.parse(raw);
-                return { ...DEFAULT_USER_PROFILE, ...parsed };
+                const profile = { ...DEFAULT_USER_PROFILE, ...parsed };
+                // Seamlessly migrate any legacy superhero avatar paths to executive avatar
+                if (profile.avatarUrl && (profile.avatarUrl.includes("iron-man") || profile.avatarUrl.includes("spider-man") || profile.avatarUrl.includes("captain-america") || profile.avatarUrl.includes("thor") || profile.avatarUrl.includes("hulk"))) {
+                    profile.avatarUrl = "./icons/avatars/executive.jpg";
+                }
+                return profile;
             }
         } catch (e) {}
         return { ...DEFAULT_USER_PROFILE };
@@ -748,7 +739,7 @@
                 <div class="shadcn-avatar-inner">
                     <img class="shadcn-avatar-image" 
                          src="${hasUrl ? profile.avatarUrl : ''}" 
-                         alt="${safeName}" 
+                         alt="" 
                          style="${hasUrl ? 'display:block;' : 'display:none;'}"
                          onerror="this.style.display='none'; if (this.nextElementSibling) this.nextElementSibling.style.display='flex';"
                          onload="this.style.display='block'; if (this.nextElementSibling) this.nextElementSibling.style.display='none';">
@@ -776,7 +767,6 @@
                 <div class="uprofile-hero-info">
                     <div class="uprofile-hero-name" id="uprofileHeroName">Administrator</div>
                     <div class="uprofile-hero-badges">
-                        <span class="uprofile-role-pill" id="uprofileHeroRole">Administrator</span>
                         <span class="uprofile-status-indicator">
                             <span class="uprofile-status-dot"></span> Online
                         </span>
@@ -791,23 +781,7 @@
                 </div>
 
                 <div class="uprofile-form-group">
-                    <label class="uprofile-form-label" for="uprofileRoleSelect">Ranking</label>
-                    <div class="uprofile-rank-select-row">
-                        <img id="uprofileRankPreviewImg" class="uprofile-rank-preview-img" src="" alt="Ranking Badge" style="display:none;">
-                        <select id="uprofileRoleSelect" class="uprofile-select" style="flex:1;">
-                            <option value="Master">Master</option>
-                            <option value="Grandmaster">Grandmaster</option>
-                            <option value="Epic">Epic</option>
-                            <option value="Legend">Legend</option>
-                            <option value="Mythic">Mythic</option>
-                            <option value="__custom__">Custom Ranking...</option>
-                        </select>
-                    </div>
-                    <input type="text" id="uprofileCustomRoleInput" class="uprofile-input" style="display:none; margin-top:4px;" placeholder="Type custom ranking..." spellcheck="false">
-                </div>
-
-                <div class="uprofile-form-group">
-                    <label class="uprofile-form-label">Preset Avatars</label>
+                    <label class="uprofile-form-label">Preset Avatars (Corporate 3D Personas)</label>
                     <div class="uprofile-presets-grid" id="uprofilePresetsGrid"></div>
                 </div>
 
@@ -842,8 +816,6 @@
 
         // Bind form inputs
         const nameInput = menu.querySelector("#uprofileNameInput");
-        const roleSelect = menu.querySelector("#uprofileRoleSelect");
-        const customRoleInput = menu.querySelector("#uprofileCustomRoleInput");
         const fileInput = menu.querySelector("#uprofileFileInput");
         const uploadBtn = menu.querySelector("#uprofileUploadBtn");
         const initialsBtn = menu.querySelector("#uprofileInitialsBtn");
@@ -862,45 +834,8 @@
             }
         });
 
-        const rankPreviewImg = menu.querySelector("#uprofileRankPreviewImg");
-
-        function updateDropdownRankPreview(rankVal) {
-            if (!rankPreviewImg) return;
-            const iconUrl = getRankIconUrl(rankVal);
-            if (iconUrl) {
-                rankPreviewImg.src = iconUrl;
-                rankPreviewImg.style.display = "inline-block";
-            } else {
-                rankPreviewImg.style.display = "none";
-            }
-        }
-
-        roleSelect.addEventListener("change", (e) => {
-            if (e.target.value === "__custom__") {
-                customRoleInput.style.display = "block";
-                customRoleInput.focus();
-                updateDropdownRankPreview(customRoleInput.value.trim());
-                if (customRoleInput.value.trim()) {
-                    setUserProfile({ role: customRoleInput.value.trim() });
-                }
-            } else {
-                customRoleInput.style.display = "none";
-                updateDropdownRankPreview(e.target.value);
-                setUserProfile({ role: e.target.value });
-            }
-        });
-
-        customRoleInput.addEventListener("input", (e) => {
-            if (roleSelect.value === "__custom__") {
-                const val = e.target.value.trim();
-                updateDropdownRankPreview(val);
-                setUserProfile({ role: val || "Custom Ranking" });
-            }
-        });
-
         const heroAvatar = menu.querySelector("#uprofileHeroAvatar");
         if (heroAvatar) {
-            heroAvatar.title = "Click to upload/change photo";
             heroAvatar.addEventListener("click", () => {
                 fileInput.click();
             });
@@ -954,7 +889,12 @@
     function positionUserDropdown(triggerBtn, menu) {
         const rect = triggerBtn.getBoundingClientRect();
         const menuWidth = 310;
-        let left = rect.right - menuWidth;
+        let left;
+        if (rect.left < window.innerWidth / 2) {
+            left = rect.left;
+        } else {
+            left = rect.right - menuWidth;
+        }
         if (left < 10) left = 10;
         if (left + menuWidth > window.innerWidth - 10) {
             left = window.innerWidth - menuWidth - 10;
@@ -979,45 +919,10 @@
 
         // 2. Populate form values
         const nameInput = menu.querySelector("#uprofileNameInput");
-        const roleSelect = menu.querySelector("#uprofileRoleSelect");
-        const customRoleInput = menu.querySelector("#uprofileCustomRoleInput");
         const urlInput = menu.querySelector("#uprofileUrlInput");
 
         if (nameInput) nameInput.value = profile.name || "";
         if (urlInput) urlInput.value = profile.avatarUrl && !profile.avatarUrl.startsWith("data:") ? profile.avatarUrl : "";
-
-        const standardRoles = ["Master", "Grandmaster", "Epic", "Legend", "Mythic"];
-        const rankPreviewImg = menu.querySelector("#uprofileRankPreviewImg");
-
-        function updateDropdownRankPreview(rankVal) {
-            if (!rankPreviewImg) return;
-            const iconUrl = getRankIconUrl(rankVal);
-            if (iconUrl) {
-                rankPreviewImg.src = iconUrl;
-                rankPreviewImg.style.display = "inline-block";
-            } else {
-                rankPreviewImg.style.display = "none";
-            }
-        }
-
-        if (standardRoles.includes(profile.role)) {
-            if (roleSelect) roleSelect.value = profile.role;
-            if (customRoleInput) customRoleInput.style.display = "none";
-            updateDropdownRankPreview(profile.role);
-        } else if (["Administrator", "Logistics Planner", "Senior Dispatcher", "Warehouse Lead", "Operations Manager"].includes(profile.role)) {
-            profile.role = "Mythic";
-            setUserProfile({ role: "Mythic" });
-            if (roleSelect) roleSelect.value = "Mythic";
-            if (customRoleInput) customRoleInput.style.display = "none";
-            updateDropdownRankPreview("Mythic");
-        } else {
-            if (roleSelect) roleSelect.value = "__custom__";
-            if (customRoleInput) {
-                customRoleInput.style.display = "block";
-                customRoleInput.value = profile.role || "";
-            }
-            updateDropdownRankPreview(profile.role);
-        }
 
         positionUserDropdown(triggerBtn, menu);
         menu.style.display = "block";
@@ -1046,25 +951,24 @@
         if (menu) menu.style.display = "none";
         const triggerBtn = document.getElementById("appUserAvatarBtn");
         if (triggerBtn) triggerBtn.setAttribute("aria-expanded", "false");
+        const sbCard = document.getElementById("sidebarUserCardBtn");
+        if (sbCard) sbCard.setAttribute("aria-expanded", "false");
         if (activeDocClickListener) {
             document.removeEventListener("click", activeDocClickListener);
             activeDocClickListener = null;
         }
     }
 
-    function getDiceBearAvataaars(currentName) {
-        const safeSeed = encodeURIComponent(currentName || "User");
+    function getPresetAvatars() {
+        const isSubdir = typeof window !== "undefined" && window.location && window.location.pathname && window.location.pathname.includes("/packing-sheet");
+        const base = isSubdir ? "../icons/avatars/" : "./icons/avatars/";
         return [
             { id: "initials", label: "Initials Fallback", url: "" },
-            { id: "personal", label: `Personalized (${currentName || "User"})`, url: `https://api.dicebear.com/10.x/avataaars/svg?seed=${safeSeed}` },
-            { id: "felix", label: "Felix", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Felix" },
-            { id: "aneka", label: "Aneka", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Aneka" },
-            { id: "adrian", label: "Adrian", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Adrian" },
-            { id: "jessica", label: "Jessica", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Jessica" },
-            { id: "oliver", label: "Oliver", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Oliver" },
-            { id: "zoe", label: "Zoe", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Zoe" },
-            { id: "leo", label: "Leo", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Leo" },
-            { id: "milo", label: "Milo", url: "https://api.dicebear.com/10.x/avataaars/svg?seed=Milo" }
+            { id: "executive", label: "Executive / Operations Lead", url: base + "executive.jpg" },
+            { id: "warehouse", label: "Warehouse Supervisor", url: base + "warehouse.jpg" },
+            { id: "dispatcher", label: "Dispatch Coordinator", url: base + "dispatcher.jpg" },
+            { id: "analyst", label: "Logistics Analyst", url: base + "analyst.jpg" },
+            { id: "fleet", label: "Fleet Specialist", url: base + "fleet.jpg" }
         ];
     }
 
@@ -1072,21 +976,22 @@
         if (!grid) return;
         grid.innerHTML = "";
         const initials = computeInitials(currentName);
-        const presets = getDiceBearAvataaars(currentName);
+        const presets = getPresetAvatars();
 
         presets.forEach(preset => {
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "uprofile-preset-btn";
-            btn.title = preset.label;
+            btn.setAttribute("aria-label", preset.label);
 
-            const isMatch = (preset.id === "initials" && !currentUrl) || (preset.url && currentUrl === preset.url);
+            const isMatch = (preset.id === "initials" && !currentUrl) || 
+                            (preset.url && (currentUrl === preset.url || (currentUrl && currentUrl.endsWith(preset.url.replace(/^(\.\/|\.\.\/)/, '')))));
             if (isMatch) btn.classList.add("active");
 
             if (preset.id === "initials" || !preset.url) {
                 btn.innerHTML = `<span class="preset-initials-badge">${initials}</span>`;
             } else {
-                btn.innerHTML = `<img src="${preset.url}" alt="${preset.label}" onerror="this.parentElement.innerHTML='<span class=\\'preset-initials-badge\\'>${preset.label.substring(0,2)}</span>'">`;
+                btn.innerHTML = `<img src="${preset.url}" alt="" onerror="this.parentElement.innerHTML='<span class=\\'preset-initials-badge\\'>${preset.label.substring(0,2)}</span>'">`;
             }
 
             btn.addEventListener("click", () => {
@@ -1107,17 +1012,14 @@
         if (avatarContainer) {
             avatarContainer.innerHTML = createAvatarHtml(profile, "sm");
         }
-        const rankIconUrl = getRankIconUrl(profile.role);
-        const rankBadgeHtml = rankIconUrl ? `<img class="uprofile-rank-badge-img" src="${rankIconUrl}" alt="${profile.role}">` : '';
 
         const nameEl = document.getElementById("appUserNameLabel");
         if (nameEl) nameEl.textContent = profile.name;
-        const roleEl = document.getElementById("appUserRoleLabel");
-        if (roleEl) {
-            roleEl.innerHTML = `${rankBadgeHtml}<span>${profile.role}</span>`;
-        }
         const triggerBtn = document.getElementById("appUserAvatarBtn");
-        if (triggerBtn) triggerBtn.setAttribute("title", `User Profile (${profile.name} - ${profile.role})`);
+        if (triggerBtn) {
+            triggerBtn.removeAttribute("title");
+            triggerBtn.setAttribute("aria-label", "User Profile");
+        }
 
         // 2. Update dropdown hero
         const heroAvatar = document.getElementById("uprofileHeroAvatar");
@@ -1126,70 +1028,78 @@
         }
         const heroName = document.getElementById("uprofileHeroName");
         if (heroName) heroName.textContent = profile.name;
-        const heroRole = document.getElementById("uprofileHeroRole");
-        if (heroRole) {
-            heroRole.innerHTML = `${rankBadgeHtml}<span>${profile.role}</span>`;
-        }
 
         // 3. Update preset avatars active state
         const presetsGrid = document.getElementById("uprofilePresetsGrid");
         if (presetsGrid) {
             renderPresetAvatars(presetsGrid, profile.avatarUrl, profile.name);
         }
+
+        // 4. Update sidebar profile card
+        const sbAvatar = document.getElementById("sidebarUserAvatarSlot");
+        if (sbAvatar) {
+            sbAvatar.innerHTML = createAvatarHtml(profile, "lg");
+        }
+        const sbName = document.getElementById("sidebarUserNameLabel");
+        if (sbName) {
+            sbName.textContent = profile.name;
+        }
+        const sbCard = document.getElementById("sidebarUserCardBtn");
+        if (sbCard) {
+            sbCard.removeAttribute("title");
+            sbCard.setAttribute("aria-label", "User Profile");
+        }
     }
 
     function initUserAvatarWidget() {
         // Pre-create dropdown menu in DOM so hero elements exist immediately
         ensureUserDropdownMenu();
+        const profile = getUserProfile();
 
-        if (document.getElementById("appUserProfileWrapper")) {
-            renderAllUserAvatars();
-            return;
-        }
-
-        // Look for candidate container
-        const themeBtn = document.getElementById("themeToggleBtn");
-        let parentContainer = null;
-        if (themeBtn && themeBtn.parentElement) {
-            parentContainer = themeBtn.parentElement;
-        }
-
-        if (!parentContainer) return;
-
-        const wrapper = document.createElement("div");
-        wrapper.className = "app-user-profile-wrapper";
-        wrapper.id = "appUserProfileWrapper";
-
-        wrapper.innerHTML = `
-            <div class="topbar-profile-divider"></div>
-            <button type="button" class="app-user-avatar-btn" id="appUserAvatarBtn" aria-haspopup="true" aria-expanded="false" title="User Profile (${getUserProfile().role})">
-                <div id="appUserAvatarSlot"></div>
-                <div class="app-user-meta">
-                    <span class="app-user-name" id="appUserNameLabel"></span>
-                    <span class="app-user-role" id="appUserRoleLabel"></span>
-                </div>
-                <svg class="app-user-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-            </button>
-        `;
-
-        if (typeof themeBtn.after === "function") {
-            themeBtn.after(wrapper);
-        } else {
-            parentContainer.appendChild(wrapper);
-        }
-
-        const btn = wrapper.querySelector("#appUserAvatarBtn");
-        btn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            const menu = ensureUserDropdownMenu();
-            if (menu.style.display === "block") {
-                closeUserDropdown();
-            } else {
-                openUserDropdown(btn);
+        // 1. Initialize Sidebar Profile Card
+        const sidebarBrand = document.querySelector(".sidebar-brand");
+        if (sidebarBrand) {
+            let sbCard = sidebarBrand.querySelector("#sidebarUserCardBtn");
+            if (!sbCard) {
+                const triggerBtn = sidebarBrand.querySelector(".sidebar-trigger-btn");
+                const firstChild = sidebarBrand.firstElementChild;
+                if (firstChild && firstChild !== triggerBtn) {
+                    sbCard = document.createElement("button");
+                    sbCard.type = "button";
+                    sbCard.className = "sidebar-profile-card";
+                    sbCard.id = "sidebarUserCardBtn";
+                    sbCard.setAttribute("aria-haspopup", "true");
+                    sbCard.setAttribute("aria-expanded", "false");
+                    sbCard.setAttribute("aria-label", "User Profile");
+                    sbCard.innerHTML = `
+                        <div id="sidebarUserAvatarSlot"></div>
+                        <div class="sidebar-profile-meta">
+                            <div class="sidebar-profile-name" id="sidebarUserNameLabel">${profile.name}</div>
+                        </div>
+                    `;
+                    sidebarBrand.replaceChild(sbCard, firstChild);
+                }
             }
-        });
+
+            if (sbCard && !sbCard._boundProfile) {
+                sbCard._boundProfile = true;
+                sbCard.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    const menu = ensureUserDropdownMenu();
+                    if (menu.style.display === "block") {
+                        closeUserDropdown();
+                    } else {
+                        openUserDropdown(sbCard);
+                    }
+                });
+            }
+        }
+
+        // 2. Remove legacy topbar profile indicator across all pages
+        const oldTopWrapper = document.getElementById("appUserProfileWrapper");
+        if (oldTopWrapper) {
+            oldTopWrapper.remove();
+        }
 
         renderAllUserAvatars();
     }

@@ -144,18 +144,12 @@
         <div>
             <!-- Sidebar Brand Header & Trigger -->
             <div class="sidebar-brand">
-                <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
-                        <rect x="1" y="3" width="15" height="13"/>
-                        <polygon points="16 8 20 8 23 11 23 16 16 8"/>
-                        <circle cx="5.5" cy="18.5" r="2.5"/>
-                        <circle cx="18.5" cy="18.5" r="2.5"/>
-                    </svg>
-                    <div>
-                        <div class="sidebar-brand-title">DO Insight</div>
-                        <div class="sidebar-brand-subtitle">Analytics & Planning</div>
+                <button type="button" class="sidebar-profile-card" id="sidebarUserCardBtn" aria-haspopup="true" aria-expanded="false">
+                    <div id="sidebarUserAvatarSlot"></div>
+                    <div class="sidebar-profile-meta">
+                        <div class="sidebar-profile-name" id="sidebarUserNameLabel">Administrator</div>
                     </div>
-                </div>
+                </button>
                 <button type="button" class="sidebar-trigger-btn" onclick="window.setGlobalSidebarAutoHide && window.setGlobalSidebarAutoHide(document.documentElement.getAttribute('data-sidebar-autohide') !== 'true', true)" title="Toggle Sidebar (Ctrl+B / Cmd+B)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect width="18" height="18" x="3" y="3" rx="2"/>

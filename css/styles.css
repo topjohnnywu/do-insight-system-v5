@@ -675,6 +675,110 @@ body::after {
     font-weight: 500;
 }
 
+/* Sidebar Profile Card Header */
+.sidebar-profile-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    padding: 6px 8px;
+    margin: -6px -8px;
+    border-radius: 10px;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    outline: none;
+    transition: background-color 0.15s ease;
+}
+
+.sidebar-profile-card:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+}
+
+body.light-mode .sidebar-profile-card:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-profile-card:focus-visible {
+    box-shadow: 0 0 0 2px var(--accent, #3b82f6);
+}
+
+/* Enlarge Sidebar Avatar Profile Picture */
+.sidebar-profile-card #sidebarUserAvatarSlot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sidebar-profile-card #sidebarUserAvatarSlot .shadcn-avatar {
+    width: 50px;
+    height: 50px;
+    border-width: 2px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1), height 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s ease;
+}
+
+.sidebar-profile-card:hover #sidebarUserAvatarSlot .shadcn-avatar {
+    transform: scale(1.04);
+}
+
+.sidebar-profile-card #sidebarUserAvatarSlot .shadcn-avatar-fallback {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.sidebar-profile-card #sidebarUserAvatarSlot .shadcn-avatar-badge {
+    width: 11px;
+    height: 11px;
+    border-width: 2px;
+    bottom: 0px;
+    right: 0px;
+}
+
+/* Collapsed Icon-Rail representation */
+html[data-sidebar-autohide="true"] .sidebar:not(:hover):not(.is-hovered) .sidebar-profile-card #sidebarUserAvatarSlot .shadcn-avatar {
+    width: 40px;
+    height: 40px;
+}
+
+html[data-sidebar-autohide="true"] .sidebar:not(:hover):not(.is-hovered) .sidebar-profile-card #sidebarUserAvatarSlot .shadcn-avatar-fallback {
+    font-size: 13px;
+}
+
+html[data-sidebar-autohide="true"] .sidebar:not(:hover):not(.is-hovered) .sidebar-profile-card #sidebarUserAvatarSlot .shadcn-avatar-badge {
+    width: 9px;
+    height: 9px;
+}
+
+.sidebar-profile-meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+}
+
+.sidebar-profile-name {
+    font-size: 14px;
+    font-weight: 650;
+    color: var(--fg, #f4f4f5);
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+}
+
+body.light-mode .sidebar-profile-name {
+    color: #0f172a;
+}
+
+
 /* Shadcn-Style Sidebar Trigger Button */
 .sidebar-trigger-btn {
     background: transparent;
@@ -849,7 +953,8 @@ html[data-sidebar-autohide="true"] .sidebar.is-hovered .sidebar-brand {
     justify-content: flex-start;
 }
 
-html[data-sidebar-autohide="true"] .sidebar .sidebar-brand > div {
+html[data-sidebar-autohide="true"] .sidebar .sidebar-brand > div,
+html[data-sidebar-autohide="true"] .sidebar .sidebar-profile-meta {
     display: flex;
     flex-direction: column;
     opacity: 0;
@@ -861,7 +966,9 @@ html[data-sidebar-autohide="true"] .sidebar .sidebar-brand > div {
 }
 
 html[data-sidebar-autohide="true"] .sidebar:hover .sidebar-brand > div,
-html[data-sidebar-autohide="true"] .sidebar.is-hovered .sidebar-brand > div {
+html[data-sidebar-autohide="true"] .sidebar.is-hovered .sidebar-brand > div,
+html[data-sidebar-autohide="true"] .sidebar:hover .sidebar-profile-meta,
+html[data-sidebar-autohide="true"] .sidebar.is-hovered .sidebar-profile-meta {
     opacity: 1;
     max-width: 200px;
     pointer-events: auto;
@@ -7187,18 +7294,6 @@ body.light-mode .empty-description { color: #475569; }
     text-overflow: ellipsis;
 }
 
-.app-user-avatar-btn .app-user-role {
-    font-size: 9.5px;
-    font-weight: 500;
-    color: var(--fg-muted, #a1a1aa);
-    white-space: nowrap;
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
 
 .app-user-avatar-btn .app-user-chevron {
     color: var(--fg-muted, #a1a1aa);
@@ -7306,52 +7401,6 @@ body.light-mode #appUserDropdownMenu {
     flex-wrap: wrap;
 }
 
-.uprofile-role-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px 7px;
-    border-radius: 9999px;
-    font-size: 10px;
-    font-weight: 600;
-    background: rgba(59, 130, 246, 0.15);
-    color: #60a5fa;
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    white-space: nowrap;
-}
-
-body.light-mode .uprofile-role-pill {
-    background: #eff6ff;
-    color: #1d4ed8;
-    border-color: #bfdbfe;
-}
-
-.uprofile-rank-badge-img {
-    width: 14px;
-    height: 14px;
-    object-fit: contain;
-    flex-shrink: 0;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
-}
-
-.uprofile-rank-select-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.uprofile-rank-preview-img {
-    width: 28px;
-    height: 28px;
-    object-fit: contain;
-    flex-shrink: 0;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.uprofile-rank-preview-img:hover {
-    transform: scale(1.1);
-}
 
 .uprofile-status-indicator {
     display: inline-flex;
@@ -7465,14 +7514,14 @@ body.light-mode .uprofile-btn-sm:hover {
 .uprofile-presets-grid {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     flex-wrap: wrap;
     margin-top: 4px;
 }
 
 .uprofile-preset-btn {
-    width: 31px;
-    height: 31px;
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     border: 2px solid transparent;
     padding: 0;

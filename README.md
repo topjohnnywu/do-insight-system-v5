@@ -203,7 +203,7 @@ The platform features a modern, unified customization system accessible via the 
 - **Universal Font Selector**: Choose between *Optimistic*, *Netflix Sans*, *Helvetica Neue*, *SF Pro Text*, *Inter*, *Roboto*, *Montserrat*, *JetBrains Mono*, and other typography styles.
 - **Interface Zoom**: Scale the UI layout smoothly between 80% and 130% for high-DPI monitors or compact laptop displays.
 - **Collapsible / Auto-Hide Sidebar**: Toggle auto-hide mode (or press `Ctrl+B` / `Cmd+B`) to maximize screen width for high-density logistics tables.
-- **User Profile Widget**: Integrated profile and role selector with custom initials, avatars, and role tags.
+- **User Profile Widget**: Integrated profile card with custom initials, professional 3D corporate persona avatars, photo uploads, and live status indicator.
 
 ---
 
@@ -312,14 +312,12 @@ do-insight-system-v5/
 - **Clean Invalidation**: Guarantees that clients instantly fetch the latest HTML structure, styles, and dialog scripts without manual hard-refreshing.
 
 ### 6. Shadcn Avatar & Dynamic User Profile System
-- **Universal Top Bar Avatar**: Integrated an active user profile widget next to the theme switcher in the global header across all 14 pages.
-- **Dynamic Profile & Role Switching**:
-  - Ranking switcher with presets (*Master*, *Grandmaster*, *Epic*, *Legend*, *Mythic*) featuring authentic Mobile Legends rank badge icons, dynamic preview, and custom ranking input.
-  - Active online status badge with pulsing green glow (`.status-online`).
-- **Flexible Photo & Fallback Engine**:
-  - Supports uploading local image files directly from the computer (auto-converted to base64 Data URLs).
-  - Supports relative/local URL folder paths (e.g. `./icons/avatar.png`).
+- **Sidebar Profile Card Integration**: Integrated the active user profile widget directly into the sidebar menu header across all 14 pages with display name, Shadcn avatar, and live online status indicator (`.status-online`).
+- **Professional 3D Corporate Persona Presets & Fallback Engine**:
+  - Preset avatar selector with 5 modern 3D logistics personas (*Executive / Ops Lead*, *Warehouse Supervisor*, *Dispatch Coordinator*, *Logistics Analyst*, *Fleet Specialist*) stored locally for 100% offline and Zscaler-restricted compatibility.
+  - Supports uploading custom local image files directly from the computer (auto-converted to base64 Data URLs) or local URLs.
   - Graceful fallback initials (`AvatarFallback`) when no image is loaded (e.g., `AD` for Administrator).
+  - Active online status badge with pulsing green glow (`.status-online`).
 - **Shadcn Design Tokens**: Full CSS support for `.shadcn-avatar` (sizes `.sm`, `.md`, `.lg`), `.shadcn-avatar-badge`, `.shadcn-avatar-group`, and `.shadcn-avatar-group-count`.
 
 ### 7. Direct Delivery Candidates (> 5 m³) Chart Upgrade
