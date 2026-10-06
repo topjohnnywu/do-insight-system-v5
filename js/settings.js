@@ -681,10 +681,23 @@
     // =========================================================================
     const DEFAULT_USER_PROFILE = {
         name: "Administrator",
-        role: "Administrator",
+        role: "Mythic",
         avatarUrl: "",
         status: "online"
     };
+
+    function getRankIconUrl(rankName) {
+        if (!rankName) return "";
+        const key = String(rankName).toLowerCase().trim();
+        const isSubdir = typeof window !== "undefined" && window.location && window.location.pathname && window.location.pathname.includes("/packing-sheet");
+        const base = isSubdir ? "../icons/ranks/" : "./icons/ranks/";
+        if (key === "master") return base + "master.png";
+        if (key === "grandmaster") return base + "grandmaster.png";
+        if (key === "epic") return base + "epic.png";
+        if (key === "legend") return base + "legend.png";
+        if (key === "mythic") return base + "mythic.png";
+        return "";
+    }
 
     function getUserProfile() {
         try {
@@ -778,16 +791,19 @@
                 </div>
 
                 <div class="uprofile-form-group">
-                    <label class="uprofile-form-label" for="uprofileRoleSelect">Role / Position</label>
-                    <select id="uprofileRoleSelect" class="uprofile-select">
-                        <option value="Administrator">Administrator</option>
-                        <option value="Logistics Planner">Logistics Planner</option>
-                        <option value="Senior Dispatcher">Senior Dispatcher</option>
-                        <option value="Warehouse Lead">Warehouse Lead</option>
-                        <option value="Operations Manager">Operations Manager</option>
-                        <option value="__custom__">Custom Role...</option>
-                    </select>
-                    <input type="text" id="uprofileCustomRoleInput" class="uprofile-input" style="display:none; margin-top:4px;" placeholder="Type custom role title..." spellcheck="false">
+                    <label class="uprofile-form-label" for="uprofileRoleSelect">Ranking</label>
+                    <div class="uprofile-rank-select-row">
+                        <img id="uprofileRankPreviewImg" class="uprofile-rank-preview-img" src="" alt="Ranking Badge" style="display:none;">
+                        <select id="uprofileRoleSelect" class="uprofile-select" style="flex:1;">
+                            <option value="Master">Master</option>
+                            <option value="Grandmaster">Grandmaster</option>
+                            <option value="Epic">Epic</option>
+                            <option value="Legend">Legend</option>
+                            <option value="Mythic">Mythic</option>
+                            <option value="__custom__">Custom Ranking...</option>
+                        </select>
+                    </div>
+                    <input type="text" id="uprofileCustomRoleInput" class="uprofile-input" style="display:none; margin-top:4px;" placeholder="Type custom ranking..." spellcheck="false">
                 </div>
 
                 <div class="uprofile-form-group">
@@ -846,22 +862,39 @@
             }
         });
 
+        const rankPreviewImg = menu.querySelector("#uprofileRankPreviewImg");
+
+        function updateDropdownRankPreview(rankVal) {
+            if (!rankPreviewImg) return;
+            const iconUrl = getRankIconUrl(rankVal);
+            if (iconUrl) {
+                rankPreviewImg.src = iconUrl;
+                rankPreviewImg.style.display = "inline-block";
+            } else {
+                rankPreviewImg.style.display = "none";
+            }
+        }
+
         roleSelect.addEventListener("change", (e) => {
             if (e.target.value === "__custom__") {
                 customRoleInput.style.display = "block";
                 customRoleInput.focus();
+                updateDropdownRankPreview(customRoleInput.value.trim());
                 if (customRoleInput.value.trim()) {
                     setUserProfile({ role: customRoleInput.value.trim() });
                 }
             } else {
                 customRoleInput.style.display = "none";
+                updateDropdownRankPreview(e.target.value);
                 setUserProfile({ role: e.target.value });
             }
         });
 
         customRoleInput.addEventListener("input", (e) => {
             if (roleSelect.value === "__custom__") {
-                setUserProfile({ role: e.target.value.trim() || "Custom Role" });
+                const val = e.target.value.trim();
+                updateDropdownRankPreview(val);
+                setUserProfile({ role: val || "Custom Ranking" });
             }
         });
 
@@ -953,16 +986,37 @@
         if (nameInput) nameInput.value = profile.name || "";
         if (urlInput) urlInput.value = profile.avatarUrl && !profile.avatarUrl.startsWith("data:") ? profile.avatarUrl : "";
 
-        const standardRoles = ["Administrator", "Logistics Planner", "Senior Dispatcher", "Warehouse Lead", "Operations Manager"];
+        const standardRoles = ["Master", "Grandmaster", "Epic", "Legend", "Mythic"];
+        const rankPreviewImg = menu.querySelector("#uprofileRankPreviewImg");
+
+        function updateDropdownRankPreview(rankVal) {
+            if (!rankPreviewImg) return;
+            const iconUrl = getRankIconUrl(rankVal);
+            if (iconUrl) {
+                rankPreviewImg.src = iconUrl;
+                rankPreviewImg.style.display = "inline-block";
+            } else {
+                rankPreviewImg.style.display = "none";
+            }
+        }
+
         if (standardRoles.includes(profile.role)) {
             if (roleSelect) roleSelect.value = profile.role;
             if (customRoleInput) customRoleInput.style.display = "none";
+            updateDropdownRankPreview(profile.role);
+        } else if (["Administrator", "Logistics Planner", "Senior Dispatcher", "Warehouse Lead", "Operations Manager"].includes(profile.role)) {
+            profile.role = "Mythic";
+            setUserProfile({ role: "Mythic" });
+            if (roleSelect) roleSelect.value = "Mythic";
+            if (customRoleInput) customRoleInput.style.display = "none";
+            updateDropdownRankPreview("Mythic");
         } else {
             if (roleSelect) roleSelect.value = "__custom__";
             if (customRoleInput) {
                 customRoleInput.style.display = "block";
                 customRoleInput.value = profile.role || "";
             }
+            updateDropdownRankPreview(profile.role);
         }
 
         positionUserDropdown(triggerBtn, menu);
@@ -1053,10 +1107,15 @@
         if (avatarContainer) {
             avatarContainer.innerHTML = createAvatarHtml(profile, "sm");
         }
+        const rankIconUrl = getRankIconUrl(profile.role);
+        const rankBadgeHtml = rankIconUrl ? `<img class="uprofile-rank-badge-img" src="${rankIconUrl}" alt="${profile.role}">` : '';
+
         const nameEl = document.getElementById("appUserNameLabel");
         if (nameEl) nameEl.textContent = profile.name;
         const roleEl = document.getElementById("appUserRoleLabel");
-        if (roleEl) roleEl.textContent = profile.role;
+        if (roleEl) {
+            roleEl.innerHTML = `${rankBadgeHtml}<span>${profile.role}</span>`;
+        }
         const triggerBtn = document.getElementById("appUserAvatarBtn");
         if (triggerBtn) triggerBtn.setAttribute("title", `User Profile (${profile.name} - ${profile.role})`);
 
@@ -1068,7 +1127,9 @@
         const heroName = document.getElementById("uprofileHeroName");
         if (heroName) heroName.textContent = profile.name;
         const heroRole = document.getElementById("uprofileHeroRole");
-        if (heroRole) heroRole.textContent = profile.role;
+        if (heroRole) {
+            heroRole.innerHTML = `${rankBadgeHtml}<span>${profile.role}</span>`;
+        }
 
         // 3. Update preset avatars active state
         const presetsGrid = document.getElementById("uprofilePresetsGrid");

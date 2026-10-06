@@ -7192,9 +7192,12 @@ body.light-mode .empty-description { color: #475569; }
     font-weight: 500;
     color: var(--fg-muted, #a1a1aa);
     white-space: nowrap;
-    max-width: 110px;
+    max-width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .app-user-avatar-btn .app-user-chevron {
@@ -7306,6 +7309,7 @@ body.light-mode #appUserDropdownMenu {
 .uprofile-role-pill {
     display: inline-flex;
     align-items: center;
+    gap: 4px;
     padding: 2px 7px;
     border-radius: 9999px;
     font-size: 10px;
@@ -7320,6 +7324,33 @@ body.light-mode .uprofile-role-pill {
     background: #eff6ff;
     color: #1d4ed8;
     border-color: #bfdbfe;
+}
+
+.uprofile-rank-badge-img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    flex-shrink: 0;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+.uprofile-rank-select-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.uprofile-rank-preview-img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.uprofile-rank-preview-img:hover {
+    transform: scale(1.1);
 }
 
 .uprofile-status-indicator {

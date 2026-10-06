@@ -314,8 +314,7 @@ do-insight-system-v5/
 ### 6. Shadcn Avatar & Dynamic User Profile System
 - **Universal Top Bar Avatar**: Integrated an active user profile widget next to the theme switcher in the global header across all 14 pages.
 - **Dynamic Profile & Role Switching**:
-  - Configurable display name with real-time update and persistence via `localStorage`.
-  - Role switcher with presets (*Administrator*, *Logistics Planner*, *Senior Dispatcher*, *Warehouse Lead*, *Operations Manager*) plus custom role input.
+  - Ranking switcher with presets (*Master*, *Grandmaster*, *Epic*, *Legend*, *Mythic*) featuring authentic Mobile Legends rank badge icons, dynamic preview, and custom ranking input.
   - Active online status badge with pulsing green glow (`.status-online`).
 - **Flexible Photo & Fallback Engine**:
   - Supports uploading local image files directly from the computer (auto-converted to base64 Data URLs).
