@@ -314,7 +314,7 @@ do-insight-system-v5/
 ### 6. Shadcn Avatar & Dynamic User Profile System
 - **Sidebar Profile Card Integration**: Integrated the active user profile widget directly into the sidebar menu header across all 14 pages with display name, Shadcn avatar, and live online status indicator (`.status-online`).
 - **Professional 3D Corporate Persona Presets & Fallback Engine**:
-  - Preset avatar selector with 5 modern 3D logistics personas (*Executive / Ops Lead*, *Warehouse Supervisor*, *Dispatch Coordinator*, *Logistics Analyst*, *Fleet Specialist*) stored locally for 100% offline and Zscaler-restricted compatibility.
+  - Preset avatar selector with 5 modern 3D logistics personas (*Executive / Ops Lead*, *Warehouse Supervisor*, *Dispatch Coordinator*, *Logistics Analyst*, *Fleet Specialist*) stored locally for 100% offline.
   - Supports uploading custom local image files directly from the computer (auto-converted to base64 Data URLs) or local URLs.
   - Graceful fallback initials (`AvatarFallback`) when no image is loaded (e.g., `AD` for Administrator).
   - Active online status badge with pulsing green glow (`.status-online`).
